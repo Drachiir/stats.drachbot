@@ -74,48 +74,48 @@
     <tr>
         <td><r>Games:</r></td>
     {% for mm in data %}
-        <td><r>{{data[mm]['Opener'][get_perf_list(data[mm], 'Opener')|first]['Count']}}</r></td>
+        <td><r>{{get_dict_value(data[mm]['Opener'], get_perf_list(data[mm], 'Opener')|first)['Count']}}</r></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Winrate:</r></td>
     {% for mm in data %}
-        {% set count = data[mm]['Opener'][get_perf_list(data[mm], 'Opener')|first]['Count'] %}
-        {% set wins = data[mm]['Opener'][get_perf_list(data[mm], 'Opener')|first]['Wins'] %}
+        {% set count = get_dict_value(data[mm]['Opener'], get_perf_list(data[mm], 'Opener')|first)['Count'] %}
+        {% set wins = get_dict_value(data[mm]['Opener'], get_perf_list(data[mm], 'Opener')|first)['Wins'] %}
         <td><r>{{custom_winrate([wins, count])}}%</r></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Playrate:</r></td>
     {% for mm in data %}
-        {% set count = data[mm]['Opener'][get_perf_list(data[mm], 'Opener')|first]['Count'] %}
+        {% set count = get_dict_value(data[mm]['Opener'], get_perf_list(data[mm], 'Opener')|first)['Count'] %}
         <td><r>{{custom_winrate([count, data[mm]['Count']])}}%</r></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Best<br>Spell:</r></td>
     {% for mm in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[mm], 'Spell')|first|replace(' ', '')}}.png"></td>
+        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[mm], 'Spell')|first|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Games:</r></td>
     {% for mm in data %}
-        <td><r>{{data[mm]['Spell'][get_perf_list(data[mm], 'Spell')|first]['Count']}}</r></td>
+        <td><r>{{get_dict_value(data[mm]['Spell'], get_perf_list(data[mm], 'Spell')|first)['Count']}}</r></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Winrate:</r></td>
     {% for mm in data %}
-        {% set count = data[mm]['Spell'][get_perf_list(data[mm], 'Spell')|first]['Count'] %}
-        {% set wins = data[mm]['Spell'][get_perf_list(data[mm], 'Spell')|first]['Wins'] %}
+        {% set count = get_dict_value(data[mm]['Spell'], get_perf_list(data[mm], 'Spell')|first)['Count'] %}
+        {% set wins = get_dict_value(data[mm]['Spell'], get_perf_list(data[mm], 'Spell')|first)['Wins'] %}
         <td><r>{{custom_winrate([wins, count])}}%</r></td>
     {% endfor %}
     </tr>
     <tr>
         <td><r>Playrate:</r></td>
     {% for mm in data %}
-        {% set count = data[mm]['Spell'][get_perf_list(data[mm], 'Spell')|first]['Count'] %}
+        {% set count = get_dict_value(data[mm]['Spell'], get_perf_list(data[mm], 'Spell')|first)['Count'] %}
         <td><r>{{custom_winrate([count, data[mm]['Count']])}}%</r></td>
     {% endfor %}
     </tr>

@@ -35,6 +35,12 @@ def get_perf_list(dict2, key):
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
 
+def get_dict_value(dict, value):
+    try:
+        return dict[value]
+    except Exception:
+        return {"Count": 0, "Wins": 0}
+
 if platform.system() == "Linux":
     shared_folder = "/shared2/"
 else:
@@ -67,7 +73,7 @@ def mmstats(elo, patch):
         return render_template("no_data.html")
     return render_template("mmstats.html", data=mmstats_data, elo_brackets=elos, custom_winrate=custom_winrate,
                            games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = custom_divide,
-                           human_format= human_format, get_perf_list=get_perf_list)
+                           human_format= human_format, get_perf_list=get_perf_list, get_dict_value=get_dict_value)
 
 if platform.system() == "Windows":
     app.run(debug=True)
