@@ -5,9 +5,9 @@ from flask import Flask, render_template, redirect
 
 app = Flask(__name__)
 
-def custom_urlencode_filter(value):
+def custom_winrate(value):
     try:
-        return round(value[0] / value[1] * 100)
+        return round(value[0] / value[1] * 100, 1)
     except Exception:
         return 0
 
@@ -24,6 +24,16 @@ def human_format(num):
         magnitude += 1
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
+
+def get_perf_list(dict2, key):
+    new_dict = {}
+    for xy in dict2[key]:
+        if xy == "none": continue
+        if dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] < dict2['Wins'] / dict2['Count']:
+            continue
+        new_dict[xy] = dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] * (dict2[key][xy]['Count'] / dict2['Count'])
+    newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
+    return newIndex
 
 if platform.system() == "Linux":
     shared_folder = "/shared2/"
@@ -55,8 +65,9 @@ def mmstats(elo, patch):
                 f.close()
     if not mmstats_data:
         return render_template("no_data.html")
-    return render_template("mmstats.html", data=mmstats_data, elo_brackets=elos, custom_urlencode_filter=custom_urlencode_filter,
-                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = custom_divide, human_format= human_format)
+    return render_template("mmstats.html", data=mmstats_data, elo_brackets=elos, custom_winrate=custom_winrate,
+                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = custom_divide,
+                           human_format= human_format, get_perf_list=get_perf_list)
 
 if platform.system() == "Windows":
     app.run(debug=True)
