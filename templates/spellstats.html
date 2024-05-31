@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding-top: 15px;">
+    <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/LegionSpell.png">
+    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Spell Stats</r>
+    <div style="float:right;">
+        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Elo
+        </button>
+        <ul class="dropdown-menu">
+            {% for i in elo_brackets %}
+            <li><a class="dropdown-item" href="/spellstats/{{patch}}/{{i}}">{{i}}+</a></li>
+            {% endfor %}
+        </ul>
+        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Patch
+        </button>
+        <ul class="dropdown-menu">
+            {% for p in patch_list %}
+            <li><a class="dropdown-item" href="/spellstats/{{p}}/{{elo}}">v{{p}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <br>
+    <r style="font-size: 1rem;" > <b>{{human_format(games)}}</b> Ranked Games | Avg Game Elo: <b>{{avg_elo}}</b> | v{{patch}}</r>
+</div>
+<table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns">
+    <thead>
+    <tr>
+        <th><r>Spell:</r></th>
+        {% for spell in data %}
+            <th><img src="https://cdn.legiontd2.com/icons/{{get_unit_name(spell)}}.png"></th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><r>Games:</r></td>
+    {% for spell in data %}
+        <td><r>{{human_format(data[spell]['Count'])}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Winrate:</r></td>
+    {% for spell in data %}
+        <td><r>{{custom_winrate([data[spell]['Wins'], data[spell]['Count']])}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Pickrate:</r></td>
+    {% for spell in data %}
+        <td><r>{{custom_winrate([data[spell]['Count'], games])}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>PlayerElo:</r></td>
+    {% for spell in data %}
+        <td><r>{{custom_divide([data[spell]['Elo'], data[spell]['Count']])|int}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>W on W10:</r></td>
+    {% for spell in data %}
+        <td><r>{{custom_divide([data[spell]['Worker'], data[spell]['Count']], 1)}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Best<br>Opener:</r></td>
+    {% for spell in data %}
+        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[spell], 'Opener')|first|replace(' ', '')}}.png"></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Games:</r></td>
+    {% for spell in data %}
+        <td><r>{{get_dict_value(data[spell]['Opener'], get_perf_list(data[spell], 'Opener')|first)['Count']}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Winrate:</r></td>
+    {% for spell in data %}
+        {% set count = get_dict_value(data[spell]['Opener'], get_perf_list(data[spell], 'Opener')|first)['Count'] %}
+        {% set wins = get_dict_value(data[spell]['Opener'], get_perf_list(data[spell], 'Opener')|first)['Wins'] %}
+        <td><r>{{custom_winrate([wins, count])}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Playrate:</r></td>
+    {% for spell in data %}
+        {% set count = get_dict_value(data[spell]['Opener'], get_perf_list(data[spell], 'Opener')|first)['Count'] %}
+        <td><r>{{custom_winrate([count, data[spell]['Count']])}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Best<br>MMs:</r></td>
+    {% for spell in data %}
+        <td><img src="https://cdn.legiontd2.com/icons/Items/{{get_perf_list(data[spell], 'MMs')|first|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Games:</r></td>
+    {% for spell in data %}
+        <td><r>{{get_dict_value(data[spell]['MMs'], get_perf_list(data[spell], 'MMs')|first)['Count']}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Winrate:</r></td>
+    {% for spell in data %}
+        {% set count = get_dict_value(data[spell]['MMs'], get_perf_list(data[spell], 'MMs')|first)['Count'] %}
+        {% set wins = get_dict_value(data[spell]['MMs'], get_perf_list(data[spell], 'MMs')|first)['Wins'] %}
+        <td><r>{{custom_winrate([wins, count])}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Playrate:</r></td>
+    {% for spell in data %}
+        {% set count = get_dict_value(data[spell]['MMs'], get_perf_list(data[spell], 'MMs')|first)['Count'] %}
+        <td><r>{{custom_winrate([count, data[spell]['Count']])}}%</r></td>
+    {% endfor %}
+    </tr>
+    </tbody>
+</table>
+{% endblock %}

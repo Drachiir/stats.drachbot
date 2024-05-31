@@ -40,6 +40,12 @@ def get_unit_name(name):
     new_string = ""
     for string in name.split(" "):
         new_string += string.capitalize()
+    if new_string == "PackRat(footprints)":
+        new_string = "PackRat(Footprints)"
+    if new_string == "Aps":
+        new_string = "APS"
+    if new_string == "Mps":
+        new_string = "MPS"
     return new_string
 
 def get_unit_name_list(name):
@@ -50,4 +56,10 @@ def get_unit_name_list(name):
     new_string = ""
     for string in name.split(" "):
         new_string += string.capitalize()
+    if new_string == "PackRat(footprints)":
+        new_string = "PackRat(Footprints)"
+    if new_string == "Aps":
+        new_string = "APS"
+    if new_string == "Mps":
+        new_string = "MPS"
     return new_string

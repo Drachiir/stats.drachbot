@@ -66,6 +66,58 @@ def openstats(elo, patch):
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                            get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list)
 
+@app.route('/unitstats/', defaults={"elo": 2200, "patch": "11.04"})
+@app.route('/unitstats/<patch>/<elo>')
+def unitstats(elo, patch):
+    unitstats_data = None
+    for file in os.listdir(shared_folder+f"data/unitstats/"):
+        if file.startswith(f"{patch}_{elo}"):
+            games = file.split("_")[2]
+            if games == "o":
+                return render_template("no_data.html")
+            else:
+                games = int(games)
+            avg_elo = file.split("_")[3].replace(".json", "")
+            with open(shared_folder+f"data/unitstats/"+file, "r") as f:
+                unitstats_data = json.load(f)
+                f.close()
+    if not unitstats_data:
+        return render_template("no_data.html")
+    new_dict = {}
+    for key in unitstats_data:
+        if unitstats_data[key]["Count"] != 0:
+            new_dict[key] = unitstats_data[key]
+    return render_template("unitstats.html", data=new_dict, elo_brackets=elos, custom_winrate=util.custom_winrate,
+                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
+                           human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
+                           get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list)
+
+@app.route('/spellstats/', defaults={"elo": 2200, "patch": "11.04"})
+@app.route('/spellstats/<patch>/<elo>')
+def spellstats(elo, patch):
+    spellstats_data = None
+    for file in os.listdir(shared_folder+f"data/spellstats/"):
+        if file.startswith(f"{patch}_{elo}"):
+            games = file.split("_")[2]
+            if games == "o":
+                return render_template("no_data.html")
+            else:
+                games = int(games)
+            avg_elo = file.split("_")[3].replace(".json", "")
+            with open(shared_folder+f"data/spellstats/"+file, "r") as f:
+                spellstats_data = json.load(f)
+                f.close()
+    if not spellstats_data:
+        return render_template("no_data.html")
+    new_dict = {}
+    for key in spellstats_data:
+        if spellstats_data[key]["Count"] != 0:
+            new_dict[key] = spellstats_data[key]
+    return render_template("spellstats.html", data=new_dict, elo_brackets=elos, custom_winrate=util.custom_winrate,
+                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
+                           human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
+                           get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list)
+
 if platform.system() == "Windows":
     app.run(debug=True)
 else:
