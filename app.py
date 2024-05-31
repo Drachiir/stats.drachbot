@@ -1,7 +1,7 @@
 import os
 import platform
 import json
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect
 
 app = Flask(__name__)
 
@@ -33,6 +33,10 @@ else:
 elos = [1800, 2000, 2200, 2400, 2600, 2800]
 elos.reverse()
 patches = ["11.04", "11.03", "11.02", "11.01", "11.00"]
+
+@app.route("/")
+def landing():
+    return redirect("/mmstats")
 
 @app.route('/mmstats/', defaults={"elo": 2200, "patch": "11.04"})
 @app.route('/mmstats/<patch>/<elo>')
