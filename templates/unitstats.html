@@ -54,7 +54,7 @@
     {% endfor %}
     </tr>
     <tr>
-        <td><r>Player Elo:</r></td>
+        <td><r style="white-space: nowrap;">Player Elo:</r></td>
     {% for unit in data %}
         <td><r>{{custom_divide([data[unit]['Elo'], data[unit]['Count']])|int}}</r></td>
     {% endfor %}

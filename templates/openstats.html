@@ -54,19 +54,19 @@
     {% endfor %}
     </tr>
     <tr>
-        <td><r>Player Elo:</r></td>
+        <td><r style="white-space: nowrap;">Player Elo:</r></td>
     {% for opener in data %}
         <td><r>{{custom_divide([data[opener]['Elo'], data[opener]['Count']])|int}}</r></td>
     {% endfor %}
     </tr>
     <tr>
-        <td><r>W on W4:</r></td>
+        <td><r style="white-space: nowrap;">W on W4:</r></td>
     {% for opener in data %}
         <td><r>{{custom_divide([data[opener]['Worker'], data[opener]['Count']], 1)}}</r></td>
     {% endfor %}
     </tr>
     <tr>
-        <td><r>Best<br>Add:</r></td>
+        <td><r>Best Add:</r></td>
     {% for opener in data %}
         <td><img src="https://cdn.legiontd2.com/icons/{{get_unit_name_list(get_perf_list(data[opener], 'OpenWith'))|replace('PackRatNest', 'PackRat(Footprints)')}}.png"></td>
     {% endfor %}

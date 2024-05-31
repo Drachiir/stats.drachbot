@@ -54,7 +54,7 @@
     {% endfor %}
     </tr>
     <tr>
-        <td><r>PlayerElo:</r></td>
+        <td><r style="white-space: nowrap;">Player Elo:</r></td>
     {% for spell in data %}
         <td><r>{{custom_divide([data[spell]['Elo'], data[spell]['Count']])|int}}</r></td>
     {% endfor %}
