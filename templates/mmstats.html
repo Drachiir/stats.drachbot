@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<nav class="navbar navbar-expand-sm navbar-light">
+    <img src="https://cdn.legiontd2.com/icons/Mastermind.png">
+    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Mastermind Stats</r>
+    <br>
+    <r style="font-size: 1vw;" > <b>{{human_format(games)}}</b> Ranked Games | Avg Game Elo: <b>{{avg_elo}}</b> | v{{patch}}</r>
+    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavId">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <r style="color: white; font-size: 2rem;" class="nav-link dropdown-toggle" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">Elo</r>
+                <div class="dropdown-menu" aria-labelledby="dropdownId">
+                    {% for i in elo_brackets %}
+                    <a class="dropdown-item" href="/mmstats/{{patch}}/{{i}}">{{i}}+</a>
+                    {% endfor %}
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="collapse navbar-collapse justify-content-end" id="collapsibleNavId2">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <r style="color: white; font-size: 2rem;" class="nav-link dropdown-toggle" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">Patch</r>
+                <div class="dropdown-menu" aria-labelledby="dropdownId">
+                    {% for p in patch_list %}
+                    <a class="dropdown-item" href="/mmstats/{{p}}/{{elo}}">v{{p}}</a>
+                    {% endfor %}
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+<table class="table table-striped-columns">
+    <thead>
+    <tr>
+        <th><r>MM:</r></th>
+        {% for mm in data %}
+            <th><img src="https://cdn.legiontd2.com/icons/Items/{{mm}}.png"></th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><r>Games:</r></td>
+    {% for mm in data %}
+        <td><r>{{human_format(data[mm]['Count'])}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Winrate:</r></td>
+    {% for mm in data %}
+        <td><r>{{custom_urlencode_filter([data[mm]['Wins'], data[mm]['Count']])|round|int}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Pickrate:</r></td>
+    {% for mm in data %}
+        <td><r>{{custom_urlencode_filter([data[mm]['Count'], games])|round|int}}%</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Player Elo:</r></td>
+    {% for mm in data %}
+        <td><r>{{custom_divide([data[mm]['Elo'], data[mm]['Count']])|int}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>W on W10:</r></td>
+    {% for mm in data %}
+        <td><r>{{custom_divide([data[mm]['Worker'], data[mm]['Count']], 1)}}</r></td>
+    {% endfor %}
+    </tr>
+    <tr>
+        <td><r>Best<br>Opener:</r></td>
+    {% for mm in data %}
+        <td><img src="https://cdn.legiontd2.com/icons/{{data[mm]['Opener'].keys()|first|replace(' ', '')}}.png"></td>
+    {% endfor %}
+    </tr>
+
+    </tbody>
+</table>
+{% endblock %}
