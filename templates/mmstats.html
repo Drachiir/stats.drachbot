@@ -24,8 +24,7 @@
     </div>
     <br>
     <r style="font-size: 1rem;" > <b>{{human_format(games)}}</b> Ranked Games | Avg Game Elo: <b>{{avg_elo}}</b> | <b>v{{patch}}</b></r>
-</div>
-<table class="table table-striped-columns">
+<table style= "display: inline-table; overflow: auto;" class="table table-striped-columns">
     <thead>
     <tr>
         <th><r>MM:</r></th>
@@ -121,4 +120,5 @@
     </tr>
     </tbody>
 </table>
+</div>
 {% endblock %}
