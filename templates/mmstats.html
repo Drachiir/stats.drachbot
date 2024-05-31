@@ -50,7 +50,7 @@
     <tr>
         <td><r>Pickrate:</r></td>
     {% for mm in data %}
-        <td><r>{{custom_winrate([data[mm]['Count'], games])|round|int}}%</r></td>
+        <td><r>{{custom_winrate([data[mm]['Count'], games])|round}}%</r></td>
     {% endfor %}
     </tr>
     <tr>
