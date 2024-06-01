@@ -5,7 +5,7 @@
     <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/Items/{{specific_mm}}.png">
     <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{specific_mm}} Stats</r>
     <div style="float:right;">
-        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Elo
         </button>
         <ul class="dropdown-menu">
@@ -19,14 +19,6 @@
         <ul class="dropdown-menu">
             {% for p in patch_list %}
             <li><a class="dropdown-item" href="/mmstats/{{p}}/{{elo}}/{{specific_mm}}">v{{p}}</a></li>
-            {% endfor %}
-        </ul>
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Mastermind
-        </button>
-        <ul class="dropdown-menu">
-            {% for m in mm_list %}
-            <li><a class="dropdown-item" href="/mmstats/{{patch}}/{{elo}}/{{m}}">{{m}}</a></li>
             {% endfor %}
         </ul>
     </div>
