@@ -2,15 +2,15 @@
 
 {% block content %}
 <div style="padding-top: 15px;">
-    <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/Mastermind.png">
-    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Mastermind Stats</r>
+    <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
+    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Megamind Stats</r>
     <div style="float:right;">
         <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Elo
         </button>
         <ul class="dropdown-menu">
             {% for i in elo_brackets %}
-            <li><a class="dropdown-item" href="/mmstats/{{patch}}/{{i}}">{{i}}+</a></li>
+            <li><a class="dropdown-item" href="/mmstats/{{patch}}/{{i}}/Megamind">{{i}}+</a></li>
             {% endfor %}
         </ul>
         <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -18,7 +18,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for p in patch_list %}
-            <li><a class="dropdown-item" href="/mmstats/{{p}}/{{elo}}">v{{p}}</a></li>
+            <li><a class="dropdown-item" href="/mmstats/{{p}}/{{elo}}/Megamind">v{{p}}</a></li>
             {% endfor %}
         </ul>
     </div>
@@ -67,8 +67,8 @@
     <tr>
         <td><r>Best<br>Opener:</r></td>
     {% for mm in data %}
-        {% set opener = get_perf_list(data[mm], 'Opener')|first %}
-        <th><a href="/openstats/{{patch}}/{{elo}}/{{opener|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{opener|replace(' ', '')}}.png"></a></th>
+        {% set opener = get_perf_list(data[mm], 'Opener')|first%}
+        <td><a href="/openstats/{{patch}}/{{elo}}/{{opener|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{opener|replace(' ', '')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
@@ -95,8 +95,8 @@
     <tr>
         <td><r>Best<br>Spell:</r></td>
     {% for mm in data %}
-        {% set spell = get_perf_list(data[mm], 'Spell')|first|replace('PresstheAttack', 'PressTheAttack')%}
-        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')}}.png"></a></td>
+        {% set spell = get_perf_list(data[mm], 'Spell')|first%}
+        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>

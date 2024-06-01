@@ -5,7 +5,7 @@
     <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/LegionSpell.png">
     <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Spell Stats</r>
     <div style="float:right;">
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Elo
         </button>
         <ul class="dropdown-menu">
@@ -13,7 +13,7 @@
             <li><a class="dropdown-item" href="/spellstats/{{patch}}/{{i}}">{{i}}+</a></li>
             {% endfor %}
         </ul>
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Patch
         </button>
         <ul class="dropdown-menu">
@@ -30,7 +30,7 @@
     <tr>
         <th><r>Spell:</r></th>
         {% for spell in data %}
-            <th><img src="https://cdn.legiontd2.com/icons/{{get_unit_name(spell)}}.png"></th>
+            <th><a href="/spellstats/{{patch}}/{{elo}}/{{spell}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(spell)}}.png"></a></th>
         {% endfor %}
     </tr>
     </thead>
@@ -68,7 +68,8 @@
     <tr>
         <td><r>Best<br>Opener:</r></td>
     {% for spell in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[spell], 'Opener')|first|replace(' ', '')}}.png"></td>
+        {% set opener = get_perf_list(data[spell], 'Opener')|first %}
+        <th><a href="/openstats/{{patch}}/{{elo}}/{{opener|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{opener|replace(' ', '')}}.png"></a></th>
     {% endfor %}
     </tr>
     <tr>
@@ -95,7 +96,8 @@
     <tr>
         <td><r>Best<br>MMs:</r></td>
     {% for spell in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/Items/{{get_perf_list(data[spell], 'MMs')|first|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></td>
+        {% set mm = get_perf_list(data[spell], 'MMs')|first|replace(' ', '') %}
+        <td><a href="/mmstats/{{patch}}/{{elo}}/{{mm}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/Items/{{mm}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>

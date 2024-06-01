@@ -5,7 +5,7 @@
     <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
     <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Opener Stats</r>
     <div style="float:right;">
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Elo
         </button>
         <ul class="dropdown-menu">
@@ -13,10 +13,10 @@
             <li><a class="dropdown-item" href="/openstats/{{patch}}/{{i}}">{{i}}+</a></li>
             {% endfor %}
         </ul>
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Patch
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu scrollable-menu" role="menu">
             {% for p in patch_list %}
             <li><a class="dropdown-item" href="/openstats/{{p}}/{{elo}}">v{{p}}</a></li>
             {% endfor %}
@@ -30,7 +30,7 @@
     <tr>
         <th><r>Opener:</r></th>
         {% for opener in data %}
-            <th><img src="https://cdn.legiontd2.com/icons/{{get_unit_name(opener)}}.png"></th>
+            <th><a href="/openstats/{{patch}}/{{elo}}/{{opener}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(opener)}}.png"></a></th>
         {% endfor %}
     </tr>
     </thead>
@@ -68,7 +68,8 @@
     <tr>
         <td><r>Best Add:</r></td>
     {% for opener in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_unit_name_list(get_perf_list(data[opener], 'OpenWith'))|replace('PackRatNest', 'PackRat(Footprints)')}}.png"></td>
+        {% set add = get_perf_list(data[opener], 'OpenWith')|first|replace('PackRatNest', 'PackRat(Footprints)') %}
+        <td><a href="/unitstats/{{patch}}/{{elo}}/{{add}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(add)}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
@@ -95,7 +96,8 @@
     <tr>
         <td><r>Best<br>MMs:</r></td>
     {% for opener in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/Items/{{get_perf_list(data[opener], 'MMs')|first|replace(' ', '')}}.png"></td>
+        {% set mm = get_perf_list(data[opener], 'MMs')|first|replace(' ', '') %}
+        <td><a href="/mmstats/{{patch}}/{{elo}}/{{mm}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/Items/{{mm}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
@@ -122,7 +124,8 @@
     <tr>
         <td><r>Best<br>Spells:</r></td>
     {% for opener in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[opener], 'Spells')|first|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></td>
+        {% set spell = get_perf_list(data[opener], 'Spells')|first|replace('PresstheAttack', 'PressTheAttack') %}
+        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>

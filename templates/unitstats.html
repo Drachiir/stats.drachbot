@@ -5,7 +5,7 @@
     <img style="float:left; padding-right: 20px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">
     <r style="font-size: 1.5rem;" class="navbar-brand" href="#">Unit Stats</r>
     <div style="float:right;">
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Elo
         </button>
         <ul class="dropdown-menu">
@@ -13,7 +13,7 @@
             <li><a class="dropdown-item" href="/unitstats/{{patch}}/{{i}}">{{i}}+</a></li>
             {% endfor %}
         </ul>
-        <button class="btn btn-dark btn-lg btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
         Patch
         </button>
         <ul class="dropdown-menu">
@@ -30,7 +30,7 @@
     <tr>
         <th><r>Unit:</r></th>
         {% for unit in data %}
-            <th><img src="https://cdn.legiontd2.com/icons/{{get_unit_name(unit)}}.png"></th>
+            <th><a href="/unitstats/{{patch}}/{{elo}}/{{unit}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(unit)}}.png"></a></th>
         {% endfor %}
     </tr>
     </thead>
@@ -62,7 +62,8 @@
     <tr>
         <td><r>Best<br>Combo:</r></td>
     {% for unit in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_unit_name_list(get_perf_list(data[unit], 'ComboUnit'))|replace('PackRatNest', 'PackRat(Footprints)')}}.png"></td>
+        {% set combo = get_perf_list(data[unit], 'ComboUnit')|first|replace('PackRatNest', 'PackRat(Footprints)') %}
+        <td><a href="/unitstats/{{patch}}/{{elo}}/{{combo}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(combo)}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
@@ -89,7 +90,8 @@
     <tr>
         <td><r>Best<br>MMs:</r></td>
     {% for unit in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/Items/{{get_perf_list(data[unit], 'MMs')|first|replace(' ', '')}}.png"></td>
+        {% set mm = get_perf_list(data[unit], 'MMs')|first|replace(' ', '') %}
+        <td><a href="/mmstats/{{patch}}/{{elo}}/{{mm}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/Items/{{mm}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
@@ -116,7 +118,8 @@
     <tr>
         <td><r>Best<br>Spells:</r></td>
     {% for unit in data %}
-        <td><img src="https://cdn.legiontd2.com/icons/{{get_perf_list(data[unit], 'Spells')|first|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></td>
+        {% set spell = get_perf_list(data[unit], 'Spells')|first|replace('PresstheAttack', 'PressTheAttack') %}
+        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>

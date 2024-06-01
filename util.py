@@ -34,12 +34,19 @@ def get_dict_value(dict, value):
     except Exception:
         return {"Count": 0, "Wins": 0}
 
+def sort_dict(dict, key):
+    newIndex = sorted(dict, key=lambda x: dict[x][key], reverse=True)
+    return {k: dict[k] for k in newIndex}
+
+
 def get_unit_name(name):
     if not name:
         return ""
     new_string = ""
     for string in name.split(" "):
         new_string += string.capitalize()
+    if new_string == "HellRaiserBuffed":
+        new_string = "HellRaiser"
     if new_string == "PackRat(footprints)":
         new_string = "PackRat(Footprints)"
     if new_string == "PackRatNest":
@@ -58,6 +65,8 @@ def get_unit_name_list(name):
     new_string = ""
     for string in name.split(" "):
         new_string += string.capitalize()
+    if new_string == "HellRaiserBuffed":
+        new_string = "HellRaiser"
     if new_string == "PackRat(footprints)":
         new_string = "PackRat(Footprints)"
     if new_string == "PackRatNest":
