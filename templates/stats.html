@@ -42,7 +42,7 @@
     {# HEADER 1 KEYS #}
     {% for k in header_keys %}
         <tr>
-            <td><r>{{k}}:</r></td>
+            <td><r style="white-space:nowrap;">{{k}}:</r></td>
         {% for key in data %}
             <td><r>{{get_key_value(data, key, k, games)}}</r></td>
         {% endfor %}
@@ -51,7 +51,7 @@
     {# SUB HEADERS #}
     {% for sub in sub_headers %}
         <tr>
-            <td><r>{{sub[0]}}:</r></td>
+            <td><r style="white-space:nowrap;">{{sub[0]}}:</r></td>
         {% for key in data %}
             {% set sub_value = get_key_value(data, key, sub[0], games) %}
             <th><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value|lower}}"><img style="border: 1px solid #999;" src="{{get_cdn_image(sub_value, sub[0])}}"></a></th>
