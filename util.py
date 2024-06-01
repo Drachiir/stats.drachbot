@@ -76,3 +76,51 @@ def get_unit_name_list(name):
     if new_string == "Mps":
         new_string = "MPS"
     return new_string
+
+def get_cdn_image(string, header):
+    match header:
+        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos":
+            return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
+        case "MM" | "MMs" | "Best MMs":
+            return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
+        case "Spell" | "Spells" | "Best Spells" | "Best Spell":
+            return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
+    
+def get_key_value(data, key, k, games):
+    match k:
+        case "Games":
+            try:
+                return human_format(data[key]['Count'])
+            except Exception:
+                return 0
+        case "Winrate":
+            try:
+                return f"{custom_winrate([data[key]['Wins'], data[key]['Count']])}%"
+            except Exception:
+                return 0
+        case "Pickrate" | "Playrate":
+            try:
+                return f"{custom_winrate([data[key]['Count'], games])}%"
+            except Exception:
+                return 0
+        case "Player Elo":
+            return int(custom_divide([data[key]['Elo'], data[key]['Count']]))
+        case "W on 10":
+            return custom_divide([data[key]['Worker'], data[key]['Count']], 1)
+        case "W on 4":
+            return custom_divide([data[key]['Worker'], data[key]['Count']], 1)
+        case "Best Opener":
+            return get_perf_list(data[key], 'Opener')[0]
+        case "Best Spell":
+            try:
+                return get_perf_list(data[key], 'Spells')[0]
+            except KeyError:
+                return get_perf_list(data[key], 'Spell')[0]
+            except IndexError:
+                return None
+        case "Best Add":
+            return get_perf_list(data[key], 'OpenWith')[0]
+        case "Best Combo":
+            return get_perf_list(data[key], 'ComboUnit')[0]
+        case "Best MMs":
+            return get_perf_list(data[key], 'MMs')[0]

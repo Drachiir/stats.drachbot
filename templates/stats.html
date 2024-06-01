@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding-top: 15px;">
+    <img style="float:left; padding-right: 20px;" src={{title_image}}>
+    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{title}} stats</r>
+    <div style="float:right;">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Elo
+        </button>
+        <ul class="dropdown-menu">
+            {% for i in elo_brackets %}
+                {% if title == 'Megamind' %}
+                    <li><a class="dropdown-item" href="/{{stats}}/{{patch}}/{{i}}/Megamind">{{i}}+</a></li>
+                {% else %}
+                    <li><a class="dropdown-item" href="/{{stats}}/{{patch}}/{{i}}">{{i}}+</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Patch
+        </button>
+        <ul class="dropdown-menu">
+            {% for p in patch_list %}
+            <li><a class="dropdown-item" href="/{{stats}}/{{p}}/{{elo}}">v{{p}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    <br>
+    <r style="font-size: 1rem;" > <b>{{human_format(games)}}</b> Ranked Games | Avg Game Elo: <b>{{avg_elo}}</b> | <b>v{{patch}}</b></r>
+<table style= "margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns">
+    {# HEADER 1 #}
+    <thead>
+    <tr>
+        <th style="width: 7%;"><r>{{header_title}}:</r></th>
+        {% for key in data %}
+            <th style="width: 7%;"><a href="/{{stats}}/{{patch}}/{{elo}}/{{key}}"><img style="border: 1px solid #999;" src="{{get_cdn_image(key, header_title)}}"></a></th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+    {# HEADER 1 KEYS #}
+    {% for k in header_keys %}
+        <tr>
+            <td><r>{{k}}:</r></td>
+        {% for key in data %}
+            <td><r>{{get_key_value(data, key, k, games)}}</r></td>
+        {% endfor %}
+        </tr>
+    {% endfor %}
+    {# SUB HEADERS #}
+    {% for sub in sub_headers %}
+        <tr>
+            <td><r>{{sub[0]}}:</r></td>
+        {% for key in data %}
+            {% set sub_value = get_key_value(data, key, sub[0], games) %}
+            <th><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value|lower}}"><img style="border: 1px solid #999;" src="{{get_cdn_image(sub_value, sub[0])}}"></a></th>
+        {% endfor %}
+        {# SUB HEADER KEYS #}
+        {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
+            <tr>
+                <td><r>{{sub_key}}:</r></td>
+            {% for key in data %}
+                {% set sub_value = get_key_value(data, key, sub[0], games) %}
+                <td><r>{{get_key_value(data[key][sub[1]], sub_value, sub_key, games)}}</r></td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

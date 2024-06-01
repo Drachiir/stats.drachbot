@@ -22,15 +22,66 @@ buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch"
 def landing():
     return redirect("/mmstats")
 
-@app.route('/mmstats/', defaults={"elo": defaults[1], "patch": defaults[0], "mm": "All"})
-@app.route('/mmstats/<patch>/<elo>/', defaults={"mm": "All"})
-@app.route('/mmstats/<patch>/<elo>/<mm>')
-def mmstats(elo, patch, mm):
-    mmstats_data = None
-    if mm == "Megamind":
-        folder = "megamindstats"
-    else:
-        folder = "mmstats"
+@app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
+@app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
+@app.route('/<stats>/<patch>/<elo>/<specific_key>')
+def stats(stats, elo, patch, specific_key):
+    raw_data = None
+    match stats:
+        case "mmstats":
+            title = "Mastermind"
+            title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
+            header_title = "MM"
+            header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+            if specific_key == "All" or specific_key == "Megamind":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+            if specific_key == "Megamind":
+                title = "Megamind"
+                folder = "megamindstats"
+            else:
+                folder = "mmstats"
+            if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
+                return render_template("no_data.html")
+        case "openstats":
+            title = "Opener"
+            title_image = "https://cdn.legiontd2.com/icons/Mastery/5.png"
+            header_title = "Opener"
+            header_cdn = "https://cdn.legiontd2.com/icons/"
+            if specific_key == "All":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
+                sub_headers = [["Best Add", "OpenWith", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
+            folder = "openstats"
+        case "spellstats":
+            title = "Spell"
+            title_image = "https://cdn.legiontd2.com/icons/LegionSpell.png"
+            header_title = "Spell"
+            header_cdn = "https://cdn.legiontd2.com/icons/"
+            if specific_key == "All":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
+            folder = "spellstats"
+        case "unitstats":
+            title = "Unit"
+            title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
+            header_title = "Unit"
+            header_cdn = "https://cdn.legiontd2.com/icons/"
+            if specific_key == "All":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
+                sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
+            folder = "unitstats"
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):
             games = file.split("_")[2]
@@ -40,123 +91,25 @@ def mmstats(elo, patch, mm):
                 games = int(games)
             avg_elo = file.split("_")[3].replace(".json", "")
             with open(shared_folder+f"data/{folder}/"+file, "r") as f:
-                mmstats_data = json.load(f)
+                raw_data = json.load(f)
                 f.close()
-    if not mmstats_data:
-        return render_template("no_data.html")
-    if mm != "All" and mm != "Megamind" and mm not in mm_list:
-        return render_template("no_data.html")
-    if mm == "All":
-        html_file = "mmstats.html"
-    elif mm != "Megamind":
-        html_file = "mmstats_specific.html"
-    else:
-        html_file = "megamindstats.html"
-    return render_template(html_file, data=mmstats_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
-                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
-                           human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
-                           specific_mm=mm, mm_list = mm_list, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict)
-
-@app.route('/openstats/', defaults={"elo": defaults[1], "patch": defaults[0], "opener": "All"})
-@app.route('/openstats/<patch>/<elo>/', defaults={"opener": "All"})
-@app.route('/openstats/<patch>/<elo>/<opener>')
-def openstats(elo, patch, opener):
-    openstats_data = None
-    for file in os.listdir(shared_folder+f"data/openstats/"):
-        if file.startswith(f"{patch}_{elo}"):
-            games = file.split("_")[2]
-            if games == "o":
-                return render_template("no_data.html")
-            else:
-                games = int(games)
-            avg_elo = file.split("_")[3].replace(".json", "")
-            with open(shared_folder+f"data/openstats/"+file, "r") as f:
-                openstats_data = json.load(f)
-                f.close()
-    if not openstats_data:
-        return render_template("no_data.html")
     new_dict = {}
-    for key in openstats_data:
-        if openstats_data[key]["Count"] != 0:
-            new_dict[key] = openstats_data[key]
-    if opener != "All" and opener not in new_dict:
+    for key in raw_data:
+        if raw_data[key]["Count"] != 0:
+            new_dict[key] = raw_data[key]
+    raw_data = new_dict
+    if not raw_data or (stats != "mmstats" and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html")
-    if opener == "All":
-        html_file = "openstats.html"
+    if specific_key == "All" or (specific_key == "Megamind" and stats == "mmstats"):
+        html_file = "stats.html"
     else:
-        html_file = "openstats_specific.html"
-    return render_template(html_file, data=new_dict, elo_brackets=elos, custom_winrate=util.custom_winrate,
+        html_file = "stats_specific.html"
+    return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
                            games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
-                           get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list, specific_open=opener, unit_list = new_dict.keys(),
-                           sort_dict=util.sort_dict)
-
-@app.route('/unitstats/', defaults={"elo": defaults[1], "patch": defaults[0], "unit": "All"})
-@app.route('/unitstats/<patch>/<elo>/', defaults={"unit": "All"})
-@app.route('/unitstats/<patch>/<elo>/<unit>')
-def unitstats(elo, patch, unit):
-    unitstats_data = None
-    for file in os.listdir(shared_folder+f"data/unitstats/"):
-        if file.startswith(f"{patch}_{elo}"):
-            games = file.split("_")[2]
-            if games == "o":
-                return render_template("no_data.html")
-            else:
-                games = int(games)
-            avg_elo = file.split("_")[3].replace(".json", "")
-            with open(shared_folder+f"data/unitstats/"+file, "r") as f:
-                unitstats_data = json.load(f)
-                f.close()
-    if not unitstats_data:
-        return render_template("no_data.html")
-    new_dict = {}
-    for key in unitstats_data:
-        if unitstats_data[key]["Count"] != 0:
-            new_dict[key] = unitstats_data[key]
-    if unit != "All" and unit not in new_dict:
-        return render_template("no_data.html")
-    if unit == "All":
-        html_file = "unitstats.html"
-    else:
-        html_file = "unitstats_specific.html"
-    return render_template(html_file, data=new_dict, elo_brackets=elos, custom_winrate=util.custom_winrate,
-                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
-                           human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
-                           get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list, specific_unit = unit, sort_dict=util.sort_dict)
-
-@app.route('/spellstats/', defaults={"elo": defaults[1], "patch": defaults[0], "spell": "All"})
-@app.route('/spellstats/<patch>/<elo>/', defaults={"spell": "All"})
-@app.route('/spellstats/<patch>/<elo>/<spell>')
-def spellstats(elo, patch, spell):
-    spellstats_data = None
-    for file in os.listdir(shared_folder+f"data/spellstats/"):
-        if file.startswith(f"{patch}_{elo}"):
-            games = file.split("_")[2]
-            if games == "o":
-                return render_template("no_data.html")
-            else:
-                games = int(games)
-            avg_elo = file.split("_")[3].replace(".json", "")
-            with open(shared_folder+f"data/spellstats/"+file, "r") as f:
-                spellstats_data = json.load(f)
-                f.close()
-    if not spellstats_data:
-        return render_template("no_data.html")
-    new_dict = {}
-    for key in spellstats_data:
-        if spellstats_data[key]["Count"] != 0:
-            new_dict[key] = spellstats_data[key]
-    if spell != "All" and spell not in new_dict:
-        return render_template("no_data.html")
-    if spell == "All":
-        html_file = "spellstats.html"
-    else:
-        html_file = "spellstats_specific.html"
-    return render_template(html_file, data=new_dict, elo_brackets=elos, custom_winrate=util.custom_winrate,
-                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
-                           human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
-                           get_unit_name=util.get_unit_name, get_unit_name_list=util.get_unit_name_list, specific_spell = spell, sort_dict=util.sort_dict,
-                           buff_spells = buff_spells)
+                           specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,
+                           stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
+                           sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list)
 
 if platform.system() == "Windows":
     app.run(debug=True)
