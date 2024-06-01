@@ -124,8 +124,8 @@
     <tr>
         <td><r>Best<br>Spells:</r></td>
     {% for opener in data %}
-        {% set spell = get_perf_list(data[opener], 'Spells')|first|replace('PresstheAttack', 'PressTheAttack') %}
-        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')}}.png"></a></td>
+        {% set spell = get_perf_list(data[opener], 'Spells')|first %}
+        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>

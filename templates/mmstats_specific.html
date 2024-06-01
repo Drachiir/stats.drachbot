@@ -59,7 +59,7 @@
     <tr>
         <td><r>Spells:</r></td>
     {% for spell in spell_dict %}
-        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{get_unit_name(spell)|replace('PresstheAttack', 'PressTheAttack')|replace('None', 'Granddaddy')}}.png"></a></td>
+        <td><a href="/spellstats/{{patch}}/{{elo}}/{{spell|lower}}"><img style="border: 1px solid #999;" src="https://cdn.legiontd2.com/icons/{{spell|replace(' ', '')|replace('PresstheAttack', 'PressTheAttack')|replace('none', 'Granddaddy')}}.png"></a></td>
     {% endfor %}
     </tr>
     <tr>
