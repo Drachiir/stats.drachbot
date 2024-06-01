@@ -67,8 +67,12 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
-                sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
+                if specific_key in buff_spells:
+                    header_keys = ["Games", "Winrate", "Playrate"]
+                    sub_headers = [["Targets", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
+                else:
+                    header_keys = ["Games", "Winrate", "Playrate"]
+                    sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
             folder = "spellstats"
         case "unitstats":
             title = "Unit"

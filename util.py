@@ -79,7 +79,7 @@ def get_unit_name_list(name):
 
 def get_cdn_image(string, header):
     match header:
-        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos":
+        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos" | "Targets":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
