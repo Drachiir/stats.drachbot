@@ -10,7 +10,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for i in elo_brackets %}
-            <li><a class="dropdown-item" href="/openstats/{{patch}}/{{i}}/{{specific_unit}}">{{i}}+</a></li>
+            <li><a class="dropdown-item" href="/unitstats/{{patch}}/{{i}}/{{specific_unit}}">{{i}}+</a></li>
             {% endfor %}
         </ul>
         <button class="btn btn-dark btn-text-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -18,7 +18,7 @@
         </button>
         <ul class="dropdown-menu">
             {% for p in patch_list %}
-            <li><a class="dropdown-item" href="/openstats/{{p}}/{{elo}}/{{specific_unit}}">v{{p}}</a></li>
+            <li><a class="dropdown-item" href="/unitstats/{{p}}/{{elo}}/{{specific_unit}}">v{{p}}</a></li>
             {% endfor %}
         </ul>
     </div>
