@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from flask import Flask, render_template, redirect
 import util
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='static', static_url_path='')
 
 if platform.system() == "Linux":
     shared_folder = "/shared2/"
