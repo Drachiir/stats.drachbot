@@ -8,31 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-    <title>LTD2 Stats</title>
+    <title>Drachbot Stats</title>
     <title>{% block title %} {% endblock %}</title>
   </head>
-  <style>
-    .scrollable-menu {
-    height: auto;
-    max-height: 200px;
-    overflow-x: hidden;
-    }
-    table tr td, table tr th{
-    background-color: rgba(10,10,10, 0.8) !important;
-    text-align: center;
-    vertical-align: middle;
-    }
-    tr>th:first-child,tr>td:first-child {
-      position: sticky;
-      left: 0;
-    }
-    r {
-      font-family: "Roboto", sans-serif;
-      font-weight: 300;
-      font-style: normal;
-    }
-  </style>
   <body style="background-color: #1f1f1f;
         opacity: 1;
         background-size: 11px 11px;
@@ -58,6 +38,9 @@
             <li class="nav-item active">
                 <a style="color:white" class="nav-link" href="https://drachbot.site">Discord Bot</a>
             </li>
+            <li class="nav-item active">
+                <a style="color:white" class="nav-link">Last Update: {{ mod_date }}</a>
+            </li>
             </ul>
         </div>
     </nav>
@@ -72,6 +55,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <div style="padding-left: 20px; padding-bottom: 20px; position: fixed; bottom:0; right:0;">
     <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support Me', '#5f28e0', 'P5P5VOKWW');kofiwidget2.draw();</script>
+    <script src="/static/script.js"></script>
     </div>
   </body>
 </html>

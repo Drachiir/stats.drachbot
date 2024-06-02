@@ -1,0 +1,31 @@
+.asc:after{
+  content:'<';
+    position: absolute;
+}
+.desc:after{
+  content:'>';
+    position: absolute;
+}
+table tr td, table tr th{
+text-align: center;
+vertical-align: middle;
+}
+tr>th:first-child,tr>td:first-child {
+  position: sticky;
+  left: 0;
+}
+r {
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  font-style: normal;
+}
+td img:hover{
+    transform: scale(1.1);
+}
+table th{
+    opacity: .9;
+	background-color: #343439 !important;
+}
+table td{
+	background-color: rgba(10,10,10, 0.8) !important;
+}

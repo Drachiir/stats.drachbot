@@ -1,3 +1,6 @@
+from datetime import datetime
+
+
 def custom_winrate(value):
     try:
         return round(value[0] / value[1] * 100, 1)
@@ -90,7 +93,7 @@ def get_key_value(data, key, k, games):
     match k:
         case "Games":
             try:
-                return human_format(data[key]['Count'])
+                return data[key]['Count']
             except Exception:
                 return 0
         case "Winrate":
@@ -124,3 +127,44 @@ def get_key_value(data, key, k, games):
             return get_perf_list(data[key], 'ComboUnit')[0]
         case "Best MMs":
             return get_perf_list(data[key], 'MMs')[0]
+
+def time_ago(time=False):
+    now = datetime.utcnow()
+    if type(time) is int:
+        diff = now - datetime.fromtimestamp(time)
+    elif type(time) is float:
+        diff = now - datetime.fromtimestamp(time)
+    elif isinstance(time, datetime):
+        diff = now - time
+    elif not time:
+        diff = now - now
+    else:
+        raise ValueError('invalid date %s of type %s' % (time, type(time)))
+    second_diff = diff.seconds
+    day_diff = diff.days
+
+    if day_diff < 0:
+        return ''
+
+    if day_diff == 0:
+        if second_diff < 10:
+            return "just now"
+        if second_diff < 60:
+            return str(second_diff) + " seconds ago"
+        if second_diff < 120:
+            return  "a minute ago"
+        if second_diff < 3600:
+            return str( second_diff / 60 ) + " minutes ago"
+        if second_diff < 7200:
+            return "an hour ago"
+        if second_diff < 86400:
+            return str( second_diff / 3600 ) + " hours ago"
+    if day_diff == 1:
+        return "Yesterday"
+    if day_diff < 7:
+        return str(day_diff) + " days ago"
+    if day_diff < 31:
+        return str(day_diff/7) + " weeks ago"
+    if day_diff < 365:
+        return str(day_diff/30) + " months ago"
+    return str(day_diff/365) + " years ago"
