@@ -3,10 +3,21 @@ import platform
 import json
 from datetime import datetime, timezone
 
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, url_for, send_from_directory
 import util
 
 app = Flask(__name__)
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'robots.txt', mimetype='text/plain')
+
 
 if platform.system() == "Linux":
     shared_folder = "/shared2/"
@@ -28,6 +39,8 @@ def landing():
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
 def stats(stats, elo, patch, specific_key):
+    if stats not in ["mmstats", "openstats", "spellstats", "unitstats"]:
+        return render_template("no_data.html")
     raw_data = None
     match stats:
         case "mmstats":

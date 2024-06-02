@@ -122,7 +122,10 @@ def get_key_value(data, key, k, games):
             except IndexError:
                 return None
         case "Best Add":
-            return get_perf_list(data[key], 'OpenWith')[0]
+            try:
+                return get_perf_list(data[key], 'OpenWith')[0]
+            except IndexError:
+                return None
         case "Best Combo":
             return get_perf_list(data[key], 'ComboUnit')[0]
         case "Best MMs":
