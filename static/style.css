@@ -6,7 +6,10 @@
   content:'▸';
     position: absolute;
 }
-table tr td, table tr th{
+table tr th{
+    vertical-align: middle;
+}
+table tr td{
 text-align: center;
 vertical-align: middle;
 }
