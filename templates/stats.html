@@ -52,7 +52,7 @@
             <th><r style="white-space: nowrap;">{{sub[0]}}</r></th>
         {% for key in data %}
             {% set sub_value = get_key_value(data, key, sub[0], games) %}
-            {% if key in mm_list %}
+            {% if sub_value in mm_list %}
                 <td><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value}}"><img src="{{get_cdn_image(sub_value, sub[0])}}"></a></td>
             {% else %}
                 <td><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value|lower}}"><img src="{{get_cdn_image(sub_value, sub[0])}}"></a></td>
