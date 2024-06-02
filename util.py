@@ -190,3 +190,26 @@ def time_ago(time=False):
     if day_diff < 365:
         return str(day_diff/30) + " months ago"
     return str(day_diff/365) + " years ago"
+
+def get_rank_url(elo):
+    if elo >= 2800:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Legend.png'
+    elif elo >= 2600:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Grandmaster.png'
+    elif elo >= 2400:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/SeniorMaster.png'
+    elif elo >= 2200:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Master.png'
+    elif elo >= 2000:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Expert.png'
+    elif elo >= 1800:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Diamond.png'
+    elif elo >= 1600:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Platinum.png'
+    elif elo >= 1400:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Gold.png'
+    elif elo >= 1200:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Silver.png'
+    else:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Bronze.png'
+    return rank_url

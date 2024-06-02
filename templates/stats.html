@@ -12,9 +12,11 @@
             <ul class="dropdown-menu">
                 {% for i in elo_brackets %}
                     {% if title == 'Megamind' %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/Megamind">{{ i }}+</a></li>
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/Megamind">
+                            <img style="width: 24px;" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% else %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}">{{ i }}+</a></li>
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}">
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -42,14 +44,15 @@
                            id="myInput"
                            onkeyup="filterFunction()">
                         {% for d in data_keys %}
-                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">{{ d|capitalize }}</a></li>
+                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
+                                <img style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
         <br>
-        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b>{{ avg_elo }}</b> |
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
             <b>v{{ patch }}</b></r>
         <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns"
                id="myTable">
