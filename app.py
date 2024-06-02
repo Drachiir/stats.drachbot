@@ -114,13 +114,17 @@ def stats(stats, elo, patch, specific_key):
                 mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file), tz=timezone.utc).timestamp())
                 raw_data = json.load(f)
                 f.close()
-    new_dict = {}
-    for key in raw_data:
-        if raw_data[key]["Count"] != 0:
-            new_dict[key] = raw_data[key]
-    raw_data = new_dict
+    if stats != "mmstats":
+        new_dict = {}
+        for key in raw_data:
+            if raw_data[key]["Count"] != 0:
+                new_dict[key] = raw_data[key]
+        raw_data = new_dict
     if not raw_data or (stats != "mmstats" and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html")
+    if stats == "mmstats" and specific_key != "Megamind":
+        if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
+            return render_template("no_data.html")
     if specific_key == "All" or (specific_key == "Megamind" and stats == "mmstats"):
         html_file = "stats.html"
     else:
@@ -130,7 +134,7 @@ def stats(stats, elo, patch, specific_key):
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                            specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
-                           sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date)
+                           sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date, get_tooltip=util.get_tooltip)
 
 if platform.system() == "Windows":
     app.run(debug=True)

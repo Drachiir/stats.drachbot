@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const headers = table.querySelectorAll("th");
+        function addHeaderClass(header) {
+            if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 0){
+                header.classList.add("desc");
+            }
+        }
+        headers.forEach(h => addHeaderClass(h));
         const tbody = table.querySelector("tbody");
         function transposeTable() {
             const rows = Array.from(tbody.rows);
@@ -49,13 +55,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Attach click event listener to header cells
         headers.forEach((header, index) => {
-            header.addEventListener("click", function () {
-                const asc = !header.classList.contains("asc");
-                headers.forEach(h => h.classList.remove("asc", "desc"));
-                header.classList.toggle("asc", asc);
-                header.classList.toggle("desc", !asc);
-                sortTable(index, asc); // -1 to skip header column
-            });
+            if (!header.innerText.startsWith("Best") && index > 0) {
+                header.addEventListener("click", function () {
+                    const asc = !header.classList.contains("asc");
+                    header.classList.toggle("asc", asc);
+                    header.classList.toggle("desc", !asc);
+                    sortTable(index, asc); // -1 to skip header column
+                });
+            }
         });
     }
 });

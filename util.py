@@ -88,8 +88,19 @@ def get_cdn_image(string, header):
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
-    
-def get_key_value(data, key, k, games):
+
+def get_tooltip(header):
+    match header:
+        case "W on 10" | "W on 4":
+            return "Workers on Wave X"
+        case "Best Add" | "Adds":
+            return "Units added within the first 4 waves"
+        case "MM":
+            return "Mastermind"
+        case _:
+            return header
+  
+def get_key_value(data, key, k, games, stats=""):
     match k:
         case "Games":
             try:
@@ -103,7 +114,10 @@ def get_key_value(data, key, k, games):
                 return 0
         case "Pickrate" | "Playrate":
             try:
-                return f"{custom_winrate([data[key]['Count'], games])}%"
+                if stats != "spellstats":
+                    return f"{custom_winrate([data[key]['Count'], games])}%"
+                else:
+                    return f"{custom_winrate([data[key]['Offered'], games])}%"
             except Exception:
                 return 0
         case "Player Elo":
@@ -113,12 +127,18 @@ def get_key_value(data, key, k, games):
         case "W on 4":
             return custom_divide([data[key]['Worker'], data[key]['Count']], 1)
         case "Best Opener":
-            return get_perf_list(data[key], 'Opener')[0]
+            try:
+                return get_perf_list(data[key], 'Opener')[0]
+            except Exception:
+                return 0
         case "Best Spell":
             try:
                 return get_perf_list(data[key], 'Spells')[0]
             except KeyError:
-                return get_perf_list(data[key], 'Spell')[0]
+                try:
+                    return get_perf_list(data[key], 'Spell')[0]
+                except Exception:
+                    return 0
             except IndexError:
                 return None
         case "Best Add":
