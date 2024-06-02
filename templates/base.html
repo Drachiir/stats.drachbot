@@ -20,7 +20,8 @@
     <meta property="og:description" content="The Best Legion TD 2 Statistics." />
     <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% else %}
-    <meta property="og:description" content="The Best Legion TD 2 {{ specific_key|capitalize }} Statistics. {{ human_format(data[specific_key]['Count']) }} Ranked Games | Winrate:
+    <meta property="og:description" content="The Best Legion TD 2 {{ specific_key|capitalize }} Statistics.<br>
+        {{ human_format(data[specific_key]['Count']) }} Ranked Games | Winrate:
         {{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}% | v{{ patch }}" />
     <meta property="og:image" content="{{ get_cdn_image(specific_key, header_title) }}" />
     {% endif %}
