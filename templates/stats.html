@@ -1,75 +1,90 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="padding-top: 15px;">
-    <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{title_image}}>
-    <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{title}} stats</r>
-    <div style="float:right;">
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Elo
-        </button>
-        <ul class="dropdown-menu">
-            {% for i in elo_brackets %}
-                {% if title == 'Megamind' %}
-                    <li><a class="dropdown-item" href="/{{stats}}/{{patch}}/{{i}}/Megamind">{{i}}+</a></li>
-                {% else %}
-                    <li><a class="dropdown-item" href="/{{stats}}/{{patch}}/{{i}}">{{i}}+</a></li>
-                {% endif %}
-            {% endfor %}
-        </ul>
-        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Patch
-        </button>
-        <ul class="dropdown-menu">
-            {% for p in patch_list %}
-            <li><a class="dropdown-item" href="/{{stats}}/{{p}}/{{elo}}">v{{p}}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-    <br>
-    <r style="font-size: 1rem;" > <b>{{human_format(games)}}</b> Ranked Games | Avg Game Elo: <b>{{avg_elo}}</b> | <b>v{{patch}}</b></r>
-<table style= "margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns" id="myTable">
-    {# HEADER 1 #}
-    <tbody>
-    <tr>
-        <th style="width: 7%;" title="{{ get_tooltip(header_title) }}"><r>{{header_title}}</r></th>
-        {% for key in data %}
-            <td style="width: 7%;"><a href="/{{stats}}/{{patch}}/{{elo}}/{{key}}"><img src="{{get_cdn_image(key, header_title)}}"></a></td>
-        {% endfor %}
-    </tr>
-    {# HEADER 1 KEYS #}
-    {% for k in header_keys %}
-        <tr>
-            <th title="{{ get_tooltip(k) }}"><r style="white-space: nowrap;">{{k}}</r></th>
-        {% for key in data %}
-            <td>{{get_key_value(data, key, k, games, stats)}}</td>
-        {% endfor %}
-        </tr>
-    {% endfor %}
-    {# SUB HEADERS #}
-    {% for sub in sub_headers %}
-        <tr>
-            <th title="{{ get_tooltip(sub[0]) }}"><r style="white-space: nowrap;">{{sub[0]}}</r></th>
-        {% for key in data %}
-            {% set sub_value = get_key_value(data, key, sub[0], games) %}
-            {% if sub_value in mm_list %}
-                <td><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value}}"><img src="{{get_cdn_image(sub_value, sub[0])}}"></a></td>
-            {% else %}
-                <td><a href="/{{sub[2]}}/{{patch}}/{{elo}}/{{sub_value|lower}}"><img src="{{get_cdn_image(sub_value, sub[0])}}"></a></td>
-            {% endif %}
-        {% endfor %}
-        {# SUB HEADER KEYS #}
-        {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
+    <div style="padding-top: 15px;">
+        <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
+        <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{ title }} stats</r>
+        <div style="float:right;">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Elo
+            </button>
+            <ul class="dropdown-menu">
+                {% for i in elo_brackets %}
+                    {% if title == 'Megamind' %}
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/Megamind">{{ i }}+</a></li>
+                    {% else %}
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}">{{ i }}+</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Patch
+            </button>
+            <ul class="dropdown-menu">
+                {% for p in patch_list %}
+                    <li><a class="dropdown-item" href="/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <br>
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b>{{ avg_elo }}</b> |
+            <b>v{{ patch }}</b></r>
+        <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns"
+               id="myTable">
+            {# HEADER 1 #}
+            <tbody>
             <tr>
-                <th title="{{ get_tooltip(sub_key) }}"><r>{{sub_key}}</r></th>
-            {% for key in data %}
-                {% set sub_value = get_key_value(data, key, sub[0], games) %}
-                <td>{{get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count'])}}</td>
-            {% endfor %}
+                <th style="width: 7%;" title="{{ get_tooltip(header_title) }}">
+                    <r>{{ header_title }}</r>
+                </th>
+                {% for key in data %}
+                    <td style="width: 7%;"><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img
+                            src="{{ get_cdn_image(key, header_title) }}"></a></td>
+                {% endfor %}
             </tr>
-        {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
-</div>
+            {# HEADER 1 KEYS #}
+            {% for k in header_keys %}
+                <tr>
+                    <th title="{{ get_tooltip(k) }}">
+                        <r style="white-space: nowrap;">{{ k }}</r>
+                    </th>
+                    {% for key in data %}
+                        <td>{{ get_key_value(data, key, k, games, stats) }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            {# SUB HEADERS #}
+            {% for sub in sub_headers %}
+                <tr>
+                    <th title="{{ get_tooltip(sub[0]) }}">
+                        <r style="white-space: nowrap;">{{ sub[0] }}</r>
+                    </th>
+                    {% for key in data %}
+                        {% set sub_value = get_key_value(data, key, sub[0], games) %}
+                        {% if sub_value in mm_list %}
+                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img
+                                    src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
+                        {% else %}
+                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img
+                                    src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
+                        {% endif %}
+                    {% endfor %}
+                    {# SUB HEADER KEYS #}
+                    {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
+                        <tr>
+                            <th title="{{ get_tooltip(sub_key) }}">
+                                <r>{{ sub_key }}</r>
+                            </th>
+                            {% for key in data %}
+                                {% set sub_value = get_key_value(data, key, sub[0], games) %}
+                                <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']) }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

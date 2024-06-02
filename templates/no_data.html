@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div align="center">
-<r style="font-size: 8rem; text-align: center;">No Data :-(</r><br>
-<button style="width: 300px; height: 100px;" class="btn btn-primary" onclick="goBack()">
-    <r style="font-size: 4rem;">Go Back</r> <span class="badge badge-primary"></span>
-</button>
-<script>
-function goBack() {
-  window.history.back();
-}
-</script>
-</div>
+    <div align="center">
+        <r style="font-size: 8rem; text-align: center;">No Data :-(</r>
+        <br>
+        <button style="width: 300px; height: 100px;" class="btn btn-primary" onclick="goBack()">
+            <r style="font-size: 4rem;">Go Back</r>
+            <span class="badge badge-primary"></span>
+        </button>
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
+    </div>
 {% endblock %}
