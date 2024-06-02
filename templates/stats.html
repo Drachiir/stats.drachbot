@@ -27,6 +27,26 @@
                     <li><a class="dropdown-item" href="/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
                 {% endfor %}
             </ul>
+            <div style="float: left; padding-right: 5px;" class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false" onclick="myFunction()">
+                    {{ header_title }}
+                </button>
+                <div id="myDropdown" class="dropdown-content">
+                    <ul class="dropdown-menu dropdown-scrollbar">
+                        <input type="text"
+                           class="form-control
+                                  border-0 border-bottom
+                                  shadow-none mb-2"
+                           placeholder="Search..."
+                           id="myInput"
+                           onkeyup="filterFunction()">
+                        {% for d in data_keys %}
+                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">{{ d|capitalize }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
         </div>
         <br>
         <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b>{{ avg_elo }}</b> |

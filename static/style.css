@@ -1,3 +1,9 @@
+.dropdown-scrollbar
+{
+    height: 500px;
+    overflow: scroll;
+
+}
 .asc:after{
   content:'◂';
     position: absolute;
@@ -10,8 +16,8 @@ table tr th{
     vertical-align: middle;
 }
 table tr td{
-text-align: center;
-vertical-align: middle;
+    text-align: center;
+    vertical-align: middle;
 }
 tr>th:first-child,tr>td:first-child {
   position: sticky;
@@ -32,7 +38,6 @@ table th{
 table td{
 	background-color: rgba(10,10,10, 0.8) !important;
 }
-
 .tooltip {
     position: relative;
     display: inline-block;
