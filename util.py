@@ -165,7 +165,6 @@ def time_ago(time=False):
         raise ValueError('invalid date %s of type %s' % (time, type(time)))
     second_diff = diff.seconds
     day_diff = diff.days
-    print(second_diff, day_diff)
     if day_diff < 0:
         return ''
 

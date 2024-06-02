@@ -111,7 +111,7 @@ def stats(stats, elo, patch, specific_key):
                 games = int(games)
             avg_elo = file.split("_")[3].replace(".json", "")
             with open(shared_folder+f"data/{folder}/"+file, "r") as f:
-                mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file), tz=timezone.utc).timestamp())
+                mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())
                 raw_data = json.load(f)
                 f.close()
     if stats != "mmstats":
