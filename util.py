@@ -152,7 +152,7 @@ def get_key_value(data, key, k, games, stats=""):
             return get_perf_list(data[key], 'MMs')[0]
 
 def time_ago(time=False):
-    now = datetime.utcnow()
+    now = datetime.now()
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif type(time) is float:
@@ -165,7 +165,7 @@ def time_ago(time=False):
         raise ValueError('invalid date %s of type %s' % (time, type(time)))
     second_diff = diff.seconds
     day_diff = diff.days
-
+    print(second_diff, day_diff)
     if day_diff < 0:
         return ''
 
