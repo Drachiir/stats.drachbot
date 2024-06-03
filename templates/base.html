@@ -16,12 +16,14 @@
     </script>
     {% if data %}
         {% if specific_key == "All" or specific_key == "Megamind" %}
+            <title>Legion TD 2 {{ title }} Stats | Patch v{{ patch }}</title>
             <meta name="description" content="Legion TD 2 {{ title }} Stats">
             <meta property="og:title" content="Legion TD 2 {{ title }} Stats" />
             <meta property="og:description" content="Legion TD 2 {{ title }} Stats | Avg Game Elo: {{ avg_elo }}<br>
                     {{ human_format(games) }} Ranked Games | v{{ patch }}" />
             <meta property="og:image" content="{{ title_image }}" />
         {% else %}
+            <title>Legion TD 2 {{ specific_key|capitalize }} Stats | Patch v{{ patch }}</title>
             <meta name="description" content="Legion TD 2 {{ specific_key|capitalize }} Stats">
             <meta property="og:title" content="Legion TD 2 {{ specific_key|capitalize }} Stats" />
             <meta property="og:description" content="Legion TD 2 {{ specific_key|capitalize }} Stats | Avg Elo: {{ avg_elo }}<br>
@@ -29,6 +31,7 @@
             <meta property="og:image" content="{{ get_cdn_image(specific_key, header_title) }}" />
         {% endif %}
     {% else %}
+        <title>Legion TD 2 Stats</title>
         <meta name="description" content="Legion TD 2 Stats">
         <meta property="og:title" content="Legion TD 2 Stats" />
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
@@ -48,8 +51,6 @@
     <link rel="stylesheet" href="/static/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
           rel="stylesheet">
-    <title>Legion TD 2 Stats</title>
-    <title>{% block title %} {% endblock %}</title>
 </head>
 <body style="background-color: #1f1f1f;
         opacity: 1;

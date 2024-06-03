@@ -38,6 +38,7 @@ buff_spells = defaults_json["BuffSpells"]
 def home():
     folder_list = ["mmstats", "openstats", "spellstats", "unitstats"]
     header_list = ["MM", "Open", "Spell", "Unit"]
+    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Unit Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
                  ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Value10000.png"]
     data_list = []
@@ -51,7 +52,7 @@ def home():
                 with open(shared_folder+f"data/{folder}/"+file, "r") as f:
                     json_data = json.load(f)
                     keys.append([folder, json_data.keys()])
-                    data_list.append([folder, games, avg_elo, json_data, header_list[i]])
+                    data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i]])
                     f.close()
                 break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
