@@ -29,35 +29,44 @@
         </div>
     </div>
     {% for data in data_list %}
-        <div style="float: left; padding-top: 2vw; padding-left: 8vw;">
+        <div style="float: left; padding-top: 1vw; padding-left: 4vw">
             <r style="font-size: 2rem;"><b>{{ data[0]|capitalize }}</b></r><br>
             <a href="/{{ data[0] }}">
                 <img style="display: block; clip-path: circle();object-fit: cover;
                     border-radius: 50%;
                     border: 2px solid rgb(84,152,219);
-                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
-                    margin: 1rem;" src="{{ image_list[loop.index - 1] }}">
+                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="{{ image_list[loop.index - 1] }}">
             </a>
-        </div>
-        <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
-               id="myTable">
-            {# HEADER 1 #}
-            <tbody>
-            <tr>
-                {% for key in data[3] %}
-                        <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img
-                                src="{{ get_cdn_image(key, data[0]) }}"></a></td>
-                {% endfor %}
-            </tr>
-            {# HEADER 1 KEYS #}
-            {% for k in ["Games", "Winrate", "Playrate"] %}
+            <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
+                   id="myTable{{ loop.index }}">
+                {# HEADER 1 #}
+                <tbody>
                 <tr>
+                    <th>
+                        <r style="white-space: nowrap;">{{ data[4] }}</r>
+                    </th>
                     {% for key in data[3] %}
-                        <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                        {% if loop.index0 < 2 %}
+                            <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img
+                                    src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                        {% endif %}
                     {% endfor %}
                 </tr>
-            {% endfor %}
-        </table>
+                {# HEADER 1 KEYS #}
+                {% for k in ["Games", "Winrate", "Pickrate"] %}
+                    <tr>
+                        <th>
+                            <r style="white-space: nowrap;">{{ k }}</r>
+                        </th>
+                        {% for key in data[3] %}
+                            {% if loop.index0 < 2 %}
+                                <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     {% endfor %}
 </div>
 {% endblock %}
