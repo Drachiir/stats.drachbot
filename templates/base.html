@@ -52,13 +52,13 @@
         background-size: 11px 11px;
         background-image: repeating-linear-gradient(45deg, #143348 0, #143348 1.1px, #1f1f1f 0, #1f1f1f 50%)">
 <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-35">
-    <r style="margin-left: 1vw;" class="navbar-brand">stats.drachbot</r>
+    <a style="margin-left: 1vw;" href="/" class="navbar-brand">stats.drachbot</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav" id="myList">
             <li class="nav-item active">
                 <a class="nav-link" href="/mmstats/{{ patch }}/{{ elo }}">Mastermind Stats</a>
             </li>
@@ -74,7 +74,12 @@
                 <a class="nav-link" href="https://drachbot.site">Discord Bot</a>
             </li>
             <li class="nav-item active">
-                <a class="nav-link">Last Update: {{ mod_date }}</a>
+                <a title="Data is updated once every 24h
+Only 1800+ elo for now" class="nav-link">Last Update: {{ mod_date }}</a>
+            </li>
+            <li class="nav-item active">
+                <a title="Support me by using Creator Code Drachir
+when purchasing Premium Essense in Legion TD 2" class="nav-link">Creator Code: Drachir</a>
             </li>
         </ul>
     </div>
@@ -85,18 +90,16 @@
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.scripts, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
-<div style="padding-left: 20px; padding-bottom: 20px; position: fixed; bottom:0; right:0;">
+<div style="padding-left: 20px; padding-bottom: 20px; position: fixed; bottom:0; right:0; opacity: 0.7;">
     <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
-    <script type='text/javascript'>kofiwidget2.init('Support Me', '#5f28e0', 'P5P5VOKWW');
+    <script type='text/javascript'>kofiwidget2.init('Support Me', '#228dd8', 'P5P5VOKWW');
     kofiwidget2.draw();</script>
     <script src="/static/script.js"></script>
 </div>

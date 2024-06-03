@@ -13,10 +13,7 @@
             </button>
             <ul class="dropdown-menu">
                 {% for i in elo_brackets %}
-                    <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/Megamind">
-                        <img style="width: 24px;" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
-                {% else %}
-                    <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}">
+                    <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/{{ specific_key }}">
                         <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                 {% endfor %}
             </ul>

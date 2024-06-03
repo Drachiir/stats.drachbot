@@ -24,16 +24,31 @@ if platform.system() == "Linux":
 else:
     shared_folder = "D:/Projekte/Python/Drachbot/shared2/"
 
-defaults = ["11.04", 2200]
-mm_list = ['All', 'LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard']
-elos = [1800, 2000, 2200, 2400, 2600, 2800]
-elos.reverse()
-patches = ["11.04", "11.03", "11.02", "11.01", "11.00"]
-buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"]
+with open("defaults.json", "r") as f:
+    defaults_json = json.load(f)
+    f.close()
+
+defaults = defaults_json["Defaults"]
+mm_list = defaults_json["MMs"]
+elos = defaults_json["Elos"]
+patches = defaults_json["Patches"]
+buff_spells = defaults_json["BuffSpells"]
 
 @app.route("/")
-def landing():
+def home():
     return redirect("/mmstats")
+    # folder_list = ["mmstats", "openstats", "spellstats", "unitstats"]
+    # data_list = []
+    # for folder in folder_list:
+    #     for file in os.listdir(shared_folder+f"data/{folder}/"):
+    #         if file.startswith(f"{defaults[0]}_{defaults[1]}"):
+    #             games = file.split("_")[2]
+    #             avg_elo = file.split("_")[3].replace(".json", "")
+    #             with open(shared_folder+f"data/{folder}/"+file, "r") as f:
+    #                 data_list.append([games, avg_elo, json.load(f)])
+    #                 f.close()
+    #             break
+    # return render_template("home.html")
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
