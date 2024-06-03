@@ -82,11 +82,11 @@ def get_unit_name_list(name):
 
 def get_cdn_image(string, header):
     match header:
-        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos" | "Targets":
+        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos" | "Targets" | "unitstats" | "openstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
-        case "MM" | "MMs" | "Best MMs":
+        case "MM" | "MMs" | "Best MMs" | "mmstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
-        case "Spell" | "Spells" | "Best Spells" | "Best Spell":
+        case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
 
 def get_tooltip(header):

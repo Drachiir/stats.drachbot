@@ -34,7 +34,7 @@
             <b>v{{ patch }}</b></r>
         {# HEADER 1 #}
         {% for header in sub_headers %}
-            <table style="display: inline-block; overflow: auto; padding-top: 10px" class="table"
+            <table style="display: inline-block; overflow: auto; padding-top: 10px" class="table table-hover"
                    id="myTable{{ loop.index }}">
                 <tbody>
                 {% set header_dict = sort_dict(data[specific_key][header[1]], 'Count') %}
