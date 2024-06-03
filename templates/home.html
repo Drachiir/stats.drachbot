@@ -42,23 +42,18 @@
                 {# HEADER 1 #}
                 <tbody>
                 <tr>
-                    <th>
-                        <r style="white-space: nowrap;">{{ data[4] }}</r>
-                    </th>
-                    {% for key in data[3] %}
+                    <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                    {% for key in data[6] %}
                         {% if loop.index0 < 2 %}
-                            <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img
-                                    src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}
                 </tr>
                 {# HEADER 1 KEYS #}
                 {% for k in ["Games", "Winrate", "Pickrate"] %}
                     <tr>
-                        <th>
-                            <r style="white-space: nowrap;">{{ k }}</r>
-                        </th>
-                        {% for key in data[3] %}
+                        <th><r style="white-space: nowrap;">{{ k }}</r></th>
+                        {% for key in data[6] %}
                             {% if loop.index0 < 2 %}
                                 <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
                             {% endif %}

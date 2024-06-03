@@ -51,8 +51,9 @@ def home():
                 avg_elo = file.split("_")[3].replace(".json", "")
                 with open(shared_folder+f"data/{folder}/"+file, "r") as f:
                     json_data = json.load(f)
-                    keys.append([folder, json_data.keys()])
-                    data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i]])
+                    temp_keys = list(json_data.keys())
+                    keys.append([folder, temp_keys])
+                    data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i], temp_keys[:2]])
                     f.close()
                 break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
