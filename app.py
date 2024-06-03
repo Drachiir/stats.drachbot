@@ -53,7 +53,7 @@ def home():
                     f.close()
                 break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
-                           elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image)
+                           elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value)
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})

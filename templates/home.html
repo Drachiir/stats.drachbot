@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div align="center" style="padding-top: 8vw;">
-    <r style="font-size: 4rem"><b>Legion TD 2 Stats</b></r><br>
-    <r style="font-size: 1rem">Powered by Drachbot</r><br>
-    <div style="width: 50%; padding-top: 4vw;" class="input-group input-group-lg">
-        <input type="text"
+<div align="center" style="padding-top: 1vw;">
+    <a href="https://drachbot.site/"><img style="clip-path: circle();object-fit: cover;
+                border-radius: 50%;
+                border: 2px solid rgb(84,152,219);
+                box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
+                margin: 1rem;" src="/static/drachia.gif" width="150" height="150"></a><br>
+    <r style="font-size: 4rem"><b>stats.drachbot</b></r><br>
+    <r style="font-size: 1rem">The Best Legion TD 2 Stats</r><br>
+    <div style="width: 50%; padding-top: 1vw;" class="input-group input-group-lg">
+        <input  type="text"
                onclick="myFunction()"
                data-bs-toggle="dropdown"
                         class="form-control"
@@ -24,12 +29,35 @@
         </div>
     </div>
     {% for data in data_list %}
-        <div style="float: left; padding-top: 4vw; padding-left: 8vw;">
-            <r style="font-size: 2rem;">{{ data[0]|capitalize }}</r><br>
+        <div style="float: left; padding-top: 2vw; padding-left: 8vw;">
+            <r style="font-size: 2rem;"><b>{{ data[0]|capitalize }}</b></r><br>
             <a href="/{{ data[0] }}">
-                <img style="display: block;margin-left: auto;margin-right: auto;" src="{{ image_list[loop.index - 1] }}">
+                <img style="display: block; clip-path: circle();object-fit: cover;
+                    border-radius: 50%;
+                    border: 2px solid rgb(84,152,219);
+                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
+                    margin: 1rem;" src="{{ image_list[loop.index - 1] }}">
             </a>
         </div>
+        <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
+               id="myTable">
+            {# HEADER 1 #}
+            <tbody>
+            <tr>
+                {% for key in data[3] %}
+                        <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img
+                                src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                {% endfor %}
+            </tr>
+            {# HEADER 1 KEYS #}
+            {% for k in ["Games", "Winrate", "Playrate"] %}
+                <tr>
+                    {% for key in data[3] %}
+                        <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
     {% endfor %}
 </div>
 {% endblock %}
