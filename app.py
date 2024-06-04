@@ -138,13 +138,14 @@ def stats(stats, elo, patch, specific_key):
                 mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())
                 raw_data = json.load(f)
                 f.close()
-    if stats != "mmstats":
-        new_dict = {}
-        for key in raw_data:
-            if raw_data[key]["Count"] != 0:
-                new_dict[key] = raw_data[key]
-        raw_data = new_dict
-    if not raw_data or (stats != "mmstats" and specific_key != "All" and specific_key not in raw_data):
+    if raw_data:
+        if stats != "mmstats":
+            new_dict = {}
+            for key in raw_data:
+                if raw_data[key]["Count"] != 0:
+                    new_dict[key] = raw_data[key]
+            raw_data = new_dict
+    elif not raw_data or (stats != "mmstats" and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html")
     if stats == "mmstats" and specific_key != "Megamind":
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
