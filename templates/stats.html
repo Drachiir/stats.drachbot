@@ -48,6 +48,9 @@
                            id="myInput"
                            onkeyup="filterFunction()">
                         {% for d in data_keys %}
+                            {% if d == "Megamind" %}
+                                {% set stats = "megamindstats" %}
+                            {% endif %}
                             <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
                                 <img style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                         {% endfor %}

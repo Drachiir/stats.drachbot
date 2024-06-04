@@ -21,7 +21,12 @@
             <ul class="dropdown-menu dropdown-scrollbar">
                 {% for list in keys %}
                     {% for k in list[1] %}
-                        <li><a class="dropdown-item" href="/{{ list[0] }}/{{ patch }}/{{ elo }}/{{ k }}">
+                        {% if k == "Megamind" %}
+                            {% set stats = "megamindstats" %}
+                        {% else %}
+                            {% set stats = list[0] %}
+                        {% endif %}
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
                             <img style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
                     {% endfor %}
                 {% endfor %}
