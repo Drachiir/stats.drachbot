@@ -18,6 +18,10 @@ def robots():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'robots.txt', mimetype='text/plain')
 
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'sitemap.xml')
 
 if platform.system() == "Linux":
     shared_folder = "/shared2/"
