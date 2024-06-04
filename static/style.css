@@ -24,8 +24,9 @@ table tr td{
     vertical-align: middle;
 }
 tr>th:first-child,tr>td:first-child {
-  position: sticky;
-  left: 0;
+    z-index: 1;
+    position: sticky;
+    left: 0;
 }
 r {
   font-family: "Roboto", sans-serif;
