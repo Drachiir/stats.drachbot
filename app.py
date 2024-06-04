@@ -51,13 +51,25 @@ def home():
                 avg_elo = file.split("_")[3].replace(".json", "")
                 with open(shared_folder+f"data/{folder}/"+file, "r") as f:
                     json_data = json.load(f)
+                    new_dict = {}
+                    for key in json_data:
+                        if json_data[key]["Count"] != 0:
+                            new_dict[key] = json_data[key]
+                    json_data = new_dict
                     temp_keys = list(json_data.keys())
                     keys.append([folder, temp_keys])
                     data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i], temp_keys[:2]])
                     f.close()
                 break
+    total_games = "0"
+    for file in os.listdir(shared_folder+f"data/mmstats"):
+        temp_string = file.split("_")
+        if temp_string[0] == defaults[0] and temp_string[1] == "1800":
+            total_games = util.human_format(int(temp_string[2]))
+            break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
-                           elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value)
+                           elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
+                           total_games=total_games)
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
