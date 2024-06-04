@@ -10,8 +10,13 @@ cache = Cache()
 
 app = Flask(__name__)
 
+if platform.system() == "Linux":
+    timeout = 600
+else:
+    timeout = 1
+
 app.config['CACHE_TYPE'] = 'simple' # Set the cache type
-app.config['CACHE_DEFAULT_TIMEOUT'] = 300 # Set the default cache timeout in seconds
+app.config['CACHE_DEFAULT_TIMEOUT'] = timeout # Set the default cache timeout in seconds
 app.config['CACHE_KEY_PREFIX'] = 'myapp_' # Set the cache key prefix
 
 cache.init_app(app)
@@ -47,7 +52,7 @@ patches = defaults_json["Patches"]
 buff_spells = defaults_json["BuffSpells"]
 
 @app.route("/")
-@cache.cached(timeout=600)
+@cache.cached(timeout=timeout)
 def home():
     folder_list = ["mmstats", "openstats", "spellstats", "unitstats"]
     header_list = ["MM", "Open", "Spell", "Unit"]
@@ -87,7 +92,7 @@ def home():
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
-@cache.cached(timeout=300)
+@cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
     if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats"]:
         return render_template("no_data.html")
