@@ -45,7 +45,12 @@
                     <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
                     {% for key in data[6] %}
                         {% if loop.index0 < 2 %}
-                            <td><a href="/{{ data[0] }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            {% if key == "Megamind" %}
+                                {% set stats = "megamindstats" %}
+                            {% else %}
+                                {% set stats = data[0] %}
+                            {% endif %}
+                            <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}
                 </tr>
