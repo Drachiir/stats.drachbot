@@ -75,10 +75,24 @@ def home():
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
 def stats(stats, elo, patch, specific_key):
-    if stats not in ["mmstats", "openstats", "spellstats", "unitstats"]:
+    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats"]:
         return render_template("no_data.html")
     raw_data = None
     match stats:
+        case "megamindstats":
+            header_title = "MM"
+            header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+            title = "Megamind"
+            title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
+            folder = "megamindstats"
+            if specific_key == "All" or specific_key == "Megamind":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+            if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
+                return render_template("no_data.html")
         case "mmstats":
             title = "Mastermind"
             title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
@@ -157,12 +171,12 @@ def stats(stats, elo, patch, specific_key):
                 if raw_data[key]["Count"] != 0:
                     new_dict[key] = raw_data[key]
             raw_data = new_dict
-    if not raw_data or (stats != "mmstats" and specific_key != "All" and specific_key not in raw_data):
+    if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html")
     if stats == "mmstats" and specific_key != "Megamind":
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
             return render_template("no_data.html")
-    if specific_key == "All" or (specific_key == "Megamind" and stats == "mmstats"):
+    if specific_key == "All" or (specific_key == "Megamind" and (stats == "mmstats" or stats == "megamindstats")):
         html_file = "stats.html"
     else:
         html_file = "stats_specific.html"

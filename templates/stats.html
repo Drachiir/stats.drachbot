@@ -67,8 +67,18 @@
                     <r>{{ header_title }}</r>
                 </th>
                 {% for key in data %}
-                    <td style="width: 7%;"><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img
-                            src="{{ get_cdn_image(key, header_title) }}"></a></td>
+                    {% if key == "Megamind" %}
+                        {% set stats = "megamindstats" %}
+                    {% endif %}
+                    <td style="width: 7%;"><div style="position: relative"><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img style="z-index: 2;"
+                            src="{{ get_cdn_image(key, header_title) }}">
+                    {% if stats == "megamindstats" and key != "Megamind" %}
+                        <img style="position: absolute; top:0;left: 8px; z-index: 1;" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
+                    {% endif %}
+                    </a>
+                    </div>
+                    </td>
+
                 {% endfor %}
             </tr>
             {# HEADER 1 KEYS #}

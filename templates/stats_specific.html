@@ -2,7 +2,13 @@
 
 {% block content %}
     <div style="padding-top: 15px;">
-        <img style="float:left; padding-right: 20px;" src="{{ get_cdn_image(specific_key, header_title) }}">
+        <div style="position: relative">
+            <img style="float:left; padding-right: 20px;" src="{{ get_cdn_image(specific_key, header_title) }}">
+            {% if stats == "megamindstats" and key != "Megamind" %}
+                {% set header_title = "Megamind" %}
+                <img style="position: absolute; top:0;left: 0; z-index: 1;" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
+            {% endif %}
+        </div>
         <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{ get_unit_name(specific_key) }} {{ header_title }}
             Stats
         </r>
