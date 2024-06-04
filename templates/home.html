@@ -1,77 +1,79 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="padding-top: 1vw; display: inline-block; text-align: center">
-    <a href="https://drachbot.site/"><img style="clip-path: circle();object-fit: cover;
-                border-radius: 50%;
-                border: 2px solid rgb(84,152,219);
-                box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
-                margin: 1rem;" src="/static/drachia.webp" width="150" height="150"></a><br>
-    <r style="font-size: 4rem"><b>stats.drachbot</b></r><br>
-    <r style="font-size: 1rem">The Best Legion TD 2 Stats | {{ total_games }} Ranked Games analyzed for Patch v{{ patch }}</r><br>
-    <div style="padding-left: 3.5rem; padding-top: 2vw;" class="input-group input-group-lg">
-        <input type="text"
-               onclick="myFunction()"
-               data-bs-toggle="dropdown"
-                        class="form-control"
-                        placeholder="Search Anything..."
-                        id="myInput"
-                        onkeyup="filterFunction()">
-        <div style="text-align: center" id="myDropdown" class="dropdown-content">
-            <ul class="dropdown-menu dropdown-scrollbar">
-                {% for list in keys %}
-                    {% for k in list[1] %}
-                        {% if k == "Megamind" %}
-                            {% set stats = "megamindstats" %}
-                        {% else %}
-                            {% set stats = list[0] %}
-                        {% endif %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
-                            <img style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-    {% for data in data_list %}
-        <div style="display: inline-block; padding-top: 1vw; padding-left: 3vw">
-            <r style="font-size: 2rem;"><b>{{ data[5] }}</b></r><br>
-            <a href="/{{ data[0] }}">
-                <img class="center" style="display: block; clip-path: circle();object-fit: cover;
+<div style="text-align: center">
+    <div style="padding-top: 1vw; display: inline-block; text-align: center">
+        <a href="https://drachbot.site/"><img style="clip-path: circle();object-fit: cover;
                     border-radius: 50%;
-                    border: 2px solid rgb(93,169,244);
-                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="{{ image_list[loop.index - 1] }}">
-            </a>
-            <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
-                   id="myTable{{ loop.index }}">
-                {# HEADER 1 #}
-                <tbody>
-                <tr>
-                    <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
-                    {% for key in data[6] %}
-                        {% if loop.index0 < 2 %}
-                            {% if key == "Megamind" %}
+                    border: 2px solid rgb(84,152,219);
+                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
+                    margin: 1rem;" src="/static/drachia.webp" width="150" height="150"></a><br>
+        <r style="font-size: 4rem"><b>stats.drachbot</b></r><br>
+        <r style="font-size: 1rem">The Best Legion TD 2 Stats | {{ total_games }} Ranked Games analyzed for Patch v{{ patch }}</r><br>
+        <div style="padding-left: 10%; padding-right: 10%; padding-top: 2vw;" class="input-group input-group-lg">
+            <input type="text"
+                   onclick="myFunction()"
+                   data-bs-toggle="dropdown"
+                            class="form-control"
+                            placeholder="Search Anything..."
+                            id="myInput"
+                            onkeyup="filterFunction()">
+            <div style="text-align: center" id="myDropdown" class="dropdown-content">
+                <ul class="dropdown-menu dropdown-scrollbar">
+                    {% for list in keys %}
+                        {% for k in list[1] %}
+                            {% if k == "Megamind" %}
                                 {% set stats = "megamindstats" %}
                             {% else %}
-                                {% set stats = data[0] %}
+                                {% set stats = list[0] %}
                             {% endif %}
-                            <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
-                        {% endif %}
+                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
+                                <img style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
+                        {% endfor %}
                     {% endfor %}
-                </tr>
-                {# HEADER 1 KEYS #}
-                {% for k in ["Games", "Winrate", "Pickrate"] %}
+                </ul>
+            </div>
+        </div>
+        {% for data in data_list %}
+            <div style="display: inline-block; padding: 2vw;">
+                <r style="font-size: 2rem;"><b>{{ data[5] }}</b></r><br>
+                <a href="/{{ data[0] }}">
+                    <img class="center" style="display: block; clip-path: circle();object-fit: cover;
+                        border-radius: 50%;
+                        border: 2px solid rgb(93,169,244);
+                        box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="{{ image_list[loop.index - 1] }}">
+                </a>
+                <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
+                       id="myTable{{ loop.index }}">
+                    {# HEADER 1 #}
+                    <tbody>
                     <tr>
-                        <th><r style="white-space: nowrap;">{{ k }}</r></th>
+                        <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
                         {% for key in data[6] %}
                             {% if loop.index0 < 2 %}
-                                <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                                {% if key == "Megamind" %}
+                                    {% set stats = "megamindstats" %}
+                                {% else %}
+                                    {% set stats = data[0] %}
+                                {% endif %}
+                                <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
                             {% endif %}
                         {% endfor %}
                     </tr>
-                {% endfor %}
-            </table>
-        </div>
-    {% endfor %}
+                    {# HEADER 1 KEYS #}
+                    {% for k in ["Games", "Winrate", "Pickrate"] %}
+                        <tr>
+                            <th><r style="white-space: nowrap;">{{ k }}</r></th>
+                            {% for key in data[6] %}
+                                {% if loop.index0 < 2 %}
+                                    <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}
