@@ -3,13 +3,13 @@
 {% block content %}
 <div style="text-align: center">
     <div style="padding-top: 1vw; display: inline-block; text-align: center">
-        <a href="https://drachbot.site/"><img style="clip-path: circle();object-fit: cover;
+        <a href="https://drachbot.site/"><div><img id="mask" style="clip-path: circle();object-fit: cover;
                     border-radius: 50%;
                     border: 2px solid rgb(84,152,219);
                     box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);
-                    margin: 1rem;" src="/static/drachia.webp" width="150" height="150"></a><br>
-        <r style="font-size: 4rem"><b>stats.drachbot</b></r><br>
-        <r style="font-size: 1rem">The Best Legion TD 2 Stats | {{ total_games }} Ranked Games analyzed for Patch v{{ patch }}</r><br>
+                    margin: 1rem;" src="/static/drachia.webp" width="150" height="150"></div></a><br>
+        <r id="mask" style="font-size: 4rem"><b>stats.drachbot</b></r><br>
+        <r style="font-size: 1.2rem">The Best Legion TD 2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
         <div style="padding-left: 10%; padding-right: 10%; padding-top: 2vw;" class="input-group input-group-lg">
             <input type="text"
                    onclick="myFunction()"
@@ -38,10 +38,7 @@
             <div style="display: inline-block; padding: 2vw;">
                 <r style="font-size: 2rem;"><b>{{ data[5] }}</b></r><br>
                 <a href="/{{ data[0] }}">
-                    <img class="center" style="display: block; clip-path: circle();object-fit: cover;
-                        border-radius: 50%;
-                        border: 2px solid rgb(93,169,244);
-                        box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="{{ image_list[loop.index - 1] }}">
+                    <img class="center" src="{{ image_list[loop.index - 1] }}">
                 </a>
                 <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
                        id="myTable{{ loop.index }}">

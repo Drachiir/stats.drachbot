@@ -1,3 +1,9 @@
+#mask {
+  filter: drop-shadow(0 0 0.75rem rgb(61, 71, 253));
+}
+#mask2 {
+  filter: drop-shadow(0 0 0.75rem rgb(241, 241, 241));
+}
 .center {
   display: block;
   margin-left: auto;
@@ -40,9 +46,11 @@ img:hover{
     transform: scale(1.1);
 }
 table th{
+    border: 1px solid #3e3e3e;
     opacity: .9;
 	background-color: #343439 !important;
 }
 table td{
+    border: 1px solid #3e3e3e;
 	background-color: rgba(10,10,10, 0.8) !important;
 }
