@@ -27,7 +27,7 @@
                                 {% set stats = list[0] %}
                             {% endif %}
                             <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
-                                <img style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
+                                <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
                         {% endfor %}
                     {% endfor %}
                 </ul>

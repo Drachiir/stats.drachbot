@@ -52,7 +52,7 @@
                                 {% set stats = "megamindstats" %}
                             {% endif %}
                             <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
-                                <img style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
+                                <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -73,9 +73,9 @@
                     {% if key == "Megamind" %}
                         {% set stats = "megamindstats" %}
                     {% endif %}
-                    <td style="width: 7%;"><div style="position: relative"><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, header_title) }}">
+                    <td style="width: 7%;"><div style="position: relative"><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
                     {% if stats == "megamindstats" and key != "Megamind" %}
-                        <img style="top:0;left: 8px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
+                        <img loading="lazy" style="top:0;left: 8px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                     {% endif %}
                     </a>
                     </div>
@@ -103,10 +103,10 @@
                     {% for key in data %}
                         {% set sub_value = get_key_value(data, key, sub[0], games) %}
                         {% if sub_value in mm_list %}
-                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img
+                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
                         {% else %}
-                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img
+                            <td><a href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}
