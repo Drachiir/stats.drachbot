@@ -23,11 +23,11 @@
                     {{ human_format(games) }} Ranked Games | v{{ patch }}" />
             <meta property="og:image" content="{{ title_image }}" />
         {% else %}
-            <title>Legion TD 2 {{ specific_key|capitalize }} Stats | Patch v{{ patch }}</title>
-            <meta name="description" content="Legion TD 2 {{ specific_key|capitalize }} Stats">
-            <meta property="og:title" content="Legion TD 2 {{ specific_key|capitalize }} Stats" />
-            <meta property="og:description" content="Legion TD 2 {{ specific_key|capitalize }} Stats | Avg Elo: {{ avg_elo }}<br>
-                {{ human_format(data[specific_key]['Count']) }} Ranked Games | Winrate: {{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}% | v{{ patch }}" />
+            <title>Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats | Patch v{{ patch }}</title>
+            <meta name="description" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats">
+            <meta property="og:title" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats" />
+            <meta property="og:description" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats<br>Avg Elo: {{ avg_elo }}
+                {{ human_format(data[specific_key]['Count']) }} Ranked Games<br>Winrate: {{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}% | v{{ patch }}" />
             <meta property="og:image" content="{{ get_cdn_image(specific_key, header_title) }}" />
         {% endif %}
     {% else %}
