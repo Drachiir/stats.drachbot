@@ -18,15 +18,15 @@
         {% if specific_key == "All" or specific_key == "Megamind" %}
             <title>Legion TD 2 {{ title }} Stats | Patch v{{ patch }}</title>
             <meta name="description" content="Legion TD 2 {{ title }} Stats">
-            <meta property="og:title" content="Legion TD 2 {{ title }} Stats" />
-            <meta property="og:description" content="Legion TD 2 {{ title }} Stats | Avg Game Elo: {{ avg_elo }}<br>
+            <meta property="og:title" content="{{ title }} Stats" />
+            <meta property="og:description" content="{{ title }} Stats | Avg Game Elo: {{ avg_elo }}<br>
                     {{ human_format(games) }} Ranked Games | v{{ patch }}" />
             <meta property="og:image" content="{{ title_image }}" />
         {% else %}
             <title>Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats | Patch v{{ patch }}</title>
             <meta name="description" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats">
-            <meta property="og:title" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats" />
-            <meta property="og:description" content="Legion TD 2 {{ specific_key|capitalize }} {{ title }} Stats
+            <meta property="og:title" content="{{ specific_key|capitalize }} {{ title }} Stats" />
+            <meta property="og:description" content="{{ specific_key|capitalize }} {{ title }} Stats
             Avg Elo: {{ avg_elo }} | {{ human_format(data[specific_key]['Count']) }} Ranked Games
             Winrate: {{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}% | v{{ patch }}" />
             <meta property="og:image" content="{{ get_cdn_image(specific_key, header_title) }}" />
@@ -36,6 +36,7 @@
         <title>{% block title %} {% endblock %}</title>
         <meta name="description" content="Legion TD 2 Stats">
         <meta property="og:title" content="Legion TD 2 Stats" />
+        <meta property="og:description" content="The Best Legion TD 2 Stats">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% endif %}
     <meta charset="utf-8">
