@@ -35,8 +35,7 @@
         </div>
         {% for data in data_list %}
             <div style="display: inline-block; padding: 2vw;">
-                <r style="font-size: 2rem;"><b>{{ data[5] }}</b></r><br>
-                <a href="/{{ data[0] }}">
+                <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
                     <img class="center" src="{{ image_list[loop.index - 1] }}">
                 </a>
                 <table style="margin-top:  20px; display: inline-block; overflow: auto;" class="table table-striped-columns table-hover"
