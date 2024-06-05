@@ -45,12 +45,14 @@ td img:hover{
 img:hover{
     transform: scale(1.1);
 }
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: #25252c !important;
+}
 table th{
-    border: 1px solid #3e3e3e;
     opacity: .9;
 	background-color: #343439 !important;
 }
 table td{
-    border: 1px solid #3e3e3e;
+    border: 1px solid #474747;
 	background-color: rgba(10,10,10, 0.8) !important;
 }
