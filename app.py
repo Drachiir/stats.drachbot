@@ -82,7 +82,7 @@ def home():
     total_games = "0"
     for file in os.listdir(shared_folder+f"data/mmstats"):
         temp_string = file.split("_")
-        if temp_string[0] == defaults[0] and temp_string[1] == str(defaults[1]):
+        if temp_string[0] == defaults[0] and temp_string[1] == "1800":
             total_games = util.human_format(int(temp_string[2]))
             break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
