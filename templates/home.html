@@ -34,7 +34,7 @@
             </div>
         </div>
         {% for data in data_list %}
-            <div style="display: inline-block; padding: 2vw;">
+            <div style="display: inline-block; padding: 2vw">
                 <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
                     <img class="center" src="{{ image_list[loop.index - 1] }}">
                 </a>
@@ -45,14 +45,12 @@
                     <tr>
                         <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
                         {% for key in data[6] %}
-                            {% if loop.index0 < 2 %}
-                                {% if key == "Megamind" %}
-                                    {% set stats = "megamindstats" %}
-                                {% else %}
-                                    {% set stats = data[0] %}
-                                {% endif %}
-                                <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            {% if key == "Megamind" %}
+                                {% set stats = "megamindstats" %}
+                            {% else %}
+                                {% set stats = data[0] %}
                             {% endif %}
+                            <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
                         {% endfor %}
                     </tr>
                     {# HEADER 1 KEYS #}
@@ -60,9 +58,7 @@
                         <tr>
                             <th><r style="white-space: nowrap;">{{ k }}</r></th>
                             {% for key in data[6] %}
-                                {% if loop.index0 < 2 %}
-                                    <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
-                                {% endif %}
+                                <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
