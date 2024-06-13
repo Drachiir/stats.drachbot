@@ -89,6 +89,11 @@ def home():
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games)
 
+# @app.route("/profile/<playername>")
+# @cache.cached(timeout=timeout)
+# def profile(playername):
+#     print()
+
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
