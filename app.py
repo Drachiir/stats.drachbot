@@ -195,7 +195,9 @@ def stats(stats, elo, patch, specific_key):
                 if raw_data[key]["Count"] != 0:
                     new_dict[key] = raw_data[key]
             raw_data = new_dict
-    if not raw_data or ((stats != "mmstats") and specific_key != "All" and specific_key not in raw_data):
+    if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
+        return render_template("no_data.html")
+    if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
         return render_template("no_data.html")
     if stats == "mmstats" and specific_key != "Megamind":
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
