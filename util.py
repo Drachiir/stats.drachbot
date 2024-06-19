@@ -152,7 +152,7 @@ def get_key_value(data, key, k, games, stats=""):
             return get_perf_list(data[key], 'MMs')[0]
 
 def time_ago(time=False):
-    now = datetime.now()
+    now = datetime.utcnow()
     if type(time) is int:
         diff = now - datetime.fromtimestamp(time)
     elif type(time) is float:
@@ -184,12 +184,12 @@ def time_ago(time=False):
     if day_diff == 1:
         return "Yesterday"
     if day_diff < 7:
-        return str(day_diff) + " days ago"
+        return str(round(day_diff)) + " days ago"
     if day_diff < 31:
-        return str(day_diff/7) + " weeks ago"
+        return str(round(day_diff/7)) + " weeks ago"
     if day_diff < 365:
-        return str(day_diff/30) + " months ago"
-    return str(day_diff/365) + " years ago"
+        return str(round(day_diff/30)) + " months ago"
+    return str(round(day_diff/365)) + " years ago"
 
 def get_rank_url(elo):
     if elo >= 2800:
