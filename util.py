@@ -93,6 +93,8 @@ def get_tooltip(header:str):
     if header.startswith("Best"):
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
+        case "Usage Rate":
+            return "% of time this Unit appears on End boards"
         case "Pickrate":
             return "Per Game Frequency, 100% = 1 per Game on average"
         case "Pickrate*":

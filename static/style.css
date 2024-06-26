@@ -82,3 +82,17 @@ i[data-title]:hover::after, i[data-title]:active::after{
     position: absolute;
     z-index: 1;
 }
+
+a[data-title]:hover::after, a[data-title]:active::after{
+    content: attr(data-title);
+    width: 170px;
+    background-color: black;
+    font-family: "Roboto", sans-serif;
+    text-align: center;
+    border-radius: 10px;
+    padding: 5px 0;
+    border: gray 1px solid;
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
