@@ -91,6 +91,8 @@ def get_cdn_image(string, header):
 
 def get_tooltip(header):
     match header:
+        case "Pickrate":
+            return "Per Game Frequency"
         case "W on 10" | "W on 4":
             return "Workers on Wave X"
         case "Best Add" | "Adds":

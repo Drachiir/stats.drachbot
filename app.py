@@ -170,7 +170,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Unit"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
+                header_keys = ["Games", "Winrate", "Playrate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
