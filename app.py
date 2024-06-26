@@ -110,7 +110,7 @@ def stats(stats, elo, patch, specific_key):
             title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
             folder = "megamindstats"
             if specific_key == "All" or specific_key == "Megamind":
-                header_keys = ["Games", "Winrate", "Roll Chance", "Player Elo", "W on 10"]
+                header_keys = ["Games", "Winrate", "Frequency", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
