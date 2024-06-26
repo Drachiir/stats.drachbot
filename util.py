@@ -89,12 +89,16 @@ def get_cdn_image(string, header):
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
 
-def get_tooltip(header):
+def get_tooltip(header:str):
+    if header.startswith("Best"):
+        return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
         case "Pickrate":
-            return "Per Game Frequency"
-        case "W on 10" | "W on 4":
-            return "Workers on Wave X"
+            return "Per Game Frequency, 100% = 1 per Game on average"
+        case "W on 4":
+            return "Workers on Wave 4"
+        case "W on 10":
+            return "Workers on Wave 10"
         case "Best Add" | "Adds":
             return "Units added within the first 4 waves"
         case "MM":

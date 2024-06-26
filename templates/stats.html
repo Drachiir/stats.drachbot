@@ -66,7 +66,7 @@
             {# HEADER 1 #}
             <tbody>
             <tr>
-                <th style="width: 7%;" title="{{ get_tooltip(header_title) }}">
+                <th style="width: 7%;">
                     <r>{{ header_title }}</r>
                 </th>
                 {% for key in data %}
@@ -86,7 +86,10 @@
             {# HEADER 1 KEYS #}
             {% for k in header_keys %}
                 <tr>
-                    <th title="{{ get_tooltip(k) }}">
+                    <th>
+                        {% if k in ["Pickrate", "W on 4", "W on 10"] %}
+                            <i data-title="{{ get_tooltip(k) }}" style="font-size:16px; position: absolute; top: 2px; right: 2px;" class="fa">&#xf059;</i>
+                        {% endif %}
                         <r style="white-space: nowrap;">{{ k }}</r>
                     </th>
                     {% for key in data %}
@@ -97,8 +100,8 @@
             {# SUB HEADERS #}
             {% for sub in sub_headers %}
                 <tr>
-                    <th title="{{ get_tooltip(sub[0]) }}">
-                        <r style="white-space: nowrap;">{{ sub[0] }}</r>
+                    <th>
+                        <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:16px; position: absolute; top: 2px; right: 2px;" class="fa">&#xf059;</i><r style="white-space: nowrap;">{{ sub[0] }}</r>
                     </th>
                     {% for key in data %}
                         {% set sub_value = get_key_value(data, key, sub[0], games) %}
@@ -113,7 +116,7 @@
                     {# SUB HEADER KEYS #}
                     {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
                         <tr>
-                            <th title="{{ get_tooltip(sub_key) }}">
+                            <th>
                                 <r>{{ sub_key }}</r>
                             </th>
                             {% for key in data %}
