@@ -13,7 +13,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const headers = table.querySelectorAll("th");
         function addHeaderClass(header) {
             if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 0){
-                header.classList.add("desc");
+                if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1){
+                    header.classList.add("desc");
+                }
+                else {
+                    header.classList.add("asc");
+                }
             }
         }
         headers.forEach(h => addHeaderClass(h));

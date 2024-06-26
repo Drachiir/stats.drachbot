@@ -95,6 +95,8 @@ def get_tooltip(header:str):
     match header:
         case "Pickrate":
             return "Per Game Frequency, 100% = 1 per Game on average"
+        case "Pickrate*":
+            return "% of time picked, when available"
         case "W on 4":
             return "Workers on Wave 4"
         case "W on 10":
@@ -118,7 +120,7 @@ def get_key_value(data, key, k, games, stats=""):
                 return f"{custom_winrate([data[key]['Wins'], data[key]['Count']])}%"
             except Exception:
                 return 0
-        case "Pickrate" | "Playrate":
+        case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*":
             try:
                 if stats != "spellstats":
                     return f"{custom_winrate([data[key]['Count'], games])}%"
