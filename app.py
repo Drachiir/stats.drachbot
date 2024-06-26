@@ -154,7 +154,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Spell"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                header_keys = ["Games", "Winrate", "Pick rate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
             else:
                 if specific_key in buff_spells:
