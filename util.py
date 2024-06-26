@@ -114,7 +114,7 @@ def get_key_value(data, key, k, games, stats=""):
                 return f"{custom_winrate([data[key]['Wins'], data[key]['Count']])}%"
             except Exception:
                 return 0
-        case "Pickrate" | "Playrate" | "Frequency":
+        case "Pickrate" | "Playrate":
             try:
                 if stats != "spellstats":
                     return f"{custom_winrate([data[key]['Count'], games])}%"
