@@ -96,7 +96,7 @@ def get_tooltip(header:str):
         case "Usage Rate":
             return "% of time this Unit appears on End boards"
         case "Pickrate":
-            return "Per Game Frequency, 100% = 1 per Game on average"
+            return "Per Game Frequency e.g. 100% = 1 per Game"
         case "Pickrate*":
             return "% of time picked, when available"
         case "W on 4":

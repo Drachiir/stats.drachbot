@@ -71,12 +71,12 @@ i::before {
 
 i[data-title]:hover::after, i[data-title]:active::after{
     content: attr(data-title);
-    width: 120px;
+    width: 130px;
     background-color: black;
     font-family: "Roboto", sans-serif;
     text-align: center;
-    border-radius: 10px;
-    padding: 5px 0;
+    border-radius: 15px;
+    padding: 10px 0;
     border: gray 1px solid;
     /* Position the tooltip */
     position: absolute;
@@ -85,7 +85,7 @@ i[data-title]:hover::after, i[data-title]:active::after{
 
 a[data-title]:hover::after, a[data-title]:active::after{
     content: attr(data-title);
-    width: 170px;
+    width: 180px;
     background-color: black;
     font-family: "Roboto", sans-serif;
     text-align: center;
