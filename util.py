@@ -92,7 +92,7 @@ def get_cdn_image(string, header):
 def get_tooltip(header:str):
     if header.startswith("Best"):
         if header == "Best Add":
-            return f"Best Add (Unit built within the first 4 waves) based on Win% and Play%"
+            return f"Best Unit built within the first 4 waves based on Win% and Play%"
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
         case "Usage Rate":
