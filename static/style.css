@@ -115,7 +115,7 @@ td[data-title]:hover::after, td[data-title]:active::after{
     content: attr(xtitle);
     position: absolute;
     bottom: 100%;
-    left: 0%;
+    left: -5%;
     background-color: black;
     font-family: "Roboto", sans-serif;
     font-size: 13px;
