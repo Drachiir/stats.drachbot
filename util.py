@@ -110,7 +110,7 @@ def get_tooltip(header:str):
         case "MM":
             return "Mastermind"
         case _:
-            return header
+            return header.capitalize()
   
 def get_key_value(data, key, k, games, stats=""):
     match k:
