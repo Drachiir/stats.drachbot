@@ -50,10 +50,10 @@
                     </th>
                     {% for key in header_dict %}
                         {% if key in mm_list %}
-                            <td title="{{ get_tooltip(key) }}" style="width: 7%;"><a href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy"
+                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy"
                                     src="{{ get_cdn_image(key, header[0]) }}"></a></td>
                         {% else %}
-                            <td title="{{ get_tooltip(key) }}" style="width: 7%;"><a href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key|lower }}"><img loading="lazy"
+                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key|lower }}"><img loading="lazy"
                                     src="{{ get_cdn_image(key, header[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}
