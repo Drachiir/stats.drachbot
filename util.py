@@ -90,6 +90,7 @@ def get_cdn_image(string, header):
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
 
 def get_tooltip(header:str):
+    header = str(header)
     if header.startswith("Best"):
         if header == "Best Add":
             return f"Best Unit built within the first 4 waves based on Win% and Play%"
