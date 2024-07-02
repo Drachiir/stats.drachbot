@@ -130,7 +130,7 @@ def get_key_value(data, key, k, games, stats=""):
                 if stats != "spellstats":
                     return f"{custom_winrate([data[key]['Count'], games])}%"
                 else:
-                    return f"{custom_winrate([data[key]['Offered'], games])}%"
+                    return f"{custom_winrate([data[key]['Count'], data[key]['Offered']])}%"
             except Exception:
                 return 0
         case "Player Elo":
