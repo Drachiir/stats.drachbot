@@ -3,7 +3,7 @@
 {% block content %}
     <div style="padding-top: 15px;">
         <div style="position: relative">
-            <img style="float:left; padding-right: 20px;" src="{{ get_cdn_image(specific_key, header_title) }}">
+            <img style="float:left; padding-right: 20px; padding-bottom: 10px" src="{{ get_cdn_image(specific_key, header_title) }}">
             {% if stats == "megamindstats" and key != "Megamind" %}
                 {% set header_title = "Megamind" %}
                 <img style="position: absolute; top:0;left: 0; z-index: 1;" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
@@ -40,7 +40,7 @@
             <b>v{{ patch }}</b></r>
         {# HEADER 1 #}
         {% for header in sub_headers %}
-            <table style="display: inline-block; overflow: auto; padding-top: 10px" class="table table-hover"
+            <table style="display: inline-block;" class="table"
                    id="myTable{{ loop.index }}">
                 <tbody>
                 {% set header_dict = sort_dict(data[specific_key][header[1]], 'Count') %}
