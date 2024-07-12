@@ -34,7 +34,7 @@
             </div>
         </div>
         {% for data in data_list %}
-            <div style="display: inline-block; padding: 1vw">
+            <div style="display: inline-block; padding: 0.5vw">
                 <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
                     <img class="center" src="{{ image_list[loop.index - 1] }}">
                 </a>
@@ -43,7 +43,7 @@
                     {# HEADER 1 #}
                     <tbody>
                     <tr>
-                        <th style="width: 34%"><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                        <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
                         {% for key in data[6] %}
                             {% if key == "Megamind" %}
                                 {% set stats = "megamindstats" %}

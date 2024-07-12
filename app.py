@@ -54,11 +54,12 @@ buff_spells = defaults_json["BuffSpells"]
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
-    folder_list = ["mmstats", "openstats", "spellstats", "unitstats"]
-    header_list = ["MM", "Open", "Spell", "Unit"]
-    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Unit Stats"]
+    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats"]
+    header_list = ["MM", "Open", "Spell", "Roll", "Unit"]
+    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
-                 ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Value10000.png"]
+                 ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Reroll.png"
+                 ,"https://cdn.legiontd2.com/icons/Value10000.png"]
     data_list = []
     keys = []
     for i, folder in enumerate(folder_list):
@@ -99,7 +100,7 @@ def home():
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
 @cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
-    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats"]:
+    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats"]:
         return render_template("no_data.html")
     raw_data = None
     match stats:
@@ -176,6 +177,18 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "unitstats"
+        case "rollstats":
+            title = "Roll"
+            title_image = "https://cdn.legiontd2.com/icons/Reroll.png"
+            header_title = "Roll"
+            header_cdn = "https://cdn.legiontd2.com/icons/"
+            if specific_key == "All":
+                header_keys = ["Games", "Winrate", "Usage Rate", "Player Elo"]
+                sub_headers = [["Best Combo", "ComboUnit", "rollstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
+            folder = "rollstats"
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):
             games = file.split("_")[2]
