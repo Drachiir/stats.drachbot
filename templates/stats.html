@@ -64,6 +64,16 @@
         <table style="margin-top:  20px; display: inline-block;" class="table"
                id="myTable">
             {# HEADER 1 #}
+            <thead>
+            <tr>
+                <th></th>
+                {% for key in data %}
+                <th style="text-align: center">
+                    {{ loop.index }}
+                </th>
+                {% endfor %}
+            </tr>
+            </thead>
             <tbody>
             <tr>
                 <th style="width: 7%;">

@@ -10,9 +10,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const headers = table.querySelectorAll("th");
+        const headers = table.querySelectorAll("tbody th");
         function addHeaderClass(header) {
-            if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 0){
+            if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 1){
                 if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1){
                     header.classList.add("desc");
                 }
