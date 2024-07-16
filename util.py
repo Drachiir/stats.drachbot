@@ -1,5 +1,31 @@
 from datetime import datetime
+from re import findall
 
+wave_names= [
+    "Crab",
+    "Wale",
+    "Hopper",
+    "FlyingChicken",
+    "Scorpion",
+    "Rocko",
+    "Sludge",
+    "Kobra",
+    "Carapace",
+    "Granddaddy",
+    "QuillShooter",
+    "Mantis",
+    "DrillGolem",
+    "KillerSlug",
+    "Quadrapus",
+    "Cardinal",
+    "MetalDragon",
+    "WaleChief",
+    "DireToad",
+    "Maccabeus",
+    "LegionLord"
+]
+
+wave_values = [72, 84, 90, 96, 108, 114, 100, 132, 144, 150, 156, 168, 180, 192, 204, 216, 228, 252, 276, 300, 360]
 
 def custom_winrate(value):
     try:
@@ -25,9 +51,17 @@ def get_perf_list(dict2, key):
     new_dict = {}
     for xy in dict2[key]:
         if xy == "none": continue
-        if dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] < dict2['Wins'] / dict2['Count']:
-            continue
-        new_dict[xy] = dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] * (dict2[key][xy]['Count'] / dict2['Count'])
+        if key not in ["Mercs", "Units"]:
+            if dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] < dict2['Wins'] / dict2['Count']:
+                continue
+            new_dict[xy] = dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] * (dict2[key][xy]['Count'] / dict2['Count'])
+        else:
+            if dict2[key][xy]['Count'] < (dict2['Count']*0.05):
+                continue
+            if xy == "Snail":
+                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*50) + (dict2[key][xy]['Count'] / dict2['Count'])
+            else:
+                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count']) * 50) + ((dict2[key][xy]['Count'] / dict2['Count']) * 10)
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
 
@@ -82,18 +116,27 @@ def get_unit_name_list(name):
 
 def get_cdn_image(string, header):
     match header:
-        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit" | "Best Combo" | "Combos" | "Targets" | "unitstats" | "openstats" | "Roll" | "rollstats":
+        case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
+             | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
+             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
+        case "Wave" | "wavestats":
+            wave_num = findall(r'\d+', string)
+            return f"https://cdn.legiontd2.com/icons/{wave_names[int(wave_num[0])-1]}.png"
 
 def get_tooltip(header:str):
     header = str(header)
     if header.startswith("Best"):
         if header == "Best Add":
             return f"Best Unit built within the first 4 waves based on Win% and Play%"
+        elif header == "Best Merc":
+            return f"Best Merc based on Win% and Send% on this wave"
+        elif header == "Best Unit":
+            return f"Best Unit based on Win% and Play% on this wave"
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
         case "Usage Rate":
@@ -163,6 +206,17 @@ def get_key_value(data, key, k, games, stats=""):
             return get_perf_list(data[key], 'ComboUnit')[0]
         case "Best MMs":
             return get_perf_list(data[key], 'MMs')[0]
+        case "Best Merc":
+            return get_perf_list(data[key], 'Mercs')[0]
+        case "Best Unit":
+            return get_perf_list(data[key], 'Units')[0]
+        case "Endrate":
+            return f"{custom_winrate([data[key]['EndCount'], games])}%"
+        case "Sendrate":
+            return f"{custom_winrate([data[key]['SendCount']/4, data[key]['Count']])}%"
+        case "Avg Leak":
+            wave_num = findall(r'\d+', key)
+            return f"{round(data[key]["LeakedGold"]/(wave_values[int(wave_num[0])-1]*(data[key]["Count"]*4))*100,1)}%"
 
 def time_ago(time=False):
     now = datetime.utcnow()

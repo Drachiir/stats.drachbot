@@ -53,7 +53,12 @@
                         {% endfor %}
                     </tr>
                     {# HEADER 1 KEYS #}
-                    {% for k in ["Games", "Winrate", "Pickrate"] %}
+                    {% if data[0] == "wavestats" %}
+                        {% set key_list = ["Endrate", "Sendrate", "Avg Leak"] %}
+                    {% else %}
+                        {% set key_list = ["Games", "Winrate", "Pickrate"] %}
+                    {% endif %}
+                    {% for k in key_list %}
                         <tr>
                             <th><r style="white-space: nowrap;">{{ k }}</r></th>
                             {% for key in data[6] %}

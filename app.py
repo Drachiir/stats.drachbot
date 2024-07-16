@@ -54,12 +54,12 @@ buff_spells = defaults_json["BuffSpells"]
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
-    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats"]
-    header_list = ["MM", "Open", "Spell", "Roll", "Unit"]
-    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats"]
+    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
+    header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
+    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats", "Wave Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
                  ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Reroll.png"
-                 ,"https://cdn.legiontd2.com/icons/Value10000.png"]
+                 ,"https://cdn.legiontd2.com/icons/Value10000.png","https://cdn.legiontd2.com/icons/LegionKing.png"]
     data_list = []
     keys = []
     for i, folder in enumerate(folder_list):
@@ -75,6 +75,9 @@ def home():
                         if json_data[key]["Count"] != 0:
                             new_dict[key] = json_data[key]
                     json_data = new_dict
+                    if folder == "wavestats":
+                        newIndex = sorted(json_data, key=lambda x: json_data[x]['EndCount'], reverse=True)
+                        json_data = {k: json_data[k] for k in newIndex}
                     temp_keys = list(json_data.keys())
                     keys.append([folder, temp_keys])
                     data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i], temp_keys[:2]])
@@ -100,7 +103,7 @@ def home():
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
 @cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
-    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats"]:
+    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
         return render_template("no_data.html")
     raw_data = None
     match stats:
@@ -189,6 +192,18 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "rollstats"
+        case "wavestats":
+            title = "Wave"
+            title_image = "https://cdn.legiontd2.com/icons/LegionKing.png"
+            header_title = "Wave"
+            header_cdn = "https://cdn.legiontd2.com/icons/"
+            if specific_key == "All":
+                header_keys = ["Endrate", "Sendrate", "Avg Leak"]
+                sub_headers = [["Best Merc", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
+            else:
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Mercs", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
+            folder = "wavestats"
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):
             games = file.split("_")[2]
@@ -219,6 +234,9 @@ def stats(stats, elo, patch, specific_key):
         html_file = "stats.html"
     else:
         html_file = "stats_specific.html"
+    if stats == "wavestats":
+        newIndex = sorted(raw_data, key=lambda x: raw_data[x]['EndCount'], reverse=True)
+        raw_data = {k: raw_data[k] for k in newIndex}
     return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
                            games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,

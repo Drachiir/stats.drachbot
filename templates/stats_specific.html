@@ -35,9 +35,15 @@
             </ul>
         </div>
         <br>
-        <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Ranked Games | Winrate:
+        {% if stats == "wavestats" %}
+            <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Endrate:
+            <b>{{ custom_winrate([data[specific_key]['EndCount'], games]) }}%</b> |
+            <b>v{{ patch }}</b></r>
+        {% else %}
+            <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Ranked Games | Winrate:
             <b>{{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}%</b> |
             <b>v{{ patch }}</b></r>
+        {% endif %}
         {# HEADER 1 #}
         {% for header in sub_headers %}
             <table style="display: inline-block;" class="table"
@@ -65,7 +71,11 @@
                             <r>{{ k }}</r>
                         </th>
                         {% for key in header_dict %}
-                            <td>{{ get_key_value(header_dict, key, k, data[specific_key]['Count']) }}</td>
+                            {% if stats == "wavestats" %}
+                                <td>{{ get_key_value(header_dict, key, k, data[specific_key]['Count']*4) }}</td>
+                            {% else %}
+                                <td>{{ get_key_value(header_dict, key, k, data[specific_key]['Count']) }}</td>
+                            {% endif %}
                         {% endfor %}
                     </tr>
                 {% endfor %}
