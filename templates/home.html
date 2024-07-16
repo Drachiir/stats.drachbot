@@ -49,7 +49,7 @@
                             {% else %}
                                 {% set stats = data[0] %}
                             {% endif %}
-                            <td><a xtitle="{{ get_tooltip(key) }}" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
                         {% endfor %}
                     </tr>
                     {# HEADER 1 KEYS #}

@@ -207,9 +207,15 @@ def get_key_value(data, key, k, games, stats=""):
         case "Best MMs":
             return get_perf_list(data[key], 'MMs')[0]
         case "Best Merc":
-            return get_perf_list(data[key], 'Mercs')[0]
+            try:
+                return get_perf_list(data[key], 'Mercs')[0]
+            except IndexError:
+                return None
         case "Best Unit":
-            return get_perf_list(data[key], 'Units')[0]
+            try:
+                return get_perf_list(data[key], 'Units')[0]
+            except IndexError:
+                return None
         case "Endrate":
             return f"{custom_winrate([data[key]['EndCount'], games])}%"
         case "Sendrate":
