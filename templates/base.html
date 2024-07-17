@@ -59,30 +59,44 @@
         background-size: 15px 15px;
         background-image: repeating-linear-gradient(45deg, #0c2330 0, #162f43 1px, #1f1f1f 0, #1f1f1f 50%)">
 <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-35 border-bottom">
-    <a style="margin-left: 1vw;" href="/" class="navbar-brand">stats.drachbot</a>
+    <a style="margin-left: 1vw;" href="/" class="navbar-brand">
+        <img src="/static/drachia_still.png" alt="Logo" width="32" height="32" class="d-inline-block align-text-top">stats.drachbot</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav" id="myList">
-            <li class="nav-item active">
-                <a class="nav-link" href="/mmstats/{{ patch }}/{{ elo }}">Mastermind Stats</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/openstats/{{ patch }}/{{ elo }}">Opener Stats</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/spellstats/{{ patch }}/{{ elo }}">Spell Stats</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/unitstats/{{ patch }}/{{ elo }}">Unit Stats</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/rollstats/{{ patch }}/{{ elo }}">Roll Stats</a>
-            </li>
-            <li class="nav-item active">
-                <a class="nav-link" href="/wavestats/{{ patch }}/{{ elo }}">Wave Stats</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Stats Pages
+                </a>
+                <ul class="dropdown-menu bg-black">
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/mmstats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastermind.png">MM Stats</a>
+                    </li>
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/openstats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">Opener Stats</a>
+                    </li>
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/spellstats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionSpell.png">Spell Stats</a>
+                    </li>
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/unitstats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Value10000.png">Unit Stats</a>
+                    </li>
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/rollstats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Reroll.png">Roll Stats</a>
+                    </li>
+                    <li class="dropdown-item">
+                    <a class="nav-link" href="/wavestats/{{ patch }}/{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionKing.png">Wave Stats</a>
+                    </li>
+                </ul>
             </li>
             <li class="nav-item active">
                 <a class="nav-link" href="https://drachbot.site">Discord Bot</a>
@@ -97,7 +111,7 @@
         </ul>
     </div>
 </nav>
-<div class="container">
+<div class="container" style="width: 100%">
     {% block content %} {% endblock %}
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>

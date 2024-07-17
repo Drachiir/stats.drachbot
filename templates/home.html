@@ -1,74 +1,72 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="text-align: center">
-    <div style="padding-top: 2vw; display: inline-block; text-align: center">
-        <a href="https://drachbot.site/"><div><img id="mask" style="clip-path: circle();object-fit: cover;
-                    border-radius: 50%;
-                    border: 2px solid rgb(84,152,219);
-                    box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div></a><br>
-        <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
-        <r style="font-size: 1.2rem">Legion TD 2 Ranked 2v2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
-        <div style="padding-left: 10%; padding-right: 10%; padding-top: 2vw;" class="input-group input-group-lg">
-            <input type="text"
-                   onclick="myFunction()"
-                   data-bs-toggle="dropdown"
-                            class="form-control"
-                            placeholder="Search Anything..."
-                            id="myInput"
-                            onkeyup="filterFunction()">
-            <div style="text-align: center" id="myDropdown" class="dropdown-content">
-                <ul class="dropdown-menu dropdown-scrollbar">
-                    {% for list in keys %}
-                        {% for k in list[1] %}
-                            {% if k == "Megamind" %}
-                                {% set stats = "megamindstats" %}
-                            {% else %}
-                                {% set stats = list[0] %}
-                            {% endif %}
-                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
-                                <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
-                        {% endfor %}
+<div class="container-lg" style="padding-top: 2vw; text-align: center; display: inline-block;">
+    <div><img id="mask" style="clip-path: circle();object-fit: cover;
+                border-radius: 50%;
+                border: 2px solid rgb(84,152,219);
+                box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div><br>
+    <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
+    <r style="font-size: 1.2rem">Legion TD 2 Ranked 2v2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
+    <div style="padding: 1vw;" class="input-group input-group-lg">
+        <input type="text"
+               onclick="myFunction()"
+               data-bs-toggle="dropdown"
+                        class="form-control"
+                        placeholder="Search Anything..."
+                        id="myInput"
+                        onkeyup="filterFunction()">
+        <div style="text-align: center" id="myDropdown" class="dropdown-content">
+            <ul class="dropdown-menu dropdown-scrollbar">
+                {% for list in keys %}
+                    {% for k in list[1] %}
+                        {% if k == "Megamind" %}
+                            {% set stats = "megamindstats" %}
+                        {% else %}
+                            {% set stats = list[0] %}
+                        {% endif %}
+                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
+                            <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
                     {% endfor %}
-                </ul>
-            </div>
+                {% endfor %}
+            </ul>
         </div>
-        {% for data in data_list %}
-            <div style="display: inline-block; padding: 0.5vw">
-                <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
-                    <img class="center" src="{{ image_list[loop.index - 1] }}">
-                </a>
-                <table style="margin-top:  20px; display: inline-block; overflow-x: visible; overflow-y: hidden" class="table">
-                    {# HEADER 1 #}
-                    <tbody>
+    </div>
+    {% for data in data_list %}
+        <div style="display: inline-block; padding: 0.5vw">
+            <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
+                <img class="center" src="{{ image_list[loop.index - 1] }}">
+            </a>
+            <table style="margin-top:  20px; display: inline-block; overflow-x: visible; overflow-y: hidden" class="table">
+                {# HEADER 1 #}
+                <tbody>
+                <tr>
+                    <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                    {% for key in data[6] %}
+                        {% if key == "Megamind" %}
+                            {% set stats = "megamindstats" %}
+                        {% else %}
+                            {% set stats = data[0] %}
+                        {% endif %}
+                        <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                    {% endfor %}
+                </tr>
+                {# HEADER 1 KEYS #}
+                {% if data[0] == "wavestats" %}
+                    {% set key_list = ["Endrate", "Sendrate", "Avg Leak"] %}
+                {% else %}
+                    {% set key_list = ["Games", "Winrate", "Pickrate"] %}
+                {% endif %}
+                {% for k in key_list %}
                     <tr>
-                        <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                        <th><r style="white-space: nowrap;">{{ k }}</r></th>
                         {% for key in data[6] %}
-                            {% if key == "Megamind" %}
-                                {% set stats = "megamindstats" %}
-                            {% else %}
-                                {% set stats = data[0] %}
-                            {% endif %}
-                            <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
                         {% endfor %}
                     </tr>
-                    {# HEADER 1 KEYS #}
-                    {% if data[0] == "wavestats" %}
-                        {% set key_list = ["Endrate", "Sendrate", "Avg Leak"] %}
-                    {% else %}
-                        {% set key_list = ["Games", "Winrate", "Pickrate"] %}
-                    {% endif %}
-                    {% for k in key_list %}
-                        <tr>
-                            <th><r style="white-space: nowrap;">{{ k }}</r></th>
-                            {% for key in data[6] %}
-                                <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        {% endfor %}
-    </div>
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
 </div>
 {% endblock %}

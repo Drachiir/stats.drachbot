@@ -4,6 +4,8 @@ import json
 from datetime import datetime, timezone
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory
+from oauthlib.oauth2.rfc6749.utils import host_from_uri
+
 import util
 
 cache = Cache()
@@ -246,7 +248,7 @@ def stats(stats, elo, patch, specific_key):
                            data_keys = raw_data.keys(), get_rank_url=util.get_rank_url)
 
 if platform.system() == "Windows":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve
     serve(app, host="0.0.0.0", port=54937)
