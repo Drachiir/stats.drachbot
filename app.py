@@ -4,7 +4,6 @@ import json
 from datetime import datetime, timezone
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory
-from oauthlib.oauth2.rfc6749.utils import host_from_uri
 
 import util
 
