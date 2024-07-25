@@ -130,6 +130,9 @@ def stats(stats, elo, patch, specific_key):
             if specific_key == "All" or specific_key == "Megamind":
                 header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
+            elif specific_key == "Champion":
+                header_keys = ["Games", "Winrate", "Playrate"]
+                sub_headers = [["Champion", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]

@@ -61,7 +61,7 @@ def get_perf_list(dict2, key):
             if xy == "Snail":
                 new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*50) + (dict2[key][xy]['Count'] / dict2['Count'])
             else:
-                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count']) * 50) + ((dict2[key][xy]['Count'] / dict2['Count']) * 10)
+                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*50) + ((dict2[key][xy]['Count'] / dict2['Count'])*10)
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
 
@@ -118,7 +118,7 @@ def get_cdn_image(string, header):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
-             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit":
+             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit" | "Champion":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
