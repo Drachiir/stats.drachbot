@@ -118,7 +118,7 @@ def get_cdn_image(string, header):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
-             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit" | "Champion":
+             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit" | "Champions":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
@@ -153,6 +153,8 @@ def get_tooltip(header:str):
             return "Units added within the first 4 waves"
         case "MM":
             return "Mastermind"
+        case "Champions":
+            return  "Base Units with the Champion buff"
         case _:
             return header.capitalize()
   

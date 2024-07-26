@@ -119,7 +119,7 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Games", "Winrate", "Playrate"]
-                sub_headers = [["Champion", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
@@ -135,7 +135,7 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Games", "Winrate", "Playrate"]
-                sub_headers = [["Champion", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
