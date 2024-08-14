@@ -53,7 +53,7 @@
                 <tr>
                     <th style="width: 7%;">
                         <r>{{ header[0] }}</r>
-                        {% if header[0] in ["Champions"] %}
+                        {% if header[0] in ["Champions", "Adds", "Openers", "Targets"] %}
                             <i data-title="{{ get_tooltip(header[0]) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">&#xf059;</i>
                         {% endif %}
                     </th>

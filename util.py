@@ -155,6 +155,10 @@ def get_tooltip(header:str):
             return "Mastermind"
         case "Champions":
             return  "Base Units with the Champion buff"
+        case "Openers":
+            return "Units built on Wave 1"
+        case "Targets":
+            return "Units affected by this buff"
         case _:
             return header.capitalize()
   
