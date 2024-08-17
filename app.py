@@ -250,7 +250,7 @@ def stats(stats, elo, patch, specific_key):
                            specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                            sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date, get_tooltip=util.get_tooltip,
-                           data_keys = raw_data.keys(), get_rank_url=util.get_rank_url)
+                           data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave)
 
 if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)

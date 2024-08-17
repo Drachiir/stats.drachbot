@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from re import findall
 
@@ -292,3 +293,12 @@ def get_rank_url(elo):
     else:
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Bronze.png'
     return rank_url
+
+def get_avg_end_wave(data:dict) -> str:
+    wave_total = 0
+    count = 0
+    for wave in data:
+        wave_total += int(re.findall(r'\d+', wave)[0]) * data[wave]["EndCount"]
+        count += data[wave]["EndCount"]
+    return f"{round(wave_total/count, 1)}"
+        
