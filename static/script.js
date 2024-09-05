@@ -142,10 +142,10 @@ for (var i=0, len=cells.length; i<len; i++){
         cells[i].style.color = 'GreenYellow';
     }
     else if (value === "B"){
-        cells[i].style.color = 'Orange';
+        cells[i].style.color = 'MediumSeaGreen';
     }
     else if (value === "C"){
-        cells[i].style.color = 'Crimson';
+        cells[i].style.color = 'DarkOrange';
     }
     else if (value === "D"){
         cells[i].style.color = 'Red';
