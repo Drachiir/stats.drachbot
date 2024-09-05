@@ -205,7 +205,7 @@ def get_key_value(data, key, k, games, stats=""):
                 pickrate = 0
             tier_dict = {"mmstats": [70,65,60,55,0.5], "openstats": [55,50,45,40,0.2],
                          "spellstats": [70,65,60,55,0.5], "unitstats": [60,57,52,47,0.2],
-                         "rollstats": [150,130,110,90,1.7], "megamindstats": [55,53,50,47,0]}
+                         "rollstats": [60,57,52,47,0.2], "megamindstats": [55,53,50,47,0]}
             tier_score = winrate + pickrate * tier_dict[stats][4]
             if (winrate > 80) and (pickrate < 10):
                 tier_score = tier_score/2
