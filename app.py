@@ -115,7 +115,7 @@ def stats(stats, elo, patch, specific_key):
             title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
             folder = "megamindstats"
             if specific_key == "All" or specific_key == "Megamind":
-                header_keys = ["Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Games", "Winrate", "Playrate"]
@@ -131,7 +131,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "MM"
             header_cdn = "https://cdn.legiontd2.com/icons/Items/"
             if specific_key == "All" or specific_key == "Megamind":
-                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Games", "Winrate", "Playrate"]
@@ -153,7 +153,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Opener"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
+                header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
                 sub_headers = [["Best Add", "OpenWith", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
@@ -165,7 +165,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Spell"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Pickrate*", "Player Elo", "W on 10"]
+                header_keys = ["Tier", "Games", "Winrate", "Pickrate*", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
             else:
                 if specific_key in buff_spells:
@@ -181,7 +181,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Unit"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Usage Rate", "Player Elo"]
+                header_keys = ["Tier", "Games", "Winrate", "Usage Rate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
@@ -193,7 +193,7 @@ def stats(stats, elo, patch, specific_key):
             header_title = "Roll"
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
-                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
+                header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "rollstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]

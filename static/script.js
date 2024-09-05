@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     initializeTableSorting("myTable2");
     initializeTableSorting("myTable3");
     initializeTableSorting("myTable4");
+
     function initializeTableSorting(tableId) {
         const table = document.getElementById(tableId);
         if (!table) {
@@ -11,24 +12,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const headers = table.querySelectorAll("tbody th");
+
         function addHeaderClass(header) {
-            if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1){
+            if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1) {
                 header.classList.add("desc");
             }
-            if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 1){
-                if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 2){
+            if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 1) {
+                if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 3) {
                     header.classList.add("desc");
-                }
-                else if (header.innerText.startsWith("Endrate") && header.parentNode.rowIndex === 2){
+                } else if (header.innerText.startsWith("Endrate") && header.parentNode.rowIndex === 2) {
                     header.classList.add("desc");
-                }
-                else {
+                } else {
                     header.classList.add("asc");
                 }
             }
         }
+
         headers.forEach(h => addHeaderClass(h));
         const tbody = table.querySelector("tbody");
+
         function transposeTable() {
             const rows = Array.from(tbody.rows);
             const transposed = rows[0].cells.length - 1; // excluding header column
@@ -50,10 +52,28 @@ document.addEventListener("DOMContentLoaded", function () {
         function sortTable(columnIndex, asc = true) {
             const newRows = transposeTable();
             const sortedRows = newRows.sort((a, b) => {
-                const aText = parseFloat(a[columnIndex].replace(/<[^>]*>?/gm, ''));
-                const bText = parseFloat(b[columnIndex].replace(/<[^>]*>?/gm, ''));
+                const aText = a[columnIndex].replace(/<[^>]*>?/gm, '').trim();
+                const bText = b[columnIndex].replace(/<[^>]*>?/gm, '').trim();
 
-                return asc ? aText - bText : bText - aText;
+                // Check if the column has 'Tier' values and apply custom sort order
+                const tierOrder = ['D', 'C', 'B', 'A', 'S', 'S+'];
+                const aTierIndex = tierOrder.indexOf(aText);
+                const bTierIndex = tierOrder.indexOf(bText);
+
+                // If both are tier values, use custom order
+                if (aTierIndex !== -1 && bTierIndex !== -1) {
+                    return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex;
+                }
+
+                // Otherwise, apply default numeric sorting for non-tier values
+                const aNumber = parseFloat(aText);
+                const bNumber = parseFloat(bText);
+
+                if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                    return asc ? aNumber - bNumber : bNumber - aNumber;
+                }
+
+                return 0;
             });
 
             // Apply sorted rows to the table
@@ -71,12 +91,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     const asc = !header.classList.contains("asc");
                     header.classList.toggle("asc", asc);
                     header.classList.toggle("desc", !asc);
-                    sortTable(index, asc); // -1 to skip header column
+                    sortTable(index, asc);
                 });
             }
         });
+
+        // Initial sorting by "Tier" column in descending order
+        // const tierHeaderIndex = Array.from(headers).findIndex(header => header.innerText.startsWith("Tier"));
+        // if (tierHeaderIndex !== -1) {
+        //     sortTable(tierHeaderIndex, false); // False for descending order
+        //     headers[tierHeaderIndex].classList.add("desc"); // Mark header as sorted descending
+        // }
     }
 });
+
+
 
 function myFunction() {
   document.getElementById("myDropdown").classList.toggle("show");
@@ -95,4 +124,30 @@ function filterFunction() {
       a[i].style.display = "none";
     }
   }
+}
+
+var table = document.getElementById('myTable');
+var tbody = table.getElementsByTagName('tbody')[0];
+var cells = tbody.getElementsByTagName('td');
+
+for (var i=0, len=cells.length; i<len; i++){
+    const value = cells[i].innerHTML;
+    if (value === "S+"){
+        cells[i].style.color = 'Yellow';
+    }
+    else if (value === "S"){
+        cells[i].style.color = 'Gold';
+    }
+    else if (value === "A"){
+        cells[i].style.color = 'GreenYellow';
+    }
+    else if (value === "B"){
+        cells[i].style.color = 'Orange';
+    }
+    else if (value === "C"){
+        cells[i].style.color = 'Crimson';
+    }
+    else if (value === "D"){
+        cells[i].style.color = 'Red';
+    }
 }

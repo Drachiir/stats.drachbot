@@ -140,6 +140,8 @@ def get_tooltip(header:str):
             return f"Best Unit based on Win% and Play% on this wave"
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
+        case "Tier":
+            return "Tier based on Win% and Play% EXPERIMENTAL"
         case "Usage Rate":
             return "% of time this Unit appears on End boards"
         case "Pickrate":
@@ -189,6 +191,40 @@ def get_key_value(data, key, k, games, stats=""):
             return custom_divide([data[key]['Worker'], data[key]['Count']], 1)
         case "W on 4":
             return custom_divide([data[key]['Worker'], data[key]['Count']], 1)
+        case "Tier":
+            try:
+                winrate = custom_winrate([data[key]['Wins'], data[key]['Count']])
+            except Exception:
+                winrate = 0
+            try:
+                if stats != "spellstats":
+                    pickrate = custom_winrate([data[key]['Count'], games])
+                else:
+                    pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
+            except Exception:
+                pickrate = 0
+            tier_dict = {"mmstats": [70,65,60,55,0.5], "openstats": [55,50,45,40,0.2],
+                         "spellstats": [70,65,60,55,0.5], "unitstats": [60,57,52,47,0.2],
+                         "rollstats": [150,130,110,90,1.7], "megamindstats": [55,53,50,47,0]}
+            tier_score = winrate + pickrate * tier_dict[stats][4]
+            if (winrate > 80) and (pickrate < 10):
+                tier_score = tier_score/2
+            if pickrate < 5:
+                tier_score = tier_score/2
+            if winrate < 47:
+                tier_score = tier_score - (tier_score*0.2)
+            if tier_score >= tier_dict[stats][0]+tier_dict[stats][0]/10:
+                return "S+"
+            elif tier_score >= tier_dict[stats][0]:
+                return "S"
+            elif tier_score >= tier_dict[stats][1]:
+                return "A"
+            elif tier_score >= tier_dict[stats][2]:
+                return "B"
+            elif tier_score >= tier_dict[stats][3]:
+                return "C"
+            else:
+                return "D"
         case "Best Opener":
             try:
                 return get_perf_list(data[key], 'Opener')[0]
