@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Function to sort the table based on transposed rows
         function sortTable(columnIndex, asc = true) {
             const newRows = transposeTable();
+
             const sortedRows = newRows.sort((a, b) => {
                 const aText = a[columnIndex].replace(/<[^>]*>?/gm, '').trim();
                 const bText = b[columnIndex].replace(/<[^>]*>?/gm, '').trim();
@@ -60,21 +61,29 @@ document.addEventListener("DOMContentLoaded", function () {
                 const aTierIndex = tierOrder.indexOf(aText);
                 const bTierIndex = tierOrder.indexOf(bText);
 
-                // First sort by "Tier"
                 if (aTierIndex !== -1 && bTierIndex !== -1) {
+                    // Sort by Tier in custom order
                     if (aTierIndex !== bTierIndex) {
                         return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex;
                     }
+
+                    // If both rows are in the same tier, sort within the tier by the "Games" row
+                    const aGamesRow = tbody.rows[1].cells[newRows.indexOf(a) + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
+                    const bGamesRow = tbody.rows[1].cells[newRows.indexOf(b) + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
+                    const aGamesValue = parseFloat(aGamesRow);
+                    const bGamesValue = parseFloat(bGamesRow);
+
+                    if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
+                        return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
+                    }
                 }
 
-                // Second, within the same tier, sort by "Games" row (assuming row 1 is 'Games')
-                const aGamesRow = tbody.rows[1].cells[columnIndex + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
-                const bGamesRow = tbody.rows[1].cells[columnIndex + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
-                const aGamesValue = parseFloat(aGamesRow);
-                const bGamesValue = parseFloat(bGamesRow);
+                // If it's not a Tier column, apply default numeric sorting for non-tier values
+                const aNumber = parseFloat(aText);
+                const bNumber = parseFloat(bText);
 
-                if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
-                    return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
+                if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                    return asc ? aNumber - bNumber : bNumber - aNumber;
                 }
 
                 return 0;
