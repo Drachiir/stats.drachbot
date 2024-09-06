@@ -204,11 +204,11 @@ def get_key_value(data, key, k, games, stats="", elo = 0):
             except Exception:
                 pickrate = 0
             tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
-                         "spellstats": [68,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                         "rollstats": [62,59,56,53,0.2], "megamindstats": [52,51,50,49,0]}
+                         "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
+                         "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
             elo = str(elo)
-            elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.1, "2000": 0.1, "1800": 0.1}
-            tier_score = (winrate*(elo_dict[elo]+1)) + (pickrate * (tier_dict[stats][4]-elo_dict[elo]))
+            elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
+            tier_score = (winrate*(elo_dict[elo]*2+1)) + (pickrate * (tier_dict[stats][4]-elo_dict[elo]))
             if (winrate > 80) and (pickrate < 10):
                 tier_score = tier_score/2
             if pickrate < 5:
