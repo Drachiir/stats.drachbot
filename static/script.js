@@ -51,34 +51,38 @@ document.addEventListener("DOMContentLoaded", function () {
         // Function to sort the table based on transposed rows
         function sortTable(columnIndex, asc = true) {
             const newRows = transposeTable();
+            const tbody = document.querySelector('tbody');
+
+            // Assuming the "Tier" column is at index 0 (adjust this if necessary)
+            const isTierColumn = (columnIndex === 1); // Check if the current column is the "Tier" column
+
+            const tierOrder = ['D', 'C', 'B', 'A', 'S', 'S+']; // Custom Tier order
 
             const sortedRows = newRows.sort((a, b) => {
                 const aText = a[columnIndex].replace(/<[^>]*>?/gm, '').trim();
                 const bText = b[columnIndex].replace(/<[^>]*>?/gm, '').trim();
 
-                // Check if the column has 'Tier' values and apply custom sort order
-                const tierOrder = ['D', 'C', 'B', 'A', 'S', 'S+'];
-                const aTierIndex = tierOrder.indexOf(aText);
-                const bTierIndex = tierOrder.indexOf(bText);
+                // Handle Tier Sorting
+                if (isTierColumn) {
+                    const aTierIndex = tierOrder.indexOf(aText);
+                    const bTierIndex = tierOrder.indexOf(bText);
 
-                if (aTierIndex !== -1 && bTierIndex !== -1) {
-                    // Sort by Tier in custom order
-                    if (aTierIndex !== bTierIndex) {
-                        return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex;
-                    }
+                    if (aTierIndex !== -1 && bTierIndex !== -1) {
+                        if (aTierIndex !== bTierIndex) {
+                            return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex; // Sort by Tier
+                        }
 
-                    // If both rows are in the same tier, sort within the tier by the "Games" row
-                    const aGamesRow = tbody.rows[1].cells[newRows.indexOf(a) + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
-                    const bGamesRow = tbody.rows[1].cells[newRows.indexOf(b) + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
-                    const aGamesValue = parseFloat(aGamesRow);
-                    const bGamesValue = parseFloat(bGamesRow);
+                        // Sort within the same Tier by "Games" (row index 1)
+                        const aGamesValue = parseFloat(tbody.rows[2].cells[newRows.indexOf(a) + 1].innerText.replace(/<[^>]*>?/gm, '').trim());
+                        const bGamesValue = parseFloat(tbody.rows[2].cells[newRows.indexOf(b) + 1].innerText.replace(/<[^>]*>?/gm, '').trim());
 
-                    if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
-                        return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
+                        if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
+                            return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
+                        }
                     }
                 }
 
-                // If it's not a Tier column, apply default numeric sorting for non-tier values
+                // Fallback: Numeric sorting for non-Tier columns
                 const aNumber = parseFloat(aText);
                 const bNumber = parseFloat(bText);
 
@@ -96,6 +100,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             });
         }
+
 
         // Attach click event listener to header cells
         headers.forEach((header, index) => {
