@@ -165,7 +165,7 @@ def get_tooltip(header:str):
         case _:
             return header.capitalize()
   
-def get_key_value(data, key, k, games, stats=""):
+def get_key_value(data, key, k, games, stats="", elo = 0):
     match k:
         case "Games":
             try:
@@ -203,16 +203,17 @@ def get_key_value(data, key, k, games, stats=""):
                     pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
             except Exception:
                 pickrate = 0
-            tier_dict = {"mmstats": [70,65,60,55,0.5], "openstats": [55,50,45,40,0.2],
+            tier_dict = {"mmstats": [70,65,60,55,0.5], "openstats": [57,50,40,25,0.2],
                          "spellstats": [70,65,60,55,0.5], "unitstats": [60,57,52,47,0.2],
-                         "rollstats": [60,57,52,47,0.2], "megamindstats": [55,53,50,47,0]}
-            tier_score = winrate + pickrate * tier_dict[stats][4]
+                         "rollstats": [62,59,56,53,0.2], "megamindstats": [52,51,50,49,0]}
+            elo_dict = {"2800": 0, "2600": 0, "2400": 0.1, "2200": 0.1, "2000": 0.2, "1800": 0.2}
+            tier_score = (winrate*(elo_dict[elo]+1)) + (pickrate * (tier_dict[stats][4]-elo_dict[elo]))
             if (winrate > 80) and (pickrate < 10):
                 tier_score = tier_score/2
             if pickrate < 5:
                 tier_score = tier_score/2
-            if winrate < 47:
-                tier_score = tier_score - (tier_score*0.2)
+            if winrate < 50:
+                tier_score -= tier_dict[stats][0]/20
             if tier_score >= tier_dict[stats][0]+tier_dict[stats][0]/10:
                 return "S+"
             elif tier_score >= tier_dict[stats][0]:

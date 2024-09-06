@@ -108,7 +108,7 @@
                         {% endif %}
                     </th>
                     {% for key in data %}
-                        <td>{{ get_key_value(data, key, k, games, stats) }}</td>
+                        <td>{{ get_key_value(data, key, k, games, stats, elo) }}</td>
                     {% endfor %}
                 </tr>
             {% endfor %}

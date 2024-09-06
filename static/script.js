@@ -60,17 +60,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 const aTierIndex = tierOrder.indexOf(aText);
                 const bTierIndex = tierOrder.indexOf(bText);
 
-                // If both are tier values, use custom order
+                // First sort by "Tier"
                 if (aTierIndex !== -1 && bTierIndex !== -1) {
-                    return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex;
+                    if (aTierIndex !== bTierIndex) {
+                        return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex;
+                    }
                 }
 
-                // Otherwise, apply default numeric sorting for non-tier values
-                const aNumber = parseFloat(aText);
-                const bNumber = parseFloat(bText);
+                // Second, within the same tier, sort by "Games" row (assuming row 1 is 'Games')
+                const aGamesRow = tbody.rows[1].cells[columnIndex + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
+                const bGamesRow = tbody.rows[1].cells[columnIndex + 1].innerText.replace(/<[^>]*>?/gm, '').trim();
+                const aGamesValue = parseFloat(aGamesRow);
+                const bGamesValue = parseFloat(bGamesRow);
 
-                if (!isNaN(aNumber) && !isNaN(bNumber)) {
-                    return asc ? aNumber - bNumber : bNumber - aNumber;
+                if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
+                    return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
                 }
 
                 return 0;
@@ -104,8 +108,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // }
     }
 });
-
-
 
 function myFunction() {
   document.getElementById("myDropdown").classList.toggle("show");
