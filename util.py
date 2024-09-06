@@ -206,7 +206,8 @@ def get_key_value(data, key, k, games, stats="", elo = 0):
             tier_dict = {"mmstats": [70,65,60,55,0.5], "openstats": [57,50,40,25,0.2],
                          "spellstats": [70,65,60,55,0.5], "unitstats": [60,57,52,47,0.2],
                          "rollstats": [62,59,56,53,0.2], "megamindstats": [52,51,50,49,0]}
-            elo_dict = {2800: 0, 2600: 0, 2400: 0.1, 2200: 0.1, 2000: 0.2, 1800: 0.2}
+            elo = str(elo)
+            elo_dict = {"2800": 0, "2600": 0, "2400": 0.1, "2200": 0.1, "2000": 0.2, "1800": 0.2}
             tier_score = (winrate*(elo_dict[elo]+1)) + (pickrate * (tier_dict[stats][4]-elo_dict[elo]))
             if (winrate > 80) and (pickrate < 10):
                 tier_score = tier_score/2
