@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const headers = table.querySelectorAll("tbody th");
 
         function addHeaderClass(header) {
-            if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1) {
+            if (header.innerText.startsWith("Tier") && header.parentNode.rowIndex === 1) {
+                header.classList.add("asc");
+            }
+            if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 2) {
                 header.classList.add("desc");
             }
             if (!header.innerText.startsWith("Best") && header.parentNode.rowIndex > 1) {
@@ -51,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Function to sort the table based on transposed rows
         function sortTable(columnIndex, asc = true) {
             const newRows = transposeTable();
-            const tbody = document.querySelector('tbody');
+            const tbody = table.querySelector('tbody');
 
             // Assuming the "Tier" column is at index 0 (adjust this if necessary)
             const isTierColumn = (columnIndex === 1); // Check if the current column is the "Tier" column
@@ -142,28 +145,34 @@ function filterFunction() {
   }
 }
 
-var table = document.getElementById('myTable');
-var tbody = table.getElementsByTagName('tbody')[0];
-var cells = tbody.getElementsByTagName('td');
+function tierColors(tableId) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+        return;
+    }
+    const tbody = table.getElementsByTagName('tbody')[0];
+    const cells = tbody.getElementsByTagName('td');
 
-for (var i=0, len=cells.length; i<len; i++){
-    const value = cells[i].innerHTML;
-    if (value === "S+"){
-        cells[i].style.color = 'Yellow';
-    }
-    else if (value === "S"){
-        cells[i].style.color = 'Gold';
-    }
-    else if (value === "A"){
-        cells[i].style.color = 'GreenYellow';
-    }
-    else if (value === "B"){
-        cells[i].style.color = 'MediumSeaGreen';
-    }
-    else if (value === "C"){
-        cells[i].style.color = 'DarkOrange';
-    }
-    else if (value === "D"){
-        cells[i].style.color = 'Red';
+    for (var i = 0, len = cells.length; i < len; i++) {
+        const value = cells[i].innerHTML;
+        if (value === "S+") {
+            cells[i].style.color = 'Yellow';
+        } else if (value === "S") {
+            cells[i].style.color = 'Gold';
+        } else if (value === "A") {
+            cells[i].style.color = 'GreenYellow';
+        } else if (value === "B") {
+            cells[i].style.color = 'MediumSeaGreen';
+        } else if (value === "C") {
+            cells[i].style.color = 'DarkOrange';
+        } else if (value === "D") {
+            cells[i].style.color = 'Red';
+        }
     }
 }
+
+tierColors("myTable");
+tierColors("myTable1");
+tierColors("myTable2");
+tierColors("myTable3");
+tierColors("myTable4");

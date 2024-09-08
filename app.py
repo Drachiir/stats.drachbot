@@ -118,10 +118,10 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
                 return render_template("no_data.html")
@@ -134,10 +134,10 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
             elif specific_key == "Champion":
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
             if specific_key == "Megamind":
                 title = "Megamind"
@@ -156,7 +156,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
                 sub_headers = [["Best Add", "OpenWith", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "openstats"
         case "spellstats":
@@ -169,10 +169,10 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
             else:
                 if specific_key in buff_spells:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                     sub_headers = [["Targets", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
             folder = "spellstats"
         case "unitstats":
@@ -184,7 +184,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Usage Rate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "unitstats"
         case "rollstats":
@@ -196,7 +196,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "rollstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "rollstats"
         case "wavestats":
@@ -244,13 +244,17 @@ def stats(stats, elo, patch, specific_key):
     if stats == "wavestats":
         newIndex = sorted(raw_data, key=lambda x: raw_data[x]['EndCount'], reverse=True)
         raw_data = {k: raw_data[k] for k in newIndex}
+    if specific_key != "All" or specific_key != "Megamind":
+        specific_tier = True
+    else:
+        specific_tier = False
     return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
                            games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                            specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                            sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date, get_tooltip=util.get_tooltip,
-                           data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave)
+                           data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier)
 
 if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)
