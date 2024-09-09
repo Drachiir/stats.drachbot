@@ -116,13 +116,13 @@ def stats(stats, elo, patch, specific_key):
             folder = "megamindstats"
             if specific_key == "All" or specific_key == "Megamind":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
-                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
-                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             else:
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
-                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
                 return render_template("no_data.html")
         case "mmstats":
@@ -132,13 +132,13 @@ def stats(stats, elo, patch, specific_key):
             header_cdn = "https://cdn.legiontd2.com/icons/Items/"
             if specific_key == "All" or specific_key == "Megamind":
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
-                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"]]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
-                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             else:
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
-                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"]]
+                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             if specific_key == "Megamind":
                 title = "Megamind"
                 title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"

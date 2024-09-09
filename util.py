@@ -120,7 +120,7 @@ def get_cdn_image(string, header):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
-             | "openstats" | "Roll" | "rollstats" | "Best Merc" | "Mercs" | "Best Unit" | "Champions":
+             | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Merc" | "Best Roll" | "Mercs" | "Best Unit" | "Champions":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
@@ -252,6 +252,11 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False)
         case "Best Add":
             try:
                 return get_perf_list(data[key], 'OpenWith')[0]
+            except IndexError:
+                return None
+        case "Best Roll":
+            try:
+                return get_perf_list(data[key], 'Rolls')[0]
             except IndexError:
                 return None
         case "Best Combo":
