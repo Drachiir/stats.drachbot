@@ -166,7 +166,7 @@ def get_tooltip(header:str):
         case _:
             return header.capitalize()
   
-def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False):
+def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None):
     match k:
         case "Games":
             try:
@@ -206,11 +206,15 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False)
                 pickrate = 0
             if specific_tier and pickrate < 10:
                 pickrate = pickrate * 1.5
-            if specific_tier:
-                stats = "openstats"
-            tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
-                         "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                         "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
+            if dict_type:
+                stats = dict_type
+                tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [53,40,30,20,0.2],
+                             "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
+                             "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}
+            else:
+                tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
+                             "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
+                             "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
             elo = str(elo)
             elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
             if elo not in elo_dict:
