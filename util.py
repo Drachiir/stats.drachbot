@@ -29,6 +29,35 @@ wave_names= [
 
 wave_values = [72, 84, 90, 96, 108, 114, 100, 132, 144, 150, 156, 168, 180, 192, 204, 216, 228, 252, 276, 300, 360]
 
+tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
+                     "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
+                     "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}
+
+tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
+                 "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
+                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
+
+def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
+    if specific_tier and pickrate < 15:
+        pickrate = pickrate * 1.5
+    if dict_type:
+        stats = dict_type
+        tier_dict = tier_dict_specific
+    else:
+        tier_dict = tier_dict_all
+    elo = str(elo)
+    elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
+    if elo not in elo_dict:
+        elo = "1800"
+    tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
+    if (winrate > 80) and (pickrate < 10):
+        tier_score = tier_score / 2
+    if pickrate < 5:
+        tier_score = tier_score / 2
+    if winrate < 50:
+        tier_score -= tier_dict[stats][0] / 20
+    return tier_score
+
 def custom_winrate(value):
     try:
         return round(value[0] / value[1] * 100, 1)
@@ -49,21 +78,24 @@ def human_format(num):
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
-def get_perf_list(dict2, key):
+def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats):
     new_dict = {}
     for xy in dict2[key]:
-        if xy == "none": continue
+        if xy == "none" or not xy: continue
+        winrate = (dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*100
+        pickrate = (dict2[key][xy]['Count'] / dict2['Count'])*100
         if key not in ["Mercs", "Units"]:
-            if dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] < dict2['Wins'] / dict2['Count']:
+            if winrate < dict2['Wins'] / dict2['Count']:
                 continue
-            new_dict[xy] = dict2[key][xy]['Wins'] / dict2[key][xy]['Count'] * (dict2[key][xy]['Count'] / dict2['Count'])
+            tier_score = get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats)
+            new_dict[xy] = tier_score
         else:
             if dict2[key][xy]['Count'] < (dict2['Count']*0.05):
                 continue
             if xy == "Snail":
-                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*50) + (dict2[key][xy]['Count'] / dict2['Count'])
+                new_dict[xy] = (winrate*50) + pickrate
             else:
-                new_dict[xy] = ((dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*50) + ((dict2[key][xy]['Count'] / dict2['Count'])*10)
+                new_dict[xy] = (winrate*50) + (pickrate*10)
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
 
@@ -204,77 +236,61 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                     pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
             except Exception:
                 pickrate = 0
-            if specific_tier and pickrate < 15:
-                pickrate = pickrate * 1.5
             if dict_type:
                 stats = dict_type
-                tier_dict = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
-                             "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                             "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}
+                tier_dict = tier_dict_specific
             else:
-                tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
-                             "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                             "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
-            elo = str(elo)
-            elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
-            if elo not in elo_dict:
-                elo = "1800"
-            tier_score = (winrate*(elo_dict[elo]*2+1)) + (pickrate * (tier_dict[stats][4]-elo_dict[elo]))
-            if (winrate > 80) and (pickrate < 10):
-                tier_score = tier_score/2
-            if pickrate < 5:
-                tier_score = tier_score/2
-            if winrate < 50:
-                tier_score -= tier_dict[stats][0]/20
+                tier_dict = tier_dict_all
+            tier_score = get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats)
             if tier_score >= tier_dict[stats][0]+tier_dict[stats][0]/10:
-                return "S+"
+                return "S+", tier_score, 'Yellow'
             elif tier_score >= tier_dict[stats][0]:
-                return "S"
+                return "S", tier_score, 'Gold'
             elif tier_score >= tier_dict[stats][1]:
-                return "A"
+                return "A", tier_score, 'GreenYellow'
             elif tier_score >= tier_dict[stats][2]:
-                return "B"
+                return "B", tier_score, 'MediumSeaGreen'
             elif tier_score >= tier_dict[stats][3]:
-                return "C"
+                return "C", tier_score, 'DarkOrange'
             else:
-                return "D"
+                return "D", tier_score, 'Red'
         case "Best Opener":
             try:
-                return get_perf_list(data[key], 'Opener')[0]
+                return get_perf_list(data[key], 'Opener', dict_type, specific_tier, elo, stats)[0]
             except Exception:
                 return 0
         case "Best Spell":
             try:
-                return get_perf_list(data[key], 'Spells')[0]
+                return get_perf_list(data[key], 'Spells', dict_type, specific_tier, elo, stats)[0]
             except KeyError:
                 try:
-                    return get_perf_list(data[key], 'Spell')[0]
+                    return get_perf_list(data[key], 'Spell', dict_type, specific_tier, elo, stats)[0]
                 except Exception:
                     return 0
             except IndexError:
                 return None
         case "Best Add":
             try:
-                return get_perf_list(data[key], 'OpenWith')[0]
+                return get_perf_list(data[key], 'OpenWith', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
                 return None
         case "Best Roll":
             try:
-                return get_perf_list(data[key], 'Rolls')[0]
+                return get_perf_list(data[key], 'Rolls', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
                 return None
         case "Best Combo":
-            return get_perf_list(data[key], 'ComboUnit')[0]
+            return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats)[0]
         case "Best MMs":
-            return get_perf_list(data[key], 'MMs')[0]
+            return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats)[0]
         case "Best Merc":
             try:
-                return get_perf_list(data[key], 'Mercs')[0]
+                return get_perf_list(data[key], 'Mercs', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
                 return None
         case "Best Unit":
             try:
-                return get_perf_list(data[key], 'Units')[0]
+                return get_perf_list(data[key], 'Units', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
                 return None
         case "Endrate":

@@ -75,9 +75,14 @@
                         </th>
                         {% for key in header_dict %}
                             {% if stats == "wavestats" %}
-                                <td>{{ get_key_value(header_dict, key, k, data[specific_key]['Count']*4, stats, specific_tier = specific_tier, dict_type = header[2]) }}</td>
+                                {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count']*4, stats, specific_tier = specific_tier, dict_type = header[2]) %}
                             {% else %}
-                                <td>{{ get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2]) }}</td>
+                                {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2]) %}
+                            {% endif %}
+                            {% if k == "Tier" %}
+                                <td data="{{ data[1] }}" style="color: {{ data[2] }}">{{ data[0] }}</td>
+                            {% else %}
+                                <td>{{ data }}</td>
                             {% endif %}
                         {% endfor %}
                     </tr>

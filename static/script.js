@@ -54,37 +54,21 @@ document.addEventListener("DOMContentLoaded", function () {
         // Function to sort the table based on transposed rows
         function sortTable(columnIndex, asc = true) {
             const newRows = transposeTable();
-            const tbody = table.querySelector('tbody');
-
-            // Assuming the "Tier" column is at index 0 (adjust this if necessary)
             const isTierColumn = (columnIndex === 1); // Check if the current column is the "Tier" column
-
-            const tierOrder = ['D', 'C', 'B', 'A', 'S', 'S+']; // Custom Tier order
-
             const sortedRows = newRows.sort((a, b) => {
                 const aText = a[columnIndex].replace(/<[^>]*>?/gm, '').trim();
                 const bText = b[columnIndex].replace(/<[^>]*>?/gm, '').trim();
-
-                // Handle Tier Sorting
                 if (isTierColumn) {
-                    const aTierIndex = tierOrder.indexOf(aText);
-                    const bTierIndex = tierOrder.indexOf(bText);
-
-                    if (aTierIndex !== -1 && bTierIndex !== -1) {
-                        if (aTierIndex !== bTierIndex) {
-                            return asc ? aTierIndex - bTierIndex : bTierIndex - aTierIndex; // Sort by Tier
-                        }
-
-                        // Sort within the same Tier by "Games" (row index 1)
-                        const aGamesValue = parseFloat(tbody.rows[2].cells[newRows.indexOf(a) + 1].innerText.replace(/<[^>]*>?/gm, '').trim());
-                        const bGamesValue = parseFloat(tbody.rows[2].cells[newRows.indexOf(b) + 1].innerText.replace(/<[^>]*>?/gm, '').trim());
-
-                        if (!isNaN(aGamesValue) && !isNaN(bGamesValue)) {
-                            return asc ? aGamesValue - bGamesValue : bGamesValue - aGamesValue;
-                        }
+                    // Retrieve the "data" attribute for both cells
+                    const aDataAttr = tbody.rows[1].cells[newRows.indexOf(a) + 1].getAttribute('data') || '';
+                    const bDataAttr = tbody.rows[1].cells[newRows.indexOf(b) + 1].getAttribute('data') || '';
+                    // Check if the column has 'Tier' values (if applicable) or just sort by "data" attribute
+                    const aTierValue = parseFloat(aDataAttr);
+                    const bTierValue = parseFloat(bDataAttr);
+                    if (!isNaN(aTierValue) && !isNaN(bTierValue)) {
+                        return asc ? aTierValue - bTierValue : bTierValue - aTierValue;
                     }
                 }
-
                 // Fallback: Numeric sorting for non-Tier columns
                 const aNumber = parseFloat(aText);
                 const bNumber = parseFloat(bText);
@@ -116,13 +100,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
         });
-
-        // Initial sorting by "Tier" column in descending order
-        // const tierHeaderIndex = Array.from(headers).findIndex(header => header.innerText.startsWith("Tier"));
-        // if (tierHeaderIndex !== -1) {
-        //     sortTable(tierHeaderIndex, false); // False for descending order
-        //     headers[tierHeaderIndex].classList.add("desc"); // Mark header as sorted descending
-        // }
     }
 });
 
@@ -144,35 +121,3 @@ function filterFunction() {
     }
   }
 }
-
-function tierColors(tableId) {
-    const table = document.getElementById(tableId);
-    if (!table) {
-        return;
-    }
-    const tbody = table.getElementsByTagName('tbody')[0];
-    const cells = tbody.getElementsByTagName('td');
-
-    for (var i = 0, len = cells.length; i < len; i++) {
-        const value = cells[i].innerHTML;
-        if (value === "S+") {
-            cells[i].style.color = 'Yellow';
-        } else if (value === "S") {
-            cells[i].style.color = 'Gold';
-        } else if (value === "A") {
-            cells[i].style.color = 'GreenYellow';
-        } else if (value === "B") {
-            cells[i].style.color = 'MediumSeaGreen';
-        } else if (value === "C") {
-            cells[i].style.color = 'DarkOrange';
-        } else if (value === "D") {
-            cells[i].style.color = 'Red';
-        }
-    }
-}
-
-tierColors("myTable");
-tierColors("myTable1");
-tierColors("myTable2");
-tierColors("myTable3");
-tierColors("myTable4");
