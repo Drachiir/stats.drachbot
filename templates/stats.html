@@ -125,7 +125,7 @@
                         <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">&#xf059;</i>
                     </th>
                     {% for key in data %}
-                        {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo) %}
+                        {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True) %}
                         {% if sub_value in mm_list %}
                             <td><a xtitle="{{ get_tooltip(sub_value) }}" href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
