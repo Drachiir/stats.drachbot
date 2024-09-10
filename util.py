@@ -204,11 +204,11 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                     pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
             except Exception:
                 pickrate = 0
-            if specific_tier and pickrate < 10:
+            if specific_tier and pickrate < 15:
                 pickrate = pickrate * 1.5
             if dict_type:
                 stats = dict_type
-                tier_dict = {"mmstats": [68,62,59,55,0.4], "openstats": [53,40,30,20,0.2],
+                tier_dict = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
                              "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
                              "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}
             else:
