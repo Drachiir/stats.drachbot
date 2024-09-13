@@ -214,8 +214,10 @@ def profile(playername, stats, patch, elo, specific_key):
         playerid = legion_api.getid(playername)
         if playerid in [0, 1]:
             return render_template("no_data.html", text=f"{playername} not found.")
+        api_profile = legion_api.getprofile(playerid)
+        playername2 = api_profile["playerName"]
         #GET GAMES JSON
-        path = f"Files/player_cache/{playername}_{patch}_{elo}.json"
+        path = f"Files/player_cache/{playername2}_{patch}_{elo}.json"
         history_raw = None
         if os.path.isfile(path):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
@@ -237,8 +239,6 @@ def profile(playername, stats, patch, elo, specific_key):
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
             with open(path, "w") as f:
                 json.dump(history_raw, f, default=str)
-        api_profile = legion_api.getprofile(playerid)
-        playername2 = api_profile["playerName"]
         match stats:
             case "megamindstats":
                 header_title = "MM"
