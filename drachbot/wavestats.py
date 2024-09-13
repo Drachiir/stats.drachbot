@@ -1,18 +1,13 @@
-import drachbot.drachbot_db as drachbot_db
 import drachbot.legion_api as legion_api
 import util
-from drachbot.peewee_pg import GameData, PlayerData
 
-def wavestats(games, min_elo, patch, sort="date"):
+def wavestats(playername, games, min_elo, patch, sort="date", history_raw = {}):
     gameelo_list = []
-    playerid = "all"
-    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.workers_per_wave, PlayerData.mercs_sent_per_wave,
-                    PlayerData.build_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave],
-                   ["game_id", "date", "version", "ending_wave", "game_elo"],
-                   ["player_id", "player_slot", "game_result", "player_elo", "workers_per_wave", "mercs_sent_per_wave", "build_per_wave",
-                    "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
-    history_raw = drachbot_db.get_matchistory(playerid, games, min_elo, patch, sort_by=sort, earlier_than_wave10=True, req_columns=req_columns)
+    playerid = legion_api.getid(playername)
+    if playerid == 0:
+        return 'Player ' + playername + ' not found.'
+    if playerid == 1:
+        return 'API limit reached, you can still use "all" commands.'
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:

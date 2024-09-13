@@ -4,12 +4,14 @@ import json
 from datetime import datetime, timezone
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session
+
 import drachbot.legion_api as legion_api
 import drachbot.drachbot_db as drachbot_db
 import drachbot.mmstats
 import drachbot.openstats
 import drachbot.spellstats
 import drachbot.unitstats
+import drachbot.wavestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
 from util import get_rank_url
@@ -136,16 +138,14 @@ def profile(playername, stats, patch, elo, specific_key):
         api_profile = legion_api.getprofile(playerid)
         api_stats = legion_api.getstats(playerid)
         playername2 = ""
-        stats_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats"
-            #, "wavestats"
-                      ]
+        stats_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Mastery/5.png",
             "https://cdn.legiontd2.com/icons/LegionSpell.png",
             "https://cdn.legiontd2.com/icons/Reroll.png",
             "https://cdn.legiontd2.com/icons/Value10000.png",
-            #"https://cdn.legiontd2.com/icons/LegionKing.png"
+            "https://cdn.legiontd2.com/icons/LegionKing.png"
         ]
         
         req_columns = [
@@ -203,16 +203,39 @@ def profile(playername, stats, patch, elo, specific_key):
         playerid = legion_api.getid(playername)
         if playerid in [0, 1]:
             return render_template("no_data.html", text=f"{playername} not found.")
-        
+        #GET GAMES JSON
+        path = f"Files/player_cache/{playername}_{patch}_{elo}.json"
+        history_raw = None
+        if os.path.isfile(path):
+            mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+            date_diff = datetime.now(tz=timezone.utc) - mod_date
+            minutes_diff = date_diff.total_seconds() / 60
+            if minutes_diff > 30:
+                os.remove(path)
+            else:
+                with open(path, "r") as f:
+                    history_raw = json.load(f)
+        if not history_raw:
+            req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices,
+                            PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
+                            PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave],
+                           ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices"],
+                           ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
+                            "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
+            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
+            with open(path, "w") as f:
+                json.dump(history_raw, f, indent=4, sort_keys=True, default=str)
         api_profile = legion_api.getprofile(playerid)
         playername2 = api_profile["playerName"]
         match stats:
             case "megamindstats":
                 header_title = "MM"
                 header_cdn = "https://cdn.legiontd2.com/icons/Items/"
-                title = f"{playername2} Megamind"
+                title = f"{playername2}'s Megamind"
                 title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                raw_data = drachbot.mmstats.mmstats(playername,0,elo,patch,"Megamind", data_only=True)
+                
+                raw_data = drachbot.mmstats.mmstats(playername,0,elo,patch,"Megamind", data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data= raw_data[0]
@@ -228,7 +251,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
             case "mmstats":
-                title = f"{playername2} Mastermind"
+                title = f"{playername2}'s Mastermind"
                 title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
                 header_title = "MM"
                 header_cdn = "https://cdn.legiontd2.com/icons/Items/"
@@ -244,19 +267,19 @@ def profile(playername, stats, patch, elo, specific_key):
                 if specific_key == "Megamind":
                     title = "Megamind"
                     title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, "Megamind", data_only=True)
+                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, "Megamind", data_only=True, history_raw=history_raw)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
                 else:
-                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, specific_key, data_only=True)
+                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, specific_key, data_only=True, history_raw=history_raw)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
                 if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
             case "openstats":
-                title = f"{playername2} Opener"
+                title = f"{playername2}'s Opener"
                 title_image = "https://cdn.legiontd2.com/icons/Mastery/5.png"
                 header_title = "Opener"
                 header_cdn = "https://cdn.legiontd2.com/icons/"
@@ -266,12 +289,12 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.openstats.openstats(playername, 0, elo, patch, unit=specific_key, data_only=True)
+                raw_data = drachbot.openstats.openstats(playername, 0, elo, patch, unit=specific_key, data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
             case "spellstats":
-                title = f"{playername2} Spell"
+                title = f"{playername2}'s Spell"
                 title_image = "https://cdn.legiontd2.com/icons/LegionSpell.png"
                 header_title = "Spell"
                 header_cdn = "https://cdn.legiontd2.com/icons/"
@@ -285,12 +308,12 @@ def profile(playername, stats, patch, elo, specific_key):
                     else:
                         header_keys = ["Games", "Winrate", "Playrate"]
                         sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
-                raw_data = drachbot.spellstats.spellstats(playername, 0, elo, patch, spellname=specific_key.lower(), data_only=True)
+                raw_data = drachbot.spellstats.spellstats(playername, 0, elo, patch, spellname=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
             case "unitstats":
-                title = f"{playername2} Unit"
+                title = f"{playername2}'s Unit"
                 title_image = "https://cdn.legiontd2.com/icons/Value10000.png"
                 header_title = "Unit"
                 header_cdn = "https://cdn.legiontd2.com/icons/"
@@ -300,12 +323,12 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True)
+                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
             case "rollstats":
-                title = f"{playername2} Roll"
+                title = f"{playername2}'s Roll"
                 title_image = "https://cdn.legiontd2.com/icons/Reroll.png"
                 header_title = "Roll"
                 header_cdn = "https://cdn.legiontd2.com/icons/"
@@ -315,14 +338,29 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True, rollstats=True)
+                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True, rollstats=True, history_raw=history_raw)
+                games = raw_data[1]
+                avg_elo = raw_data[2]
+                raw_data = raw_data[0]
+            case "wavestats":
+                title = f"{playername2}'s Wave"
+                title_image = "https://cdn.legiontd2.com/icons/LegionKing.png"
+                header_title = "Wave"
+                header_cdn = "https://cdn.legiontd2.com/icons/"
+                if specific_key == "All":
+                    header_keys = ["Endrate", "Sendrate", "Avg Leak"]
+                    sub_headers = [["Best Merc", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
+                else:
+                    header_keys = ["Games", "Winrate", "Playrate"]
+                    sub_headers = [["Mercs", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
+                raw_data = drachbot.wavestats.wavestats(playername, 0, elo, patch, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
         if type(raw_data) == str:
             return render_template("no_data.html", text="No Data")
         if raw_data:
-            if stats != "mmstats":
+            if stats != "mmstats" and stats != "megamindstats":
                 new_dict = {}
                 for key in raw_data:
                     if raw_data[key]["Count"] != 0:

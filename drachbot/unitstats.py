@@ -1,12 +1,10 @@
 import json
 import difflib
 import util
-import drachbot.drachbot_db as drachbot_db
 import drachbot.legion_api as legion_api
-from drachbot.peewee_pg import GameData, PlayerData
 
 
-def unitstats(playername, games, min_elo, patch, sort="date", unit = "all", min_cost = 0, max_cost = 2000, data_only = False, transparent = False, rollstats = False):
+def unitstats(playername, games, min_elo, patch, sort="date", unit = "all", min_cost = 0, max_cost = 2000, data_only = False, transparent = False, rollstats = False, history_raw = {}):
     unit_dict = {}
     unit = unit.lower()
     with open('Files/json/units.json', 'r') as f:
@@ -48,11 +46,6 @@ def unitstats(playername, games, min_elo, patch, sort="date", unit = "all", min_
             return 'Player ' + playername + ' not found.'
         if playerid == 1:
             return 'API limit reached, you can still use "all" commands.'
-    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    PlayerData.player_id, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.legion, PlayerData.spell, PlayerData.fighters],
-                   ["game_id", "date", "version", "ending_wave", "game_elo"],
-                   ["player_id", "player_elo", "player_slot", "game_result", "legion", "spell", "fighters"]]
-    history_raw = drachbot_db.get_matchistory(playerid, games, min_elo, patch, sort_by=sort, earlier_than_wave10=True, req_columns=req_columns)
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:

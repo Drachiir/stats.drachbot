@@ -401,4 +401,28 @@ def get_avg_end_wave(data:dict) -> str:
         wave_total += int(re.findall(r'\d+', wave)[0]) * data[wave]["EndCount"]
         count += data[wave]["EndCount"]
     return f"{round(wave_total/count, 1)}"
+
+def calc_leak(leak, wave, return_gold = False):
+    if type(leak) != type(list()):
+        if leak == "":
+            leak = []
+        else:
+            leak = leak.split("!")
+    leak_amount = 0
+    send_amount = 0
+    wave_total = wave_values[wave]
+    for x in leak:
+        if x in creep_values:
+            leak_amount += creep_values.get(x)[1]
+        elif x in incmercs:
+            leak_amount += incmercs.get(x) / 20 * 4
+        elif x in powermercs:
+            if x == "Imp":
+                leak_amount += powermercs.get(x) / 20 * 3
+            else:
+                leak_amount += powermercs.get(x) / 20 * 6
+    if return_gold:
+        return leak_amount
+    else:
+        return round(leak_amount / wave_total * 100, 1)
         

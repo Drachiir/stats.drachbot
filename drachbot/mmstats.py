@@ -1,9 +1,7 @@
 import json
-import drachbot.drachbot_db as drachbot_db
 import drachbot.legion_api as legion_api
-from drachbot.peewee_pg import GameData, PlayerData
 
-def mmstats(playername, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False):
+def mmstats(playername, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
     if playername == 'all':
         playerid = 'all'
     else:
@@ -36,13 +34,6 @@ def mmstats(playername, games, min_elo, patch, mastermind = 'All', sort="date", 
                 string2 = ""
             unit_dict[string] = {'Count': 0, 'Wins': 0, 'Elo': 0, 'ComboUnit': {}, 'MMs': {}, 'Spells': {}, "upgradesFrom": string2}
     gameelo_list = []
-    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion,
-                    PlayerData.opener, PlayerData.spell, PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location],
-                   ["game_id", "date", "version", "ending_wave", "game_elo"],
-                   ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
-                    "champ_location"]]
-    history_raw = drachbot_db.get_matchistory(playerid, games, min_elo, patch, sort_by=sort, earlier_than_wave10=True, req_columns=req_columns)
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:

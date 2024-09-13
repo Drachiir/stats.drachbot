@@ -2,9 +2,7 @@ import platform
 import json
 import difflib
 import util
-import drachbot.drachbot_db as drachbot_db
 import drachbot.legion_api as legion_api
-from drachbot.peewee_pg import GameData, PlayerData
 
 shifts = [
     (-1.0, -0.5), (0.0, -1.0), (1.0, -0.5),
@@ -22,7 +20,7 @@ else:
     shared_folder = "shared/Images/"
     shared2_folder = "shared2/"
 
-def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all", data_only = False, transparent = False):
+def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all", data_only = False, transparent = False, history_raw = {}):
     spell_dict = {}
     spellname = spellname.lower()
     with open('Files/json/spells.json', 'r') as f:
@@ -55,12 +53,6 @@ def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all"
             return 'Player ' + playername + ' not found.'
         if playerid == 1:
             return 'API limit reached, you can still use "all" commands.'
-    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices,
-                    PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion,
-                    PlayerData.opener, PlayerData.spell, PlayerData.workers_per_wave, PlayerData.spell_location, PlayerData.build_per_wave],
-                   ["game_id", "date", "version", "ending_wave", "game_elo", "spell_choices"],
-                   ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "spell_location", "build_per_wave"]]
-    history_raw = drachbot_db.get_matchistory(playerid, games, min_elo, patch, sort_by=sort, req_columns=req_columns)
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
@@ -71,6 +63,8 @@ def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all"
     patches = []
     gameelo_list = []
     for game in history_raw:
+        if game["ending_wave"] < 11:
+            continue
         patches.append(game["version"])
         gameelo_list.append(game["game_elo"])
         for player in game["players_data"]:

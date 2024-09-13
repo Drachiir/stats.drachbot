@@ -3,9 +3,7 @@ import json
 import difflib
 
 import util
-import drachbot.drachbot_db as drachbot_db
 import drachbot.legion_api as legion_api
-from drachbot.peewee_pg import GameData, PlayerData
 
 if platform.system() == "Linux":
     shared_folder = "/shared/Images/"
@@ -14,7 +12,7 @@ else:
     shared_folder = "shared/Images/"
     shared2_folder = "shared2/"
 
-def openstats(playername, games, min_elo, patch, sort="date", unit = "all", data_only = False, transparent = False):
+def openstats(playername, games, min_elo, patch, sort="date", unit = "all", data_only = False, transparent = False, history_raw = {}):
     unit_dict = {}
     unit = unit.lower()
     with open('Files/json/units.json', 'r') as f:
@@ -48,12 +46,6 @@ def openstats(playername, games, min_elo, patch, sort="date", unit = "all", data
             return 'Player ' + playername + ' not found.'
         if playerid == 1:
             return 'API limit reached, you can still use "all" commands.'
-    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion,
-                    PlayerData.spell, PlayerData.workers_per_wave, PlayerData.build_per_wave],
-                   ["game_id", "date", "version", "ending_wave", "game_elo"],
-                   ["player_id", "player_slot", "game_result", "player_elo", "legion", "spell", "workers_per_wave", "build_per_wave"]]
-    history_raw = drachbot_db.get_matchistory(playerid, games, min_elo, patch, sort_by=sort, earlier_than_wave10=True, req_columns=req_columns)
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
