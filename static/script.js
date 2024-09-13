@@ -114,9 +114,6 @@ function filterFunction() {
   const ul = div.getElementsByTagName("ul")[0];
   const a = ul.getElementsByTagName("a");
 
-  const searchBar = document.getElementById("content");
-  const loadingDiv = document.getElementById("loading");
-
   // Check if the custom input element already exists
   let firstResult = ul.getElementsByClassName('user-input-result')[0];
 
@@ -172,6 +169,26 @@ function filterFunction() {
     });
   }
 }
+
+function filterFunction2() {
+  const input = document.getElementById("myInput");
+  const filter = input.value.toUpperCase();
+  const dropdown = document.getElementById("myDropdown");
+  const ul = dropdown.getElementsByTagName("ul")[0];
+  const li = ul.getElementsByTagName("li");
+
+  // Loop through all list items and hide those that don't match the search query
+  for (let i = 0; i < li.length; i++) {
+    const a = li[i].getElementsByTagName("a")[0];
+    const txtValue = a.textContent || a.innerText;
+    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+      li[i].style.display = "";
+    } else {
+      li[i].style.display = "none";
+    }
+  }
+}
+
 
 function loading(){
     $("#loading").show();
