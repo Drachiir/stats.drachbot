@@ -12,10 +12,10 @@
             <ul class="dropdown-menu">
                 {% for i in elo_brackets %}
                     {% if title == 'Megamind' %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/Megamind">
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}/Megamind">
                             <img style="width: 24px;" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% else %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}">
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
                             <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% endif %}
                 {% endfor %}
@@ -27,9 +27,9 @@
             <ul class="dropdown-menu">
                 {% for p in patch_list %}
                     {% if title == 'Megamind' %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
                     {% else %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>
@@ -51,7 +51,7 @@
                             {% if d == "Megamind" %}
                                 {% set stats = "megamindstats" %}
                             {% endif %}
-                            <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
+                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
                                 <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                         {% endfor %}
                     </ul>
@@ -88,7 +88,7 @@
                     {% if key == "Megamind" %}
                         {% set stats = "megamindstats" %}
                     {% endif %}
-                    <td style="width: 7%;"><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
+                    <td style="width: 7%;"><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
                     {% if stats == "megamindstats" and key != "Megamind" %}
                         <img loading="lazy" style="top:-90%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                     {% endif %}
@@ -127,10 +127,10 @@
                     {% for key in data %}
                         {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True) %}
                         {% if sub_value in mm_list %}
-                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
+                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
                         {% else %}
-                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img loading="lazy"
+                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}

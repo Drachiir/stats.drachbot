@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-lg" style="padding-top: 2vw; display: flex; gap: 20px; justify-content: center; align-items: flex-start;">
+    <div style="background: #171717; border-radius: 10px; max-width: 350px; min-width: 200px; height: auto">
+        <div style="padding: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
+            <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
+            <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br><br>
+            <r2 style=""><b>Current Season Stats:</b></r2><br>
+            <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L ({{ winrate([api_stats["rankedWinsThisSeason"],
+            (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }} WR%)</r2><br>
+            <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
+            <r2>{{ api_stats["overallElo"] }} </r2><r2 style="color: #919191">Current</r2><br>
+            <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakEloThisSeason"]) }}">
+            <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2><br><br>
+            <r2> <b>Stat Pages:</b></r2><br>
+            {% for stat in stats_list %}
+                <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
+                <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
+                <r2>[{{ stat.capitalize() }}]</r2><br></a>
+            {% endfor %}
+            <br>
+            <r2><b>Last 20 Games:</b></r2><br>
+            <r2>{{ winlose[0] }}W - {{ winlose[1] }}L ({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
+            <r2>Elo Change: {{ elochange }}</r2>
+        </div>
+    </div>
+    <div style="max-height: 85vh; overflow-y: scroll; border-radius: 10px;">
+    {% for game in history %}
+        <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
+        <div style="background: #171717; border-radius: 10px; display: flex; padding-right: 10px">
+            <div>
+                    <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
+                    <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2>
+            </div>
+        </div></a><br>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

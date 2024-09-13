@@ -9,7 +9,7 @@
                 <img style="position: absolute; top:0;left: 0; z-index: 1;" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
             {% endif %}
         </div>
-        <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{ get_unit_name(specific_key) }} {{ header_title }}
+        <r style="font-size: 1.5rem;" class="navbar-brand" href="#">{{ playername2 }}{{ get_unit_name(specific_key) }} {{ header_title }}
             Stats
         </r>
         <div style="float:right;">
@@ -19,7 +19,7 @@
             </button>
             <ul class="dropdown-menu">
                 {% for i in elo_brackets %}
-                    <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ i }}/{{ specific_key }}">
+                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}/{{ specific_key }}">
                         <img loading="lazy" style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                 {% endfor %}
             </ul>
@@ -29,7 +29,7 @@
             </button>
             <ul class="dropdown-menu">
                 {% for p in patch_list %}
-                    <li><a class="dropdown-item" href="/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -59,10 +59,10 @@
                     </th>
                     {% for key in header_dict %}
                         {% if key in mm_list %}
-                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy"
+                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy"
                                     src="{{ get_cdn_image(key, header[0]) }}"></a></td>
                         {% else %}
-                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key|lower }}"><img loading="lazy"
+                            <td style="width: 7%;"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ header[2] }}/{{ patch }}/{{ elo }}/{{ key|lower }}"><img loading="lazy"
                                     src="{{ get_cdn_image(key, header[0]) }}"></a></td>
                         {% endif %}
                     {% endfor %}

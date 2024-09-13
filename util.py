@@ -1,3 +1,4 @@
+import json
 import re
 from copyreg import pickle
 from datetime import datetime
@@ -36,6 +37,35 @@ tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
                  "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
+
+with open("Files/json/slang.json", "r") as f:
+    slang = json.load(f)
+    f.close()
+    
+with open("Files/json/const.json", "r") as f:
+    const_file = json.load(f)
+    f.close()
+    
+incmercs = const_file.get("incmercs")
+powermercs = const_file.get("powermercs")
+creep_values = const_file.get("creep_values")
+wave_values = const_file.get("wave_values")
+rank_emotes = const_file.get("rank_emotes")
+wave_emotes = const_file.get("wave_emotes")
+mm_emotes = const_file.get("mm_emotes")
+current_season = const_file.get("current_patches")
+current_minelo = const_file.get("current_minelo")
+
+aura_spells = ["hero", "magician", "vampire"]
+buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"]
+mm_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard', 'Megamind']
+
+def plus_prefix(a):
+    if a > 0:
+        b = '+' + str(a)
+    else:
+        b = str(a)
+    return b
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if specific_tier and pickrate < 15:
@@ -343,25 +373,25 @@ def time_ago(time=False):
 
 def get_rank_url(elo):
     if elo >= 2800:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Legend.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'
     elif elo >= 2600:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Grandmaster.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png'
     elif elo >= 2400:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/SeniorMaster.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png'
     elif elo >= 2200:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Master.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png'
     elif elo >= 2000:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Expert.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png'
     elif elo >= 1800:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Diamond.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png'
     elif elo >= 1600:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Platinum.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png'
     elif elo >= 1400:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Gold.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png'
     elif elo >= 1200:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Silver.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png'
     else:
-        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Bronze.png'
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png'
     return rank_url
 
 def get_avg_end_wave(data:dict) -> str:

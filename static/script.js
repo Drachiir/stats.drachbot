@@ -104,20 +104,80 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function myFunction() {
-  document.getElementById("myDropdown").classList.toggle("show");
+    document.getElementById("myDropdown").classList.toggle("show");
 }
 
 function filterFunction() {
   const input = document.getElementById("myInput");
   const filter = input.value.toUpperCase();
   const div = document.getElementById("myDropdown");
-  const a = div.getElementsByTagName("a");
-  for (let i = 0; i < a.length; i++) {
-    txtValue = a[i].textContent || a[i].innerText;
+  const ul = div.getElementsByTagName("ul")[0];
+  const a = ul.getElementsByTagName("a");
+
+  const searchBar = document.getElementById("content");
+  const loadingDiv = document.getElementById("loading");
+
+  // Check if the custom input element already exists
+  let firstResult = ul.getElementsByClassName('user-input-result')[0];
+
+  if (!firstResult) {
+    // If it doesn't exist, create a new list item for the user's input
+    firstResult = document.createElement('li');
+    firstResult.className = 'user-input-result';
+    firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
+    ul.insertBefore(firstResult, ul.firstChild); // Insert at the top
+  } else {
+    // Update the custom search item with the new input
+    firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
+  }
+
+  // Show the first custom search result if the user has entered something
+  if (input.value.trim() !== "") {
+    firstResult.style.display = "";
+  } else {
+    firstResult.style.display = "none";
+  }
+
+  // Loop through the existing list items and filter based on input
+  for (let i = 1; i < ul.children.length; i++) {
+    const item = ul.children[i].getElementsByTagName("a")[0];
+    const txtValue = item.textContent || item.innerText;
     if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      a[i].style.display = "";
+      ul.children[i].style.display = "";
     } else {
-      a[i].style.display = "none";
+      ul.children[i].style.display = "none";
     }
   }
+
+  // Add event listener for Enter key
+  input.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault(); // Prevent form submission if inside a form
+
+      // Find the first visible <a> element
+      const firstVisibleLink = ul.querySelector('li:not([style*="display: none"]) a');
+
+      // If found, navigate to its href
+      if (firstVisibleLink) {
+
+        // Navigate to the href
+        window.location.href = firstVisibleLink.href;
+      }
+    }
+  });
+
+  // Add event listeners to each dropdown link
+  for (let i = 0; i < a.length; i++) {
+    a[i].addEventListener('click', function(event) {
+    });
+  }
+}
+
+
+
+
+
+function loading(){
+    $("#loading").show();
+    $("#content").hide();
 }

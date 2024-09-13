@@ -8,14 +8,14 @@
                 box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div><br>
     <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
     <r style="font-size: 1.2rem">Legion TD 2 Ranked 2v2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
-    <div style="padding: 1vw;" class="input-group input-group-lg">
+    <form style="padding: 1vw;" class="input-group input-group-lg" id="content">
         <input type="text"
-               onclick="myFunction()"
-               data-bs-toggle="dropdown"
-                        class="form-control"
-                        placeholder="Search Anything..."
-                        id="myInput"
-                        onkeyup="filterFunction()">
+                onclick="myFunction()"
+                data-bs-toggle="dropdown"
+                class="form-control"
+                placeholder="Search Playername/Unit/Mastermind etc.."
+                id="myInput"
+                onkeyup="filterFunction()">
         <div style="text-align: center" id="myDropdown" class="dropdown-content">
             <ul class="dropdown-menu dropdown-scrollbar">
                 {% for list in keys %}
@@ -31,7 +31,7 @@
                 {% endfor %}
             </ul>
         </div>
-    </div>
+    </form>
     {% for data in data_list %}
         <div style="display: inline-block; padding: 0.5vw">
             <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
