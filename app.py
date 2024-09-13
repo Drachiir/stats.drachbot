@@ -137,6 +137,13 @@ def profile(playername, stats, patch, elo, specific_key):
         
         api_profile = legion_api.getprofile(playerid)
         api_stats = legion_api.getstats(playerid)
+        try:
+            _ = api_stats["rankedWinsThisSeason"]
+            _ = api_stats["rankedLossesThisSeason"]
+            _ = api_stats["overallElo"]
+            _ = api_stats["overallPeakEloThisSeason"]
+        except KeyError:
+            return render_template("no_data.html", text=f"{playername} not found.")
         playername2 = ""
         stats_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
@@ -226,7 +233,7 @@ def profile(playername, stats, patch, elo, specific_key):
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
             with open(path, "w") as f:
-                json.dump(history_raw, f, indent=4, sort_keys=True, default=str)
+                json.dump(history_raw, f, default=str)
         api_profile = legion_api.getprofile(playerid)
         playername2 = api_profile["playerName"]
         match stats:
