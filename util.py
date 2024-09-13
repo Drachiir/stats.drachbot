@@ -365,9 +365,9 @@ def time_ago(time=False):
         return "Yesterday"
     if day_diff < 7:
         if day_diff == 1:
-            temp = "s"
-        else:
             temp = ""
+        else:
+            temp = "s"
         return str(round(day_diff)) + f" day{temp} ago"
     if day_diff < 31:
         if day_diff/7 >= 2:
