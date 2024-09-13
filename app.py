@@ -57,6 +57,7 @@ with open("defaults.json", "r") as f:
     f.close()
 
 defaults = defaults_json["Defaults"]
+defaults2 = defaults_json["Defaults2"]
 mm_list = defaults_json["MMs"]
 elos = defaults_json["Elos"]
 patches = defaults_json["Patches"]
@@ -118,9 +119,9 @@ def load(playername, stats, patch, elo, specific_key):
     else:
         return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
 
-@app.route('/profile/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
-@app.route('/profile/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
-@app.route('/profile/<playername>/<stats>/<patch>/', defaults={"elo": defaults[1], "specific_key": "All"})
+@app.route('/profile/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
+@app.route('/profile/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
+@app.route('/profile/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def profile(playername, stats, patch, elo, specific_key):
