@@ -23,16 +23,51 @@
                         <img loading="lazy" style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                 {% endfor %}
             </ul>
+            {% if not patch_selector %}
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Patch
             </button>
             <ul class="dropdown-menu">
                 {% for p in patch_list %}
-                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a>
-                    </li>
+                    {% if title == 'Megamind' %}
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
+                    {% else %}
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                    {% endif %}
                 {% endfor %}
             </ul>
+            {% else %}
+                <div class="dropdown" style="float: right; padding-left: 5px">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Patches
+                    </button>
+                    <ul class="dropdown-menu" style="padding: 10px;" id="patchDropdown">
+                        <form id="patchForm">
+                            <!-- Select/Unselect All option -->
+                            <li class="dropdown-item">
+                                <label>
+                                    <input type="checkbox" id="selectAll"> Select/Unselect All
+                                </label>
+                            </li>
+
+                            <!-- Loop through the patches and display them as checkboxes -->
+                            {% for p in patch_list %}
+                                <li class="dropdown-item">
+                                    <label style="width: 100%;">
+                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}"> v{{ p }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </form>
+
+                        <!-- Button to trigger redirection inside the dropdown -->
+                        <li class="dropdown-item text-center">
+                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
         </div>
         <br>
         {% if stats == "wavestats" %}
@@ -91,4 +126,58 @@
             </table>
         {% endfor %}
     </div>
+{% if patch_selector %}
+<script>
+    // Event listener for the "Select/Unselect All" checkbox
+    document.getElementById('selectAll').addEventListener('change', function () {
+        var isChecked = this.checked;
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            checkbox.checked = isChecked;
+        });
+    });
+
+    // Event listener for the "Go" button
+    document.getElementById('redirectButton').addEventListener('click', function () {
+        // Get all the selected patches
+        var selectedPatches = [];
+        document.querySelectorAll('.patch-checkbox:checked').forEach(function (checkbox) {
+            selectedPatches.push(checkbox.value);
+        });
+
+        // If no patches selected, prevent action
+        if (selectedPatches.length === 0) {
+            alert('Please select at least one patch.');
+            return;
+        }
+
+        // Create a comma-delimited string of the selected patches
+        var patches = selectedPatches.join(',');
+
+        // Get the base values from your current variables (using template variables)
+        var playerurl = "{{ playerurl }}";
+        var stats = "{{ stats }}";
+        var elo = "{{ elo }}";
+        var key = "{{ specific_key }}";
+        // Construct the URL
+        var url = playerurl + '/' + stats + '/' + patches + '/' + elo + '/' + key;
+
+        // Redirect to the new URL
+        window.location.href = url;
+    });
+
+    // Prevent the dropdown from closing when clicking inside the dropdown content
+    document.getElementById('patchDropdown').addEventListener('click', function (event) {
+        event.stopPropagation();  // Stop dropdown from closing when clicking inside
+    });
+
+    // Event listener to toggle checkbox when clicking on list item/label
+    document.querySelectorAll('.dropdown-item label').forEach(function (label) {
+        label.addEventListener('click', function (event) {
+            var checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked; // Toggle checkbox state
+            event.stopPropagation(); // Prevent dropdown from closing
+        });
+    });
+</script>
+{% endif %}
 {% endblock %}

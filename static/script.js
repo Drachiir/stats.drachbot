@@ -173,10 +173,6 @@ function filterFunction() {
   }
 }
 
-
-
-
-
 function loading(){
     $("#loading").show();
     $("#content").hide();

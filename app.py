@@ -60,6 +60,7 @@ defaults = defaults_json["Defaults"]
 mm_list = defaults_json["MMs"]
 elos = defaults_json["Elos"]
 patches = defaults_json["Patches"]
+patches2 = defaults_json["Patches2"]
 buff_spells = defaults_json["BuffSpells"]
 
 @app.route("/")
@@ -194,6 +195,7 @@ def profile(playername, stats, patch, elo, specific_key):
             winlose=winlose,
             elochange=util.plus_prefix(elochange))
     else:
+        patches = patches2
         try:
             elo = int(elo)
         except Exception:
@@ -399,7 +401,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                                sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                data_keys=raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ")
+                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True)
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
@@ -558,7 +560,7 @@ def stats(stats, elo, patch, specific_key):
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                            sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date, get_tooltip=util.get_tooltip,
                            data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                           playerurl = "", playername2=playername2)
+                           playerurl = "", playername2=playername2, patch_selector = False)
 
 if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)
