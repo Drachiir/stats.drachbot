@@ -20,7 +20,7 @@ else:
     shared_folder = "shared/Images/"
     shared2_folder = "shared2/"
 
-def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all", data_only = False, transparent = False, history_raw = {}):
+def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", data_only = False, transparent = False, history_raw = {}):
     spell_dict = {}
     spellname = spellname.lower()
     with open('Files/json/spells.json', 'r') as f:
@@ -41,25 +41,11 @@ def spellstats(playername, games, min_elo, patch, sort="date", spellname = "all"
                 spellname = close_matches[0]
             else:
                 return spellname + " spell not found."
-    novacup = False
-    if playername == 'all':
-        playerid = 'all'
-    elif 'nova cup' in playername:
-        novacup = True
-        playerid = playername
-    else:
-        playerid = legion_api.getid(playername)
-        if playerid == 0:
-            return 'Player ' + playername + ' not found.'
-        if playerid == 1:
-            return 'API limit reached, you can still use "all" commands.'
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
         return 'No games found.'
     games = len(history_raw)
-    if 'nova cup' in playerid:
-        playerid = 'all'
     patches = []
     gameelo_list = []
     for game in history_raw:

@@ -12,7 +12,7 @@ else:
     shared_folder = "shared/Images/"
     shared2_folder = "shared2/"
 
-def openstats(playername, games, min_elo, patch, sort="date", unit = "all", data_only = False, transparent = False, history_raw = {}):
+def openstats(playerid, games, min_elo, patch, sort="date", unit = "all", data_only = False, transparent = False, history_raw = {}):
     unit_dict = {}
     unit = unit.lower()
     with open('Files/json/units.json', 'r') as f:
@@ -34,25 +34,11 @@ def openstats(playername, games, min_elo, patch, sort="date", unit = "all", data
                 unit = close_matches[0]
             else:
                 return unit + " unit not found."
-    novacup = False
-    if playername == 'all':
-        playerid = 'all'
-    elif 'nova cup' in playername:
-        novacup = True
-        playerid = playername
-    else:
-        playerid = legion_api.getid(playername)
-        if playerid == 0:
-            return 'Player ' + playername + ' not found.'
-        if playerid == 1:
-            return 'API limit reached, you can still use "all" commands.'
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
         return 'No games found.'
     games = len(history_raw)
-    if 'nova cup' in playerid:
-        playerid = 'all'
     patches = set()
     gameelo_list = []
     for game in history_raw:

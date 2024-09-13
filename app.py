@@ -166,7 +166,7 @@ def profile(playername, stats, patch, elo, specific_key):
         history_parsed = []
         winlose = [0, 0]
         elochange = 0
-        history = drachbot_db.get_matchistory(playerid, 20, req_columns=req_columns, earlier_than_wave10=True)
+        history = drachbot_db.get_matchistory(playerid, 20, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
         for game in history:
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": "",
@@ -246,7 +246,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 title = f"{playername2}'s Megamind"
                 title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
                 
-                raw_data = drachbot.mmstats.mmstats(playername,0,elo,patch,"Megamind", data_only=True, history_raw=history_raw)
+                raw_data = drachbot.mmstats.mmstats(playerid,0,elo,patch,"Megamind", data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data= raw_data[0]
@@ -278,12 +278,12 @@ def profile(playername, stats, patch, elo, specific_key):
                 if specific_key == "Megamind":
                     title = "Megamind"
                     title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, "Megamind", data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, "Megamind", data_only=True, history_raw=history_raw)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
                 else:
-                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, specific_key, data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, specific_key, data_only=True, history_raw=history_raw)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
@@ -300,7 +300,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.openstats.openstats(playername, 0, elo, patch, unit=specific_key, data_only=True, history_raw=history_raw)
+                raw_data = drachbot.openstats.openstats(playerid, 0, elo, patch, unit=specific_key, data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
@@ -319,7 +319,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     else:
                         header_keys = ["Games", "Winrate", "Playrate"]
                         sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
-                raw_data = drachbot.spellstats.spellstats(playername, 0, elo, patch, spellname=specific_key.lower(), data_only=True, history_raw=history_raw)
+                raw_data = drachbot.spellstats.spellstats(playerid, 0, elo, patch, spellname=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
@@ -334,7 +334,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True, history_raw=history_raw)
+                raw_data = drachbot.unitstats.unitstats(playerid, 0, elo, patch, unit=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
@@ -349,7 +349,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.unitstats.unitstats(playername, 0, elo, patch, unit=specific_key.lower(), data_only=True, rollstats=True, history_raw=history_raw)
+                raw_data = drachbot.unitstats.unitstats(playerid, 0, elo, patch, unit=specific_key.lower(), data_only=True, rollstats=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
@@ -364,7 +364,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Mercs", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
-                raw_data = drachbot.wavestats.wavestats(playername, 0, elo, patch, history_raw=history_raw)
+                raw_data = drachbot.wavestats.wavestats(playerid, 0, elo, patch, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]

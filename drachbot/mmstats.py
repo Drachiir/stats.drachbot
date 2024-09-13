@@ -1,15 +1,7 @@
 import json
 import drachbot.legion_api as legion_api
 
-def mmstats(playername, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
-    if playername == 'all':
-        playerid = 'all'
-    else:
-        playerid = legion_api.getid(playername)
-        if playerid == 0:
-            return 'Player ' + playername + ' not found.'
-        if playerid == 1:
-            return 'API limit reached, you can still use "all" commands.'
+def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
     if mastermind == 'All':
         mmnames_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard', 'Megamind']
     elif mastermind == 'Megamind':
@@ -39,8 +31,6 @@ def mmstats(playername, games, min_elo, patch, mastermind = 'All', sort="date", 
     if len(history_raw) == 0:
         return 'No games found.'
     games = len(history_raw)
-    if 'nova cup' in playerid:
-        playerid = 'all'
     case_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard']
     patches = set()
     megamind_count = 0

@@ -25,7 +25,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
-def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = []):
+def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = [], profile = None, stats = None):
     patch_list = []
     if earlier_than_wave10:
         earliest_wave = 2
@@ -72,7 +72,10 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         if PlayerProfile.get_or_none(PlayerProfile.player_id == playerid) is None:
             print(playerid + ' profile not found, creating new database entry...')
             new_profile = True
-            playerstats = legion_api.getstats(playerid)
+            if stats:
+                playerstats = stats
+            else:
+                playerstats = legion_api.getstats(playerid)
             try:
                 wins = playerstats['rankedWinsThisSeason']
             except KeyError:
@@ -81,16 +84,11 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 losses = playerstats['rankedLossesThisSeason']
             except KeyError:
                 losses = 0
-            playerprofile = legion_api.getprofile(playerid)
-            if Path(Path("Profiles/"+ playerid + "/")).is_dir():
-                with open("Profiles/"+ playerid + "/gamecount_"+playerid+".txt") as f:
-                    try:
-                        txt = f.readlines()
-                        offset = int(txt[1].replace("\n", ""))
-                    except Exception:
-                        offset = 0
+            if profile:
+                playerprofile = profile
             else:
-                offset = 0
+                playerprofile = legion_api.getprofile(playerid)
+            offset = 0
             try:
                 ladder_points = playerstats["ladderPoints"]
             except KeyError:
@@ -108,7 +106,10 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             data = get_games_loop(playerid, 0, games)
         else:
             new_profile = False
-            playerstats = legion_api.getstats(playerid)
+            if stats:
+                playerstats = stats
+            else:
+                playerstats = legion_api.getstats(playerid)
             data = PlayerProfile.select().where(PlayerProfile.player_id == playerid).get()
             ranked_games_old = data.ranked_wins_current_season+data.ranked_losses_current_season
             try:
@@ -133,9 +134,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             games_diff = ranked_games - ranked_games_old
             if ranked_games_old < ranked_games:
                 games_count += get_games_loop(playerid, 0, games_diff)
-            games_count_db = PlayerData.select().where(PlayerData.player_id == playerid).count()
-            if games_count_db < games2:
-                games_count += get_games_loop(playerid, data.offset, games2-games_count_db, timeout_limit=5)
             if games_count > 0:
                 PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:

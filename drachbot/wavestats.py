@@ -1,13 +1,8 @@
 import drachbot.legion_api as legion_api
 import util
 
-def wavestats(playername, games, min_elo, patch, sort="date", history_raw = {}):
+def wavestats(playerid, games, min_elo, patch, sort="date", history_raw = {}):
     gameelo_list = []
-    playerid = legion_api.getid(playername)
-    if playerid == 0:
-        return 'Player ' + playername + ' not found.'
-    if playerid == 1:
-        return 'API limit reached, you can still use "all" commands.'
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
