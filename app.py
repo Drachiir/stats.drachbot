@@ -245,7 +245,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
                 else:
-                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, "All", data_only=True)
+                    raw_data = drachbot.mmstats.mmstats(playername, 0, elo, patch, specific_key, data_only=True)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
