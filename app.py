@@ -120,7 +120,7 @@ def load(playername, stats, patch, elo, specific_key):
 @app.route('/profile/<playername>/<stats>/<patch>/', defaults={"elo": defaults[1], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
-#@cache.cached(timeout=300)
+@cache.cached(timeout=300)
 def profile(playername, stats, patch, elo, specific_key):
     if not stats:
         if not session.get('visited_profile'):
