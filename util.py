@@ -364,11 +364,23 @@ def time_ago(time=False):
     if day_diff == 1:
         return "Yesterday"
     if day_diff < 7:
-        return str(round(day_diff)) + " days ago"
+        if day_diff == 1:
+            temp = "s"
+        else:
+            temp = ""
+        return str(round(day_diff)) + f" day{temp} ago"
     if day_diff < 31:
-        return str(round(day_diff/7)) + " weeks ago"
+        if day_diff/7 >= 2:
+            temp = "s"
+        else:
+            temp = ""
+        return str(round(day_diff/7)) + f" week{temp} ago"
     if day_diff < 365:
-        return str(round(day_diff/30)) + " months ago"
+        if day_diff/30 >= 2:
+            temp = "s"
+        else:
+            temp = ""
+        return str(round(day_diff/30)) + f" month{temp} ago"
     return str(round(day_diff/365)) + " years ago"
 
 def get_rank_url(elo):

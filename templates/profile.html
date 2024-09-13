@@ -31,8 +31,13 @@
         <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
         <div style="background: #171717; border-radius: 10px; display: flex; padding-right: 10px">
             <div>
+                <div>
                     <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
-                    <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2>
+                    <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo) </r2>
+                </div>
+                <div>
+                    <r2 style="color: #a5a5a5;">{{ game["time_ago"] }}</r2>
+                </div>
             </div>
         </div></a><br>
     {% endfor %}

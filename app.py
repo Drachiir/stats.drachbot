@@ -161,7 +161,8 @@ def profile(playername, stats, patch, elo, specific_key):
         for game in history:
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": "",
-                         "Length": game["game_length"], "Date": game["date"], "ltd2pro": f"https://ltd2.pro/game/{game["game_id"]}"}
+                         "Length": game["game_length"], "Date": game["date"], "ltd2pro": f"https://ltd2.pro/game/{game["game_id"]}",
+                         "time_ago": util.time_ago(game["date"])}
             for player in game["players_data"]:
                 if player["player_id"] == playerid:
                     elochange += player["elo_change"]
