@@ -188,6 +188,31 @@
     </div>
 {% if patch_selector %}
 <script>
+    // Function to get patches from URL
+    function getSelectedPatchesFromUrl() {
+        // Extract the URL parts (assumes the URL format: /playerurl/stats/patches/elo)
+        const urlParts = window.location.pathname.split('/');
+        if (urlParts.length >= 4) {
+            // The third part of the URL should contain the patches (comma-separated)
+            const patches = urlParts[4].split(',');
+            return patches;
+        }
+        return [];
+    }
+
+    // Preselect checkboxes based on the URL
+    function preselectPatches() {
+        const selectedPatches = getSelectedPatchesFromUrl();
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            if (selectedPatches.includes(checkbox.value)) {
+                checkbox.checked = true;
+            }
+        });
+
+        // If all checkboxes are checked, check the "Select All" box
+        const allChecked = selectedPatches.length > 0 && selectedPatches.length === document.querySelectorAll('.patch-checkbox').length;
+        document.getElementById('selectAll').checked = allChecked;
+    }
     // Event listener for the "Select/Unselect All" checkbox
     document.getElementById('selectAll').addEventListener('change', function () {
         var isChecked = this.checked;
@@ -238,6 +263,9 @@
             event.stopPropagation(); // Prevent dropdown from closing
         });
     });
+
+    // Preselect checkboxes when the page loads
+    window.onload = preselectPatches;
 </script>
 {% endif %}
 {% endblock %}
