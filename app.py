@@ -186,6 +186,10 @@ def profile(playername, stats, patch, elo, specific_key):
             winlose=winlose,
             elochange=util.plus_prefix(elochange))
     else:
+        try:
+            elo = int(elo)
+        except Exception:
+            return render_template("no_data.html", text="No Data")
         if not session.get('visited_profile'):
             return redirect(f"/load/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
         session.pop('visited_profile', None)
@@ -315,6 +319,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
+        if type(raw_data) == str:
+            return render_template("no_data.html", text="No Data")
         if raw_data:
             if stats != "mmstats":
                 new_dict = {}
