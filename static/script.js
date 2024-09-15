@@ -197,3 +197,12 @@ function loading(){
     $("#loading").show();
     $("#content").hide();
 }
+
+function redirectToProfile() {
+            const input = document.getElementById('profileInput').value;
+            if(input) {
+                window.location.href = `/profile/${input}`;
+            } else {
+                alert('Please enter a valid input.');
+            }
+        }
