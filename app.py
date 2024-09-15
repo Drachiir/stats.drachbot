@@ -134,10 +134,9 @@ def profile(playername, stats, patch, elo, specific_key):
             return redirect(f"/load/{playername}/")
         
         api_profile = legion_api.getprofile(playername)
-        playerid = api_profile["_id"]
-        if playerid in [0, 1]:
+        if api_profile in [0, 1]:
             return render_template("no_data.html", text=f"{playername} not found.")
-        
+        playerid = api_profile["_id"]
         api_stats = legion_api.getstats(playerid)
         try:
             _ = api_stats["rankedWinsThisSeason"]
