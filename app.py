@@ -158,9 +158,9 @@ def profile(playername, stats, patch, elo, specific_key):
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change
-             ,PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener],
+             ,PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind],
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
-            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener"]
+            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind"]
         ]
         history_parsed = []
         winlose = [0, 0]
@@ -170,7 +170,7 @@ def profile(playername, stats, patch, elo, specific_key):
         mms = {}
         wave1 = {"King": 0, "Snail": 0, "Save": 0}
         openers = {}
-        history = drachbot_db.get_matchistory(playerid, 100, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
+        history = drachbot_db.get_matchistory(playerid, 0, patch=patch, min_elo=elo, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
         games = len(history)
         short_history = 20
         for game in history:
@@ -180,6 +180,8 @@ def profile(playername, stats, patch, elo, specific_key):
                          "time_ago": util.time_ago(game["date"])}
             for player in game["players_data"]:
                 if player["player_id"] == playerid:
+                    if player["megamind"]:
+                        player["legion"] = "Megamind"
                     if player["legion"] in mms:
                         mms[player["legion"]]["Count"] += 1
                     else:
