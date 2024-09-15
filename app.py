@@ -217,7 +217,10 @@ def profile(playername, stats, patch, elo, specific_key):
         openers = {k: openers[k] for k in newIndex[:5]}
         wave1_percents = []
         for val in wave1:
-            wave1_percents.append(round(wave1[val]/games*100))
+            try:
+                wave1_percents.append(round(wave1[val]/games*100))
+            except Exception:
+                wave1_percents.append(0)
         return render_template(
             "profile.html",
             api_profile=api_profile,
