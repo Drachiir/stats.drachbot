@@ -133,11 +133,11 @@ def profile(playername, stats, patch, elo, specific_key):
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/")
         
-        playerid = legion_api.getid(playername)
+        api_profile = legion_api.getprofile(playername)
+        playerid = api_profile["_id"]
         if playerid in [0, 1]:
             return render_template("no_data.html", text=f"{playername} not found.")
         
-        api_profile = legion_api.getprofile(playerid)
         api_stats = legion_api.getstats(playerid)
         try:
             _ = api_stats["rankedWinsThisSeason"]
@@ -146,7 +146,6 @@ def profile(playername, stats, patch, elo, specific_key):
             _ = api_stats["overallPeakEloThisSeason"]
         except KeyError:
             return render_template("no_data.html", text=f"{playername} not found.")
-        playername2 = ""
         stats_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
@@ -159,14 +158,22 @@ def profile(playername, stats, patch, elo, specific_key):
         
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
-             PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change],
+             PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change
+             ,PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener],
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
-            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change"]
+            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener"]
         ]
         history_parsed = []
         winlose = [0, 0]
         elochange = 0
-        history = drachbot_db.get_matchistory(playerid, 20, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
+        values = []
+        labels = []
+        mms = {}
+        wave1 = {"King": 0, "Snail": 0, "Save": 0}
+        openers = {}
+        history = drachbot_db.get_matchistory(playerid, 100, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
+        games = len(history)
+        short_history = 20
         for game in history:
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": "",
@@ -174,15 +181,43 @@ def profile(playername, stats, patch, elo, specific_key):
                          "time_ago": util.time_ago(game["date"])}
             for player in game["players_data"]:
                 if player["player_id"] == playerid:
-                    elochange += player["elo_change"]
+                    if player["legion"] in mms:
+                        mms[player["legion"]]["Count"] += 1
+                    else:
+                        mms[player["legion"]] = {"Count": 1, "Wins": 0}
+                    if player["mercs_sent_per_wave"][0].split("!")[0] == "Snail":
+                        wave1["Snail"] += 1
+                    elif str(player["kingups_sent_per_wave"][0].split("!")[0]).startswith("Upgrade"):
+                        wave1["King"] += 1
+                    else:
+                        wave1["Save"] += 1
+                    for opener_unit in set(player["opener"].split(",")):
+                        if opener_unit in openers:
+                            openers[opener_unit] += 1
+                        else:
+                            openers[opener_unit] = 1
+                    values.insert(0, player["player_elo"]+player["elo_change"])
+                    game_date: datetime = game["date"]
+                    labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     temp_dict["Result_String"] = f"{player["game_result"].capitalize()} on Wave {game["ending_wave"]}"
                     if player["game_result"] == "won":
-                        winlose[0] += 1
+                        if sum(winlose) < short_history:
+                            elochange += player["elo_change"]
+                            winlose[0] += 1
+                        mms[player["legion"]]["Wins"] += 1
                     else:
-                        winlose[1] += 1
+                        if sum(winlose) < short_history:
+                            elochange += player["elo_change"]
+                            winlose[1] += 1
             history_parsed.append(temp_dict)
-        
+        newIndex = sorted(mms, key=lambda x: mms[x]['Count'], reverse=True)
+        mms = {k: mms[k] for k in newIndex[:5]}
+        newIndex = sorted(openers, key=lambda x: openers[x], reverse=True)
+        openers = {k: openers[k] for k in newIndex[:5]}
+        wave1_percents = []
+        for val in wave1:
+            wave1_percents.append(round(wave1[val]/games*100))
         return render_template(
             "profile.html",
             api_profile=api_profile,
@@ -192,9 +227,17 @@ def profile(playername, stats, patch, elo, specific_key):
             stats_list=stats_list,
             image_list=image_list,
             playername=playername,
-            history=history_parsed,
+            history=history_parsed[:short_history],
             winlose=winlose,
-            elochange=util.plus_prefix(elochange))
+            elochange=util.plus_prefix(elochange),
+            playerurl = f"/profile/{playername}/",
+            values=values,
+            labels=labels,
+            games=games,
+            wave1 = wave1_percents,
+            mms = mms,
+            openers = openers,
+            get_cdn = util.get_cdn_image)
     else:
         patches = patches2
         try:
@@ -211,10 +254,10 @@ def profile(playername, stats, patch, elo, specific_key):
         if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
             return render_template("no_data.html", text="No Data")
         raw_data = None
-        playerid = legion_api.getid(playername)
+        api_profile = legion_api.getprofile(playername)
+        playerid = api_profile["_id"]
         if playerid in [0, 1]:
             return render_template("no_data.html", text=f"{playername} not found.")
-        api_profile = legion_api.getprofile(playerid)
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
         path = f"Files/player_cache/{playername2}_{patch}_{elo}.json"

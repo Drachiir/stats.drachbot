@@ -40,7 +40,7 @@ def get_leaderboard(num):
     api_response = requests.get(url, headers=header)
     return json.loads(api_response.text)
 
-def getid(playername):
+def getprofile(playername):
     request_type = 'players/byName/'
     url = 'https://apiv2.legiontd2.com/' + request_type + playername
     try:
@@ -52,16 +52,8 @@ def getid(playername):
         return 0
     else:
         api_call_logger(request_type)
-        playerid = json.loads(api_response.text)
-        return playerid['_id']
-
-def getprofile(playerid):
-    request_type = 'players/byId/'
-    url = 'https://apiv2.legiontd2.com/' + request_type + playerid
-    api_response = requests.get(url, headers=header)
-    player_profile = json.loads(api_response.text)
-    api_call_logger(request_type)
-    return player_profile
+        profile = json.loads(api_response.text)
+        return profile
 
 def getstats(playerid):
     request_type = 'players/stats/'

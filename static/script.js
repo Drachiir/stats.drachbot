@@ -189,6 +189,9 @@ function filterFunction2() {
   }
 }
 
+function refreshPage() {
+    window.location.reload();  // Refresh the page
+}
 
 function loading(){
     $("#loading").show();

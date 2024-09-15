@@ -164,3 +164,40 @@ div#loading {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.profile-div {
+    min-width: max-content;
+    min-height: max-content;
+    white-space: nowrap; /* Prevents text from wrapping inside the div */
+    margin: 5px;
+}
+#chart-container {
+    width: 100%; /* Ensure it takes full width */
+    height: 400px; /* You can adjust the height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Make sure the canvas stretches within the container */
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.refresh-button {
+    width: 70px;
+    height: 40px;
+    padding: 10px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #007bff; /* Bootstrap blue */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.refresh-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}

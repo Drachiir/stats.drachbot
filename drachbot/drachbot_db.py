@@ -39,7 +39,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         patch_list = patch.replace(" ", "").split(',')
     elif patch != "0" and "+" in patch and "-" not in patch:
         patch_new = patch.replace(" ", "").replace("+", "")
-        print(patch_new)
         if len(patch_new) == 5:
             patch_new = patch_new.split('.')
             for x in range(13 - int(patch_new[1])):
