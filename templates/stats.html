@@ -136,7 +136,7 @@
                     <th>
                         <r style="white-space: nowrap;">{{ k }}</r>
                         {% if k in ["Pickrate", "W on 4", "W on 10", "Pickrate*", "Usage Rate", "Tier"] %}
-                            <i data-title="{{ get_tooltip(k) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">&#xf059;</i>
+                            <i data-title="{{ get_tooltip(k) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                         {% endif %}
                     </th>
                     {% for key in data %}
@@ -154,7 +154,7 @@
                 <tr>
                     <th>
                         <r style="white-space: nowrap;">{{ sub[0] }}</r>
-                        <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">&#xf059;</i>
+                        <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                     </th>
                     {% for key in data %}
                         {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True) %}
