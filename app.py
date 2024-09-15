@@ -440,6 +440,7 @@ def profile(playername, stats, patch, elo, specific_key):
             specific_tier = True
         else:
             specific_tier = False
+        elos = [2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400, 1200, 1000]
         return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
                                games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
                                human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
