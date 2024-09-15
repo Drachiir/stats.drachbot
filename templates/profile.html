@@ -95,10 +95,10 @@
     let myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels.slice(-100),  // Show last 100 entries by default
+            labels: labels,
             datasets: [{
                 label: 'Elo',
-                data: values.slice(-100),
+                data: values,
                 backgroundColor: 'rgba(67,144,255,0.91)',
                 borderColor: 'rgb(79,189,237)',
                 borderWidth: 1,
