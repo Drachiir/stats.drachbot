@@ -310,9 +310,15 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
             except IndexError:
                 return None
         case "Best Combo":
-            return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats)[0]
+            try:
+                return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats)[0]
+            except IndexError:
+                return None
         case "Best MMs":
-            return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats)[0]
+            try:
+                return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats)[0]
+            except IndexError:
+                return None
         case "Best Merc":
             try:
                 return get_perf_list(data[key], 'Mercs', dict_type, specific_tier, elo, stats)[0]
