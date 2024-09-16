@@ -159,7 +159,7 @@ def profile(playername, stats, patch, elo, specific_key):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 30:
+            if minutes_diff > 5:
                 os.remove(path)
             else:
                 with open(path, "r") as f:
