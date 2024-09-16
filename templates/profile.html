@@ -71,18 +71,35 @@
     <div style="max-height: 85vh; overflow-y: scroll; border-radius: 10px;">
         <r2 style="font-size: 1.5rem">Match History</r2>
     {% for game in history %}
-        <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
         <div style="background: #171717; border-radius: 10px; display: flex; padding-right: 10px; justify-content: center">
             <div>
                 <div>
-                    <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
-                    <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2>
+                    <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
+                        <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
+                        <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2></a>
                 </div>
-                <div style="float: right">
-                    <r2 style="color: #a5a5a5;">{{ game["time_ago"] }}</r2><r2>🔗</r2>
+                <div style="display: flex; white-space: nowrap; justify-content: center;  gap: 20px">
+                    <div>
+                        {% for player in game["players_data"][:2] %}
+                            <a style="color: white; text-decoration: none;"  href="/profile/{{ player[0] }}">
+                                <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
+                                <r2 style="font-size: 0.8rem">{{ player[0] }}</r2></a><br>
+                        {% endfor %}
+                    </div>
+                    <div>
+                        {% for player in game["players_data"][2:] %}
+                            <a style="color: white; text-decoration: none;"  href="/profile/{{ player[0] }}">
+                                <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
+                                <r2 style="font-size: 0.8rem">{{ player[0] }}</r2></a><br>
+                        {% endfor %}
+                    </div>
                 </div>
+                <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
+                    <div style="float: right">
+                        <r2 style="color: #a5a5a5;">{{ game["time_ago"] }}</r2><r2>🔗</r2>
+                    </div></a>
             </div>
-        </div></a><br>
+        </div><br>
     {% endfor %}
     </div>
 </div>
