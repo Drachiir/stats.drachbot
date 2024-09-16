@@ -153,14 +153,27 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/Value10000.png",
             "https://cdn.legiontd2.com/icons/LegionKing.png"
         ]
-        
-        req_columns = [
-            [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
-             PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change
-             ,PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind],
-            ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
-            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind"]
-        ]
+        path = f"Files/player_cache/{api_profile["playerName"]}_profile.json"
+        history = None
+        if os.path.isfile(path):
+            mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+            date_diff = datetime.now(tz=timezone.utc) - mod_date
+            minutes_diff = date_diff.total_seconds() / 60
+            if minutes_diff > 30:
+                os.remove(path)
+            else:
+                with open(path, "r") as f:
+                    history = json.load(f)
+        if not history:
+            req_columns = [
+                [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
+                 PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change
+                    , PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind],
+                ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
+                ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind"]]
+            history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
+            with open(path, "w") as f:
+                json.dump(history, f, default=str)
         history_parsed = []
         winlose = [0, 0]
         elochange = 0
@@ -169,13 +182,14 @@ def profile(playername, stats, patch, elo, specific_key):
         mms = {}
         wave1 = {"King": 0, "Snail": 0, "Save": 0}
         openers = {}
-        history = drachbot_db.get_matchistory(playerid, 0, patch=patch, min_elo=elo, req_columns=req_columns, earlier_than_wave10=True, profile=api_profile, stats=api_stats)
         games = len(history)
         short_history = 20
         for game in history:
+            if type(game["date"]) == str:
+                game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
-            temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": "",
-                         "Length": game["game_length"], "Date": game["date"], "ltd2pro": f"https://ltd2.pro/game/{game["game_id"]}",
+            temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
+                         ,"Date": game["date"], "ltd2pro": f"https://ltd2.pro/game/{game["game_id"]}",
                          "time_ago": util.time_ago(game["date"])}
             for player in game["players_data"]:
                 if player["player_id"] == playerid:
@@ -197,7 +211,7 @@ def profile(playername, stats, patch, elo, specific_key):
                         else:
                             openers[opener_unit] = 1
                     values.insert(0, player["player_elo"]+player["elo_change"])
-                    game_date: datetime = game["date"]
+                    game_date = game["date"]
                     labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     temp_dict["Result_String"] = f"{player["game_result"].capitalize()} on Wave {game["ending_wave"]}"
