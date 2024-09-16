@@ -14,7 +14,11 @@
 
         gtag('config', 'G-KB760J9ZQL');
     </script>
-    {% if data %}
+    {% if api_profile %}
+        <title>{{ api_profile["playerName"] }} Legion TD 2 Profile</title>
+        <meta property="og:title" content="{{ api_profile["playerName"] }} Legion TD 2 Profile" />
+        <meta property="og:image" content="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}" />
+    {% elif data %}
         {% if specific_key == "All" or specific_key == "Megamind" %}
             <title>Legion TD 2 {{ title }} Stats | Patch v{{ patch }}</title>
             <meta name="description" content="Legion TD 2 {{ title }} Stats">
