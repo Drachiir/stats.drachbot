@@ -9,10 +9,10 @@
                 <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                 <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                 <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br>
-                <button class="refresh-button" onclick="refreshPage()">Refresh</button>
+                <button class="btn btn-secondary" onclick="refreshPage()">Refresh</button>
             </div>
             <div class="profile-div">
-                <r2 style=""><b>Season 2024 Stats:</b></r2><br>
+                <r2 style=""><b>Season 2024 Stats</b></r2><br>
                 <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L<br>({{ winrate([api_stats["rankedWinsThisSeason"],
                 (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }} WR%)</r2><br>
                 <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
@@ -21,40 +21,46 @@
                 <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
             </div>
             <div class="profile-div">
-                <r2> <b>Stat Pages:</b></r2><br>
-                {% for stat in stats_list %}
-                    <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
-                    <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
-                    <r2>[{{ stat.capitalize() }}]</r2><br></a>
-                {% endfor %}
-            </div>
-            <div class="profile-div">
-                <r2><b>Last {{ history|length }} Games:</b></r2><br>
+                <r2><b>Last {{ history|length }} Games</b></r2><br>
                 <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
                 <r2>Elo Diff: {{ elochange }}</r2>
             </div>
             <div class="profile-div">
+                  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <r><b>Stats Pages</b></r>
+                  </button>
+                <ul class="dropdown-menu bg-black">
+                    {% for stat in stats_list %}
+                        <li class="dropdown-item">
+                            <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
+                            <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
+                            <r2>{{ stat.capitalize() }}</r2><br></a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="profile-div">
                 <r2>Wave 1 Tendency:</r2><br>
-                <img width="32" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2>{{ wave1[0] }}%</r2>
-                <img width="32" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2>{{ wave1[1] }}%</r2>
-                <img width="32" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2>{{ wave1[2] }}%</r2>
+                <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2>{{ wave1[0] }}%</r2>
+                <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2>{{ wave1[1] }}%</r2>
+                <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2>{{ wave1[2] }}%</r2>
             </div>
             <div class="profile-div" style="padding-left: 20px">
                 <r2>Favorite Openers:</r2><br>
                 {% for open in openers %}
-                    <img width="32" height="auto" src="{{ get_cdn(open, "Opener") }}">
+                    <img width="36" height="auto" src="{{ get_cdn(open, "Opener") }}">
                 {% endfor %}
             </div>
             <div class="profile-div" style="padding-left: 20px">
                 <r2>Favorite Masterminds:</r2><br>
                 {% for mm in mms %}
-                    <img width="32" height="auto" src="{{ get_cdn(mm, "MMs") }}">
+                    <img width="36" height="auto" src="{{ get_cdn(mm, "MMs") }}">
                 {% endfor %}
             </div>
             <div id="chart-container" style="position: relative;">
                 <div class="input-group" style="position: absolute; right: 10px; top: 20px; z-index: 10; width: 150px">
                     <input type="number" id="dataLimit" class="form-control form-control-sm" style="width: 80px;" min="1" value="100">
-                    <button class="btn btn-primary btn-sm" onclick="updateChart()">Apply</button>
+                    <button class="btn btn-secondary btn-sm" onclick="updateChart()">Apply</button>
                 </div>
 
                 <!-- Chart -->
@@ -136,6 +142,7 @@
                 title: {
                     display: true,
                     text: `Last ${labels.length} Ranked Games`,
+                    color: 'rgb(204,204,204)',
                     font: {
                         size: 14  // Smaller title font size
                     },
