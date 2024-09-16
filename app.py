@@ -284,7 +284,7 @@ def profile(playername, stats, patch, elo, specific_key):
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
-            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
+            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername)
             with open(path, "w") as f:
                 json.dump(history_raw, f, default=str)
         match stats:
