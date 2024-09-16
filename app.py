@@ -171,7 +171,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     , PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind],
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind"]]
-            history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns)
+            history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, stats=api_stats, profile=api_profile, pname=playername)
             with open(path, "w") as f:
                 json.dump(history, f, default=str)
         history_parsed = []

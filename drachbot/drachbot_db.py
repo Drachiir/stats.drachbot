@@ -25,7 +25,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
-def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = [], profile = None, stats = None):
+def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = [], profile = None, stats = None, pname = ""):
     patch_list = []
     if earlier_than_wave10:
         earliest_wave = 2
@@ -86,7 +86,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if profile:
                 playerprofile = profile
             else:
-                playerprofile = legion_api.getprofile(playerid)
+                playerprofile = legion_api.getprofile(pname)
             offset = 0
             try:
                 ladder_points = playerstats["ladderPoints"]
