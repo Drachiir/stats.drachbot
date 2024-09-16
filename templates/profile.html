@@ -3,9 +3,9 @@
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: flex; gap: 20px; justify-content: center; align-items: flex-start;">
-    <div style="background: #171717; border-radius: 10px; max-width: 60%;">
-        <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; text-overflow: ellipsis; align-items: flex-start; justify-content: center">
-            <div class="profile-div" style="text-align: center; width: 200px; overflow: hidden">
+    <div style="background: #171717; border-radius: 10px; min-width: 50%; max-width: 60%;">
+        <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: center">
+            <div style="text-align: center; width: 250px; overflow: hidden">
                 <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                 <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                 <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br>
@@ -39,45 +39,41 @@
                 <img width="32" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2>{{ wave1[1] }}%</r2>
                 <img width="32" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2>{{ wave1[2] }}%</r2>
             </div>
-            <div class="profile-div">
+            <div class="profile-div" style="padding-left: 20px">
                 <r2>Favorite Openers:</r2><br>
                 {% for open in openers %}
                     <img width="32" height="auto" src="{{ get_cdn(open, "Opener") }}">
                 {% endfor %}
             </div>
-            <div class="profile-div">
+            <div class="profile-div" style="padding-left: 20px">
                 <r2>Favorite Masterminds:</r2><br>
                 {% for mm in mms %}
                     <img width="32" height="auto" src="{{ get_cdn(mm, "MMs") }}">
                 {% endfor %}
             </div>
-        </div>
-        <div class="profile-div" style="width: 10%; float: right">
-                <div class="form-group">
-                    <div class="input-group">
-                        <input type="number" id="dataLimit" class="form-control" value="100" min="1" />
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" onclick="updateChart()">Apply Limit</button>
-                        </div>
-                    </div>
+            <div id="chart-container" style="position: relative;">
+                <div class="input-group" style="position: absolute; right: 10px; top: 20px; z-index: 10; width: 150px">
+                    <input type="number" id="dataLimit" class="form-control form-control-sm" style="width: 80px;" min="1" value="100">
+                    <button class="btn btn-primary btn-sm" onclick="updateChart()">Apply</button>
                 </div>
+
+                <!-- Chart -->
+                <canvas id="myChart"></canvas>
             </div>
-        <div id="chart-container">
-            <canvas id="myChart"></canvas>
         </div>
     </div>
     <div style="max-height: 85vh; overflow-y: scroll; border-radius: 10px;">
         <r2 style="font-size: 1.5rem">Match History</r2>
     {% for game in history %}
         <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
-        <div style="background: #171717; border-radius: 10px; display: flex; padding-right: 10px">
+        <div style="background: #171717; border-radius: 10px; display: flex; padding-right: 10px; justify-content: center">
             <div>
                 <div>
                     <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
                     <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2>
                 </div>
-                <div>
-                    <r2 style="color: #a5a5a5;">{{ game["time_ago"] }}</r2><r2 style="float: right">🔗</r2>
+                <div style="float: right">
+                    <r2 style="color: #a5a5a5;">{{ game["time_ago"] }}</r2><r2>🔗</r2>
                 </div>
             </div>
         </div></a><br>
@@ -139,7 +135,7 @@
             plugins: {
                 title: {
                     display: true,
-                    text: `Last ${labels.length} Ranked Games (Season 2024)`,
+                    text: `Last ${labels.length} Ranked Games`,
                     font: {
                         size: 14  // Smaller title font size
                     },

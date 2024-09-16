@@ -14,7 +14,6 @@ import drachbot.unitstats
 import drachbot.wavestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
-from util import get_rank_url
 
 cache = Cache()
 
@@ -224,24 +223,11 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(0)
         return render_template(
             "profile.html",
-            api_profile=api_profile,
-            api_stats=api_stats,
-            get_rank_url=util.get_rank_url,
-            winrate=util.custom_winrate,
-            stats_list=stats_list,
-            image_list=image_list,
-            playername=playername,
-            history=history_parsed[:short_history],
-            winlose=winlose,
-            elochange=util.plus_prefix(elochange),
-            playerurl = f"/profile/{playername}/",
-            values=values,
-            labels=labels,
-            games=games,
-            wave1 = wave1_percents,
-            mms = mms,
-            openers = openers,
-            get_cdn = util.get_cdn_image)
+            api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
+            stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed[:short_history],
+            winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
+            labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image,
+            patch = patch)
     else:
         patches = patches2
         try:

@@ -28,8 +28,6 @@ wave_names= [
     "LegionLord"
 ]
 
-wave_values = [72, 84, 90, 96, 108, 114, 100, 132, 144, 150, 156, 168, 180, 192, 204, 216, 228, 252, 276, 300, 360]
-
 tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
                      "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}

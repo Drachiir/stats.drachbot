@@ -169,7 +169,7 @@ div#loading {
     min-width: max-content;
     min-height: max-content;
     white-space: nowrap; /* Prevents text from wrapping inside the div */
-    margin: 5px;
+    margin: 8px;
 }
 #chart-container {
     width: 100%; /* Ensure it takes full width */
@@ -200,4 +200,18 @@ canvas {
 
 .refresh-button:hover {
     background-color: #0056b3; /* Darker blue on hover */
+}
+/* Media Query for Small Screens */
+@media (max-width: 768px) {
+    /* Shift input and button below the title */
+    .chart-limit-input {
+        position: static;
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px; /* Add some space below the chart */
+    }
+
+    #chart-container {
+        padding-top: 40px; /* Add padding so the title has space at the top */
+    }
 }
