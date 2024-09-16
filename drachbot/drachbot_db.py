@@ -102,7 +102,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 offset=offset,
                 last_updated=datetime.now(tz=timezone.utc)
             ).save()
-            data = get_games_loop(playerid, 0, games)
+            data = get_games_loop(playerid, 0, 200)
         else:
             new_profile = False
             if stats:
