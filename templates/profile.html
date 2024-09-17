@@ -76,7 +76,12 @@
                 <div>
                     <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
                         <img width="48" style="vertical-align: middle; clip-path: circle();" src="{{ game["EndWave"] }}">
-                        <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2></a>
+                        {% if game["Result_String"][0] %}
+                            <r2 style="color: #6af945">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% else %}
+                            <r2 style="color: #d64444">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% endif %}
+                    </a>
                 </div>
                 <div style="display: flex; white-space: nowrap; justify-content: center;  gap: 20px">
                     {% for x in [game["players_data"][:2], game["players_data"][2:]] %}

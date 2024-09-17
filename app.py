@@ -216,16 +216,18 @@ def profile(playername, stats, patch, elo, specific_key):
                     game_date = game["date"]
                     labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
-                    temp_dict["Result_String"] = f"{player["game_result"].capitalize()} on Wave {game["ending_wave"]}"
                     if player["game_result"] == "won":
+                        won = True
                         if sum(winlose) < short_history:
                             elochange += player["elo_change"]
                             winlose[0] += 1
                         mms[player["legion"]]["Wins"] += 1
                     else:
+                        won = False
                         if sum(winlose) < short_history:
                             elochange += player["elo_change"]
                             winlose[1] += 1
+                    temp_dict["Result_String"] = [won, f"{player["game_result"].capitalize()} on Wave {game["ending_wave"]}"]
             history_parsed.append(temp_dict)
         newIndex = sorted(mms, key=lambda x: mms[x]['Count'], reverse=True)
         mms = {k: mms[k] for k in newIndex[:5]}
