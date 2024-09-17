@@ -79,20 +79,20 @@
                         <r2>{{ game["Result_String"] }} ({{ game["EloChange"] }} Elo)</r2></a>
                 </div>
                 <div style="display: flex; white-space: nowrap; justify-content: center;  gap: 20px">
-                    <div>
-                        {% for player in game["players_data"][:2] %}
-                            <a style="color: white; text-decoration: none;"  href="/profile/{{ player[0] }}">
-                                <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
-                                <r2 style="font-size: 0.8rem">{{ player[0] }}</r2></a><br>
-                        {% endfor %}
-                    </div>
-                    <div>
-                        {% for player in game["players_data"][2:] %}
-                            <a style="color: white; text-decoration: none;"  href="/profile/{{ player[0] }}">
-                                <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
-                                <r2 style="font-size: 0.8rem">{{ player[0] }}</r2></a><br>
-                        {% endfor %}
-                    </div>
+                    {% for x in [game["players_data"][:2], game["players_data"][2:]] %}
+                        <div>
+                            {% for player in x %}
+                                {% if player[0] == api_profile["playerName"] %}
+                                    {% set color = "#34a9db" %}
+                                {% else %}
+                                    {% set color = "white" %}
+                                {% endif %}
+                                <a style="color: white; text-decoration: none;"  href="/profile/{{ player[0] }}">
+                                    <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
+                                    <r2 style="font-size: 0.8rem; color: {{ color }}">{{ player[0] }}</r2></a><br>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
                 </div>
                 <a style="color: white; text-decoration: none;"  href="{{ game["ltd2pro"] }}">
                     <div style="float: right">
