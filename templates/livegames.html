@@ -5,9 +5,10 @@
     <!-- Search input for player names -->
     <input type="text" id="search-bar" placeholder="Search player names..." style="margin-bottom: 20px; padding: 10px; width: 75%;">
 </div>
-
-<div id="games-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center">
-    <!-- The games will be dynamically injected here -->
+<div class="main-container">
+    <div id="games-container">
+        <!-- The games will be dynamically injected here -->
+    </div>
 </div>
 
 <script>
@@ -125,7 +126,6 @@
                         </div>
                     </div>
                 </div>
-                <br>
             `;
             gamesContainer.innerHTML += gameHTML;
         });

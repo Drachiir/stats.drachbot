@@ -237,14 +237,20 @@ canvas {
     max-width: 600px; /* Set a max-width to prevent it from becoming too wide on larger screens */
     box-sizing: border-box; /* Include padding in width calculation */
 }
-
+.main-container{
+    display:flex;
+    flex-wrap: wrap;
+}
+#games-container > div {
+    flex: 1 0 40%;
+}
 /* Game container styles */
 #games-container {
     display: flex;
-    flex-direction: column; /* Change to column layout for better mobile support */
-    gap: 20px;
-    justify-content: center;
+    flex-wrap: wrap;
+    white-space: nowrap;
     width: 100%;
+    gap: 20px;
     padding: 0 10px; /* Add some padding on the sides for small screens */
     box-sizing: border-box; /* Include padding in width calculation */
 }
@@ -264,7 +270,7 @@ canvas {
 .game-header {
     margin-bottom: 10px;
     color: #a5a5a5;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
     text-align: center;
 }
 
@@ -287,7 +293,7 @@ canvas {
 .player {
     text-align: left;
     margin-bottom: 10px;
-    font-size: 1.5rem;
+    font-size: 1.2rem;
 }
 
 .player img {
@@ -301,6 +307,9 @@ canvas {
 }
 
 @media (max-width: 768px) {
+    #games-container{
+        width: 100%;
+    }
     .players-container {
         flex-direction: row; /* Ensure teams are side by side on tablets and small screens */
     }
@@ -320,6 +329,9 @@ canvas {
 }
 
 @media (max-width: 480px) {
+    #games-container{
+        width: 100%;
+    }
     .game-header {
         font-size: 0.9rem;
     }
