@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div id="search-bar-container" style="display: flex; width: 100%; justify-content: center; padding-top: 20px">
+    <!-- Search input for player names -->
+    <input type="text" id="search-bar" placeholder="Search player names..." style="margin-bottom: 20px; padding: 10px; width: 75%;">
+</div>
+
+<div id="games-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center">
+    <!-- The games will be dynamically injected here -->
+</div>
+
+<script>
+    // Function to calculate the relative time
+    function getRelativeTime(timestamp) {
+        const now = new Date().getTime();
+        const timeDifference = Math.floor(now - timestamp * 1000); // Convert POSIX to milliseconds
+
+        const seconds = Math.floor(timeDifference / 1000);
+        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+        if (seconds < 60) {
+            return rtf.format(-seconds, 'second');
+        } else if (seconds < 3600) {
+            return rtf.format(-Math.floor(seconds / 60), 'minute');
+        } else if (seconds < 86400) {
+            return rtf.format(-Math.floor(seconds / 3600), 'hour');
+        } else {
+            return rtf.format(-Math.floor(seconds / 86400), 'day');
+        }
+    }
+
+    // Function to get rank URL based on ELO (JavaScript version of your Python get_rank_url)
+    function getRankUrl(elo) {
+        if (typeof elo !== 'number') {
+            elo = parseInt(elo, 10);
+            if (isNaN(elo)) return null;
+        }
+
+        if (elo >= 2800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png';
+        } else if (elo >= 2600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png';
+        } else if (elo >= 2400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png';
+        } else if (elo >= 2200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png';
+        } else if (elo >= 2000) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png';
+        } else if (elo >= 1800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png';
+        } else if (elo >= 1600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png';
+        } else if (elo >= 1400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png';
+        } else if (elo >= 1200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png';
+        } else {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
+        }
+    }
+
+    // Function to highlight the search term in player names without expanding the text
+    function highlightSearchTerm(name, query) {
+        if (!query) return name;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return name.replace(regex, '<span class="highlight">$1</span>');
+    }
+
+
+    // Function to update all timestamps
+    function updateAllTimestamps() {
+        const elements = document.querySelectorAll('.timestamp');
+        elements.forEach(el => {
+            const posixTimestamp = parseFloat(el.getAttribute('data-timestamp')); // Get timestamp from data attribute
+            const relativeTime = getRelativeTime(posixTimestamp);
+            el.innerText = relativeTime;
+        });
+    }
+
+    // Function to search games by player name
+    function searchGames(query, games) {
+        query = query.toLowerCase(); // Normalize search input
+        return games.filter(game => {
+            const players = [...game[2], ...game[3]]; // Combine westPlayers and eastPlayers
+            return players.some(player => player[0].toLowerCase().includes(query));
+        });
+    }
+
+    // Function to render games in the container
+    function renderGames(games, query = '') {
+        const gamesContainer = document.getElementById('games-container');
+        gamesContainer.innerHTML = '';
+
+        games.forEach(game => {
+            const gameElo = game[1];
+            const westPlayers = game[2];
+            const eastPlayers = game[3];
+
+            const gameHTML = `
+                    <div class="game-card">
+                        <div class="game-header">
+                            Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
+                            <div>Started <span class="timestamp" data-timestamp="${game[0]}"></span></div>
+                        </div>
+                        <div class="players-container">
+                            <div class="team">
+                                ${westPlayers.map(player => `
+                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
+                            <div class="team">
+                                ${eastPlayers.map(player => `
+                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+            `;
+            gamesContainer.innerHTML += gameHTML;
+        });
+
+        updateAllTimestamps();
+    }
+
+    // Function to fetch and display games from the API
+    async function fetchGames() {
+        try {
+            const response = await fetch('/api/livegames'); // Fetch the live games data from the API
+            let games = await response.json(); // Parse the JSON response
+
+            // Sort games by ELO (highest to lowest)
+            games = games.sort((a, b) => b[1] - a[1]);
+            renderGames(games); // Initial render
+
+            // Search bar functionality
+            const searchBar = document.getElementById('search-bar');
+            searchBar.addEventListener('input', function () {
+                const query = searchBar.value;
+                const filteredGames = searchGames(query, games);
+                renderGames(filteredGames, query); // Render filtered games with highlighted search term
+            });
+
+        } catch (error) {
+            console.error('Error fetching games:', error);
+        }
+    }
+
+    // Initial fetch and update
+    fetchGames();
+
+    // Update games every minute (and refresh relative times)
+    setInterval(() => {
+        fetchGames(); // Re-fetch the games
+        updateAllTimestamps(); // Update the relative times
+    }, 10000); // Refresh every minute
+
+</script>
+{% endblock %}

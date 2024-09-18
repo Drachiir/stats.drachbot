@@ -140,7 +140,7 @@
                         {% endif %}
                     </th>
                     {% for key in data %}
-                        {% set data = get_key_value(data, key, k, games, stats, elo) %}
+                        {% set data = get_key_value(data, key, k, games, stats, elo, playerprofile=playerprofile) %}
                         {% if k == "Tier" %}
                             <td data="{{ data[1] }}" style="color: {{ data[2] }}">{{ data[0] }}</td>
                         {% else %}

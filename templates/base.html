@@ -14,7 +14,12 @@
 
         gtag('config', 'G-KB760J9ZQL');
     </script>
-    {% if api_profile %}
+    {% if livegames %}
+            <title>Legion TD 2 Livegames</title>
+        <meta property="og:title" content="Legion TD 2 Livegames" />
+        <meta name="description" content="The 10 highest Elo ongoing games">
+        <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
+    {% elif api_profile %}
         <title>{{ api_profile["playerName"] }} Legion TD 2 Profile</title>
         <meta property="og:title" content="{{ api_profile["playerName"] }} Legion TD 2 Profile" />
         <meta property="og:image" content="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}" />
@@ -105,6 +110,9 @@
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionKing.png">Wave Stats</a>
                     </li>
                 </ul>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/livegames">Live Games</a>
             </li>
             <li class="nav-item active">
                 <a data-title="Discord Bot with player specific stats and other fun commands for Legion TD 2" class="nav-link" href="https://drachbot.site">Discord Bot</a>

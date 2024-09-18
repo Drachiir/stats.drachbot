@@ -33,7 +33,7 @@
                     {% if title == 'Megamind' %}
                         <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
                     {% else %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a></li>
                     {% endif %}
                 {% endfor %}
             </ul>

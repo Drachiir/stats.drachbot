@@ -215,3 +215,119 @@ canvas {
         padding-top: 40px; /* Add padding so the title has space at the top */
     }
 }
+
+.highlight {
+    background-color: #ae9209;
+    padding: 0;            /* Remove extra padding */
+    font-weight: inherit;  /* Maintain the same font weight */
+    color: inherit;        /* Inherit the text color */
+}
+
+/* Container for the search bar and games */
+#search-bar-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+#search-bar {
+    margin-bottom: 20px;
+    padding: 10px;
+    width: 80%; /* Adjust width to fit better on mobile screens */
+    max-width: 600px; /* Set a max-width to prevent it from becoming too wide on larger screens */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Game container styles */
+#games-container {
+    display: flex;
+    flex-direction: column; /* Change to column layout for better mobile support */
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+    padding: 0 10px; /* Add some padding on the sides for small screens */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Game card styles */
+.game-card {
+    background: #171717;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Stack items vertically on small screens */
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.game-header {
+    margin-bottom: 10px;
+    color: #a5a5a5;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.players-container {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.team {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 10px; /* Add margin to ensure spacing between teams */
+}
+
+.player {
+    text-align: left;
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+}
+
+.player img {
+    width: 24px; /* Use fixed width to ensure consistency */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.highlight {
+    background-color: yellow;
+    color: inherit;
+}
+
+@media (max-width: 768px) {
+    .players-container {
+        flex-direction: row; /* Ensure teams are side by side on tablets and small screens */
+    }
+    .team {
+        width: 50%;
+    }
+}
+
+@media (max-width: 480px) {
+    .players-container {
+        flex-direction: row; /* Ensure teams are side by side on mobile screens */
+        overflow-x: auto; /* Allow horizontal scrolling if content overflows */
+    }
+    .team {
+        width: 50%;
+        min-width: 150px; /* Prevent shrinking too small */
+    }
+}
+
+@media (max-width: 480px) {
+    .game-header {
+        font-size: 0.9rem;
+    }
+    .player img {
+        width: 20px; /* Smaller images on very small screens */
+    }
+    .player {
+        font-size: 0.9rem;
+    }
+}

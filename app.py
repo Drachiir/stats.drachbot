@@ -14,6 +14,7 @@ import drachbot.unitstats
 import drachbot.wavestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
+from util import get_rank_url
 
 cache = Cache()
 
@@ -47,9 +48,11 @@ def sitemap():
                                'sitemap.xml')
 
 if platform.system() == "Linux":
+    shared_folder_live = "/shared/livegames"
     shared_folder = "/shared2/"
 else:
     shared_folder = "D:/Projekte/Python/Drachbot/shared2/"
+    shared_folder_live = "shared/livegames"
 
 with open("defaults.json", "r") as f:
     defaults_json = json.load(f)
@@ -105,7 +108,26 @@ def home():
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip)
 
+@app.route("/api/livegames")
+def livegames_api():
+    games = []
+    for game in os.listdir(shared_folder_live):
+        with open(f"{shared_folder_live}/{game}", "r", encoding="utf_8") as f2:
+            txt = f2.readlines()
+            f2.close()
+        path2 = f"{shared_folder_live}/{game}"
+        mod_date = datetime.fromtimestamp(os.path.getmtime(path2), tz=timezone.utc).timestamp()
+        game_elo = txt[-1]
+        west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
+        east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
+        games.append([mod_date, game_elo, west_players, east_players])
+    games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:10]
+    return games
 
+@app.route("/livegames")
+def livegames():
+    return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
+    
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults[1], "specific_key": "All"})
@@ -454,7 +476,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                                sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                data_keys=raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True)
+                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True, playerprofile = True)
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})

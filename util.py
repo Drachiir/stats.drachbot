@@ -226,7 +226,7 @@ def get_tooltip(header:str):
         case _:
             return header.capitalize()
   
-def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None):
+def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False):
     match k:
         case "Games":
             try:
@@ -330,10 +330,16 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
         case "Endrate":
             return f"{custom_winrate([data[key]['EndCount'], games])}%"
         case "Sendrate":
-            return f"{custom_winrate([data[key]['SendCount']/4, data[key]['Count']])}%"
+            if playerprofile:
+                return f"{custom_winrate([data[key]['SendCount'], data[key]['Count']])}%"
+            else:
+                return f"{custom_winrate([data[key]['SendCount'] / 4, data[key]['Count']])}%"
         case "Avg Leak":
             wave_num = findall(r'\d+', key)
-            return f"{round(data[key]["LeakedGold"]/(wave_values[int(wave_num[0])-1]*(data[key]["Count"]*4))*100,1)}%"
+            if playerprofile:
+                return f"{round(data[key]["LeakedGold"]/(wave_values[int(wave_num[0])-1]*(data[key]["Count"]))*100,1)}%"
+            else:
+                return f"{round(data[key]["LeakedGold"] / (wave_values[int(wave_num[0]) - 1] * (data[key]["Count"] * 4)) * 100, 1)}%"
 
 def time_ago(time=False):
     now = datetime.utcnow()
@@ -388,6 +394,11 @@ def time_ago(time=False):
     return str(round(day_diff/365)) + " years ago"
 
 def get_rank_url(elo):
+    if type(elo) != int:
+        try:
+            elo = int(elo)
+        except Exception:
+            return None
     if elo >= 2800:
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'
     elif elo >= 2600:
