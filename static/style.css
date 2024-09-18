@@ -266,7 +266,6 @@ canvas {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    margin-bottom: 20px;
 }
 
 /* Position the timestamp in the top-right corner */
