@@ -312,7 +312,6 @@ canvas {
 @media (max-width: 480px) {
     .players-container {
         flex-direction: row; /* Ensure teams are side by side on mobile screens */
-        overflow-x: auto; /* Allow horizontal scrolling if content overflows */
     }
     .team {
         width: 50%;
