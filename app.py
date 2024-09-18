@@ -121,7 +121,7 @@ def livegames_api():
         west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
         east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
         games.append([mod_date, game_elo, west_players, east_players])
-    games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:10]
+    games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
 
 @app.route("/livegames")

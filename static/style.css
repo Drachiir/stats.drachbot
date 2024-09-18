@@ -242,7 +242,7 @@ canvas {
     flex-wrap: wrap;
 }
 #games-container > div {
-    flex: 1 0 40%;
+    flex: 1 0 30%;
 }
 /* Game container styles */
 #games-container {
@@ -270,7 +270,7 @@ canvas {
 .game-header {
     margin-bottom: 10px;
     color: #a5a5a5;
-    font-size: 1.2rem;
+    font-size: 1rem;
     text-align: center;
 }
 
@@ -293,7 +293,7 @@ canvas {
 .player {
     text-align: left;
     margin-bottom: 10px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
 }
 
 .player img {
