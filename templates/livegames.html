@@ -151,6 +151,7 @@
 
             // Calculate the team stats
             const teamStats = calculateTeamStats(westPlayers, eastPlayers);
+            const teamStats2 = calculateTeamStats(eastPlayers, westPlayers);
 
             // Create HTML structure for each game
             const gameHTML = `
@@ -160,7 +161,7 @@
                         </div>
                         <div class="game-header">
                             Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
-                            <div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">Elo Change: ±${teamStats.team1EloChange}</div>
+                            <div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">±${teamStats.team1EloChange} / ±${teamStats2.team1EloChange}</div>
                         </div>
                         <div class="players-container">
                             <div class="team">
