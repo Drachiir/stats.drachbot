@@ -305,8 +305,16 @@ canvas {
     background-color: #595300;
     color: inherit;
 }
-
+.profile-main {
+    background: #171717;
+    border-radius: 10px;
+    min-width: 50%;
+    max-width: 60%;
+}
 @media (max-width: 768px) {
+    .profile-main{
+        max-width: 100%;
+    }
     #games-container{
         width: 100%;
     }
@@ -329,6 +337,9 @@ canvas {
 }
 
 @media (max-width: 480px) {
+    .profile-main{
+        max-width: 100%;
+    }
     #games-container{
         width: 100%;
     }

@@ -2,8 +2,8 @@
 
 {% block content %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<div class="container-lg" style="padding-top: 2vw; display: flex; gap: 20px; justify-content: center; align-items: flex-start;">
-    <div style="background: #171717; border-radius: 10px; min-width: 50%; max-width: 60%;">
+<div class="container-lg" style="padding-top: 2vw; display: flex; gap: 20px; justify-content: center; align-items: flex-start; flex-wrap: wrap">
+    <div class="profile-main">
         <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: center">
             <div style="text-align: center; width: 250px; overflow: hidden">
                 <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
@@ -45,13 +45,13 @@
                 <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2>{{ wave1[1] }}%</r2>
                 <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2>{{ wave1[2] }}%</r2>
             </div>
-            <div class="profile-div" style="padding-left: 20px">
+            <div class="profile-div">
                 <r2>Favorite Openers:</r2><br>
                 {% for open in openers %}
                     <img width="36" height="auto" src="{{ get_cdn(open, "Opener") }}">
                 {% endfor %}
             </div>
-            <div class="profile-div" style="padding-left: 20px">
+            <div class="profile-div">
                 <r2>Favorite Masterminds:</r2><br>
                 {% for mm in mms %}
                     <img width="36" height="auto" src="{{ get_cdn(mm, "MMs") }}">
