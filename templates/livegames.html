@@ -61,6 +61,7 @@
         }
     }
 
+    let gamesData = []; // Global variable to store fetched games data
     let searchQuery = ''; // Global variable to store the search term
 
     // Function to highlight the search term in player names without expanding the text
@@ -69,7 +70,6 @@
         const regex = new RegExp(`(${query})`, 'gi');
         return name.replace(regex, '<mark class="highlight">$1</mark>'); // Add class to the mark tag for custom styling
     }
-
 
     // Function to update all timestamps
     function updateAllTimestamps() {
@@ -90,6 +90,55 @@
         });
     }
 
+    // Function to calculate team Elo stats (average, win probability, elo change)
+    function calculateTeamStats(team1, team2) {
+        // Calculate average Elo for both teams (convert to numbers)
+        const team1_avgElo = team1.reduce((sum, player) => sum + parseFloat(player[1]), 0) / team1.length;
+        const team2_avgElo = team2.reduce((sum, player) => sum + parseFloat(player[1]), 0) / team2.length;
+
+        // Ensure Elos are valid numbers (in case they were incorrectly passed)
+        const team1Elo = parseFloat(team1_avgElo);
+        const team2Elo = parseFloat(team2_avgElo);
+
+        // Calculate win probabilities for each team
+        const winProbabilityTeam1 = calculateWinProbability(team1Elo, team2Elo);
+        const winProbabilityTeam2 = 1 - winProbabilityTeam1;
+
+        // Calculate Elo change for a win/loss scenario
+        const team1EloChange = calculateEloChange(team1Elo, team2Elo, 1); // Team 1 wins
+        const team2EloChange = calculateEloChange(team2Elo, team1Elo, 0); // Team 2 loses
+
+        return {
+            team1_avgElo: Math.round(team1Elo),
+            team2_avgElo: Math.round(team2Elo),
+            winProbabilityTeam1: (winProbabilityTeam1 * 100).toFixed(2), // Convert to percentage
+            winProbabilityTeam2: (winProbabilityTeam2 * 100).toFixed(2), // Convert to percentage
+            team1EloChange: Math.round(team1EloChange),
+            team2EloChange: Math.round(team2EloChange)
+        };
+    }
+
+    // Function to calculate win probability for teamA against teamB
+    function calculateWinProbability(teamA_elo, teamB_elo) {
+        const expectedA = 1 / (1 + Math.pow(10, (teamB_elo - teamA_elo) / 400));
+        return expectedA;
+    }
+
+    // Function to calculate Elo change for a team
+    function calculateEloChange(teamElo, opponentElo, result) {
+        const K = 32; // K-factor
+        const winProb = calculateWinProbability(teamElo, opponentElo);
+        let eloChange = K * (result - winProb);
+
+        // Apply min/max Elo change limits
+        if (eloChange > 30) eloChange = 30;
+        if (eloChange < -30) eloChange = -30;
+        if (result === 1 && eloChange < 2) eloChange = 2;  // Ensure at least +2 Elo for a win
+        if (result === 0 && eloChange > -2) eloChange = -2; // Ensure at least -2 Elo for a loss
+
+        return eloChange;
+    }
+
     // Function to render games in the container
     function renderGames(games, query = '') {
         const gamesContainer = document.getElementById('games-container');
@@ -100,33 +149,40 @@
             const westPlayers = game[2];
             const eastPlayers = game[3];
 
+            // Calculate the team stats
+            const teamStats = calculateTeamStats(westPlayers, eastPlayers);
+
             // Create HTML structure for each game
             const gameHTML = `
-                <div class="game-card">
-                    <div class="game-header">
-                        Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
-                        <div>Started <span class="timestamp" data-timestamp="${game[0]}"></span></div>
-                    </div>
-                    <div class="players-container">
-                        <div class="team">
-                            ${westPlayers.map(player => `
-                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                    <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                    <span>${highlightSearchTerm(player[0], query)}</span>
-                                </a>
-                            `).join('')}
+                    <div class="game-card">
+                        <div class="timestamp-container">
+                            <span class="timestamp" data-timestamp="${game[0]}"></span>
                         </div>
-                        <div class="team">
-                            ${eastPlayers.map(player => `
-                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                    <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                    <span>${highlightSearchTerm(player[0], query)}</span>
-                                </a>
-                            `).join('')}
+                        <div class="game-header">
+                            Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
+                            <div>Win Chance/ Elo Change</div>
+                            <div>${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}% | ±${teamStats.team1EloChange}</div>
+                        </div>
+                        <div class="players-container">
+                            <div class="team">
+                                ${westPlayers.map(player => `
+                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
+                            <div class="team">
+                                ${eastPlayers.map(player => `
+                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
             gamesContainer.innerHTML += gameHTML;
         });
 
@@ -134,39 +190,40 @@
         updateAllTimestamps();
     }
 
-    // Function to fetch and display games from the API
+
+
+
+    // Function to fetch and store games from the API
     async function fetchGames() {
         try {
             const response = await fetch('/api/livegames'); // Fetch the live games data from the API
-            let games = await response.json(); // Parse the JSON response
+            gamesData = await response.json(); // Store the games data globally
 
             // Sort games by ELO (highest to lowest)
-            games = games.sort((a, b) => b[1] - a[1]);
+            gamesData = gamesData.sort((a, b) => b[1] - a[1]);
 
-            // Render games with the current search query
-            renderGames(searchGames(searchQuery, games), searchQuery);
-
-            // Search bar functionality
-            const searchBar = document.getElementById('search-bar');
-            searchBar.addEventListener('input', function () {
-                searchQuery = searchBar.value; // Update global search query
-                const filteredGames = searchGames(searchQuery, games);
-                renderGames(filteredGames, searchQuery); // Render filtered games with highlighted search term
-            });
+            // Initial render of games with the current search query (if any)
+            renderGames(searchGames(searchQuery, gamesData), searchQuery);
 
         } catch (error) {
             console.error('Error fetching games:', error);
         }
     }
 
+    // Event listener for search bar functionality
+    const searchBar = document.getElementById('search-bar');
+    searchBar.addEventListener('input', function () {
+        searchQuery = searchBar.value; // Update global search query
+        const filteredGames = searchGames(searchQuery, gamesData);
+        renderGames(filteredGames, searchQuery); // Render filtered games with highlighted search term
+    });
+
     // Initial fetch and update
     fetchGames();
 
-    // Update games every minute (and refresh relative times)
+    // Update games periodically (e.g., every minute)
     setInterval(() => {
-        fetchGames(); // Re-fetch the games
-        updateAllTimestamps(); // Update the relative times
-    }, 10000);
-
+        fetchGames(); // Re-fetch the games periodically to get live updates
+    }, 10000); // Refresh every minute
 </script>
 {% endblock %}
