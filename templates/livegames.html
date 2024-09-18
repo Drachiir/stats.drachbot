@@ -60,11 +60,13 @@
         }
     }
 
+    let searchQuery = ''; // Global variable to store the search term
+
     // Function to highlight the search term in player names without expanding the text
     function highlightSearchTerm(name, query) {
-        if (!query) return name;
+        if (!query) return name; // If no query, return the name unchanged
         const regex = new RegExp(`(${query})`, 'gi');
-        return name.replace(regex, '<span class="highlight">$1</span>');
+        return name.replace(regex, '<mark class="highlight">$1</mark>'); // Add class to the mark tag for custom styling
     }
 
 
@@ -90,42 +92,45 @@
     // Function to render games in the container
     function renderGames(games, query = '') {
         const gamesContainer = document.getElementById('games-container');
-        gamesContainer.innerHTML = '';
+        gamesContainer.innerHTML = ''; // Clear any previous content
 
         games.forEach(game => {
             const gameElo = game[1];
             const westPlayers = game[2];
             const eastPlayers = game[3];
 
+            // Create HTML structure for each game
             const gameHTML = `
-                    <div class="game-card">
-                        <div class="game-header">
-                            Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
-                            <div>Started <span class="timestamp" data-timestamp="${game[0]}"></span></div>
+                <div class="game-card">
+                    <div class="game-header">
+                        Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
+                        <div>Started <span class="timestamp" data-timestamp="${game[0]}"></span></div>
+                    </div>
+                    <div class="players-container">
+                        <div class="team">
+                            ${westPlayers.map(player => `
+                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                    <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                    <span>${highlightSearchTerm(player[0], query)}</span>
+                                </a>
+                            `).join('')}
                         </div>
-                        <div class="players-container">
-                            <div class="team">
-                                ${westPlayers.map(player => `
-                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${highlightSearchTerm(player[0], query)}</span>
-                                    </a>
-                                `).join('')}
-                            </div>
-                            <div class="team">
-                                ${eastPlayers.map(player => `
-                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${highlightSearchTerm(player[0], query)}</span>
-                                    </a>
-                                `).join('')}
-                            </div>
+                        <div class="team">
+                            ${eastPlayers.map(player => `
+                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                    <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                    <span>${highlightSearchTerm(player[0], query)}</span>
+                                </a>
+                            `).join('')}
                         </div>
                     </div>
+                </div>
+                <br>
             `;
             gamesContainer.innerHTML += gameHTML;
         });
 
+        // Update the relative time for all timestamps
         updateAllTimestamps();
     }
 
@@ -137,14 +142,16 @@
 
             // Sort games by ELO (highest to lowest)
             games = games.sort((a, b) => b[1] - a[1]);
-            renderGames(games); // Initial render
+
+            // Render games with the current search query
+            renderGames(searchGames(searchQuery, games), searchQuery);
 
             // Search bar functionality
             const searchBar = document.getElementById('search-bar');
             searchBar.addEventListener('input', function () {
-                const query = searchBar.value;
-                const filteredGames = searchGames(query, games);
-                renderGames(filteredGames, query); // Render filtered games with highlighted search term
+                searchQuery = searchBar.value; // Update global search query
+                const filteredGames = searchGames(searchQuery, games);
+                renderGames(filteredGames, searchQuery); // Render filtered games with highlighted search term
             });
 
         } catch (error) {
@@ -159,7 +166,7 @@
     setInterval(() => {
         fetchGames(); // Re-fetch the games
         updateAllTimestamps(); // Update the relative times
-    }, 10000); // Refresh every minute
+    }, 10000);
 
 </script>
 {% endblock %}
