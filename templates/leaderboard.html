@@ -3,14 +3,15 @@
 {% block content %}
 <div class="leaderboard-container">
     {% for player in leaderboard %}
-        <a href="/profile/{{ player["profile"][0]["playerName"] }}">
         <div class="leaderboard-card">
             <div style="width: 30px"><r>{{ loop.index }}.</r></div><img width="32" src="https://cdn.legiontd2.com/{{ player["profile"][0]["avatarUrl"] }}">
+            <a style="color: white; text-decoration: none" href="/profile/{{ player["profile"][0]["playerName"] }}">
             <div style="padding-left: 5px; width: 175px; overflow: hidden"><r>{{ player["profile"][0]["playerName"] }}</r><r style="color: gold; font-size: 0.7rem; padding-left: 3px">{{ player["profile"][0]["guildTag"] }}</r></div>
+            </a>
             {% set percentage = (player["rankedWinsThisSeason"] / (player["rankedWinsThisSeason"] + player["rankedLossesThisSeason"]) * 100)|round(1) %}
             <div style="width: 150px; padding-left: 5px"><r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }} (<span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span>)</r></div>
             <div><img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["overallElo"]) }}"><r style="padding-left: 5px">{{ player["overallElo"] }} </r></div>
-        </div></a>
+        </div>
     {% endfor %}
 </div>
     <script>
