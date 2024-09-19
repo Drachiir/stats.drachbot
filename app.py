@@ -25,7 +25,6 @@ scheduler = APScheduler()
 
 def leaderboard_task():
     data = legion_api.get_leaderboard(100)
-    print(data)
     if len(data) < 1:
         print("leaderboard fetch error")
         return
@@ -661,7 +660,6 @@ if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True, use_reloader=False)
 else:
     from waitress import serve
-    leaderboard_task()
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
     scheduler.start()
     serve(app, host="0.0.0.0", port=54937)
