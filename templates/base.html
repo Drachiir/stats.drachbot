@@ -75,7 +75,7 @@
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav" id="myList">
+        <ul class="navbar-nav ml-auto" id="myList">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Stats Pages
@@ -111,14 +111,24 @@
                     </li>
                 </ul>
             </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Discord
+                </a>
+                <ul class="dropdown-menu bg-black">
+                    <li class="dropdown-item">
+                        <a class="nav-link" href="https://drachbot.site">Discord Bot</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a class="nav-link" href="https://discord.gg/GBHyFtgnrs">Drachbot Discord Server</a>
+                    </li>
+                </ul>
+            </li>
             <li class="nav-item active">
                 <a class="nav-link" href="/livegames">Live Games</a>
             </li>
             <li class="nav-item active">
-                <a data-title="Discord Bot with player specific stats and other fun commands for Legion TD 2" class="nav-link" href="https://drachbot.site">Discord Bot</a>
-            </li>
-            <li class="nav-item active">
-                <a data-title="Discord for Questions, Feedback and Suggestions" class="nav-link" href="https://discord.gg/GBHyFtgnrs">Drachbot Discord</a>
+                <a class="nav-link" href="/leaderboard">Leaderboard</a>
             </li>
             {% if mod_date %}
                 <li class="nav-item active">
@@ -129,7 +139,7 @@
                 <a data-title="Creator Code: Drachir 10% Bonus Premium Essence" class="nav-link">Creator Code: Drachir</a>
             </li>
             <li>
-                <div class="input-group">
+                <div class="input-group" style="padding-left: 10px">
                     <input type="text" id="profileInput" class="form-control" placeholder="Search Player" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToProfile(); }">
                     <button class="btn btn-secondary" type="button" onclick="redirectToProfile()">Go</button>
                 </div>

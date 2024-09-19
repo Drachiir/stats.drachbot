@@ -241,6 +241,28 @@ canvas {
     display:flex;
     flex-wrap: wrap;
 }
+
+.leaderboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    white-space: nowrap;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+    padding: 10px; /* Add some padding on the sides for small screens */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.leaderboard-card {
+    background: #171717;
+    border-radius: 10px;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    width: 40%;
+    box-sizing: border-box;
+}
+
 #games-container > div {
     flex: 1 0 30%;
 }
@@ -327,7 +349,16 @@ canvas {
     min-width: 50%;
     max-width: 60%;
 }
+@media (max-width: 1050px) {
+    .leaderboard-card {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
+    .leaderboard-card {
+        width: 100%;
+    }
     .profile-main{
         max-width: 100%;
     }
@@ -355,6 +386,9 @@ canvas {
 @media (max-width: 480px) {
     .profile-main{
         max-width: 100%;
+    }
+    .leaderboard-card {
+        width: 100%;
     }
     #games-container{
         width: 100%;

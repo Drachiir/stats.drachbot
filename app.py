@@ -15,11 +15,22 @@ import drachbot.wavestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
 from util import get_rank_url
+from flask_apscheduler import APScheduler
 
 cache = Cache()
 
 app = Flask(__name__)
 app.secret_key = 'python>js'
+scheduler = APScheduler()
+
+def leaderboard_task():
+    data = legion_api.get_leaderboard(100)
+    print(data)
+    if len(data) < 1:
+        print("leaderboard fetch error")
+        return
+    with open("leaderboard.json", "w") as f:
+        json.dump(data, f)
 
 if platform.system() == "Linux":
     timeout = 600
@@ -108,6 +119,12 @@ def home():
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip)
 
+@app.route("/leaderboard")
+def leaderboard():
+    with open("leaderboard.json", "r") as f:
+        leaderboard_data = json.load(f)
+    return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url)
+
 @app.route("/api/livegames")
 def livegames_api():
     games = []
@@ -127,7 +144,7 @@ def livegames_api():
 @app.route("/livegames")
 def livegames():
     return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
-    
+
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults[1], "specific_key": "All"})
@@ -638,7 +655,13 @@ def stats(stats, elo, patch, specific_key):
                            playerurl = "", playername2=playername2, patch_selector = False)
 
 if platform.system() == "Windows":
-    app.run(host="0.0.0.0", debug=True)
+    leaderboard_task()
+    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
+    scheduler.start()
+    app.run(host="0.0.0.0", debug=True, use_reloader=False)
 else:
     from waitress import serve
+    leaderboard_task()
+    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
+    scheduler.start()
     serve(app, host="0.0.0.0", port=54937)
