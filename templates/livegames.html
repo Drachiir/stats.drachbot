@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div id="search-bar-container" style="display: flex; width: 100%; justify-content: center; padding-top: 20px">
-    <!-- Search input for player names -->
-    <input type="text" id="search-bar" placeholder="Search player names..." style="margin-bottom: 20px; padding: 10px; width: 75%;">
-</div>
-<div style="text-align: center; width: 100%; color: dodgerblue"><r>Note: Elo ± calculations are not accurate for Duos</r></div>
+<div style="text-align: center; width: 100%; color: dodgerblue; padding: 10px"><r>Note: Elo ± calculations are not accurate for Duos</r></div>
 <div class="main-container">
     <div id="games-container">
         <!-- The games will be dynamically injected here -->
@@ -63,14 +59,6 @@
     }
 
     let gamesData = []; // Global variable to store fetched games data
-    let searchQuery = ''; // Global variable to store the search term
-
-    // Function to highlight the search term in player names without expanding the text
-    function highlightSearchTerm(name, query) {
-        if (!query) return name; // If no query, return the name unchanged
-        const regex = new RegExp(`(${query})`, 'gi');
-        return name.replace(regex, '<mark class="highlight">$1</mark>'); // Add class to the mark tag for custom styling
-    }
 
     // Function to update all timestamps
     function updateAllTimestamps() {
@@ -79,15 +67,6 @@
             const posixTimestamp = parseFloat(el.getAttribute('data-timestamp')); // Get timestamp from data attribute
             const relativeTime = getRelativeTime(posixTimestamp);
             el.innerText = relativeTime;
-        });
-    }
-
-    // Function to search games by player name
-    function searchGames(query, games) {
-        query = query.toLowerCase(); // Normalize search input
-        return games.filter(game => {
-            const players = [...game[2], ...game[3]]; // Combine westPlayers and eastPlayers
-            return players.some(player => player[0].toLowerCase().includes(query));
         });
     }
 
@@ -141,7 +120,7 @@
     }
 
     // Function to render games in the container
-    function renderGames(games, query = '') {
+    function renderGames(games) {
         const gamesContainer = document.getElementById('games-container');
         gamesContainer.innerHTML = ''; // Clear any previous content
 
@@ -168,7 +147,7 @@
                                 ${westPlayers.map(player => `
                                     <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                         <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                        <span>${player[0]}</span>
                                     </a>
                                 `).join('')}
                             </div>
@@ -176,7 +155,7 @@
                                 ${eastPlayers.map(player => `
                                     <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                         <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${highlightSearchTerm(player[0], query)}</span>
+                                        <span>${player[0]}</span>
                                     </a>
                                 `).join('')}
                             </div>
@@ -203,27 +182,20 @@
             gamesData = gamesData.sort((a, b) => b[1] - a[1]);
 
             // Initial render of games with the current search query (if any)
-            renderGames(searchGames(searchQuery, gamesData), searchQuery);
+            renderGames(gamesData);
 
         } catch (error) {
             console.error('Error fetching games:', error);
         }
     }
 
-    // Event listener for search bar functionality
-    const searchBar = document.getElementById('search-bar');
-    searchBar.addEventListener('input', function () {
-        searchQuery = searchBar.value; // Update global search query
-        const filteredGames = searchGames(searchQuery, gamesData);
-        renderGames(filteredGames, searchQuery); // Render filtered games with highlighted search term
-    });
 
     // Initial fetch and update
-    fetchGames();
+    fetchGames(gamesData);
 
     // Update games periodically (e.g., every minute)
     setInterval(() => {
-        fetchGames(); // Re-fetch the games periodically to get live updates
-    }, 10000); // Refresh every minute
+        fetchGames(gamesData); // Re-fetch the games periodically to get live updates
+    }, 10000); // Refresh every 10 seconds
 </script>
 {% endblock %}
