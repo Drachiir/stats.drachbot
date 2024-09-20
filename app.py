@@ -654,7 +654,6 @@ def stats(stats, elo, patch, specific_key):
                            playerurl = "", playername2=playername2, patch_selector = False)
 
 if platform.system() == "Windows":
-    leaderboard_task()
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
     scheduler.start()
     app.run(host="0.0.0.0", debug=True, use_reloader=False)

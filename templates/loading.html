@@ -6,12 +6,17 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body style="background-color: #171717;
-        opacity: 1;
-        background-size: 15px 15px;
-        background-image: repeating-linear-gradient(45deg, #0c2330 0, #162f43 1px, #1f1f1f 0, #1f1f1f 50%)">
-<div style="position: fixed; top: 40vh; left: 45vw" id="loading"></div>
-<div style="color: white; position: fixed; top: 35vh; left: 41vw"><r>Loading Data... This may take up to a minute</r></div>
-<script> window.location.replace('{{ url }}'); </script>
-<script src="/static/script.js"></script>
+    opacity: 1;
+    background-size: 15px 15px;
+    background-image: repeating-linear-gradient(45deg, #0c2330 0, #162f43 1px, #1f1f1f 0, #1f1f1f 50%);  margin:0;
+  height:100vh; /* use 100% of the height of the viewport */
+  display:grid;
+  place-items: center;">
+    <div>
+        <div style="padding-left: 80px"><div id="loading"></div></div>
+        <div style="color: white; padding-top: 20px"><r>Loading Data... This may take up to a minute</r></div>
+    </div>
+    <script> window.location.replace('{{ url }}'); </script>
+    <script src="/static/script.js"></script>
 </body>
 </html>
