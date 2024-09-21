@@ -1,70 +1,102 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="align-content: center">
-    <table class="table" style="white-space: nowrap">
-        <tbody>
-            <tr>
-                <th><r>Rank</r></th><th><r>Player</r></th><th><r>Win/Lose</r></th><th><r>Winrate</r></th><th><r>Elo</r></th>
-            </tr>
-            {% for player in leaderboard %}
-            <tr>
-                <td><r>{{ loop.index }}</r></td>
-                <td>
-                <div class="playername-leaderboard"><img width="32" src="https://cdn.legiontd2.com/{{ player["profile"][0]["avatarUrl"] }}"><r> {{ player["profile"][0]["playerName"] }}</r><r style="color: gold; font-size: 0.7rem; padding-left: 3px">{{ player["profile"][0]["guildTag"] }}</r></div></td>
+<div style="text-align: center;">
+    <!-- Container for Search Bar -->
+    <div style="margin-bottom: 10px;">
+        <input type="text" id="search-bar" placeholder="Search by player name or guild tag" onkeyup="filterTable()" style="width: 300px;">
+    </div>
+
+    <!-- Container for Table -->
+    <div style="display: inline-block; text-align: left;">
+        <table class="table" style="white-space: nowrap; display: inline-block;">
+            <tbody>
+                <tr>
+                    <th><r>Rank</r></th>
+                    <th><r>Player</r></th>
+                    <th><r>Win/Lose</r></th>
+                    <th><r>Winrate</r></th>
+                    <th><r>Elo</r></th>
+                </tr>
+                {% for player in leaderboard %}
+                <tr class="player-row">
+                    <td><r>{{ loop.index }}</r></td>
+                    <td>
+                        <div class="playername-leaderboard">
+                            <img width="32" src="https://cdn.legiontd2.com/{{ player["profile"][0]["avatarUrl"] }}">
+                            <r class="player-name"> {{ player["profile"][0]["playerName"] }}</r>
+                            <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">{{ player["profile"][0]["guildTag"] }}</r>
+                        </div>
+                    </td>
                     {% set percentage = (player["rankedWinsThisSeason"] / (player["rankedWinsThisSeason"] + player["rankedLossesThisSeason"]) * 100)|round(1) %}
-                <td><div class="win-lose-ldb" style="width: 150px; padding-left: 5px"><r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }}</r></div></td>
-                <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
-                <td><div><img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["overallElo"]) }}"><r style="padding-left: 5px">{{ player["overallElo"] }} </r></div></td>
-
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    <td>
+                        <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
+                            <r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }}</r>
+                        </div>
+                    </td>
+                    <td>
+                        <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
+                    </td>
+                    <td>
+                        <div>
+                            <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["overallElo"]) }}">
+                            <r style="padding-left: 5px">{{ player["overallElo"] }} </r>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-    <script>
-        // Function to update color for all percentage spans
-        function updatePercentageColors() {
-            // Select all elements with class 'percentage'
-            const percentageElements = document.querySelectorAll('.percentage');
 
-            // Loop through each span and update its color
-            percentageElements.forEach(element => {
-                let percentage = parseInt(element.getAttribute('data-percentage')); // Get the percentage value
 
-                // Clamp the percentage between 0 and 100 just in case
-                percentage = Math.min(100, Math.max(0, percentage));
+<script>
+    // Function to update color for all percentage spans
+    function updatePercentageColors() {
+        const percentageElements = document.querySelectorAll('.percentage');
 
-                // Determine color based on the percentage
-                let color = '';
+        percentageElements.forEach(element => {
+            let percentage = parseInt(element.getAttribute('data-percentage'));
+            percentage = Math.min(100, Math.max(0, percentage));
 
-                if (percentage >= 48 && percentage <= 52) {
-                    // Range 48% - 52%: Gray/White
-                    color = 'lightgray';
-                } else if (percentage >= 53 && percentage <= 59) {
-                    // Range 53% - 59%: Gradually transition to bright green
-                    // Calculate green based on closeness to 60% (brighter as we approach 59%)
-                    const greenAmount = Math.floor((percentage - 53) / (59 - 53) * 100);
-                    color = `hsl(120, 100%, ${40 + greenAmount / 3}%)`; // Bright green at 59%
-                } else if (percentage >= 41 && percentage <= 47) {
-                    // Range 41% - 47%: Gradually transition to red
-                    // Calculate red based on closeness to 40% (brighter red at 41%)
-                    const redAmount = Math.floor((percentage - 41) / (47 - 41) * 100);
-                    color = `hsl(0, 100%, ${40 + redAmount / 3}%)`; // Bright red at 41%
-                } else if (percentage >= 60) {
-                    // Above or equal to 60%: Gold
-                    color = 'gold';
-                } else if (percentage <= 40) {
-                    // 40% and below: Red
-                    color = 'red';
-                }
+            let color = '';
+            if (percentage >= 48 && percentage <= 52) {
+                color = 'lightgray';
+            } else if (percentage >= 53 && percentage <= 59) {
+                const greenAmount = Math.floor((percentage - 53) / (59 - 53) * 100);
+                color = `hsl(120, 100%, ${40 + greenAmount / 3}%)`;
+            } else if (percentage >= 41 && percentage <= 47) {
+                const redAmount = Math.floor((percentage - 41) / (47 - 41) * 100);
+                color = `hsl(0, 100%, ${40 + redAmount / 3}%)`;
+            } else if (percentage >= 60) {
+                color = 'gold';
+            } else if (percentage <= 40) {
+                color = 'red';
+            }
 
-                // Set the color to the element
-                element.style.color = color;
-            });
-        }
+            element.style.color = color;
+        });
+    }
 
-        // Run the function to update colors for all percentage spans
-        updatePercentageColors();
-    </script>
+    // Run the function to update colors for all percentage spans
+    updatePercentageColors();
+
+    // Function to filter table based on search input
+    function filterTable() {
+        const searchInput = document.getElementById('search-bar').value.toLowerCase();
+        const rows = document.querySelectorAll('.player-row');
+
+        rows.forEach(row => {
+            const playerName = row.querySelector('.player-name').textContent.trim().toLowerCase();
+            const guildTag = row.querySelector('.guild-tag').textContent.trim().toLowerCase();
+
+            if (playerName.includes(searchInput) || guildTag.includes(searchInput)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+</script>
 {% endblock %}
