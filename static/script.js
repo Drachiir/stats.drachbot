@@ -199,10 +199,16 @@ function loading(){
 }
 
 function redirectToProfile() {
-            const input = document.getElementById('profileInput').value;
-            if(input) {
-                window.location.href = `/profile/${input}`;
-            } else {
-                alert('Please enter a valid input.');
-            }
-        }
+    const input = document.getElementById('profileInput').value;
+    if(input) {
+        window.location.href = `/profile/${input}`;
+    } else {
+        alert('Please enter a valid input.');
+    }
+}
+
+jQuery(document).ready(function($) {
+    $(".player-row").click(function() {
+        window.location = $(this).data("href");
+    });
+});

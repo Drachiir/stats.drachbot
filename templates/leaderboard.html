@@ -21,7 +21,7 @@
                     <th><r>Elo</r></th>
                 </tr>
                 {% for player in leaderboard %}
-                <tr class="player-row">
+                <tr class="player-row" data-href="/profile/{{ player["profile"][0]["playerName"] }}">
                     <td><r>{{ loop.index }}</r></td>
                     <td>
                         <div class="playername-leaderboard">
