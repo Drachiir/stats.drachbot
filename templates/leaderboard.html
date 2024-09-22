@@ -66,7 +66,7 @@
             if (percentage >= 48 && percentage <= 52) {
                 color = 'lightgray';
             } else if (percentage >= 53 && percentage <= 59) {
-                const greenAmount = Math.floor((percentage - 53) / (59 - 53) * 100);
+                const greenAmount = Math.floor((percentage - 59) / (53 - 59) * 100);
                 color = `hsl(120, 100%, ${40 + greenAmount / 3}%)`;
             } else if (percentage >= 41 && percentage <= 47) {
                 const redAmount = Math.floor((percentage - 41) / (47 - 41) * 100);
