@@ -339,7 +339,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data= raw_data[0]
-                if specific_key == "All" or specific_key == "Megamind":
+                if specific_key == "All":
                     header_keys = ["Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
                 elif specific_key == "Champion":
@@ -355,7 +355,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
                 header_title = "MM"
                 header_cdn = "https://cdn.legiontd2.com/icons/Items/"
-                if specific_key == "All" or specific_key == "Megamind":
+                if specific_key == "All":
                     header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
                 elif specific_key == "Champion":
@@ -365,9 +365,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 if specific_key == "Megamind":
-                    title = "Megamind"
-                    title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                    raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, "Megamind", data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, "All", data_only=True, history_raw=history_raw)
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
@@ -473,7 +471,7 @@ def profile(playername, stats, patch, elo, specific_key):
         if stats == "mmstats" and specific_key != "Megamind":
             if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
                 return render_template("no_data.html", text="No Data")
-        if specific_key == "All" or (specific_key == "Megamind" and (stats == "mmstats" or stats == "megamindstats")):
+        if specific_key == "All":
             html_file = "stats.html"
         else:
             html_file = "stats_specific.html"
@@ -510,7 +508,7 @@ def stats(stats, elo, patch, specific_key):
             title = "Megamind"
             title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
             folder = "megamindstats"
-            if specific_key == "All" or specific_key == "Megamind":
+            if specific_key == "All":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
@@ -526,7 +524,7 @@ def stats(stats, elo, patch, specific_key):
             title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
             header_title = "MM"
             header_cdn = "https://cdn.legiontd2.com/icons/Items/"
-            if specific_key == "All" or specific_key == "Megamind":
+            if specific_key == "All":
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
@@ -535,12 +533,7 @@ def stats(stats, elo, patch, specific_key):
             else:
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
-            if specific_key == "Megamind":
-                title = "Megamind"
-                title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                folder = "megamindstats"
-            else:
-                folder = "mmstats"
+            folder = "mmstats"
             if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
                 return render_template("no_data.html", text="No Data")
         case "openstats":
@@ -633,7 +626,7 @@ def stats(stats, elo, patch, specific_key):
     if stats == "mmstats" and specific_key != "Megamind":
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
             return render_template("no_data.html", text="No Data")
-    if specific_key == "All" or (specific_key == "Megamind" and (stats == "mmstats" or stats == "megamindstats")):
+    if specific_key == "All":
         html_file = "stats.html"
     else:
         html_file = "stats_specific.html"
@@ -656,7 +649,7 @@ def stats(stats, elo, patch, specific_key):
 if platform.system() == "Windows":
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
     scheduler.start()
-    app.run(host="0.0.0.0", debug=True, use_reloader=False)
+    app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)

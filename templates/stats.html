@@ -11,29 +11,20 @@
             </button>
             <ul class="dropdown-menu">
                 {% for i in elo_brackets %}
-                    {% if title == 'Megamind' %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}/Megamind">
-                            <img style="width: 24px;" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
-                    {% else %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
-                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
-                    {% endif %}
+                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
+                        <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                 {% endfor %}
             </ul>
             {% if not patch_selector %}
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                Patch
-            </button>
-            <ul class="dropdown-menu">
-                {% for p in patch_list %}
-                    {% if title == 'Megamind' %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
-                    {% else %}
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Patch
+                </button>
+                <ul class="dropdown-menu">
+                    {% for p in patch_list %}
                         <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                </ul>
             {% else %}
                 <div class="dropdown" style="float: right; padding-left: 5px">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -80,9 +71,6 @@
                            id="myInput"
                            onkeyup="filterFunction2()">
                         {% for d in data_keys %}
-                            {% if d == "Megamind" %}
-                                {% set stats = "megamindstats" %}
-                            {% endif %}
                             <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
                                 <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                         {% endfor %}
@@ -117,9 +105,6 @@
                     <r>{{ header_title }}</r>
                 </th>
                 {% for key in data %}
-                    {% if key == "Megamind" %}
-                        {% set stats = "megamindstats" %}
-                    {% endif %}
                     <td style="width: 7%;"><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
                     {% if stats == "megamindstats" and key != "Megamind" %}
                         <img loading="lazy" style="top:-90%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
