@@ -334,11 +334,12 @@ def profile(playername, stats, patch, elo, specific_key):
                 header_cdn = "https://cdn.legiontd2.com/icons/Items/"
                 title = f"{playername2}'s Megamind"
                 title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
-                
                 raw_data = drachbot.mmstats.mmstats(playerid,0,elo,patch,"Megamind", data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data= raw_data[0]
+                if specific_key == "Megamind":
+                    specific_key = "All"
                 if specific_key == "All":
                     header_keys = ["Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
@@ -348,7 +349,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
-                if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
+                if specific_key != "All" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
             case "mmstats":
                 title = f"{playername2}'s Mastermind"
@@ -374,7 +375,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     games = raw_data[1]
                     avg_elo = raw_data[2]
                     raw_data = raw_data[0]
-                if specific_key != "All" and specific_key != "Megamind" and specific_key not in mm_list:
+                if specific_key != "All" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
             case "openstats":
                 title = f"{playername2}'s Opener"
