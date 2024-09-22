@@ -30,11 +30,11 @@ wave_names= [
 
 tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,49,0]}
+                     "rollstats": [55,50,45,40,0.1], "megamindstats": [55,52,49,47,0]}
 
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,49,0]}
+                 "rollstats": [68,65,59,56,0.3], "megamindstats": [55,52,49,47,0]}
 
 with open("Files/json/slang.json", "r") as f:
     slang = json.load(f)
@@ -78,12 +78,13 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if elo not in elo_dict:
         elo = "1800"
     tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
-    if (winrate > 80) and (pickrate < 10):
-        tier_score = tier_score / 2
-    if pickrate < 5:
-        tier_score = tier_score / 2
-    if winrate < 50:
-        tier_score -= tier_dict[stats][0] / 20
+    if stats != "megamindstats":
+        if (winrate > 80) and (pickrate < 10):
+            tier_score = tier_score / 2
+        if pickrate < 5:
+            tier_score = tier_score / 2
+        if winrate < 50:
+            tier_score -= tier_dict[stats][0] / 20
     return tier_score
 
 def custom_winrate(value):
@@ -182,7 +183,7 @@ def get_cdn_image(string, header):
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
              | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Merc" | "Best Roll" | "Mercs" | "Best Unit" | "Champions":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
-        case "MM" | "MMs" | "Best MMs" | "mmstats":
+        case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats":
             return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
@@ -238,7 +239,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return f"{custom_winrate([data[key]['Wins'], data[key]['Count']])}%"
             except Exception:
                 return 0
-        case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*":
+        case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*" | "Rollrate":
             try:
                 if stats != "spellstats" or (specific_tier == True and stats == "spellstats"):
                     return f"{custom_winrate([data[key]['Count'], games])}%"

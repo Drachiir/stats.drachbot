@@ -79,11 +79,11 @@ buff_spells = defaults_json["BuffSpells"]
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
-    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
-    header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
-    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats", "Wave Stats"]
+    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "megamindstats", "unitstats", "wavestats"]
+    header_list = ["MM", "Open", "Spell", "Roll", "MM", "Unit", "Wave"]
+    title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "MM Stats", "Unit Stats", "Wave Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
-                 ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Reroll.png"
+                 ,"https://cdn.legiontd2.com/icons/LegionSpell.png", "https://cdn.legiontd2.com/icons/Reroll.png", "https://cdn.legiontd2.com/icons/Items/Megamind.png"
                  ,"https://cdn.legiontd2.com/icons/Value10000.png","https://cdn.legiontd2.com/icons/LegionKing.png"]
     data_list = []
     keys = []
@@ -338,6 +338,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data= raw_data[0]
+                if specific_key == "Megamind":
+                    specific_key = "All"
                 if specific_key == "All":
                     header_keys = ["Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
@@ -507,6 +509,8 @@ def stats(stats, elo, patch, specific_key):
             title = "Megamind"
             title_image = "https://cdn.legiontd2.com/icons/Items/Megamind.png"
             folder = "megamindstats"
+            if specific_key == "Megamind":
+                specific_key = "All"
             if specific_key == "All":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
