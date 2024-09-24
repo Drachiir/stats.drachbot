@@ -88,3 +88,17 @@ def pullgamedata(playerid, offset, expected):
                     break
         games_count += 1
     return [ranked_count, games_count]
+
+def save_game_by_id(gameid):
+    url = 'https://apiv2.legiontd2.com/games/byId/' + gameid + '?includeDetails=true'
+    api_response = requests.get(url, headers=header)
+    x = json.loads(api_response.text)
+    if (x == {'message': 'Internal server error'}) or (x == {'err': 'Entry not found.'}):
+        return False
+    try:
+        peewee_pg.save_game(x)
+        return True
+    except peewee.IntegrityError as e:
+        print(e)
+        print(f"Peewee Integrity Error: {x["_id"]}")
+        return False

@@ -8,10 +8,9 @@ import requests
 
 def get_game_by_id(gameid):
     if GameData.get_or_none(GameData.game_id == gameid) is None:
-        url = 'https://apiv2.legiontd2.com/games/byId/' + game_id + '?includeDetails=true'
-        api_response = requests.get(url, headers=header)
-        x = json.loads(api_response.text)
-        peewee_pg.save_game(x)
+        success = legion_api.save_game_by_id(gameid)
+        if not success:
+            return {"Error": "Game not found."}
     req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices,
                     PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                     PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
@@ -37,13 +36,13 @@ def get_game_by_id(gameid):
             try:
                 temp_data["players_data"].append(p_data)
             except Exception:
-                return None
+                return {"Error": "Game not found."}
         if i % 4 == 3:
             try:
                 if len(temp_data["players_data"]) == 4:
                     temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
             except KeyError:
-                return None
+                return {"Error": "Game not found."}
     return temp_data
     
 def get_games_loop(playerid, offset, expected, timeout_limit = 1):
