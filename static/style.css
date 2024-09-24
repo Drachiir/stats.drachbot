@@ -373,6 +373,6 @@ canvas {
 }
 
 .dropdown-menu {
-  max-height: 350px;
+  max-height: 400px;
   overflow-y: auto;
 }
