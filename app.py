@@ -140,6 +140,10 @@ def livegames_api():
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
 
+@app.route("/api/game/<gameid>")
+def games_api(gameid):
+    return drachbot.drachbot_db.get_game_by_id(gameid)
+
 @app.route("/livegames")
 def livegames():
     return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)

@@ -4,7 +4,48 @@ from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData
 from playhouse.postgres_ext import *
 import datetime
 from datetime import datetime, timezone
+import requests
 
+def get_game_by_id(gameid):
+    if GameData.get_or_none(GameData.game_id == gameid) is None:
+        url = 'https://apiv2.legiontd2.com/games/byId/' + game_id + '?includeDetails=true'
+        api_response = requests.get(url, headers=header)
+        x = json.loads(api_response.text)
+        peewee_pg.save_game(x)
+    req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices,
+                    PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
+                    PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
+                    PlayerData.mercs_received_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_received_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                   ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices"],
+                   ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
+                    "champ_location", "spell_location", "fighters", "mercs_received_per_wave", "leaks_per_wave", "kingups_received_per_wave", "fighter_value_per_wave",
+                    "income_per_wave"]]
+    game_data_query = (PlayerData
+                       .select(*req_columns[0])
+                       .join(GameData)
+                       .where((GameData.game_id == gameid)&(GameData.queue == "Normal"))).dicts()
+    for i, row in enumerate(game_data_query.iterator()):
+        p_data = {}
+        for field in req_columns[2]:
+            p_data[field] = row[field]
+        if i % 4 == 0:
+            temp_data = {}
+            for field in req_columns[1]:
+                temp_data[field] = row[field]
+            temp_data["players_data"] = [p_data]
+        else:
+            try:
+                temp_data["players_data"].append(p_data)
+            except Exception:
+                return None
+        if i % 4 == 3:
+            try:
+                if len(temp_data["players_data"]) == 4:
+                    temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
+            except KeyError:
+                return None
+    return temp_data
+    
 def get_games_loop(playerid, offset, expected, timeout_limit = 1):
     print("Starting get_games_loop, expecting " + str(expected) + " games.")
     data = legion_api.pullgamedata(playerid, offset, expected)
