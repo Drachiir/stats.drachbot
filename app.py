@@ -140,13 +140,14 @@ def livegames_api():
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
 
-@app.route("/gameviewer/<gameid>")
-def gameviewer(gameid):
+@app.route("/gameviewer/<gameid>", defaults={"wave": 1})
+@app.route("/gameviewer/<gameid>/<wave>")
+def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(gameid)
     if data == {"Error": "Game not found."}:
         return render_template("no_data.html", text="Ranked Game ID not found/valid")
     return render_template("gameviewer.html", game_data = data, game_viewer = True, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                           const_file = util.const_file)
+                           const_file = util.const_file, plus_prefix = util.plus_prefix, wave=wave)
     
 @app.route("/livegames")
 def livegames():
