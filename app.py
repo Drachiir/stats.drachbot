@@ -116,7 +116,7 @@ def home():
             break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
-                           total_games=total_games, get_tooltip = util.get_tooltip)
+                           total_games=total_games, get_tooltip = util.get_tooltip, home=True)
 
 @app.route("/leaderboard")
 def leaderboard():
