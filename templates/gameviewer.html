@@ -1,0 +1,354 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wave-nav">
+{% for i in range(game_data['ending_wave']) %}
+    <div id="wave{{ i }}" onclick="changeWave({{ i }})" style="position: relative;">
+        <r id="wave{{ i }}Text" style="display: none; position: absolute; font-size: 1.3rem; font-weight: 600; -webkit-text-stroke: 1px black; left: 10%; z-index: 999">{{ i + 1 }}</r>
+        <img style="width: 32px; height: auto;" src="{{ get_cdn((i + 1)|string, "Wave") }}">
+    </div>
+{% endfor %}
+</div>
+<div class="king_hp_bars_container">
+    {% for king_hp in [[game_data["left_king_hp"], "EarthKing"], [game_data["right_king_hp"], "SkyKing"]] %}
+        <div style="display: flex; flex-wrap: nowrap">
+            <div class="king_hp_bar_outside">
+                <img width="32" src="https://cdn.legiontd2.com/Icons/{{ king_hp[1] }}.png">
+                <div class="king_hp_bar" id="king_hp_bar{{ loop.index0 }}"><div style="padding-left: 10px"><r style="font-size: 1.3rem; font-weight: 300;" id="king_hp_text{{ loop.index0 }}"></r></div></div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<div class="players-container">
+    {% for player in game_data['players_data'] %}
+        <div class="player-lane" data-player="{{ player['player_slot'] }}">
+            <div class="player-info">
+                <img width="32" height="32" src="{{ get_cdn(player['legion'], "MM") }}">
+                <r style="color: var(--player{{ player["player_slot"] }}); font-weight: 400">{{ player['player_name'] }}</r>
+                <div style="float: right">
+                    <img width="28" height="28" src="{{ get_rank_url(player['player_elo']) }}">
+                    <r>{{ player['player_elo'] }}</r>
+                </div><br>
+                <div class="units-roll">
+                    {% for unit in player["roll"].split(",") %}
+                        <img style="float: right" width="32" height="32" src="{{ get_cdn(unit, "Unit") }}"><br>
+                    {% endfor %}
+                    <div style="margin-left: auto;">
+                        <img width="32" height="32" src="{{ get_cdn(player['spell'], "Spell") }}"><br>
+                    </div>
+                </div>
+                <div style="padding-top: 10px; display: flex; justify-content: space-between; font-size: 0.9rem">
+                    <div><img width="22" height="auto" src="https://cdn.legiontd2.com/Icons/Value32.png"><r class="fighter-value">{{ player['fighter_value_per_wave'][0] }}</r></div>
+                    <div><img width="22" height="auto" src="https://cdn.legiontd2.com/Icons/Worker.png"><r class="workers">{{ player['workers_per_wave'][0] }}</r></div>
+                    <div><img width="22" height="auto" src="https://cdn.legiontd2.com/Icons/Income.png"><r class="income">{{ player['income_per_wave'][0] }}</r></div>
+                    <div><img width="22" height="auto" src="https://cdn.legiontd2.com/Icons/Gold.png"><r class="networth">{{ player['net_worth_per_wave'][0] }}</r></div>
+                </div>
+            </div>
+            <div class="grid" data-build="0">
+                {% for row in range(14) %}
+                    {% for col in range(9) %}
+                        <div class="grid-square" style="grid-column: {{ col + 1 }}; grid-row: {{ row + 1 }};"></div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="sends"></div>
+            <div class="leaks"></div>
+        </div>
+    {% endfor %}
+</div>
+<div class="game-info">
+    <div style="display: flex; gap: 5px">
+        <r>Spell Choices:</r>
+        {% for spell in game_data['spell_choices'] %}
+            <img width="24" height="24" src="{{ get_cdn(spell|replace("powerup_id", "")|replace("spell_damage", ""), "Spell") }}">
+        {% endfor %}
+    </div>
+    <div><r>Date: {{ game_data['date'] }}</r></div>
+    <div><r>Version: {{ game_data['version'] }}</r></div>
+</div>
+<style>
+    :root{
+        --player1: #ff4d4d;
+        --player2: #3d81ff;
+        --player3: #fe8a0e;
+        --player4: #a964e5;
+        --player5: #fffc00;
+        --player6: #1ce6b9;
+        --player7: #20c000;
+        --player8: #e55bb0;
+    }
+    .king_hp_bars_container{
+        border-radius: 10px;
+        margin-left: 10px;
+        margin-right: 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .king_hp_bar_outside{
+        display: flex;
+        border-radius: 5px;
+        overflow: hidden;
+        width: 182px;
+        height: 32px;
+        background-color: #535353;
+    }
+    .king_hp_bar{
+        width: 150px;
+        height: 32px;
+        background-color: #2a950f;
+    }
+    .units-roll{
+        display: flex;
+        flex-wrap: nowrap;
+        padding-top: 5px;
+        gap: 1px;
+    }
+    .game-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 15px;
+        margin: 10px;
+        background-color: #2e2e2e;
+        border: 1px solid #444;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .wave-nav {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 3px;
+        padding-top: 6px;
+        height: 52px;
+        overflow-x: auto;
+    }
+    .wave-nav img:hover{
+        border: #0080ff 1px solid;
+        transform: scale(1.1);
+    }
+    .players-container {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+    @media (max-width: 1400px) {
+        .players-container {
+            overflow-x: scroll;
+        }
+    }
+    @media (min-width: 1000px) {
+        .wave-nav{
+            justify-content: center;
+        }
+    }
+    @media (max-width: 1000px) {
+        .wave-nav{
+            padding-left: 10px;
+        }
+    }
+    .player-lane {
+        width: 300px;
+        min-width: 300px;
+        padding: 15px;
+        margin: 10px;
+        background-color: #222222;
+        border: 1px solid #444;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .player-info {
+        margin-bottom: 15px;
+    }
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(9, 28px);
+        grid-template-rows: repeat(14, 28px);
+        gap: 2px;
+        position: relative;
+    }
+    .grid-square {
+        background-color: #3e3e3e;
+        border: 1px solid #4a4a4a;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .grid-square img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    .sends{
+        height: 40px;
+    }
+    .leaks{
+        height: 40px;
+    }
+</style>
+
+<script>
+const constantStats = {{ const_file|tojson }};
+function countMythium(send) {
+    if (!Array.isArray(send)) {
+        if (send === "") {
+            send = [];
+        } else {
+            send = send.split("!");
+        }
+    }
+    let sendAmount = 0;
+    send.forEach(x => {
+        if (x.includes("Upgrade")) {
+            return;
+        }
+        if (x in constantStats['incmercs']) {
+            sendAmount += constantStats['incmercs'][x];
+        } else {
+            sendAmount += constantStats['powermercs'][x];
+        }
+    });
+    return sendAmount;
+}
+
+function calcLeak(leak, wave, returnGold = false) {
+    if (!Array.isArray(leak)) {
+        if (leak === "") {
+            leak = [];
+        } else {
+            leak = leak.split("!");
+        }
+    }
+    let leakAmount = 0;
+    let sendAmount = 0;
+    let waveTotal = constantStats['waveValues'][wave];
+
+    leak.forEach(x => {
+        if (x in constantStats['creepValues']) {
+            leakAmount += constantStats['creepValues'][x][1];
+        } else if (x in constantStats['incmercs']) {
+            leakAmount += (constantStats['incmercs'][x] / 20) * 4;
+        } else if (x in constantStats['powermercs']) {
+            if (x === "Imp") {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 3;
+            } else {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 6;
+            }
+        }
+    });
+
+    if (returnGold) {
+        return leakAmount;
+    } else {
+        return Math.round((leakAmount / waveTotal) * 100 * 10) / 10; // rounding to 1 decimal place
+    }
+}
+
+function getCdnImage(name) {
+    let newString = "";
+    if (name.includes("_")) {
+        if (name.includes("_unit_id")) {
+            name = name.split("_unit_id")[0];
+            if (name[0] === " ") {
+                name = name.slice(1);
+            }
+        }
+        splitChar = "_";
+    } else {
+        splitChar = " ";
+    }
+    name.split(splitChar).forEach((word) => {
+        newString += word.charAt(0).toUpperCase() + word.slice(1);
+    });
+    if (newString === "HellRaiserBuffed") {
+        newString = "HellRaiser";
+    } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
+        newString = "PackRat(Footprints)";
+    } else if (newString === "Aps") {
+        newString = "APS";
+    } else if (newString === "Mps") {
+        newString = "MPS";
+    }
+    return `https://cdn.legiontd2.com/icons/${newString}.png`;
+}
+
+let currentWave = 0;
+const maxWaves = {{ game_data['ending_wave'] }};
+let leftKingUps = [];
+let rightKingUps = [];
+
+function changeWave(wave) {
+    if (wave < 0) {
+        wave = maxWaves - 1
+    }
+    else if (wave > (maxWaves - 1)) {
+        wave = 0
+    }
+    const gameData = {{ game_data | tojson }};
+    const playerData = gameData["players_data"]
+    document.getElementById("wave"+currentWave).style.border = ""
+    document.getElementById("wave"+currentWave).style.transform = ""
+    document.getElementById("wave"+currentWave+"Text").style.display = "none"
+    currentWave = wave;
+    let leftKingHp = gameData['left_king_hp'][currentWave];
+    let rightKingHp = gameData['right_king_hp'][currentWave];
+    document.getElementById("wave"+currentWave).style.border = "#0080ff 2px solid"
+    document.getElementById("wave"+currentWave).style.transform = "scale(1.1)"
+    document.getElementById("wave"+currentWave+"Text").style.display = "block"
+    document.getElementById("king_hp_bar0").style.width = (150 * leftKingHp).toString() + "px";
+    document.getElementById("king_hp_bar1").style.width = (150 * rightKingHp).toString() + "px";
+    document.getElementById("king_hp_text0").innerText = (Math.round(leftKingHp * 100)).toString() + "%";
+    document.getElementById("king_hp_text1").innerText = (Math.round(rightKingHp * 100)).toString() + "%";
+    document.querySelectorAll('.player-lane').forEach((lane, index) => {
+        // Update stats
+        lane.querySelector('.fighter-value').innerText = playerData[index]['fighter_value_per_wave'][currentWave];
+        lane.querySelector('.income').innerText = playerData[index]['income_per_wave'][currentWave];
+        lane.querySelector('.workers').innerText = Math.round(playerData[index]['workers_per_wave'][currentWave] * 10) / 10;
+        lane.querySelector('.networth').innerText = playerData[index]['net_worth_per_wave'][currentWave];
+
+
+        const grid = lane.querySelector('.grid');
+        grid.querySelectorAll('.grid-square').forEach(square => {
+            square.innerHTML = ''; // Remove previous units
+        });
+        const buildWaveStr = playerData[index]['build_per_wave'][currentWave];
+        const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
+
+        if (Array.isArray(buildWave)) {
+            buildWave.forEach(build => {
+                const unit = build.split(':')[0];
+                const coord = build.split(':')[1];
+                let [x, y] = coord.split('|').map(parseFloat);
+                const gridColumn = Math.floor(x) + 1;
+                const gridRow = 14 - Math.floor(y);
+                x = x - 0.5
+                y = y - 0.5
+                const xOffset = (x % 1) * 100;
+                const yOffset = (y % 1) * 100;
+                const gridSquare = grid.querySelector(`.grid-square[style*="grid-column: ${gridColumn};"][style*="grid-row: ${gridRow};"]`);
+                if (gridSquare) {
+                    const unitName = unit.split('_unit_id')[0];
+                    const unitImage = getCdnImage(unitName);
+                    gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" alt="${unitName}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
+                }
+            });
+        } else {
+            console.error('buildWave is not an array:', buildWave);
+        }
+
+        const mercsReceived = playerData[index]['mercs_received_per_wave'][currentWave].split("!");
+        const kingupsReceived = playerData[index]['kingups_received_per_wave'][currentWave].split("!");
+
+        mercsReceived.forEach(merc =>{
+
+        });
+
+    });
+}
+document.addEventListener('keyup', (e) => {
+    if (e.code === "ArrowUp") changeWave(currentWave + 1)
+    else if (e.code === "ArrowDown") changeWave(currentWave - 1)
+});
+changeWave(0);
+</script>
+
+{% endblock %}

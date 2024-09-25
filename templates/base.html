@@ -14,7 +14,11 @@
 
         gtag('config', 'G-KB760J9ZQL');
     </script>
-    {% if livegames %}
+    {% if game_viewer %}
+        <title>Legion TD 2 Game Viewer</title>
+        <meta property="og:title" content="Legion TD 2 Game Viewer" />
+        <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
+    {% elif livegames %}
             <title>Legion TD 2 Livegames</title>
         <meta property="og:title" content="Legion TD 2 Livegames" />
         <meta name="description" content="The 10 highest Elo ongoing games">
@@ -69,7 +73,7 @@
         opacity: 1;
         background-size: 15px 15px;
         background-image: repeating-linear-gradient(45deg, #0c2330 0, #162f43 1px, #1f1f1f 0, #1f1f1f 50%)">
-<nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-35 border-bottom">
+<nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-35 border-bottom" style="white-space: nowrap; overflow-x: hidden">
     <a style="margin-left: 1vw;" href="/" class="navbar-brand">
         <img src="/static/drachia_still.png" alt="Logo" width="32" height="32" class="d-inline-block align-text-top">stats.drachbot</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -141,9 +145,15 @@
                 <a data-title="Creator Code: Drachir 10% Bonus Premium Essence" class="nav-link">Creator Code: Drachir</a>
             </li>
             <li>
-                <div class="input-group" style="padding-left: 10px">
+                <div class="input-group" style="flex-wrap: nowrap; padding-right: 10px">
                     <input type="text" id="profileInput" class="form-control" placeholder="Search Player" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToProfile(); }">
                     <button class="btn btn-secondary" type="button" onclick="redirectToProfile()">Go</button>
+                </div>
+            </li>
+            <li>
+                <div class="input-group" style="flex-wrap: nowrap">
+                    <input type="text" id="gameInput" class="form-control" placeholder="WIP Search Game ID" aria-label="Game ID" onkeydown="if(event.key === 'Enter'){ redirectToGame(); }">
+                    <button class="btn btn-secondary" type="button" onclick="redirectToGame()">Go</button>
                 </div>
             </li>
         </ul>

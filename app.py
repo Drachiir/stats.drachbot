@@ -140,10 +140,14 @@ def livegames_api():
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
 
-@app.route("/api/game/<gameid>")
-def games_api(gameid):
-    return drachbot.drachbot_db.get_game_by_id(gameid)
-
+@app.route("/gameviewer/<gameid>")
+def gameviewer(gameid):
+    data = drachbot.drachbot_db.get_game_by_id(gameid)
+    if data == {"Error": "Game not found."}:
+        return render_template("no_data.html", text="Ranked Game ID not found/valid")
+    return render_template("gameviewer.html", game_data = data, game_viewer = True, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                           const_file = util.const_file)
+    
 @app.route("/livegames")
 def livegames():
     return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
@@ -232,7 +236,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
-                         ,"Date": game["date"], "ltd2pro": f"https://ltd2.pro/game/{game["game_id"]}",
+                         ,"Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
                          "time_ago": util.time_ago(game["date"]), "players_data": []}
             for player in game["players_data"]:
                 temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
@@ -654,8 +658,6 @@ def stats(stats, elo, patch, specific_key):
                            playerurl = "", playername2=playername2, patch_selector = False)
 
 if platform.system() == "Windows":
-    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
-    scheduler.start()
     app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve

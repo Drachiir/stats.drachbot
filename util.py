@@ -142,8 +142,16 @@ def sort_dict(dict, key):
 def get_unit_name(name):
     if not name:
         return ""
+    if "_" in name:
+        if "_unit_id" in name:
+            name = name.split("_unit_id")[0]
+            if name[0] == " ":
+                name = name[1:]
+        split_char = "_"
+    else:
+        split_char = " "
     new_string = ""
-    for string in name.split(" "):
+    for string in name.split(split_char):
         new_string += string.capitalize()
     if new_string == "HellRaiserBuffed":
         new_string = "HellRaiser"
@@ -429,6 +437,22 @@ def get_avg_end_wave(data:dict) -> str:
         wave_total += int(re.findall(r'\d+', wave)[0]) * data[wave]["EndCount"]
         count += data[wave]["EndCount"]
     return f"{round(wave_total/count, 1)}"
+
+def count_mythium(send):
+    if type(send) != type(list()):
+        if send == "":
+            send = []
+        else:
+            send = send.split("!")
+    send_amount = 0
+    for x in send:
+        if "Upgrade" in x:
+            continue
+        if x in incmercs:
+            send_amount += incmercs.get(x)
+        else:
+            send_amount += powermercs.get(x)
+    return send_amount
 
 def calc_leak(leak, wave, return_gold = False):
     if type(leak) != type(list()):

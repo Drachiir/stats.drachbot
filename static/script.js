@@ -202,8 +202,13 @@ function redirectToProfile() {
     const input = document.getElementById('profileInput').value;
     if(input) {
         window.location.href = `/profile/${input}`;
-    } else {
-        alert('Please enter a valid input.');
+    }
+}
+
+function redirectToGame() {
+    const input = document.getElementById('gameInput').value;
+    if(input) {
+        window.location.href = `/gameviewer/${input}`;
     }
 }
 
