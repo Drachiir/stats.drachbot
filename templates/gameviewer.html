@@ -51,8 +51,8 @@
                     {% endfor %}
                 {% endfor %}
             </div>
-            <div class="sends"></div>
-            <div class="leaks"></div>
+            <div class="sends-leaks" id="sends{{ loop.index0 }}"></div>
+            <div class="sends-leaks" id="leaks{{ loop.index0 }}"></div>
         </div>
     {% endfor %}
 </div>
@@ -178,14 +178,14 @@
         max-width: 100%;
         max-height: 100%;
     }
-    .sends{
-        height: 40px;
-    }
-    .leaks{
-        height: 40px;
+    .sends-leaks{
+        padding-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        overflow: hidden;
+        height: 58px;
     }
 </style>
-
 <script>
 const constantStats = {{ const_file|tojson }};
 function countMythium(send) {
@@ -335,11 +335,28 @@ function changeWave(wave) {
             console.error('buildWave is not an array:', buildWave);
         }
 
-        const mercsReceived = playerData[index]['mercs_received_per_wave'][currentWave].split("!");
+        const mercsReceived = playerData[index]['mercs_received_per_wave'][currentWave];
+        let sendTotal = countMythium(mercsReceived);
         const kingupsReceived = playerData[index]['kingups_received_per_wave'][currentWave].split("!");
-
-        mercsReceived.forEach(merc =>{
-
+        sendTotal += (kingupsReceived.length * 20)
+        if (kingupsReceived.length === 1){
+            if (kingupsReceived[0] === ""){
+                sendTotal -= 20;
+            }
+        }
+        const sendsDiv = document.getElementById("sends" + index);
+        sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
+        mercsReceived.split("!").forEach(merc =>{
+            if (merc){
+                const unitImage = getCdnImage(merc);
+                sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
+        kingupsReceived.forEach(kingup =>{
+            if (kingup){
+                const unitImage = getCdnImage(kingup);
+                sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
         });
 
     });
