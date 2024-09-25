@@ -11,13 +11,11 @@
 </div>
 <div class="king_hp_bars_container">
     {% for king_hp in [[game_data["left_king_hp"], "EarthKing"], [game_data["right_king_hp"], "SkyKing"]] %}
-        <div style="display: flex; flex-wrap: nowrap">
-            <div class="king_hp_bar_outside">
-                <img width="32" src="https://cdn.legiontd2.com/Icons/{{ king_hp[1] }}.png">
-                <div class="king_hp_bar" id="king_hp_bar{{ loop.index0 }}">
-                    <div style="padding-left: 10px"><r style="font-size: 1rem; font-weight: 300;" id="king_hp_text{{ loop.index0 }}"></r></div>
-                    <div id="king_hp_bar_upgrades{{ loop.index0 }}"></div>
-                </div>
+        <div class="king_hp_bar_outside">
+            <img width="32" src="https://cdn.legiontd2.com/Icons/{{ king_hp[1] }}.png">
+            <div class="king_hp_bar" id="king_hp_bar{{ loop.index0 }}">
+                <div style="padding-left: 10px; height: 22px;"><r style="font-size: 1rem; font-weight: 300;" id="king_hp_text{{ loop.index0 }}"></r></div>
+                <div class="king_hp_bar_upgrades" id="king_hp_bar_upgrades{{ loop.index0 }}"></div>
             </div>
         </div>
     {% endfor %}
@@ -79,6 +77,9 @@
         --player6: #1ce6b9;
         --player7: #20c000;
         --player8: #e55bb0;
+        --UpgradeKingAttack: #ff1d1d;
+        --UpgradeKingRegen: #0cca2f;
+        --UpgradeKingSpell: #8f09dd;
     }
     .king_hp_bars_container{
         border-radius: 10px;
@@ -101,6 +102,12 @@
         width: 150px;
         height: 22px;
         background-color: #2a950f;
+    }
+    .king_hp_bar_upgrades{
+        display: flex;
+        flex-wrap: nowrap;
+        width: 150px;
+        height: 10px;
     }
     .units-roll{
         display: flex;
@@ -193,6 +200,7 @@
 </style>
 <script>
 const constantStats = {{ const_file|tojson }};
+console.log(constantStats)
 function countMythium(send) {
     if (!Array.isArray(send)) {
         if (send === "") {
@@ -225,11 +233,11 @@ function calcLeak(leak, wave, returnGold = false) {
     }
     let leakAmount = 0;
     let sendAmount = 0;
-    let waveTotal = constantStats['waveValues'][wave];
+    let waveTotal = constantStats['wave_values'][wave];
 
     leak.forEach(x => {
-        if (x in constantStats['creepValues']) {
-            leakAmount += constantStats['creepValues'][x][1];
+        if (x in constantStats['creep_values']) {
+            leakAmount += constantStats['creep_values'][x][1];
         } else if (x in constantStats['incmercs']) {
             leakAmount += (constantStats['incmercs'][x] / 20) * 4;
         } else if (x in constantStats['powermercs']) {
@@ -244,7 +252,7 @@ function calcLeak(leak, wave, returnGold = false) {
     if (returnGold) {
         return leakAmount;
     } else {
-        return Math.round((leakAmount / waveTotal) * 100 * 10) / 10; // rounding to 1 decimal place
+        return Math.round((leakAmount / waveTotal) * 100);
     }
 }
 
@@ -287,8 +295,8 @@ let currentWave = 0;
 const maxWaves = {{ game_data['ending_wave'] }};
 
 function changeWave(wave) {
-    let leftKingUps = {"atk": 0, "regen": 0, "spell": 0};
-    let rightKingUps = {"atk": 0, "regen": 0, "spell": 0};
+    let leftKingUps = {"Upgrade King Attack": 0, "Upgrade King Regen": 0, "Upgrade King Spell": 0};
+    let rightKingUps = {"Upgrade King Attack": 0, "Upgrade King Regen": 0, "Upgrade King Spell": 0};
     if (wave < 0) {
         wave = maxWaves - 1
     }
@@ -367,20 +375,45 @@ function changeWave(wave) {
                 sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
             }
         });
+        // Leaks
+        const leaksCurrentWave = playerData[index]['leaks_per_wave'][currentWave];
+        let leakPercentage = calcLeak(leaksCurrentWave, wave);
+        const leaksDiv = document.getElementById("leaks" + index);
+        leaksDiv.innerHTML = "";
+        if (leakPercentage > 0){
+            let color = "red"
+            if (leakPercentage <= 40){
+                color = "yellow"
+            } else if (leakPercentage <= 89){
+                color = "orange"
+            }
+            leaksDiv.innerHTML = `<r style="color: ${color}">${leakPercentage}%</r>`;
+        }
+        leaksCurrentWave.split("!").forEach(leak =>{
+            if (leak){
+                const unitImage = getCdnImage(leak);
+                leaksDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
         // Kingups
-        playerData[index]['kingups_received_per_wave'].slice(0, currentWave).forEach(wave => {
+        playerData[index]['kingups_received_per_wave'].slice(0, currentWave+1).forEach(wave => {
             let waveList = wave.split("!").filter(waveItem => waveItem !== "");
-            let target = (index in [0, 1]) ? leftKingUps : rightKingUps;
+            let target = (index in [0, 1]) ? rightKingUps : leftKingUps;
             waveList.forEach(kingup => {
-                if (kingup.endsWith("Attack")) {
-                    target["atk"] += 1;
-                } else if (kingup.endsWith("Regen")) {
-                    target["regen"] += 1;
-                } else if (kingup.endsWith("Spell")) {
-                    target["spell"] += 1;
-                }
+                target[kingup] += 1;
             });
         });
+    });
+    //Update Kingups
+    let leftKingBar = document.getElementById("king_hp_bar_upgrades0")
+    leftKingBar.innerHTML = ""
+    Object.entries(leftKingUps).forEach(([key, value]) => {
+        leftKingBar.innerHTML += `<div style="width: ${value*5}px; height: 10px; background-color: var(--${key.replaceAll(" ", "")}); z-index: 999"></div>`;
+    });
+    let rightKingBar = document.getElementById("king_hp_bar_upgrades1")
+    rightKingBar.innerHTML = ""
+    Object.entries(rightKingUps).forEach(([key, value]) => {
+        rightKingBar.innerHTML += `<div style="width: ${value*5}px; height: 10px; background-color: var(--${key.replaceAll(" ", "")}); z-index: 999"></div>`;
     });
 }
 document.addEventListener('keydown', (e) => {
