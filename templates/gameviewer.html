@@ -232,7 +232,6 @@ function calcLeak(leak, wave, returnGold = false) {
         }
     }
     let leakAmount = 0;
-    let sendAmount = 0;
     let waveTotal = constantStats['wave_values'][wave];
 
     leak.forEach(x => {
@@ -350,6 +349,19 @@ function changeWave(wave) {
                     const unitName = unit.split('_unit_id')[0];
                     const unitImage = getCdnImage(unitName);
                     gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" alt="${unitName}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
+                    let topString = "0"
+                    if (yOffset !== 0){
+                        topString = "7px"
+                    }
+                    if (coord === playerData[index]["champ_location"]){
+                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; left: 55%">`;
+                    }
+                    if (wave > 9){
+                        if (coord === playerData[index]["spell_location"]){
+                            let spellImage = getCdnImage(playerData[index]["spell"])
+                            gridSquare.innerHTML += `<img loading="lazy" src="${spellImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; left: 0">`;
+                        }
+                    }
                 }
             });
         } else {
