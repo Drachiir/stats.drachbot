@@ -128,9 +128,12 @@ def leaderboard():
 def livegames_api():
     games = []
     for game in os.listdir(shared_folder_live):
-        with open(f"{shared_folder_live}/{game}", "r", encoding="utf_8") as f2:
-            txt = f2.readlines()
-            f2.close()
+        try:
+            with open(f"{shared_folder_live}/{game}", "r", encoding="utf_8") as f2:
+                txt = f2.readlines()
+                f2.close()
+        except FileNotFoundError:
+            continue
         path2 = f"{shared_folder_live}/{game}"
         mod_date = datetime.fromtimestamp(os.path.getmtime(path2), tz=timezone.utc).timestamp()
         game_elo = txt[-1]
