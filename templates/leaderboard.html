@@ -10,39 +10,39 @@
     </div>
 
     <!-- Container for Table -->
-    <div style="display: inline-block; text-align: left;">
+    <div style="display: inline-block;">
         <table class="table" style="white-space: nowrap; display: inline-block;">
             <tbody>
                 <tr>
                     <th><r>Rank</r></th>
                     <th><r>Player</r></th>
-                    <th><r>Win/Lose</r></th>
-                    <th><r>Winrate</r></th>
                     <th><r>Elo</r></th>
+                    <th><r>Winrate</r></th>
+                    <th><r>Win/Lose</r></th>
                 </tr>
                 {% for player in leaderboard %}
                 <tr class="player-row" data-href="/profile/{{ player["profile"][0]["playerName"] }}">
                     <td><r>{{ loop.index }}</r></td>
                     <td>
-                        <div class="playername-leaderboard">
+                        <div class="playername-leaderboard" style="text-align: left">
                             <img width="32" src="https://cdn.legiontd2.com/{{ player["profile"][0]["avatarUrl"] }}">
                             <r class="player-name"> {{ player["profile"][0]["playerName"] }}</r>
                             <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">{{ player["profile"][0]["guildTag"] }}</r>
                         </div>
                     </td>
-                    {% set percentage = (player["rankedWinsThisSeason"] / (player["rankedWinsThisSeason"] + player["rankedLossesThisSeason"]) * 100)|round(1) %}
-                    <td>
-                        <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
-                            <r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }}</r>
-                        </div>
-                    </td>
-                    <td>
-                        <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
-                    </td>
                     <td>
                         <div>
                             <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["overallElo"]) }}">
                             <r style="padding-left: 5px">{{ player["overallElo"] }} </r>
+                        </div>
+                    </td>
+                    {% set percentage = (player["rankedWinsThisSeason"] / (player["rankedWinsThisSeason"] + player["rankedLossesThisSeason"]) * 100)|round(1) %}
+                    <td>
+                        <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
+                    </td>
+                    <td>
+                        <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
+                            <r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }}</r>
                         </div>
                     </td>
                 </tr>
