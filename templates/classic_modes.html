@@ -15,7 +15,7 @@
                     <th>Mode</th><th>Schedule</th>
                 </tr>
                 {% for item in schedule %}
-                    <tr>
+                    <tr {% if loop.index == 1 %}style="background-color: #ffeb3b !important;" {% endif %}> <!-- Highlight the first row -->
                         <td>
                             <div style="text-align: left">
                                 <img width="48" height="48" src="{{ item.cdn_link }}">
@@ -46,7 +46,7 @@
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.getElementById('user-timezone').innerText = userTimezone;
 
-        schedules.forEach(function(schedule) {
+        schedules.forEach(function(schedule, index) {
             const startUTC = schedule.getAttribute('data-start');
             const endUTC = schedule.getAttribute('data-end');
 
@@ -78,15 +78,21 @@
                 const days = Math.floor(hours / 24);
 
                 // Prepare the time remaining text
+                const remainingMinutes = minutes % 60; // Get remaining minutes after days and hours
+
+                // Build the time remaining string
+                let timeRemainingParts = [];
                 if (days > 0) {
-                    timeRemaining = `in ${days} day${days > 1 ? 's' : ''}${hours % 24 > 0 ? ` ${hours % 24} hour${hours % 24 > 1 ? 's' : ''}` : ''}`;
-                } else if (hours > 0) {
-                    timeRemaining = `in ${hours} hour${hours > 1 ? 's' : ''}`;
-                } else if (minutes > 0) {
-                    timeRemaining = `in ${minutes} minute${minutes > 1 ? 's' : ''}`;
-                } else {
-                    timeRemaining = `Now`;
+                    timeRemainingParts.push(`${days} day${days > 1 ? 's' : ''}`);
                 }
+                if (hours > 0) {
+                    timeRemainingParts.push(`${hours % 24} hour${hours % 24 > 1 ? 's' : ''}`);
+                }
+                if (remainingMinutes > 0) {
+                    timeRemainingParts.push(`${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`);
+                }
+
+                timeRemaining = `in ${timeRemainingParts.join(' ')}`;
             } else {
                 timeRemaining = `Now`;
             }
@@ -94,6 +100,12 @@
             // Update the time remaining text
             const timeRemainingElement = schedule.parentNode.querySelector('.time-remaining');
             timeRemainingElement.innerHTML = timeRemaining;
+
+            // Emphasize the first row's "Now" text
+            if (index === 0 && timeRemaining === 'Now') {
+                timeRemainingElement.style.fontWeight = 'bold';
+                timeRemainingElement.style.color = 'red';
+            }
         });
     });
 </script>
