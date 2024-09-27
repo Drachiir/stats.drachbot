@@ -138,29 +138,18 @@ modes = [
     'Tower Defense',    # classic_special_mode_10
     'PvE'               # classic_special_mode_11
 ]
-# Function to generate the schedule
+
 def generate_schedule():
     schedule = []
-    
-    # Current UTC time
     now = datetime.now(tz=timezone.utc)
-    
-    # Reference start date (Jan 1, 2020, midnight UTC)
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
-    
-    # 5.75 hours in seconds (5 hours 45 minutes)
     increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
-    
     # Total seconds passed since the start
     seconds_elapsed = (now - start_utc).total_seconds()
-    
     # Number of increments passed since the start (floor division)
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
-    
     # Calculate the start time of the current mode
     current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
-    
-    # Generate schedule for 10 rotations (1 active + 9 upcoming)
     for i in range(10):
         # Start and end time for the current mode
         start = current_increment_start + i * timedelta(seconds=increment_in_seconds)
