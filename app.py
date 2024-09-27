@@ -139,6 +139,10 @@ modes = [
     'PvE'               # classic_special_mode_11
 ]
 
+images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wumbo": "9",
+          "Tower Defense": "10", "PvE": "11"}
+
+
 def generate_schedule():
     schedule = []
     now = datetime.now(tz=timezone.utc)
@@ -150,6 +154,7 @@ def generate_schedule():
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
     # Calculate the start time of the current mode
     current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
+    
     for i in range(10):
         # Start and end time for the current mode
         start = current_increment_start + i * timedelta(seconds=increment_in_seconds)
@@ -159,18 +164,15 @@ def generate_schedule():
         mode_index = (increments_since_start + i) % len(modes)
         mode = modes[mode_index]
         
-        # Format the start and end times in UTC
-        start_time_str = start.strftime('%d. %B %Y, %H:%M:%S UTC')
-        end_time_str = end.strftime('%H:%M:%S UTC')
-        
-        # If the end time rolls over to the next day, show both dates
-        if start.date() != end.date():
-            end_time_str += f' ({end.strftime("%d. %B %Y")})'
+        # Convert times to ISO format (which is required for JavaScript processing)
+        start_time_iso = start.isoformat()  # ISO format (with timezone info)
+        end_time_iso = end.isoformat()
         
         schedule.append({
             'mode': mode,
-            'start': start_time_str,
-            'end': end_time_str
+            'start': start_time_iso,  # Send ISO format to JavaScript
+            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{images[mode]}.png",
+            'end': end_time_iso  # Send ISO format to JavaScript
         })
     
     return schedule
@@ -178,7 +180,7 @@ def generate_schedule():
 @app.route('/classicmodes')
 def classic_modes():
     schedule = generate_schedule()
-    return render_template('classic_modes.html', schedule=schedule)
+    return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
 @app.route("/leaderboard")
 def leaderboard():

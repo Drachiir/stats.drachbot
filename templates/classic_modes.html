@@ -1,15 +1,100 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div style="padding-top: 30px">
-        <h1>Classic Modes Schedule</h1>
-        <p>Classic modes rotate every 5.75 hours. Times are displayed in UTC.</p>
-        <ul>
-            {% for item in schedule %}
-            <li>
-                <strong>{{ item.mode }}</strong>: {{ item.start }} → {{ item.end }}
-            </li>
-            {% endfor %}
-        </ul>
+    <div style="display: flex; justify-content: center">
+        <div style="padding-top: 30px; display: inline-block; text-align: center">
+            <div style="display: flex; justify-content: space-between">
+                <r style="font-size:2rem"><b>Classic Modes Schedule</b></r>
+                <div>
+                    <button class="btn btn-primary" onclick="location.reload();" style="margin-bottom: 20px;">Refresh Schedule</button>
+                </div>
+            </div>
+            <p>Classic modes rotate every 5.75 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
+            <table class="table table-hover table-striped">
+                <tr>
+                    <th>Mode</th><th>Schedule</th>
+                </tr>
+                {% for item in schedule %}
+                    <tr>
+                        <td>
+                            <div style="text-align: left">
+                                <img width="48" height="48" src="{{ item.cdn_link }}">
+                                <r style="font-size: 1.5rem">{{ item.mode }}</r>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="text-align: left">
+                                <r class="schedule" data-start="{{ item.start }}" data-end="{{ item.end }}">
+                                    {{ item.start }} → {{ item.end }}
+                                </r>
+                                <br>
+                                <small class="time-remaining"></small> <!-- Placeholder for time remaining -->
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
+
+<script>
+    // Function to convert UTC times to local timezone
+    document.addEventListener('DOMContentLoaded', function() {
+        const schedules = document.querySelectorAll('.schedule');
+
+        // Set user's timezone in the header
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('user-timezone').innerText = userTimezone;
+
+        schedules.forEach(function(schedule) {
+            const startUTC = schedule.getAttribute('data-start');
+            const endUTC = schedule.getAttribute('data-end');
+
+            // Create Date objects from ISO-formatted UTC strings
+            const startDate = new Date(startUTC);
+            const endDate = new Date(endUTC);
+
+            // Convert to local time using the user's browser timezone
+            const startLocal = startDate.toLocaleString('default', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).replace(',', ''); // Remove comma
+
+            const endLocal = endDate.toLocaleString('default', {
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+            }).replace(',', ''); // Remove comma
+
+            // Update the content in the HTML with the converted time
+            schedule.innerHTML = `${startLocal} → ${endLocal}`;
+
+            // Calculate the time remaining until the mode starts
+            const now = new Date();
+            const timeDiff = startDate - now; // Time difference in milliseconds
+            let timeRemaining;
+
+            if (timeDiff > 0) {
+                const seconds = Math.floor(timeDiff / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+
+                // Prepare the time remaining text
+                if (days > 0) {
+                    timeRemaining = `in ${days} day${days > 1 ? 's' : ''}${hours % 24 > 0 ? ` ${hours % 24} hour${hours % 24 > 1 ? 's' : ''}` : ''}`;
+                } else if (hours > 0) {
+                    timeRemaining = `in ${hours} hour${hours > 1 ? 's' : ''}`;
+                } else if (minutes > 0) {
+                    timeRemaining = `in ${minutes} minute${minutes > 1 ? 's' : ''}`;
+                } else {
+                    timeRemaining = `Now`;
+                }
+            } else {
+                timeRemaining = `Now`;
+            }
+
+            // Update the time remaining text
+            const timeRemainingElement = schedule.parentNode.querySelector('.time-remaining');
+            timeRemainingElement.innerHTML = timeRemaining;
+        });
+    });
+</script>
 {% endblock %}
