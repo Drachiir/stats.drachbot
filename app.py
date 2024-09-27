@@ -1,7 +1,7 @@
 import os
 import platform
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session
 
@@ -117,6 +117,69 @@ def home():
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True)
+
+modes = [
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'PvE',              # classic_special_mode_11
+
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'PvE',              # classic_special_mode_11
+
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'Tower Defense',    # classic_special_mode_10
+    'PvE'               # classic_special_mode_11
+]
+# Function to generate the schedule
+def generate_schedule():
+    schedule = []
+    now = datetime.utcnow()  # Get current UTC time
+    start_utc = datetime(2020, 1, 1, 0, 0, 0)  # Reference date (Jan 1, 2020, midnight UTC)
+    increment = timedelta(hours=5, minutes=45)  # 5.75 hours
+
+    # Calculate how many increments have passed since the start_utc
+    elapsed_time = now - start_utc
+    increments_since_start = int(elapsed_time.total_seconds() // increment.total_seconds())
+
+    # Adjust the current increment so that the mode starts at the correct 5.75-hour interval
+    current_increment_start = start_utc + (increments_since_start * increment)
+
+    # Generate schedule for 10 rotations
+    for i in range(10):  # 1 active mode + 9 upcoming
+        start = current_increment_start + i * increment
+        end = start + increment
+
+        mode_index = (increments_since_start + i) % len(modes)
+        mode = modes[mode_index]
+
+        # Format the start and end times (UTC only, but you can customize further)
+        start_time_str = start.strftime('%d. %B %Y, %H:%M:%S UTC')
+        end_time_str = end.strftime('%H:%M:%S UTC')
+
+        # If the end time rolls over to the next day, show both dates
+        if start.date() != end.date():
+            end_time_str += f' ({end.strftime("%d. %B %Y")})'
+
+        schedule.append({
+            'mode': mode,
+            'start': start_time_str,
+            'end': end_time_str
+        })
+
+    return schedule
+
+@app.route('/classicmodes')
+def classic_modes():
+    schedule = generate_schedule()
+    return render_template('classic_modes.html', schedule=schedule)
 
 @app.route("/leaderboard")
 def leaderboard():

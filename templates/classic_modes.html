@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Classic Modes Schedule</h1>
+    <p>Classic modes rotate every 5.75 hours. Times are displayed in UTC.</p>
+    <ul>
+        {% for item in schedule %}
+        <li>
+            <strong>{{ item.mode }}</strong>: {{ item.start }} → {{ item.end }}
+        </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
