@@ -141,39 +141,49 @@ modes = [
 # Function to generate the schedule
 def generate_schedule():
     schedule = []
-    now = datetime.utcnow()  # Get current UTC time
-    start_utc = datetime(2020, 1, 1, 0, 0, 0)  # Reference date (Jan 1, 2020, midnight UTC)
-    increment = timedelta(hours=5, minutes=45)  # 5.75 hours
-
-    # Calculate how many increments have passed since the start_utc
-    elapsed_time = now - start_utc
-    increments_since_start = int(elapsed_time.total_seconds() // increment.total_seconds())
-
-    # Adjust the current increment so that the mode starts at the correct 5.75-hour interval
-    current_increment_start = start_utc + (increments_since_start * increment)
-
-    # Generate schedule for 10 rotations
-    for i in range(10):  # 1 active mode + 9 upcoming
-        start = current_increment_start + i * increment
-        end = start + increment
-
+    
+    # Current UTC time
+    now = datetime.now(tz=timezone.utc)
+    
+    # Reference start date (Jan 1, 2020, midnight UTC)
+    start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    
+    # 5.75 hours in seconds (5 hours 45 minutes)
+    increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
+    
+    # Total seconds passed since the start
+    seconds_elapsed = (now - start_utc).total_seconds()
+    
+    # Number of increments passed since the start (floor division)
+    increments_since_start = int(seconds_elapsed // increment_in_seconds)
+    
+    # Calculate the start time of the current mode
+    current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
+    
+    # Generate schedule for 10 rotations (1 active + 9 upcoming)
+    for i in range(10):
+        # Start and end time for the current mode
+        start = current_increment_start + i * timedelta(seconds=increment_in_seconds)
+        end = start + timedelta(seconds=increment_in_seconds)
+        
+        # Get mode index using modulo to cycle through modes
         mode_index = (increments_since_start + i) % len(modes)
         mode = modes[mode_index]
-
-        # Format the start and end times (UTC only, but you can customize further)
+        
+        # Format the start and end times in UTC
         start_time_str = start.strftime('%d. %B %Y, %H:%M:%S UTC')
         end_time_str = end.strftime('%H:%M:%S UTC')
-
+        
         # If the end time rolls over to the next day, show both dates
         if start.date() != end.date():
             end_time_str += f' ({end.strftime("%d. %B %Y")})'
-
+        
         schedule.append({
             'mode': mode,
             'start': start_time_str,
             'end': end_time_str
         })
-
+    
     return schedule
 
 @app.route('/classicmodes')
