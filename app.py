@@ -118,65 +118,33 @@ def home():
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True)
 
-modes = [
-    'Super Fiesta',     # classic_special_mode_0
-    'Giga Mercs',       # classic_special_mode_6
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
-    'PvE',              # classic_special_mode_11
-
-    'Super Fiesta',     # classic_special_mode_0
-    'Giga Mercs',       # classic_special_mode_6
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
-    'PvE',              # classic_special_mode_11
-
-    'Super Fiesta',     # classic_special_mode_0
-    'Giga Mercs',       # classic_special_mode_6
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
-    'Tower Defense',    # classic_special_mode_10
-    'PvE'               # classic_special_mode_11
-]
-
-images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wumbo": "9",
-          "Tower Defense": "10", "PvE": "11"}
-
-
-from datetime import datetime, timedelta, timezone
-
-def generate_schedule():
+@app.route('/classicmodes')
+@cache.cached(timeout=60)
+def classic_modes():
     increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     now = datetime.now(tz=timezone.utc)
-
+    
     # Calculate time passed since start
     seconds_elapsed = (now - start_utc).total_seconds()
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
-
+    
     # Precompute current mode start time
     current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
-
+    
     # Precompute increment timedelta (for reuse in the loop)
     increment_delta = timedelta(seconds=increment_in_seconds)
-
+    
     # Generate the schedule (using list comprehension)
     schedule = [
         {
-            'mode': modes[(increments_since_start + i) % len(modes)],
+            'mode': util.modes[(increments_since_start + i) % len(util.modes)],
             'start': (current_increment_start + i * increment_delta).isoformat(),
             'end': (current_increment_start + (i + 1) * increment_delta).isoformat(),
-            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{images[modes[(increments_since_start + i) % len(modes)]]}.png"
+            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{util.images[util.modes[(increments_since_start + i) % len(util.modes)]]}.png"
         }
         for i in range(10)
     ]
-
-    return schedule
-
-
-@app.route('/classicmodes')
-def classic_modes():
-    schedule = generate_schedule()
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
 @app.route("/leaderboard")

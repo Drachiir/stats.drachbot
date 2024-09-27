@@ -4,6 +4,30 @@ from copyreg import pickle
 from datetime import datetime
 from re import findall
 
+modes = [
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'PvE',              # classic_special_mode_11
+
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'PvE',              # classic_special_mode_11
+
+    'Super Fiesta',     # classic_special_mode_0
+    'Giga Mercs',       # classic_special_mode_6
+    'Superhero',        # classic_special_mode_8
+    'Mini and Wumbo',   # classic_special_mode_9
+    'Tower Defense',    # classic_special_mode_10
+    'PvE'               # classic_special_mode_11
+]
+
+images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wumbo": "9",
+          "Tower Defense": "10", "PvE": "11"}
+
 wave_names= [
     "Crab",
     "Wale",
