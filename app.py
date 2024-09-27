@@ -143,39 +143,36 @@ images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wu
           "Tower Defense": "10", "PvE": "11"}
 
 
+from datetime import datetime, timedelta, timezone
+
 def generate_schedule():
-    schedule = []
-    now = datetime.now(tz=timezone.utc)
-    start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
-    # Total seconds passed since the start
+    start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    now = datetime.now(tz=timezone.utc)
+
+    # Calculate time passed since start
     seconds_elapsed = (now - start_utc).total_seconds()
-    # Number of increments passed since the start (floor division)
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
-    # Calculate the start time of the current mode
+
+    # Precompute current mode start time
     current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
-    
-    for i in range(10):
-        # Start and end time for the current mode
-        start = current_increment_start + i * timedelta(seconds=increment_in_seconds)
-        end = start + timedelta(seconds=increment_in_seconds)
-        
-        # Get mode index using modulo to cycle through modes
-        mode_index = (increments_since_start + i) % len(modes)
-        mode = modes[mode_index]
-        
-        # Convert times to ISO format (which is required for JavaScript processing)
-        start_time_iso = start.isoformat()  # ISO format (with timezone info)
-        end_time_iso = end.isoformat()
-        
-        schedule.append({
-            'mode': mode,
-            'start': start_time_iso,  # Send ISO format to JavaScript
-            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{images[mode]}.png",
-            'end': end_time_iso  # Send ISO format to JavaScript
-        })
-    
+
+    # Precompute increment timedelta (for reuse in the loop)
+    increment_delta = timedelta(seconds=increment_in_seconds)
+
+    # Generate the schedule (using list comprehension)
+    schedule = [
+        {
+            'mode': modes[(increments_since_start + i) % len(modes)],
+            'start': (current_increment_start + i * increment_delta).isoformat(),
+            'end': (current_increment_start + (i + 1) * increment_delta).isoformat(),
+            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{images[modes[(increments_since_start + i) % len(modes)]]}.png"
+        }
+        for i in range(10)
+    ]
+
     return schedule
+
 
 @app.route('/classicmodes')
 def classic_modes():
