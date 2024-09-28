@@ -119,7 +119,6 @@ def home():
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True)
 
 @app.route('/classicmodes')
-@cache.cached(timeout=60)
 def classic_modes():
     increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
@@ -143,7 +142,7 @@ def classic_modes():
             'end': (current_increment_start + (i + 1) * increment_delta).isoformat(),
             'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{util.images[util.modes[(increments_since_start + i) % len(util.modes)]]}.png"
         }
-        for i in range(10)
+        for i in range(16)
     ]
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 

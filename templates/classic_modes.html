@@ -3,40 +3,43 @@
 {% block content %}
     <div style="display: flex; justify-content: center">
         <div style="padding-top: 30px; display: inline-block; text-align: center">
-            <div style="display: flex; justify-content: space-between">
+            <div style="display: flex; justify-content: space-evenly;">
                 <r style="font-size:2rem"><b>Classic Modes Schedule</b></r>
                 <div>
                     <button class="btn btn-primary" onclick="location.reload();" style="margin-bottom: 20px;">Refresh Schedule</button>
                 </div>
             </div>
             <p>Classic modes rotate every 5.75 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
-            <table class="table table-hover table-striped">
-                <tr>
-                    <th>Mode</th><th>Schedule</th>
-                </tr>
-                {% for item in schedule %}
-                    <tr {% if loop.index == 1 %}style="background-color: #ffeb3b !important;" {% endif %}> <!-- Highlight the first row -->
-                        <td>
-                            <div style="text-align: left">
-                                <img width="48" height="48" src="{{ item.cdn_link }}">
-                                <r style="font-size: 1.5rem">{{ item.mode }}</r>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="text-align: left">
-                                <r class="schedule" data-start="{{ item.start }}" data-end="{{ item.end }}">
-                                    {{ item.start }} → {{ item.end }}
-                                </r>
-                                <br>
-                                <small class="time-remaining"></small> <!-- Placeholder for time remaining -->
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap">
+                <div style="width: max-content">
+                    <table class="table table-hover table-striped table-bordered" style="display: inline-block">
+                        <tr>
+                            <th>Mode</th><th>Schedule</th>
+                        </tr>
+                        {% for item in schedule %}
+                            <tr>
+                                <td>
+                                    <div style="text-align: left">
+                                        <img width="48" height="48" src="{{ item.cdn_link }}">
+                                        <r>{{ item.mode }}</r>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="text-align: left">
+                                        <r class="schedule" data-start="{{ item.start }}" data-end="{{ item.end }}">
+                                            {{ item.start }} {{ item.end }}
+                                        </r>
+                                        <br>
+                                        <small class="time-remaining"></small> <!-- Placeholder for time remaining -->
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-
 <script>
     // Function to convert UTC times to local timezone
     document.addEventListener('DOMContentLoaded', function() {
