@@ -354,9 +354,9 @@ def profile(playername, stats, patch, elo, specific_key):
         newIndex = sorted(spells, key=lambda x: spells[x], reverse=True)
         spells = {k: spells[k] for k in newIndex[:5]}
         newIndex = sorted(player_dict["Teammates"], key=lambda x: player_dict["Teammates"][x]["Count"], reverse=True)
-        player_dict["Teammates"] = {k: player_dict["Teammates"][k] for k in newIndex[:4]}
+        player_dict["Teammates"] = {k: player_dict["Teammates"][k] for k in newIndex}
         newIndex = sorted(player_dict["Enemies"], key=lambda x: player_dict["Enemies"][x]["Count"], reverse=True)
-        player_dict["Enemies"] = {k: player_dict["Enemies"][k] for k in newIndex[:4]}
+        player_dict["Enemies"] = {k: player_dict["Enemies"][k] for k in newIndex}
         wave1_percents = []
         for val in wave1:
             try:

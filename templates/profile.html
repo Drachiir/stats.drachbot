@@ -80,6 +80,29 @@
         position: absolute;
         z-index: 1;
     }
+    /* Apply custom styles to scrollable div */
+    .scrollable {
+        height: 170px;   /* Adjust the height as needed */
+        overflow-y: auto; /* Enable vertical scrolling */
+        width: 100%;
+    }
+    /* Custom scrollbar styles for WebKit browsers (Chrome, Safari, etc.) */
+    .scrollable::-webkit-scrollbar {
+        width: 12px; /* Width of the scrollbar */
+    }
+    /* Track - the background of the scrollbar */
+    .scrollable::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0); /* Light gray background */
+    }
+    /* Handle - the draggable part of the scrollbar */
+    .scrollable::-webkit-scrollbar-thumb {
+        background: #3a99ff; /* Darker gray handle */
+        border-radius: 10px; /* Round edges */
+    }
+    /* Handle on hover */
+    .scrollable::-webkit-scrollbar-thumb:hover {
+        background: #31afdd; /* Darker on hover */
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -119,7 +142,7 @@
             </div>
             {% for x in ["Teammates", "Enemies"] %}
                 <div class="profile-div">
-                    <table class="table table-sm table-hover table-responsive-sm">
+                    <table class="table table-sm table-hover table-responsive-sm scrollable" style="display: inline-block; max-height: 170px; overflow: hidden; overflow-y: scroll; border-collapse: separate;">
                         <tbody>
                         <tr><th><r3>{{ x }}</r3></th><th><r3>Games</r3></th><th><r3>Winrate</r3></th><th><r3>Elo</r3></th></tr>
                             {% for mate in player_dict[x] %}
@@ -190,20 +213,20 @@
                     </a>
                     <div style="display: flex; gap: 5px; overflow: hidden">
                         <div style="position: relative;">
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize)" src="{{ get_cdn(game["Mastermind"], "MMs") }}">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(game["Mastermind"], "MMs") }}">
                             {% if game["Megamind"] %}
                                 <img loading="lazy" style="top:0;left: 0; position: absolute; clip-path: circle(); width: calc(var(--imgsize) / 2)" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                             {% endif %}
                         </div>
                         <div>
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize)" src="https://cdn.legiontd2.com/Icons/Worker.png">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="https://cdn.legiontd2.com/Icons/Worker.png">
                             <r style="font-size: var(--textsize)">{{ game["Worker"] }}</r>
                         </div>
                         <div>
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize)" src="{{ get_cdn(game["Spell"], "Spell") }}">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(game["Spell"], "Spell") }}">
                         </div>
                         {% for opener_unit in game["Opener"].split(",")|reverse %}
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize)" src="{{ get_cdn(opener_unit, "Unit") }}">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(opener_unit, "Unit") }}">
                         {% endfor %}
                     </div>
                 </div>
