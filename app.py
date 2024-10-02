@@ -177,7 +177,7 @@ def livegames_api():
 def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(gameid)
     if data == {"Error": "Game not found."}:
-        return render_template("no_data.html", text="Ranked Game ID not found/valid")
+        return render_template("no_data.html", text="Game ID not found/valid")
     return render_template("gameviewer.html", game_data = data, game_viewer = True, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                            const_file = util.const_file, plus_prefix = util.plus_prefix, wave=wave)
     

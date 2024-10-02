@@ -10,6 +10,7 @@ from playhouse.postgres_ext import *
 from playhouse.pool import PooledPostgresqlExtDatabase
 import requests
 import time
+from playhouse.migrate import *
 
 if platform.system().lower() == "windows":
     games_folder = "Games/"
@@ -108,11 +109,11 @@ def save_game(data):
     pids = []
     for player in data["playersData"]:
         pids.append(player["playerId"])
-    if len(pids) != 4:
+    if len(pids) != 4 and len(pids) != 8:
         if len(pids) != 0:
             print("Odd number of pids for game" + data["_id"])
         else:
-            print("Less than 4 player ids for game " + data["_id"])
+            print("Less than 4/8 player ids for game " + data["_id"])
         return
     if GameData.get_or_none(GameData.game_id == data["_id"]) is None:
         game_data = GameData(
@@ -189,3 +190,10 @@ def save_game(data):
                 player_data.save()
             except Exception:
                 traceback.print_exc()
+
+# if __name__ == '__main__': #"incomenchill": false, "votedmode": null "availablemode": 6,
+#     migrator = PostgresqlMigrator(db)
+#     migrate(
+#         migrator.add_column('GameData', 'incomenchill', BooleanField(default=False))
+#     )
+#     quit()

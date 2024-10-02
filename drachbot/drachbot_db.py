@@ -12,24 +12,24 @@ def get_game_by_id(gameid):
         if not success:
             return {"Error": "Game not found."}
     req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    GameData.spell_choices, GameData.left_king_hp, GameData.right_king_hp,
+                    GameData.spell_choices, GameData.left_king_hp, GameData.right_king_hp, GameData.player_count,
                     PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                     PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
                     PlayerData.mercs_received_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_received_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
                     PlayerData.roll, PlayerData.net_worth_per_wave, PlayerData.elo_change, PlayerData.spell_location, PlayerData.champ_location],
-                   ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "left_king_hp", "right_king_hp"],
+                   ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "left_king_hp", "right_king_hp", "player_count"],
                    ["player_id", "player_name", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                     "champ_location", "spell_location", "fighters", "mercs_received_per_wave", "leaks_per_wave", "kingups_received_per_wave", "fighter_value_per_wave",
                     "income_per_wave", "roll", "net_worth_per_wave", "elo_change", "spell_location", "champ_location"]]
     game_data_query = (PlayerData
                        .select(*req_columns[0])
                        .join(GameData)
-                       .where((GameData.game_id == gameid)&(GameData.queue == "Normal"))).dicts()
+                       .where(GameData.game_id == gameid)).dicts()
     for i, row in enumerate(game_data_query.iterator()):
         p_data = {}
         for field in req_columns[2]:
             p_data[field] = row[field]
-        if i % 4 == 0:
+        if i % row["player_count"] == 0:
             temp_data = {}
             for field in req_columns[1]:
                 temp_data[field] = row[field]
@@ -39,9 +39,9 @@ def get_game_by_id(gameid):
                 temp_data["players_data"].append(p_data)
             except Exception:
                 return {"Error": "Game not found."}
-        if i % 4 == 3:
+        if i % row["player_count"] == (row["player_count"]-1):
             try:
-                if len(temp_data["players_data"]) == 4:
+                if len(temp_data["players_data"]) == row["player_count"]:
                     temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
             except KeyError:
                 return {"Error": "Game not found."}

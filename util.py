@@ -219,7 +219,10 @@ def get_cdn_image(string, header):
              | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Merc" | "Best Roll" | "Mercs" | "Best Unit" | "Champions":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats":
-            return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
+            if (string not in mm_list) and (string != "Hybrid"):
+                return f"https://cdn.legiontd2.com/icons/{string}.png"
+            else:
+                return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
         case "Wave" | "wavestats":

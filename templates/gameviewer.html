@@ -66,6 +66,8 @@
     </div>
     <div><r>Date: {{ game_data['date'] }}</r></div>
     <div><r>Version: {{ game_data['version'] }}</r></div>
+    {% if game_data['players_data']|length == 8 %}
+    {% endif %}
 </div>
 <style>
     :root{
@@ -143,6 +145,9 @@
     .players-container {
         display: flex;
         flex-wrap: nowrap;
+        {% if game_data['players_data']|length == 8 %}
+            overflow-x: scroll;
+        {% endif %}
     }
     @media (max-width: 1400px) {
         .players-container {
@@ -394,6 +399,7 @@ function changeWave(wave) {
         sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
         mercsReceived.split("!").forEach(merc =>{
             if (merc){
+                console.log(merc);
                 const unitImage = getCdnImage(merc);
                 sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
             }
