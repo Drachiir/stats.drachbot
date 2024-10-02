@@ -297,7 +297,10 @@ def profile(playername, stats, patch, elo, specific_key):
                     #Match history details
                     temp_dict["Opener"] = player["opener"]
                     temp_dict["Mastermind"] = player["legion"]
-                    temp_dict["Spell"] = player["spell"]
+                    try:
+                        temp_dict["Spell"] = player["spell"]
+                    except KeyError:
+                        temp_dict["Spell"] = "None"
                     if player["megamind"]:
                         temp_dict["Megamind"] = True
                     temp_dict["Worker"] = round(player["workers_per_wave"][-1], 1)
