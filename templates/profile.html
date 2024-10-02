@@ -142,13 +142,13 @@
             </div>
             {% for x in ["Teammates", "Enemies"] %}
                 <div class="profile-div">
-                    <table class="table table-sm table-hover table-responsive-sm scrollable" style="display: inline-block; max-height: 170px; overflow: hidden; overflow-y: scroll; border-collapse: separate;">
+                    <table class="table table-sm table-hover scrollable" style="display: inline-block; max-height: 140px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
                         <tbody>
                         <tr><th><r3>{{ x }}</r3></th><th><r3>Games</r3></th><th><r3>Winrate</r3></th><th><r3>Elo</r3></th></tr>
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
                                  <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
-                                     <td><r3>{{ mate_dict["Playername"] }}</r3></td>
+                                     <td style="text-align: left;"><r3>{{ mate_dict["Playername"][:14] }}</r3></td>
                                      <td><r3>{{ mate_dict["Count"] }}</r3></td>
                                      <td><r3>{{ custom_winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
                                      <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
@@ -158,7 +158,7 @@
                     </table>
                 </div>
             {% endfor %}
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; width: 100%">
+            <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; width: 100%">
                 <div class="profile-div">
                     <r2>Wave 1 Tendency:</r2><br>
                     <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2>{{ wave1[0] }}%</r2>
