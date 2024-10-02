@@ -116,7 +116,6 @@ i[data-title]:hover::after, i[data-title]:active::after{
 
 a[data-title]:hover::after, a[data-title]:active::after{
     content: attr(data-title);
-    width: 180px;
     background-color: black;
     font-family: "Roboto", sans-serif;
     text-align: center;
@@ -124,7 +123,7 @@ a[data-title]:hover::after, a[data-title]:active::after{
     padding: 5px;
     border: gray 1px solid;
     position: absolute;
-    z-index: 1;
+    z-index: 99;
 }
 [xtitle] {
     position: relative;

@@ -54,11 +54,11 @@ wave_names= [
 
 tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [55,50,45,40,0.1], "megamindstats": [55,52,49,47,0]}
+                     "rollstats": [55,50,45,40,0.1], "megamindstats": [53,51,49,47,0]}
 
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                 "rollstats": [68,65,59,56,0.3], "megamindstats": [55,52,49,47,0]}
+                 "rollstats": [68,65,59,56,0.3], "megamindstats": [53,51,49,47,0]}
 
 with open("Files/json/slang.json", "r") as f:
     slang = json.load(f)
@@ -101,7 +101,10 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
     if elo not in elo_dict:
         elo = "1800"
-    tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
+    if stats != "megamindstats":
+        tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
+    else:
+        tier_score = winrate
     if stats != "megamindstats":
         if (winrate > 80) and (pickrate < 10):
             tier_score = tier_score / 2

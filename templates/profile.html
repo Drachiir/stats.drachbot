@@ -68,6 +68,18 @@
     .player-row:hover{
         cursor: pointer;
     }
+    i[data-title]:hover::after, i[data-title]:active::after{
+        content: attr(data-title);
+        width: 180px;
+        background-color: black;
+        font-family: "Roboto", sans-serif;
+        text-align: center;
+        border-radius: 10px;
+        padding: 5px;
+        border: gray 1px solid;
+        position: absolute;
+        z-index: 1;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -101,7 +113,7 @@
                 <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
             </div>
             <div class="profile-div">
-                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Latest 3 Patches" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
+                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Latest 2 Patches" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
                 <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
                 <r2>Elo: {{ elochange }}</r2>
             </div>
