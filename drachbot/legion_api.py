@@ -40,8 +40,11 @@ def get_leaderboard(num):
     api_response = requests.get(url, headers=header)
     return json.loads(api_response.text)
 
-def getprofile(playername):
-    request_type = 'players/byName/'
+def getprofile(playername, by_id = False):
+    if by_id:
+        request_type = 'players/byId/'
+    else:
+        request_type = 'players/byName/'
     url = 'https://apiv2.legiontd2.com/' + request_type + playername
     try:
         api_response = requests.get(url, headers=header)
