@@ -177,7 +177,12 @@
                         <div style="display: flex">
                         {% for key in fav_category[2] %}
                             <div style="position: relative;">
-                                <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ key|lower }}">
+                                {% if fav_category[3] == "mmstats" %}
+                                    {% set url_key = key %}
+                                {% else %}
+                                    {% set url_key = key|lower %}
+                                {% endif %}
+                                <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ url_key }}">
                                     <img width="36" height="auto" src="{{ get_cdn(key, fav_category[1]) }}">
                                     <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</r2>
                                 </a>
