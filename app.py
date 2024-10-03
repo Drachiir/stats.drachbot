@@ -14,7 +14,7 @@ import drachbot.unitstats
 import drachbot.wavestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
-from util import get_rank_url, custom_winrate, plus_prefix
+from util import get_rank_url, custom_winrate, plus_prefix, custom_divide
 from flask_apscheduler import APScheduler
 
 cache = Cache()
@@ -369,7 +369,7 @@ def profile(playername, stats, patch, elo, specific_key):
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
             winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
-            patch = patch, spells = spells, player_dict=player_dict, custom_winrate=util.custom_winrate, profile=True, plus_prefix=util.plus_prefix)
+            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix)
     else:
         patches = patches2
         try:

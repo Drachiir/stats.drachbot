@@ -114,9 +114,12 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
             tier_score -= tier_dict[stats][0] / 20
     return tier_score
 
-def custom_winrate(value):
+def custom_winrate(value, no_dec=False):
     try:
-        return round(value[0] / value[1] * 100, 1)
+        if no_dec:
+            return round(value[0] / value[1] * 100)
+        else:
+            return round(value[0] / value[1] * 100, 1)
     except Exception:
         return 0
 

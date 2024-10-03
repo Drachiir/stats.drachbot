@@ -154,7 +154,7 @@
                                  <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
                                      <td style="text-align: left;"><r3>{{ mate_dict["Playername"][:14] }}</r3></td>
                                      <td><r3>{{ mate_dict["Count"] }}</r3></td>
-                                     <td><r3>{{ custom_winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
+                                     <td><r3>{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
                                      <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
                                  </tr>
                             {% endfor %}
@@ -179,7 +179,7 @@
                             <div style="position: relative;">
                                 <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ key|lower }}">
                                     <img width="36" height="auto" src="{{ get_cdn(key, fav_category[1]) }}">
-                                    <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ ((fav_category[2][key] / games * 100)|round|string).strip('.0') }}%</r2>
+                                    <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</r2>
                                 </a>
                             </div>
                         {% endfor %}
