@@ -10,9 +10,9 @@
                 </div>
             </div>
             <p>Classic modes rotate every 5.75 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
-            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap">
-                <div style="width: max-content">
-                    <table class="table table-hover table-striped table-bordered" style="display: inline-block">
+            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 20px">
+                <div>
+                    <table class="table table-hover table-striped table-bordered">
                         <tr>
                             <th>Mode</th><th>Schedule</th>
                         </tr>
@@ -25,7 +25,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div style="text-align: left">
+                                    <div style="text-align: left; text-wrap: wrap">
                                         <r class="schedule" data-start="{{ item.start }}" data-end="{{ item.end }}">
                                             {{ item.start }} {{ item.end }}
                                         </r>
