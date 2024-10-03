@@ -374,17 +374,19 @@
             });
 
             // Draw threshold icons on data points where thresholds change
+            let lastDrawnIndex = -1; // Initialize the last drawn index to avoid duplicates
             for (let i = 1; i < dataPoints.length; i++) {
                 const currentValue = chart.data.datasets[0].data[i];
                 const previousValue = chart.data.datasets[0].data[i - 1];
 
-                // Check if the threshold has changed
-                if (getRankImageForValue(currentValue) !== getRankImageForValue(previousValue)) {
+                // Check if the threshold has changed and if the change is significant (e.g., at least 100 points)
+                if (getRankImageForValue(currentValue) !== getRankImageForValue(previousValue) && // Only consider significant changes
+                    (i - lastDrawnIndex > 5)) { // Limit icon frequency (at least 5 points apart)
+
                     const dataPoint = dataPoints[i];
                     const rankImage = getRankImageForValue(currentValue);
-                    if (rankImage) {
-                        ctx.drawImage(rankImage, dataPoint.x - 12, dataPoint.y - 12, 20, 20);
-                    }
+                    ctx.drawImage(rankImage, dataPoint.x - 12, dataPoint.y - 12, 20, 20);
+                    lastDrawnIndex = i; // Update last drawn index
                 }
             }
         }
@@ -498,6 +500,7 @@
     document.getElementById('dataLimit').setAttribute('max', dataLength);
     document.getElementById('dataLimit').value = Math.min(100, dataLength); // Default to 100 or max available data
 </script>
+
 
 
 
