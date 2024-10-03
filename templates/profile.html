@@ -265,12 +265,9 @@
     </div>
 </div>
 <script>
-    // Get the labels and values from Flask (Jinja2 templating)
     const labels = {{ labels|tojson }};
     const values = {{ values|tojson }};
     const dataLength = labels.length;
-
-    // Preload images in a more robust way
     const rankImagesCache = {};
 
     function preloadRankImages(callback) {
@@ -307,7 +304,6 @@
         });
     }
 
-    // Function to get rank image based on Elo value
     function getRankImageForValue(value) {
         if (value >= 2800) return rankImagesCache[2800];
         if (value >= 2600) return rankImagesCache[2600];
@@ -321,63 +317,76 @@
         return rankImagesCache[1000];
     }
 
-    // Custom plugin to draw icons on the chart at threshold changes
+    function getLineColor(value) {
+        if (value >= 2800) return 'rgb(68,78,179)';
+        if (value >= 2600) return 'rgb(216,153,191)';
+        if (value >= 2400) return 'rgb(50,179,161)';
+        if (value >= 2200) return 'rgb(178,66,191)';
+        if (value >= 2000) return 'rgb(184,4,4)';
+        if (value >= 1800) return 'rgb(0,151,255)';
+        if (value >= 1600) return 'rgb(24,78,80)';
+        if (value >= 1400) return 'rgb(255, 165, 0)';
+        if (value >= 1200) return 'rgb(192, 192, 192)';
+        return 'rgb(139, 69, 19)';
+    }
+
     const customPlugin = {
         id: 'customPlugin',
-        afterDatasetDraw(chart) {
+        afterDatasetsDraw(chart) {
             const ctx = chart.ctx;
             const meta = chart.getDatasetMeta(0);
             const dataPoints = meta.data;
-            const rankImages = [];
-            const count = dataPoints.length;
+            const values = chart.data.datasets[0].data;
 
-            // Always show the first, middle, and last data point
-            const indicesToShow = [0, Math.floor(count / 2), count - 1];
+            // Loop through the data points and draw segments
+            ctx.save(); // Save the current context
+            for (let i = 0; i < dataPoints.length - 1; i++) {
+                const startPoint = dataPoints[i];
+                const endPoint = dataPoints[i + 1];
+                const color = getLineColor(values[i]);
 
-            indicesToShow.forEach(index => {
-                const dataPoint = dataPoints[index];
-                const value = chart.data.datasets[0].data[index];
-                const rankImage = getRankImageForValue(value);
-                if (rankImage) {
-                    rankImages.push({ x: dataPoint.x, y: dataPoint.y, img: rankImage });
+                // Set the stroke color
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+
+                ctx.beginPath(); // Start a new path
+                ctx.moveTo(startPoint.x, startPoint.y);
+                ctx.lineTo(endPoint.x, endPoint.y);
+                ctx.stroke(); // Draw the segment
+            }
+            ctx.restore(); // Restore the context to its original state
+
+            // Draw threshold icons for the Y-axis ticks
+            const yScale = chart.scales.y;
+
+            yScale.ticks.forEach(tick => {
+                const value = tick.value;
+                const img = getRankImageForValue(value);
+                if (img) { // Draw icons for each threshold
+                    const tickX = yScale.left - 50; // Position icon to the left of the tick label
+                    const tickY = yScale.getPixelForValue(value) - 16; // Calculate Y position for the tick
+                    ctx.drawImage(img, tickX + 5, tickY + 6, 20, 20); // Draw the image
+                    // Draw the label value next to the icon
+                    ctx.fillStyle = 'rgba(204,204,204,1)';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(value, tickX + 30, tickY + 18); // Adjust position to avoid overlap
                 }
             });
 
-            // Draw rank icons at specified points
-            rankImages.forEach(({ x, y, img }) => {
-                ctx.drawImage(img, x - 12, y - 12, 24, 24);  // Adjust size and position of the icon
-            });
-        }
-    };
+            // Draw threshold icons on data points where thresholds change
+            for (let i = 1; i < dataPoints.length; i++) {
+                const currentValue = chart.data.datasets[0].data[i];
+                const previousValue = chart.data.datasets[0].data[i - 1];
 
-    // Custom Y-axis tick callback to replace text with placeholders for icons
-    function yTickCallback(value) {
-        return value;  // No additional spaces, keep the value as it is
-    }
-
-    // Function to replace tick labels with icons
-    function replaceTickImages(chart) {
-        const yScale = chart.scales.y;
-
-        // Get the tick values and positions
-        const ticks = yScale.ticks;
-
-        ticks.forEach((tick, index) => {
-            const value = tick.value;
-            const img = getRankImageForValue(value);
-            if (img) {
-                const tickX = yScale.left - 30; // Adjust position to put image to the left of the tick label
-                const tickY = yScale.getPixelForTick(index) - 12; // Calculate the pixel position for the tick
-                chart.ctx.drawImage(img, tickX, tickY, 24, 24);  // Draw the image
+                // Check if the threshold has changed
+                if (getRankImageForValue(currentValue) !== getRankImageForValue(previousValue)) {
+                    const dataPoint = dataPoints[i];
+                    const rankImage = getRankImageForValue(currentValue);
+                    if (rankImage) {
+                        ctx.drawImage(rankImage, dataPoint.x - 12, dataPoint.y - 12, 20, 20);
+                    }
+                }
             }
-        });
-    }
-
-    // Custom plugin to handle Y-axis icons after drawing
-    const tickIconPlugin = {
-        id: 'tickIconPlugin',
-        afterDraw(chart) {
-            replaceTickImages(chart);  // Replace tick labels with images after the chart is drawn
         }
     };
 
@@ -387,6 +396,7 @@
     // Initialize chart after images are preloaded
     preloadRankImages(function() {
         const ctx = document.getElementById('myChart').getContext('2d');
+
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -394,9 +404,9 @@
                 datasets: [{
                     label: 'Elo',
                     data: values,
-                    backgroundColor: 'rgba(67,144,255,0.91)',
-                    borderColor: 'rgb(79,189,237)', // Initial color
-                    borderWidth: 1,
+                    backgroundColor: 'rgba(0,0,0,0)', // Make background transparent
+                    borderColor: 'rgba(0,0,0,0)', // No single color needed
+                    borderWidth: 2,
                     pointRadius: 0  // Remove dots
                 }]
             },
@@ -421,9 +431,8 @@
                         beginAtZero: false,
                         ticks: {
                             font: {
-                                size: 12
-                            },
-                            callback: yTickCallback  // Use custom tick callback for labels
+                                size: 0
+                            }
                         },
                         grid: {
                             color: 'rgba(255, 255, 255, 0.2)',
@@ -454,12 +463,17 @@
                 layout: {
                     padding: {
                         top: 5,
-                        bottom: 20
+                        bottom: 5,
+                        left: 50,  // Add padding on the left side
+                        right: 10  // Add padding on the right side
                     }
                 }
             },
-            plugins: [customPlugin, tickIconPlugin]  // Use both custom plugins
+            plugins: [customPlugin]  // Use custom plugin to handle drawing
         });
+
+        // Refresh the chart
+        myChart.update();
     });
 
     // Function to update chart based on user input
@@ -469,38 +483,21 @@
         // Adjust limit if it exceeds available data length
         if (limit > dataLength) {
             limit = dataLength;
-            document.getElementById('dataLimit').value = limit;
         }
 
-        if (limit > 0) {
-            const limitedLabels = labels.slice(-limit);
-            const limitedValues = values.slice(-limit);
+        const newLabels = labels.slice(-limit);
+        const newValues = values.slice(-limit);
 
-            // Update chart data
-            myChart.data.labels = limitedLabels;
-            myChart.data.datasets[0].data = limitedValues;
+        myChart.data.labels = newLabels;
+        myChart.data.datasets[0].data = newValues;
 
-            // Recalculate min and max values
-            const minValue = Math.min(...limitedValues);
-            const maxValue = Math.max(...limitedValues);
-            myChart.options.scales.y.min = minValue - 10;
-            myChart.options.scales.y.max = maxValue + 10;
-
-            // Update chart title
-            myChart.options.plugins.title.text = `Last ${limit} Ranked Games`;
-
-            // Refresh the chart
-            myChart.update();
-        } else {
-            alert("Please enter a valid number greater than 0.");
-        }
+        myChart.update(); // Refresh the chart with new data
     }
 
     // Initialize the input field with the maximum value based on the data length
     document.getElementById('dataLimit').setAttribute('max', dataLength);
     document.getElementById('dataLimit').value = Math.min(100, dataLength); // Default to 100 or max available data
 </script>
-
 
 
 
