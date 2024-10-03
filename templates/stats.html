@@ -30,7 +30,7 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Select Patches
                     </button>
-                    <ul class="dropdown-menu" style="padding: 10px;" id="patchDropdown">
+                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
                         <form id="patchForm">
                             <!-- Select/Unselect All option -->
                             <li class="dropdown-item">
@@ -41,10 +41,9 @@
 
                             <!-- Loop through the patches and display them as checkboxes -->
                             {% for p in patch_list %}
-                                <li class="dropdown-item">
-                                    <label style="width: 100%;">
-                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}"> v{{ p }}
-                                    </label>
+                                <li class="dropdown-item" id="patch-checkbox">
+                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                     v{{ p }}
                                 </li>
                             {% endfor %}
                         </form>
@@ -240,8 +239,13 @@
         event.stopPropagation();  // Stop dropdown from closing when clicking inside
     });
 
-    // Event listener to toggle checkbox when clicking on list item/label
-    document.querySelectorAll('.dropdown-item label').forEach(function (label) {
+    // Add click event directly on checkboxes to prevent issues
+    document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+        checkbox.addEventListener('click', function (event) {
+            event.stopPropagation(); // Prevent dropdown from closing
+        });
+    });
+    document.querySelectorAll('#patch-checkbox').forEach(function (label) {
         label.addEventListener('click', function (event) {
             var checkbox = this.querySelector('input[type="checkbox"]');
             checkbox.checked = !checkbox.checked; // Toggle checkbox state
