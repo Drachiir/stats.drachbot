@@ -20,10 +20,10 @@
         font-size: 1rem;
     }
     r3 {
-        font-family: "Roboto", sans-serif;
+        font-family: "Roboto", monospace;
         font-weight: 300;
         font-style: normal;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
     }
     .profile-div {
         min-width: max-content;
@@ -70,7 +70,6 @@
     }
     i[data-title]:hover::after, i[data-title]:active::after{
         content: attr(data-title);
-        width: 180px;
         background-color: black;
         font-family: "Roboto", sans-serif;
         text-align: center;
@@ -102,6 +101,11 @@
     /* Handle on hover */
     .scrollable::-webkit-scrollbar-thumb:hover {
         background: #31afdd; /* Darker on hover */
+    }
+    .strokeText{
+        -webkit-text-stroke: 3px black;
+        paint-order: stroke fill;
+        font-weight: 400;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -136,7 +140,7 @@
                 <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
             </div>
             <div class="profile-div">
-                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Latest 2 Patches" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
+                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Latest 2 Patches ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
                 <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
                 <r2>Elo: {{ elochange }}</r2>
             </div>
@@ -161,28 +165,27 @@
             <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; width: 100%">
                 <div class="profile-div">
                     <r2>Wave 1 Tendency:</r2><br>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2>{{ wave1[0] }}%</r2>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2>{{ wave1[1] }}%</r2>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2>{{ wave1[2] }}%</r2>
+                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2 class="strokeText">{{ wave1[0] }}%</r2>
+                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2 class="strokeText">{{ wave1[1] }}%</r2>
+                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2 class="strokeText">{{ wave1[2] }}%</r2>
                 </div>
-                <div class="profile-div">
-                    <r2>Favorite Openers:</r2><br>
-                    {% for open in openers %}
-                        <img width="36" height="auto" src="{{ get_cdn(open, "Opener") }}">
-                    {% endfor %}
-                </div>
-                <div class="profile-div">
-                    <r2>Favorite Masterminds:</r2><br>
-                    {% for mm in mms %}
-                        <img width="36" height="auto" src="{{ get_cdn(mm, "MMs") }}">
-                    {% endfor %}
-                </div>
-                <div class="profile-div">
-                    <r2>Favorite Legion Spells:</r2><br>
-                    {% for spell in spells %}
-                        <img width="36" height="auto" src="{{ get_cdn(spell, "Spell") }}">
-                    {% endfor %}
-                </div>
+                {% for fav_category in [["Favorite Openers", "Opener", openers, "openstats"],
+                                        ["Favorite Masterminds", "MMs", mms, "mmstats"],
+                                        ["Favorite Legion Spells", "Spell", spells, "spellstats"]] %}
+                    <div class="profile-div">
+                        <r2>{{ fav_category[0] }}:</r2><br>
+                        <div style="display: flex">
+                        {% for key in fav_category[2] %}
+                            <div style="position: relative;">
+                                <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ key|lower }}">
+                                    <img width="36" height="auto" src="{{ get_cdn(key, fav_category[1]) }}">
+                                    <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ ((fav_category[2][key] / games * 100)|round|string).strip('.0') }}%</r2>
+                                </a>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
             <div id="chart-container" style="position: relative;">
                 <div class="input-group" style="position: absolute; right: 10px; top: 20px; z-index: 10; width: 150px">
@@ -267,78 +270,196 @@
     const values = {{ values|tojson }};
     const dataLength = labels.length;
 
-    // Set up the chart
-    const ctx = document.getElementById('myChart').getContext('2d');
-    let myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Elo',
-                data: values,
-                backgroundColor: 'rgba(67,144,255,0.91)',
-                borderColor: 'rgb(79,189,237)',
-                borderWidth: 1,
-                pointRadius: 0  // Remove dots
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    ticks: {
-                        maxTicksLimit: 20,
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.2)',
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                        borderWidth: 1
-                    }
-                },
-                y: {
-                    beginAtZero: false,
-                    ticks: {
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.2)',
-                        borderColor: 'rgba(255, 255, 255, 0.5)',
-                        borderWidth: 1
-                    }
+    // Preload images in a more robust way
+    const rankImagesCache = {};
+
+    function preloadRankImages(callback) {
+        const rankThresholds = [
+            { rank: 2800, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png' },
+            { rank: 2600, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png' },
+            { rank: 2400, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png' },
+            { rank: 2200, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png' },
+            { rank: 2000, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png' },
+            { rank: 1800, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png' },
+            { rank: 1600, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png' },
+            { rank: 1400, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png' },
+            { rank: 1200, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png' },
+            { rank: 1000, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png' }
+        ];
+
+        let loadedImagesCount = 0;
+        const totalImages = rankThresholds.length;
+
+        rankThresholds.forEach(rankObj => {
+            const img = new Image();
+            img.src = rankObj.url;
+            img.onload = function() {
+                rankImagesCache[rankObj.rank] = img;
+                loadedImagesCount++;
+                // Once all images are preloaded, call the callback
+                if (loadedImagesCount === totalImages) {
+                    callback();
                 }
-            },
-            plugins: {
-                title: {
-                    display: true,
-                    text: `Last ${labels.length} Ranked Games`,
-                    color: 'rgb(204,204,204)',
-                    font: {
-                        size: 14  // Smaller title font size
-                    },
-                    padding: {
-                        top: 10,  // Reduce space above title
-                        bottom: 10  // Ensure some space below title
-                    }
-                },
-                tooltip: {
-                    enabled: true,
-                    mode: 'nearest',
-                    intersect: false
+            };
+            img.onerror = function() {
+                console.error('Failed to load image:', rankObj.url);
+            };
+        });
+    }
+
+    // Function to get rank image based on Elo value
+    function getRankImageForValue(value) {
+        if (value >= 2800) return rankImagesCache[2800];
+        if (value >= 2600) return rankImagesCache[2600];
+        if (value >= 2400) return rankImagesCache[2400];
+        if (value >= 2200) return rankImagesCache[2200];
+        if (value >= 2000) return rankImagesCache[2000];
+        if (value >= 1800) return rankImagesCache[1800];
+        if (value >= 1600) return rankImagesCache[1600];
+        if (value >= 1400) return rankImagesCache[1400];
+        if (value >= 1200) return rankImagesCache[1200];
+        return rankImagesCache[1000];
+    }
+
+    // Custom plugin to draw icons on the chart at threshold changes
+    const customPlugin = {
+        id: 'customPlugin',
+        afterDatasetDraw(chart) {
+            const ctx = chart.ctx;
+            const meta = chart.getDatasetMeta(0);
+            const dataPoints = meta.data;
+            const rankImages = [];
+            const count = dataPoints.length;
+
+            // Always show the first, middle, and last data point
+            const indicesToShow = [0, Math.floor(count / 2), count - 1];
+
+            indicesToShow.forEach(index => {
+                const dataPoint = dataPoints[index];
+                const value = chart.data.datasets[0].data[index];
+                const rankImage = getRankImageForValue(value);
+                if (rankImage) {
+                    rankImages.push({ x: dataPoint.x, y: dataPoint.y, img: rankImage });
                 }
-            },
-            layout: {
-                padding: {
-                    top: 5,  // Reduce padding at the top
-                    bottom: 20
-                }
-            }
+            });
+
+            // Draw rank icons at specified points
+            rankImages.forEach(({ x, y, img }) => {
+                ctx.drawImage(img, x - 12, y - 12, 24, 24);  // Adjust size and position of the icon
+            });
         }
+    };
+
+    // Custom Y-axis tick callback to replace text with placeholders for icons
+    function yTickCallback(value) {
+        return value;  // No additional spaces, keep the value as it is
+    }
+
+    // Function to replace tick labels with icons
+    function replaceTickImages(chart) {
+        const yScale = chart.scales.y;
+
+        // Get the tick values and positions
+        const ticks = yScale.ticks;
+
+        ticks.forEach((tick, index) => {
+            const value = tick.value;
+            const img = getRankImageForValue(value);
+            if (img) {
+                const tickX = yScale.left - 30; // Adjust position to put image to the left of the tick label
+                const tickY = yScale.getPixelForTick(index) - 12; // Calculate the pixel position for the tick
+                chart.ctx.drawImage(img, tickX, tickY, 24, 24);  // Draw the image
+            }
+        });
+    }
+
+    // Custom plugin to handle Y-axis icons after drawing
+    const tickIconPlugin = {
+        id: 'tickIconPlugin',
+        afterDraw(chart) {
+            replaceTickImages(chart);  // Replace tick labels with images after the chart is drawn
+        }
+    };
+
+    // Declare myChart globally so it can be accessed inside updateChart
+    let myChart;
+
+    // Initialize chart after images are preloaded
+    preloadRankImages(function() {
+        const ctx = document.getElementById('myChart').getContext('2d');
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Elo',
+                    data: values,
+                    backgroundColor: 'rgba(67,144,255,0.91)',
+                    borderColor: 'rgb(79,189,237)', // Initial color
+                    borderWidth: 1,
+                    pointRadius: 0  // Remove dots
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        ticks: {
+                            maxTicksLimit: 20,
+                            font: {
+                                size: 12
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.2)',
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                            borderWidth: 1
+                        }
+                    },
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: yTickCallback  // Use custom tick callback for labels
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.2)',
+                            borderColor: 'rgba(255, 255, 255, 0.5)',
+                            borderWidth: 1
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: `Last ${labels.length} Ranked Games`,
+                        color: 'rgb(204,204,204)',
+                        font: {
+                            size: 14
+                        },
+                        padding: {
+                            top: 10,
+                            bottom: 10
+                        }
+                    },
+                    tooltip: {
+                        enabled: true,
+                        mode: 'nearest',
+                        intersect: false
+                    }
+                },
+                layout: {
+                    padding: {
+                        top: 5,
+                        bottom: 20
+                    }
+                }
+            },
+            plugins: [customPlugin, tickIconPlugin]  // Use both custom plugins
+        });
     });
 
     // Function to update chart based on user input
@@ -379,5 +500,8 @@
     document.getElementById('dataLimit').setAttribute('max', dataLength);
     document.getElementById('dataLimit').value = Math.min(100, dataLength); // Default to 100 or max available data
 </script>
+
+
+
 
 {% endblock %}
