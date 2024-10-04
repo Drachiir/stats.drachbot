@@ -32,14 +32,11 @@
                     </button>
                     <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
                         <form id="patchForm">
-                            <!-- Select/Unselect All option -->
                             <li class="dropdown-item">
                                 <label>
                                     <input type="checkbox" id="selectAll"> Select/Unselect All
                                 </label>
                             </li>
-
-                            <!-- Loop through the patches and display them as checkboxes -->
                             {% for p in patch_list %}
                                 <li class="dropdown-item" id="patch-checkbox">
                                     <input type="checkbox" class="patch-checkbox" value="{{ p }}">
@@ -47,8 +44,6 @@
                                 </li>
                             {% endfor %}
                         </form>
-
-                        <!-- Button to trigger redirection inside the dropdown -->
                         <li class="dropdown-item text-center">
                             <button class="btn btn-primary w-100" id="redirectButton">Go</button>
                         </li>

@@ -193,7 +193,12 @@ def livegames():
 def load(playername, stats, patch, elo, specific_key):
     session['visited_profile'] = True
     if not stats:
-        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/")
+        new_patch = request.args.get('patch')
+        if new_patch:
+            new_patch = f"?patch={new_patch}"
+        else:
+            new_patch = ""
+        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{new_patch}")
     else:
         return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
 
@@ -204,12 +209,18 @@ def load(playername, stats, patch, elo, specific_key):
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def profile(playername, stats, patch, elo, specific_key):
     if not stats:
+        new_patch = request.args.get('patch')
+        if new_patch:
+            patch = new_patch.replace("/", "")
+            new_patch = f"?patch={new_patch}"
+        else:
+            new_patch = ""
         if not session.get('visited_profile'):
-            return redirect(f"/load/{playername}/")
+            return redirect(f"/load/{playername}/{new_patch}")
         session.pop('visited_profile', None)
         referrer = request.referrer
         if not referrer or '/load' not in referrer:
-            return redirect(f"/load/{playername}/")
+            return redirect(f"/load/{playername}/{new_patch}")
         if len(playername) == 16 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
             api_profile = legion_api.getprofile(playername, by_id=True)
@@ -236,7 +247,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/Value10000.png",
             "https://cdn.legiontd2.com/icons/LegionKing.png"
         ]
-        path = f"Files/player_cache/{api_profile["playerName"]}_profile.json"
+        path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.json"
         history = None
         if os.path.isfile(path):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
@@ -369,7 +380,7 @@ def profile(playername, stats, patch, elo, specific_key):
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
             winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
-            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix)
+            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2)
     else:
         patches = patches2
         try:

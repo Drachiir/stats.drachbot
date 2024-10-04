@@ -107,15 +107,23 @@
         paint-order: stroke fill;
         font-weight: 400;
     }
+    .clickableDiv{
+        cursor: pointer;
+    }
+    .clickableDiv:hover{
+        background-color: #2e2e2e !important;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
     <div class="profile-main" style="position: relative">
         <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
-            <div style="text-align: center; width: 250px; overflow: hidden">
-                <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
-                <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
-                <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br><br>
+            <div style="text-align: center; width: 250px;">
+                <div style="overflow: hidden">
+                    <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
+                    <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
+                    <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br><br>
+                </div>
                 <button class="btn btn-secondary" onclick="refreshPage()">Refresh</button>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <r><b>Stats Pages</b></r>
@@ -129,6 +137,29 @@
                         </li>
                     {% endfor %}
                 </ul>
+                <div class="dropdown" style="padding-top: 3px">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Patches
+                    </button>
+                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
+                        <form id="patchForm">
+                            <li class="dropdown-item">
+                                <label>
+                                    <input type="checkbox" id="selectAll"> Select/Unselect All
+                                </label>
+                            </li>
+                            {% for p in patch_list %}
+                                <li class="dropdown-item" id="patch-checkbox">
+                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                     v{{ p }}
+                                </li>
+                            {% endfor %}
+                        </form>
+                        <li class="dropdown-item text-center">
+                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
             <div class="profile-div">
                 <r2 style=""><b>Season 2024 Stats</b></r2><br>
@@ -140,7 +171,7 @@
                 <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
             </div>
             <div class="profile-div">
-                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Latest 2 Patches ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
+                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Patch: ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
                 <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
                 <r2>Elo: {{ elochange }}</r2>
             </div>
@@ -165,9 +196,14 @@
             <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; width: 100%">
                 <div class="profile-div">
                     <r2>Wave 1 Tendency:</r2><br>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/UpgradeKingAttack.png"><r2 class="strokeText">{{ wave1[0] }}%</r2>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Snail.png"><r2 class="strokeText">{{ wave1[1] }}%</r2>
-                    <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/Mythium32.png"><r2 class="strokeText">{{ wave1[2] }}%</r2>
+                    <div style="display: flex">
+                        {% for x in ["UpgradeKingAttack", "Snail", "Mythium32"] %}
+                            <div style="position: relative;">
+                                <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/{{ x }}.png">
+                                <r2 style="position: absolute; bottom: -4px; left: 0;" class="strokeText">{{ wave1[loop.index0] }}%</r2>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 {% for fav_category in [["Favorite Openers", "Opener", openers, "openstats"],
                                         ["Favorite Masterminds", "MMs", mms, "mmstats"],
@@ -206,19 +242,17 @@
     <div style="max-height: 95vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
         <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
     {% for game in history[:short_history] %}
-        <div style="background: #171717; border-radius: 10px; display: flex; padding: 10px">
+        <div class="clickableDiv" id="clickableDiv" data-href="{{ game["gamelink"] }}" style="background: #171717; border-radius: 10px; display: flex; padding: 10px">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="padding-left: 10px; width: 40%">
-                    <a style="color: white; text-decoration: none;"  href="{{ game["gamelink"] }}">
-                        <div>
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="{{ game["EndWave"] }}">
-                            {% if game["Result_String"][0] %}
-                                <r2 style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
-                            {% else %}
-                                <r2 style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
-                            {% endif %}
-                        </div>
-                    </a>
+                    <div>
+                        <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="{{ game["EndWave"] }}">
+                        {% if game["Result_String"][0] %}
+                            <r2 style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% else %}
+                            <r2 style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% endif %}
+                    </div>
                     <div style="display: flex; gap: 5px; overflow: hidden">
                         <div style="position: relative;">
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(game["Mastermind"], "MMs") }}">
@@ -257,11 +291,7 @@
                 </div>
                 <div style="width: 20%; position: relative;">
                     <div style="position: absolute; top: -15%; right: 0">
-                        <a style="color: white; text-decoration: none;"  href="{{ game["gamelink"] }}">
-                            <div>
-                                <r2 style="color: #a5a5a5; font-size: var(--textsize)">{{ game["time_ago"] }}</r2><r2>🔗</r2>
-                            </div>
-                        </a>
+                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">{{ game["time_ago"] }}</r2>
                     </div>
                 </div>
             </div>
@@ -410,7 +440,7 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Elo',
+                    label: '',
                     data: values,
                     backgroundColor: 'rgba(0,0,0,0)',
                     borderColor: 'rgba(0,0,0,0)',
@@ -503,5 +533,20 @@
     // Initialize the input field with the maximum value based on the data length
     document.getElementById('dataLimit').setAttribute('max', dataLength);
     document.getElementById('dataLimit').value = Math.min(100, dataLength); // Default to 100 or max available data
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const clickableDivs = document.querySelectorAll('.clickableDiv');
+    clickableDivs.forEach(div => {
+        div.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'A') {
+                const url = div.getAttribute('data-href');
+                if (url) {
+                        window.location.href = url;
+                    }
+                }
+            });
+        });
+    });
 </script>
+<script src="/static/profile_patches.js"></script>
 {% endblock %}
