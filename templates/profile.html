@@ -373,7 +373,7 @@
                 if (img) { // Draw icons for each threshold
                     const tickX = yScale.left - 50; // Position icon to the left of the tick label
                     const tickY = yScale.getPixelForValue(value) - 16; // Calculate Y position for the tick
-                    ctx.drawImage(img, tickX + 5, tickY + 6, 20, 20); // Draw the image
+                    ctx.drawImage(img, tickX + 8, tickY + 6, 20, 20); // Draw the image
                     // Draw the label value next to the icon
                     ctx.fillStyle = 'rgba(204,204,204,1)';
                     ctx.font = '12px Arial';
@@ -382,12 +382,12 @@
             });
 
             // Draw threshold icons on data points where thresholds change
-            let lastDrawnIndex = -5; // Initialize the last drawn index to avoid duplicates
+            let lastDrawnIndex = -1; // Initialize the last drawn index to avoid duplicates
             for (let i = 0; i < dataPoints.length; i++) {
                 const currentValue = chart.data.datasets[0].data[i];
                 const previousValue = chart.data.datasets[0].data[i - 1];
                 if (getRankImageForValue(currentValue) !== getRankImageForValue(previousValue) &&
-                    (i - lastDrawnIndex > 5)) { // Limit icon frequency (at least 5 points apart)
+                    (i - lastDrawnIndex > 4)) { // Limit icon frequency (at least 5 points apart)
 
                     const dataPoint = dataPoints[i];
                     const rankImage = getRankImageForValue(currentValue);
@@ -412,10 +412,10 @@
                 datasets: [{
                     label: 'Elo',
                     data: values,
-                    backgroundColor: 'rgba(0,0,0,0)', // Make background transparent
-                    borderColor: 'rgba(0,0,0,0)', // No single color needed
+                    backgroundColor: 'rgba(0,0,0,0)',
+                    borderColor: 'rgba(0,0,0,0)',
                     borderWidth: 2,
-                    pointRadius: 0  // Remove dots
+                    pointRadius: 0
                 }]
             },
             options: {
@@ -424,7 +424,7 @@
                 scales: {
                     x: {
                         ticks: {
-                            maxTicksLimit: 20,
+                            maxTicksLimit: 25,
                             font: {
                                 size: 12
                             }
@@ -458,8 +458,7 @@
                             size: 14
                         },
                         padding: {
-                            top: 10,
-                            bottom: 10
+                            top: 10
                         }
                     },
                     tooltip: {
@@ -472,8 +471,7 @@
                     padding: {
                         top: 5,
                         bottom: 5,
-                        left: 50,  // Add padding on the left side
-                        right: 10  // Add padding on the right side
+                        left: 20,
                     }
                 }
             },
@@ -506,8 +504,4 @@
     document.getElementById('dataLimit').setAttribute('max', dataLength);
     document.getElementById('dataLimit').value = Math.min(100, dataLength); // Default to 100 or max available data
 </script>
-
-
-
-
 {% endblock %}
