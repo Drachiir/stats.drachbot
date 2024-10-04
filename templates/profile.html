@@ -277,6 +277,7 @@
 
     function preloadRankImages(callback) {
         const rankThresholds = [
+            { rank: 3000, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png' },
             { rank: 2800, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png' },
             { rank: 2600, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png' },
             { rank: 2400, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png' },
@@ -310,6 +311,7 @@
     }
 
     function getRankImageForValue(value) {
+        if (value >= 3000) return rankImagesCache[3000];
         if (value >= 2800) return rankImagesCache[2800];
         if (value >= 2600) return rankImagesCache[2600];
         if (value >= 2400) return rankImagesCache[2400];
@@ -323,6 +325,7 @@
     }
 
     function getLineColor(value) {
+        if (value >= 3000) return 'rgb(89,103,255)';
         if (value >= 2800) return 'rgb(68,78,179)';
         if (value >= 2600) return 'rgb(216,153,191)';
         if (value >= 2400) return 'rgb(50,179,161)';
