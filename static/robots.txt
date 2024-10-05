@@ -1,3 +1,10 @@
 User-agent: *
 Disallow:
 Disallow: /profile/
+Disallow: /mmstats/
+Disallow: /openstats/
+Disallow: /megamindstats/
+Disallow: /spellstats/
+Disallow: /rollstats/
+Disallow: /unitstats/
+Disallow: /wavestats/

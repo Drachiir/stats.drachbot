@@ -3,19 +3,4 @@
 <url>
       <loc>https://stats.drachbot.site/</loc>
 </url>
-<url>
-      <loc>https://stats.drachbot.site/mmstats/</loc>
-</url>
-<url>
-      <loc>https://stats.drachbot.site/openstats/</loc>
-</url>
-<url>
-      <loc>https://stats.drachbot.site/spellstats/</loc>
-</url>
-<url>
-      <loc>https://stats.drachbot.site/unitstats/</loc>
-</url>
-<url>
-      <loc>https://stats.drachbot.site/rollstats/</loc>
-</url>
 </urlset>
