@@ -212,6 +212,9 @@ def profile(playername, stats, patch, elo, specific_key):
         new_patch = request.args.get('patch')
         if new_patch:
             patch = new_patch.replace("/", "")
+            if "11" in patch.split(","):
+                patch = "11"
+                new_patch = "11"
             new_patch = f"?patch={new_patch}"
         else:
             new_patch = ""
