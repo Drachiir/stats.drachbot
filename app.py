@@ -24,7 +24,6 @@ app.secret_key = 'python>js'
 scheduler = APScheduler()
 
 def leaderboard_task():
-    print("Updating leaderboard")
     data = legion_api.get_leaderboard(100)
     if len(data) < 1:
         print("leaderboard fetch error")
@@ -747,20 +746,10 @@ def stats(stats, elo, patch, specific_key):
                            data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
                            playerurl = "", playername2=playername2, patch_selector = False)
 
-def start_scheduler():
-    scheduler.add_job(id='Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
-    scheduler.start()
-
-if platform.system() == "Windows":#
+if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)
 else:
-    import subprocess
-    import threading
-    threading.Thread(target=start_scheduler).start()
-    command = [
-        "gunicorn",
-        "-w", "3",  # Number of worker processes
-        "-b", "0.0.0.0:54937",  # Bind to address and port
-        "myapp:app"  # Module and app name (adjust to your app)
-    ]
-    subprocess.run(command)
+    from waitress import serve
+    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
+    scheduler.start()
+    serve(app, host="0.0.0.0", port=54937)
