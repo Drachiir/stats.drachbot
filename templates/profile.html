@@ -119,10 +119,11 @@
     <div class="profile-main" style="position: relative">
         <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
             <div style="text-align: center; width: 250px;">
-                <div style="overflow: hidden">
+                <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left">
                     <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                     <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
-                    <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2><br><br>
+                    <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
+                    <r2 style="color: goldenrod; position: absolute; bottom: 5px; left: 70px">{{ player_rank }}</r2>
                 </div>
                 <button class="btn btn-secondary" onclick="refreshPage()">Refresh</button>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

@@ -377,13 +377,22 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
+        player_rank = ""
+        with open("leaderboard.json", "r") as f:
+            leaderboard_data = json.load(f)
+            f.close()
+        for i, player in enumerate(leaderboard_data):
+            if player["profile"][0]["playerName"] == api_profile["playerName"]:
+                player_rank = f"Rank #{i+1}"
+                break
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
             winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
-            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2)
+            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
+            player_rank=player_rank)
     else:
         patches = patches2
         try:
