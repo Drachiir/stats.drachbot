@@ -240,8 +240,8 @@
             </div>
         </div>
     </div>
-    <div style="max-height: 95vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
-        <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
+    <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
+    <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
     {% for game in history[:short_history] %}
         <div class="clickableDiv" id="clickableDiv" data-href="{{ game["gamelink"] }}" style="background: #131313; border-radius: 10px; display: flex; padding: 10px">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
