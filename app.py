@@ -152,21 +152,17 @@ def home():
 @app.route('/classicmodes')
 @cache.cached(timeout=60)
 def classic_modes():
-    increment_in_seconds = 5.75 * 60 * 60  # 5.75 hours in seconds
+    increment_in_seconds = 5.75 * 60 * 60
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     now = datetime.now(tz=timezone.utc)
     
-    # Calculate time passed since start
     seconds_elapsed = (now - start_utc).total_seconds()
+    
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
     
-    # Precompute current mode start time
     current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
     
-    # Precompute increment timedelta (for reuse in the loop)
     increment_delta = timedelta(seconds=increment_in_seconds)
-    
-    # Generate the schedule (using list comprehension)
     schedule = [
         {
             'mode': util.modes[(increments_since_start + i) % len(util.modes)],
