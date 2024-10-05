@@ -10,11 +10,12 @@
     <!-- Container for Search Bar -->
     <div style="margin-bottom: 10px; display: flex; justify-content: center">
         <div>
-            <input type="text" id="search-bar" class="form-control" placeholder="Search by player name or guild tag" onkeyup="filterTable()" style="width: 300px;">
+            <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
         </div>
     </div>
     <!-- Container for Table -->
-    <div style="display: inline-block;">
+    <div style="display: inline-block; position: relative">
+        <div id="result-count" style="margin-bottom: 10px; position: absolute; left: 0; top: -25px"></div>
         <table class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
             <tbody>
                 <tr>
@@ -38,7 +39,7 @@
                     </td>
                     <td>
                         {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
-                        <div class="Country" data-country="{{ country_code|lower }}"></div>
+                        <div class="Country" data-country="{{ country_code }}"></div>
                     </td>
                     <td>
                         <div>
@@ -65,9 +66,19 @@
     </div>
 </div>
 
-
 <script>
-    // Function to update color for all percentage spans
+    let countryMapping = {};
+
+    // Fetch the en.json country mapping when the page loads
+    fetch('./static/countries.json')  // Adjust the path to where your en.json file is located
+        .then(response => response.json())
+        .then(data => {
+            countryMapping = data.countries;// Store the country mapping
+            updatePercentageColors();          // Ensure colors are updated after loading data
+        })
+        .catch(error => console.error('Error fetching country data:', error));
+
+    // Function to update colors for all percentage spans
     function updatePercentageColors() {
         const percentageElements = document.querySelectorAll('.percentage');
 
@@ -94,47 +105,51 @@
         });
     }
 
-    // Run the function to update colors for all percentage spans
-    updatePercentageColors();
-
     // Function to filter table based on search input
     function filterTable() {
         const searchInput = document.getElementById('search-bar').value.toLowerCase();
         const rows = document.querySelectorAll('.player-row');
+        let resultCount = 0; // Initialize a counter for results
 
         rows.forEach(row => {
             const playerName = row.querySelector('.player-name').textContent.trim().toLowerCase();
             const guildTag = row.querySelector('.guild-tag').textContent.trim().toLowerCase();
+            const countryCode = row.querySelector('.Country').getAttribute('data-country').toUpperCase();
 
-            if (playerName.includes(searchInput) || guildTag.includes(searchInput)) {
+            // Convert country code to country name using the local mapping
+            const countryName = countryMapping[countryCode];
+            const countryNameLower = (typeof countryName === 'string') ? countryName.toLowerCase() : '';
+
+            // Check if the search input matches the player name, guild tag, or country name
+            if (playerName.includes(searchInput) || guildTag.includes(searchInput) || countryNameLower.includes(searchInput)) {
                 row.style.display = '';
+                resultCount++; // Increment the counter for visible rows
             } else {
                 row.style.display = 'none';
             }
         });
+
+        // Update the result count display
+        const resultCountDisplay = document.getElementById('result-count');
+        resultCountDisplay.textContent = `${resultCount} Result${resultCount === 1 ? '' : 's'} found`; // Singular or plural
     }
+
+
+    // Add flag images to country divs when the window loads
     window.onload = function() {
-        // Get all the divs with the class 'Country'
         const countryDivs = document.getElementsByClassName('Country');
 
-        // Loop through each div
         for (let i = 0; i < countryDivs.length; i++) {
             const countryDiv = countryDivs[i];
-
-            // Get the country code from the data attribute
             const countryData = countryDiv.getAttribute('data-country');
+            const flagImageUrl = `https://cdn.legiontd2.com/flags/4x3/${countryData.toLowerCase()}.png`;
 
-            // Construct the image URL
-            const flagImageUrl = `https://cdn.legiontd2.com/flags/4x3/${countryData}.png`;
-
-            // Create an img element
             const img = document.createElement('img');
             img.src = flagImageUrl;
             img.alt = `${countryData} flag`;
-            img.width = 32;  // You can adjust the size
-            img.height = 20; // You can adjust the size
+            img.width = 30;
+            img.height = 20;
 
-            // Append the image to the div
             countryDiv.appendChild(img);
         }
     };

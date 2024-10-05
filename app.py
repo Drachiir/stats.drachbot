@@ -64,9 +64,11 @@ def leaderboard_task():
 
 if platform.system() == "Linux":
     timeout = 600
+    timeout2 = 300
 else:
     timeout = 1
-
+    timeout2 = 1
+    
 app.config['CACHE_TYPE'] = 'simple' # Set the cache type
 app.config['CACHE_DEFAULT_TIMEOUT'] = timeout # Set the default cache timeout in seconds
 app.config['CACHE_KEY_PREFIX'] = 'myapp_' # Set the cache key prefix
@@ -175,7 +177,7 @@ def classic_modes():
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
 @app.route("/leaderboard")
-@cache.cached(timeout=int(timeout/2))
+@cache.cached(timeout=timeout2)
 def leaderboard():
     with open("leaderboard.json", "r") as f:
         leaderboard_data = json.load(f)
