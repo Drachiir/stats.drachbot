@@ -143,10 +143,9 @@
                     </button>
                     <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
                         <form id="patchForm">
-                            <li class="dropdown-item">
-                                <label>
-                                    <input type="checkbox" id="selectAll"> Select/Unselect All
-                                </label>
+                            <li class="dropdown-item" id="patch-checkbox">
+                                <input type="checkbox" class="patch-checkbox" value="11">
+                                 v11
                             </li>
                             {% for p in patch_list %}
                                 <li class="dropdown-item" id="patch-checkbox">
@@ -526,7 +525,7 @@
 
         myChart.data.labels = newLabels;
         myChart.data.datasets[0].data = newValues;
-
+        myChart.options.plugins.title.text = `Last ${newLabels.length} Ranked Games`
         myChart.update(); // Refresh the chart with new data
     }
 

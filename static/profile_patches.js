@@ -22,19 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 checkbox.checked = true;
             }
         });
-
-        // If all checkboxes are checked, check the "Select All" box
-        const allChecked = selectedPatches.length > 0 && selectedPatches.length === document.querySelectorAll('.patch-checkbox').length;
-        document.getElementById('selectAll').checked = allChecked;
     }
-
-    // Event listener for the "Select/Unselect All" checkbox
-    document.getElementById('selectAll').addEventListener('change', function () {
-        var isChecked = this.checked;
-        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
-            checkbox.checked = isChecked;
-        });
-    });
 
     // Event listener for the "Go" button
     document.getElementById('redirectButton').addEventListener('click', function () {
