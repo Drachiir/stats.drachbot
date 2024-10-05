@@ -1,6 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-<url>
-      <loc>https://stats.drachbot.site/</loc>
-</url>
+  <!-- Homepage -->
+  <url>
+    <loc>https://stats.drachbot.site/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- /profile/ -->
+  <url>
+    <loc>https://stats.drachbot.site/profile/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /mmstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/mmstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /openstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/openstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /megamindstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/megamindstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /spellstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/spellstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /rollstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/rollstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /unitstats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/unitstats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- /wavestats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/wavestats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>

@@ -1,10 +1,24 @@
 User-agent: *
-Disallow:
-Disallow: /profile/
-Disallow: /mmstats/
-Disallow: /openstats/
-Disallow: /megamindstats/
-Disallow: /spellstats/
-Disallow: /rollstats/
-Disallow: /unitstats/
-Disallow: /wavestats/
+Disallow: /profile/*
+Allow: /profile/$
+
+Disallow: /mmstats/*
+Allow: /mmstats/$
+
+Disallow: /openstats/*
+Allow: /openstats/$
+
+Disallow: /megamindstats/*
+Allow: /megamindstats/$
+
+Disallow: /spellstats/*
+Allow: /spellstats/$
+
+Disallow: /rollstats/*
+Allow: /rollstats/$
+
+Disallow: /unitstats/*
+Allow: /unitstats/$
+
+Disallow: /wavestats/*
+Allow: /wavestats/$
