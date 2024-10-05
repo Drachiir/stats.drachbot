@@ -20,33 +20,42 @@
                 <tr>
                     <th><r>Rank</r></th>
                     <th><r>Player</r></th>
+                    <th><r>Country</r></th>
                     <th><r>Elo</r></th>
                     <th><r>Winrate</r></th>
                     <th><r>Win/Lose</r></th>
                 </tr>
-                {% for player in leaderboard %}
-                <tr class="player-row" data-href="/profile/{{ player["profile"][0]["playerName"] }}">
+                {% for player in leaderboard["Leaderboard"] %}
+                <tr class="player-row" data-href="/profile/{{ player["DisplayName"] }}">
                     <td><r>{{ loop.index }}</r></td>
                     <td>
                         <div class="playername-leaderboard" style="text-align: left">
-                            <img width="32" src="https://cdn.legiontd2.com/{{ player["profile"][0]["avatarUrl"] }}">
-                            <r class="player-name"> {{ player["profile"][0]["playerName"] }}</r>
-                            <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">{{ player["profile"][0]["guildTag"] }}</r>
+                            <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
+                            <r class="player-name"> {{ player["DisplayName"] }}</r>
+                            <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
+                                {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
                         </div>
                     </td>
                     <td>
+                        {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
+                        <div class="Country" data-country="{{ country_code|lower }}"></div>
+                    </td>
+                    <td>
                         <div>
-                            <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["overallElo"]) }}">
-                            <r style="padding-left: 5px">{{ player["overallElo"] }} </r>
+                            <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["StatValue"]) }}">
+                            <r style="padding-left: 5px">{{ player["StatValue"] }} </r>
                         </div>
                     </td>
-                    {% set percentage = (player["rankedWinsThisSeason"] / (player["rankedWinsThisSeason"] + player["rankedLossesThisSeason"]) * 100)|round(1) %}
+                    {% set player_stats = player["Profile"]["Statistics"] %}
+                    {% set wins = get_value(player_stats, "rankedWinsThisSeason") %}
+                    {% set losses = get_value(player_stats, "rankedLossesThisSeason") %}
+                    {% set percentage = winrate([wins, (wins+losses)]) %}
                     <td>
                         <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
                     </td>
                     <td>
                         <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
-                            <r>{{ player["rankedWinsThisSeason"] }} - {{ player["rankedLossesThisSeason"] }}</r>
+                            <r>{{ wins }} - {{ losses }}</r>
                         </div>
                     </td>
                 </tr>
@@ -104,5 +113,30 @@
             }
         });
     }
+    window.onload = function() {
+        // Get all the divs with the class 'Country'
+        const countryDivs = document.getElementsByClassName('Country');
+
+        // Loop through each div
+        for (let i = 0; i < countryDivs.length; i++) {
+            const countryDiv = countryDivs[i];
+
+            // Get the country code from the data attribute
+            const countryData = countryDiv.getAttribute('data-country');
+
+            // Construct the image URL
+            const flagImageUrl = `https://cdn.legiontd2.com/flags/4x3/${countryData}.png`;
+
+            // Create an img element
+            const img = document.createElement('img');
+            img.src = flagImageUrl;
+            img.alt = `${countryData} flag`;
+            img.width = 32;  // You can adjust the size
+            img.height = 20; // You can adjust the size
+
+            // Append the image to the div
+            countryDiv.appendChild(img);
+        }
+    };
 </script>
 {% endblock %}

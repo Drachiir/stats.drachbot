@@ -16,6 +16,7 @@ import util
 from drachbot.peewee_pg import GameData, PlayerData
 from util import get_rank_url, custom_winrate, plus_prefix, custom_divide
 from flask_apscheduler import APScheduler
+from playfab import PlayFabClientAPI, PlayFabSettings
 
 cache = Cache()
 
@@ -24,12 +25,42 @@ app.secret_key = 'python>js'
 scheduler = APScheduler()
 
 def leaderboard_task():
-    data = legion_api.get_leaderboard(100)
-    if len(data) < 1:
-        print("leaderboard fetch error")
-        return
-    with open("leaderboard.json", "w") as f:
-        json.dump(data, f)
+    PlayFabSettings.TitleId = "9092"
+    
+    login_request = {
+        "TitleId": "9092",
+        "CustomId": "LTD2Website",
+        "CreateAccount": False
+    }
+    
+    leaderboard_request = {
+        "TitleId": "9092",
+        "CustomId": "LTD2Website",
+        "CreateAccount": False,
+        "StartPosition": 0,
+        "StatisticName": "overallEloThisSeasonAtLeastOneGamePlayed",
+        "MaxResultsCount": 100,
+        "ProfileConstraints": {
+            "ShowDisplayName": True,
+            "ShowStatistics": True,
+            "ShowLocations": True,
+            "ShowAvatarUrl": True,
+            "ShowContactEmailAddresses": True
+        }
+    }
+    
+    def callback(success, failure):
+        if success:
+            if len(success) < 1:
+                print("leaderboard fetch error")
+                return
+            with open("leaderboard.json", "w") as f:
+                json.dump(success, f)
+        else:
+            if failure:
+                print(failure.GenerateErrorReport())
+    PlayFabClientAPI.LoginWithCustomID(login_request, callback)
+    PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
 
 if platform.system() == "Linux":
     timeout = 600
@@ -148,10 +179,12 @@ def classic_modes():
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
 @app.route("/leaderboard")
+@cache.cached(timeout=int(timeout/2))
 def leaderboard():
     with open("leaderboard.json", "r") as f:
         leaderboard_data = json.load(f)
-    return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url)
+    return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
+                           winrate = util.custom_winrate)
 
 @app.route("/api/livegames")
 def livegames_api():
@@ -381,8 +414,8 @@ def profile(playername, stats, patch, elo, specific_key):
         with open("leaderboard.json", "r") as f:
             leaderboard_data = json.load(f)
             f.close()
-        for i, player in enumerate(leaderboard_data):
-            if player["profile"][0]["playerName"] == api_profile["playerName"]:
+        for i, player in enumerate(leaderboard_data["Leaderboard"]):
+            if player["DisplayName"] == api_profile["playerName"]:
                 player_rank = f"Rank #{i+1}"
                 break
         return render_template(

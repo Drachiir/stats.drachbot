@@ -213,7 +213,14 @@ function redirectToGame() {
 }
 
 jQuery(document).ready(function($) {
-    $(".player-row").click(function() {
-        window.location = $(this).data("href");
+    $(".player-row").click(function(event) {
+        // Check if the click was done using the middle mouse button or with a modifier key (Ctrl or Command)
+        if (event.which === 2 || event.metaKey || event.ctrlKey) {
+            // If middle mouse button or modifier key is pressed, open in a new tab
+            window.open($(this).data("href"), '_blank');
+        } else {
+            // Otherwise, proceed with the default behavior (redirect in the same tab)
+            window.location = $(this).data("href");
+        }
     });
 });
