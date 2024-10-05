@@ -4,7 +4,7 @@
 <style>
     :root{
         --textsize: clamp(0.6rem, 1vw, 1.2rem);
-        --waveimgsize: clamp(32px, 5vw, 48px);
+        --waveimgsize: clamp(36px, 5vw, 48px);
         --imgsize: clamp(20px, 3vw, 28px);
     }
     r {
@@ -45,7 +45,7 @@
         height: 100% !important;
     }
     .profile-main {
-        background: #171717;
+        background: #131313;
         border-radius: 10px;
     }
     @media (max-width: 480px) {
@@ -111,7 +111,8 @@
         cursor: pointer;
     }
     .clickableDiv:hover{
-        background-color: #2e2e2e !important;
+        background-color: #171717 !important;
+        box-shadow:inset 0 0 0 1px #3a3a3a;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -123,7 +124,7 @@
                     <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                     <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
-                    <r2 style="color: goldenrod; position: absolute; bottom: 5px; left: 70px">{{ player_rank }}</r2>
+                    <r2 style="color: gold; position: absolute; bottom: 5px; left: 70px">{{ player_rank }}</r2>
                 </div>
                 <button class="btn btn-secondary" onclick="refreshPage()">Refresh</button>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -142,21 +143,21 @@
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Select Patches
                     </button>
-                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
+                    <ul class="dropdown-menu bg-black" style="padding: 5px;" id="patchDropdown">
                         <form id="patchForm">
                             <li class="dropdown-item" id="patch-checkbox">
                                 <input type="checkbox" class="patch-checkbox" value="11">
-                                 v11 (Current Season)
+                                 <label>v11.**</label>
                             </li>
                             {% for p in patch_list %}
                                 <li class="dropdown-item" id="patch-checkbox">
                                     <input type="checkbox" class="patch-checkbox" value="{{ p }}">
-                                     v{{ p }}
+                                     <label>v{{ p }}</label>
                                 </li>
                             {% endfor %}
                         </form>
                         <li class="dropdown-item text-center">
-                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+                            <button class="btn btn-primary w-75" id="redirectButton">Go</button>
                         </li>
                     </ul>
                 </div>
@@ -199,7 +200,7 @@
                     <div style="display: flex">
                         {% for x in ["UpgradeKingAttack", "Snail", "Mythium32"] %}
                             <div style="position: relative;">
-                                <img width="36" height="auto" src="https://cdn.legiontd2.com/icons/{{ x }}.png">
+                                <img style="width: var(--waveimgsize)"  src="https://cdn.legiontd2.com/icons/{{ x }}.png">
                                 <r2 style="position: absolute; bottom: -4px; left: 0;" class="strokeText">{{ wave1[loop.index0] }}%</r2>
                             </div>
                         {% endfor %}
@@ -219,7 +220,7 @@
                                     {% set url_key = key|lower %}
                                 {% endif %}
                                 <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ url_key }}">
-                                    <img width="36" height="auto" src="{{ get_cdn(key, fav_category[1]) }}">
+                                    <img style="width: var(--waveimgsize)" src="{{ get_cdn(key, fav_category[1]) }}">
                                     <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</r2>
                                 </a>
                             </div>
@@ -242,7 +243,7 @@
     <div style="max-height: 95vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
         <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
     {% for game in history[:short_history] %}
-        <div class="clickableDiv" id="clickableDiv" data-href="{{ game["gamelink"] }}" style="background: #171717; border-radius: 10px; display: flex; padding: 10px">
+        <div class="clickableDiv" id="clickableDiv" data-href="{{ game["gamelink"] }}" style="background: #131313; border-radius: 10px; display: flex; padding: 10px">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="padding-left: 10px; width: 40%">
                     <div>
