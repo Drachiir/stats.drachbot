@@ -24,7 +24,7 @@ def get_game_by_id(gameid):
     game_data_query = (PlayerData
                        .select(*req_columns[0])
                        .join(GameData)
-                       .where(GameData.game_id == gameid)).dicts()
+                       .where(GameData.game_id == gameid.casefold())).dicts()
     for i, row in enumerate(game_data_query.iterator()):
         p_data = {}
         for field in req_columns[2]:
