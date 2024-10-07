@@ -17,11 +17,15 @@ from drachbot.peewee_pg import GameData, PlayerData
 from util import get_rank_url, custom_winrate, plus_prefix, custom_divide
 from flask_apscheduler import APScheduler
 from playfab import PlayFabClientAPI, PlayFabSettings
+from flask_cors import CORS, cross_origin
 
 cache = Cache()
 
 app = Flask(__name__)
 app.secret_key = 'python>js'
+
+CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all
+
 scheduler = APScheduler()
 
 def leaderboard_task():
@@ -202,6 +206,49 @@ def livegames_api():
         games.append([mod_date, game_elo, west_players, east_players])
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
+
+@app.route("/api/drachbot_overlay/<playername>")
+@cross_origin()
+def drachbot_overlay_api(playername):
+    api_profile = legion_api.getprofile(playername)
+    if api_profile in [0, 1]:
+        return {"Error": "Player not found"}
+    playerid = api_profile["_id"]
+    req_columns = [
+        [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
+         PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.player_elo, PlayerData.game_result, PlayerData.elo_change,
+         PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
+        ["game_id", "date", "version", "ending_wave", "game_elo"],
+        ["player_id", "player_name", "player_slot", "player_elo", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
+    history = drachbot_db.get_matchistory(playerid, 10, earlier_than_wave10=True, req_columns=req_columns, profile=api_profile, skip_stats=True)
+    winlose = {"Wins": 0, "Losses": 0}
+    elochange = 0
+    mms = {}
+    wave1 = {"UpgradeKingAttack": 0, "Snail": 0, "Mythium32": 0}
+    for game in history:
+        for player in game["players_data"]:
+            if player["player_id"] == playerid:
+                # Fav MM
+                if player["megamind"]:
+                    player["legion"] = "Megamind"
+                if player["legion"] in mms:
+                    mms[player["legion"]] += 1
+                else:
+                    mms[player["legion"]] = 1
+                # Wave 1 Tendency
+                if player["mercs_sent_per_wave"][0].split("!")[0] == "Snail":
+                    wave1["Snail"] += 1
+                elif str(player["kingups_sent_per_wave"][0].split("!")[0]).startswith("Upgrade"):
+                    wave1["UpgradeKingAttack"] += 1
+                else:
+                    wave1["Mythium32"] += 1
+                if player["game_result"] == "won":
+                    elochange += player["elo_change"]
+                    winlose["Wins"] += 1
+                else:
+                    elochange += player["elo_change"]
+                    winlose["Losses"] += 1
+    return {"Masterminds": mms, "Wave1": wave1, "WinLose": winlose, "EloChange": elochange}
 
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")

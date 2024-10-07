@@ -21,6 +21,7 @@
     {% elif game_viewer %}
         <title>Legion TD 2 Game Viewer</title>
         <meta property="og:title" content="Legion TD 2 Game Viewer" />
+        <meta property="og:description" content="Ended on Wave {{ game_data["ending_wave"] }} | Avg Game Elo: {{ game_data["game_elo"] }} | {{ game_data["version"] }} {% for player in game_data["players_data"] %} | {{ player["player_name"] }} {% endfor %}"/>
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% elif livegames %}
             <title>Legion TD 2 Livegames</title>

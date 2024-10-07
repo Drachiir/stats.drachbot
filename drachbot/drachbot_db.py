@@ -1,4 +1,6 @@
 from pathlib import Path
+from quopri import needsquoting
+
 import drachbot.legion_api as legion_api
 from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData
 from playhouse.postgres_ext import *
@@ -67,7 +69,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
-def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = [], profile = None, stats = None, pname = ""):
+def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False, sort_by = "date", req_columns = [], profile = None, stats = None, pname = "", skip_stats=False):
     patch_list = []
     if earlier_than_wave10:
         earliest_wave = 2
@@ -134,17 +136,25 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 ladder_points = playerstats["ladderPoints"]
             except KeyError:
                 ladder_points = 0
+            try:
+                games_played = playerstats["gamesPlayed"]
+            except KeyError:
+                games_played = 0
             PlayerProfile(
                 player_id=playerid,
                 player_name=playerprofile["playerName"],
-                total_games_played=playerstats["gamesPlayed"],
+                total_games_played=games_played,
                 ranked_wins_current_season=wins,
                 ranked_losses_current_season=losses,
                 ladder_points=ladder_points,
                 offset=offset,
                 last_updated=datetime.now(tz=timezone.utc)
             ).save()
-            data = get_games_loop(playerid, 0, 200)
+            if skip_stats:
+                needed_games = 10
+            else:
+                needed_games = 200
+            data = get_games_loop(playerid, 0, needed_games)
         else:
             new_profile = False
             if stats:
