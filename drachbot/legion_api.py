@@ -17,24 +17,6 @@ with open('Files/json/Secrets.json', 'r') as f:
 
 header = {'x-api-key': secret_file.get('apikey')}
 
-def api_call_logger(request_type):
-    try:
-        with open("Files/json/api_calls.json", "r") as file:
-            api_call_dict = json.load(file)
-        date = datetime.now()
-        if "next_reset" not in api_call_dict:
-            api_call_dict["next_reset"] = (date + timedelta(days=1)).strftime("%m/%d/%Y")
-        elif datetime.strptime(api_call_dict["next_reset"], "%m/%d/%Y") < datetime.now():
-            api_call_dict = {"next_reset": (date + timedelta(days=1)).strftime("%m/%d/%Y")}
-        if request_type not in api_call_dict:
-            api_call_dict[request_type] = 1
-        else:
-            api_call_dict[request_type] += 1
-        with open("Files/json/api_calls.json", "w") as file:
-            json.dump(api_call_dict, file)
-    except Exception:
-        traceback.print_exc()
-
 def get_leaderboard(num):
     url = f'https://apiv2.legiontd2.com/players/stats?limit={num}&sortBy=overallElo&sortDirection=-1'
     api_response = requests.get(url, headers=header)
@@ -54,7 +36,6 @@ def getprofile(playername, by_id = False):
     except requests.exceptions.HTTPError:
         return 0
     else:
-        api_call_logger(request_type)
         profile = json.loads(api_response.text)
         return profile
 
@@ -63,7 +44,6 @@ def getstats(playerid):
     url = 'https://apiv2.legiontd2.com/' + request_type + playerid
     api_response = requests.get(url, headers=header)
     stats = json.loads(api_response.text)
-    api_call_logger(request_type)
     return stats
 
 def pullgamedata(playerid, offset, expected):
@@ -72,7 +52,6 @@ def pullgamedata(playerid, offset, expected):
     url = 'https://apiv2.legiontd2.com/players/matchHistory/' + str(playerid) + '?limit=' + str(50) + '&offset=' + str(offset) + '&countResults=false'
     print('Pulling ' + str(50) + ' games from API...')
     api_response = requests.get(url, headers=header)
-    api_call_logger("players/matchHistory/")
     raw_data = json.loads(api_response.text)
     print('Saving ranked games.')
     for x in raw_data:
