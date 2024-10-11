@@ -126,7 +126,13 @@
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
                     <r2 style="color: gold; position: absolute; bottom: 5px; left: 70px">{{ player_rank }}</r2>
                 </div>
-                <button class="btn btn-secondary" onclick="refreshPage()">Refresh</button>
+                    <button class="btn btn-secondary" id="refresh-btn" {% if refresh_in_progress %}disabled{% endif %}>
+                        {% if refresh_in_progress %}
+                            Refreshing...
+                        {% else %}
+                            Refresh
+                        {% endif %}
+                    </button>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                   <r><b>Stats Pages</b></r>
                 </button>
@@ -300,11 +306,46 @@
     {% endfor %}
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const labels = {{ labels|tojson }};
     const values = {{ values|tojson }};
     const dataLength = labels.length;
     const rankImagesCache = {};
+
+    $(document).ready(function () {
+        var playerid = "{{ playerid }}";
+        var refreshBtn = $('#refresh-btn');
+        checkRefreshStatus(playerid, true);
+        // Handle button click
+        refreshBtn.click(function () {
+            refreshBtn.prop('disabled', true).text('Refreshing...');
+
+            // Make AJAX request to start refresh process
+            $.get('/api/request_games/' + playerid, function (data) {
+                // Request successful, now wait for the process to finish
+                checkRefreshStatus(playerid, false);
+            }).fail(function () {
+                alert('Already refreshed recently, try again later!');
+                refreshBtn.prop('disabled', false).text('Refresh');
+            });
+        });
+
+        // Polling function to check refresh status periodically
+        function checkRefreshStatus(playerid, initial) {
+            $.get('/api/check_refresh_status/' + playerid, function (data) {
+                if (!data.in_progress && data.cooldown > 0 && !initial) {
+                    window.location.reload();
+                } else if (data.in_progress) {
+                    refreshBtn.prop('disabled', true).text('Refreshing...');
+                    // Keep polling until the process finishes
+                    setTimeout(function () {
+                        checkRefreshStatus(playerid, false);
+                    }, 3000);  // Poll every 3 seconds
+                }
+            });
+        }
+    });
 
     function preloadRankImages(callback) {
         const rankThresholds = [

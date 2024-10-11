@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding-top: 40px">
+    <!-- Form to allow the user to set the minimum number of games -->
+    <div style="display: flex; justify-content: center; white-space: nowrap; flex-wrap: wrap">
+        <div>
+            <h1 style="font-size: 22px">Rank Distribution 2024</h1>
+            <r2>Total players: <span id="totalPlayersCount"></span></r2>  <!-- Updated this line -->
+        </div>
+        <div style="display: flex; width: 80%; gap: 10px; justify-content: center; flex-wrap: wrap">
+            <form method="GET">
+                <div style="display: flex; gap: 10px">
+                    <div class="input-group">
+                        <span class="input-group-text">Min Games</span>
+                        <input class="form-control" type="number" placeholder="Min Games" id="min_games" name="min_games" value="{{ min_games }}">
+                        <button class="btn btn-secondary" type="submit" value="Update" id="button-addon2">Update</button>
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-text">Min Win%</span>
+                        <input class="form-control" type="number" placeholder="Min Win%" id="min_winrate" name="min_winrate" value="{{ min_winrate }}">
+                        <button class="btn btn-secondary" type="submit" value="Update" id="button-addon2">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Canvas for the bar chart -->
+    <canvas id="rankDistributionChart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const leaderboardData = {{ leaderboard_data | tojson }};
+    const minGames = {{ min_games }};
+    const minWinrate = {{ min_winrate }};
+    const rankImagesCache = {};
+
+    // Define the ranks and their corresponding icons and colors, including the 800 Elo bracket
+    const rankThresholds = [
+        { rank: 2800, color: 'rgb(68,78,179)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png' },
+        { rank: 2600, color: 'rgb(216,153,191)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png' },
+        { rank: 2400, color: 'rgb(50,179,161)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png' },
+        { rank: 2200, color: 'rgb(178,66,191)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png' },
+        { rank: 2000, color: 'rgb(184,4,4)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png' },
+        { rank: 1800, color: 'rgb(124,172,204)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png' },
+        { rank: 1600, color: 'rgb(24,78,80)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png' },
+        { rank: 1400, color: 'rgb(255, 165, 0)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png' },
+        { rank: 1200, color: 'rgb(192, 192, 192)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png' },
+        { rank: 1000, color: 'rgb(139, 69, 19)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png' },
+        { rank: 800, color: 'rgb(105, 105, 105)', url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Unranked.png' }  // Dark gray for 800 Elo
+    ];
+
+    function preloadRankImages(callback) {
+        let loadedImagesCount = 0;
+        const totalImages = rankThresholds.length;
+
+        rankThresholds.forEach(rankObj => {
+            const img = new Image();
+            img.src = rankObj.url;
+            img.onload = function() {
+                rankImagesCache[rankObj.rank] = img;
+                loadedImagesCount++;
+                if (loadedImagesCount === totalImages) {
+                    callback();
+                }
+            };
+            img.onerror = function() {
+                console.error('Failed to load image:', rankObj.url);
+            };
+        });
+    }
+
+    function getBracket(elo) {
+        // If Elo is 2800 or above, return '2800+'
+        if (elo >= 2800) {
+            return '2800+';
+        }
+        const bracketMin = Math.floor(elo / 50) * 50; // Change to 50 for 4 divisions in 200 Elo brackets
+        return `${bracketMin}-${bracketMin + 49}`; // Return 4 divisions per bracket
+    }
+
+    function getBarColor(bracket) {
+        const bracketMin = bracket === '2800+' ? 2800 : parseInt(bracket.split('-')[0], 10);  // Handle '2800+' case
+        // Go through the rank thresholds and return the correct color based on the Elo range
+        for (let i = 0; i < rankThresholds.length; i++) {
+            if (bracketMin >= rankThresholds[i].rank) {
+                return rankThresholds[i].color;
+            }
+        }
+        return rankThresholds[rankThresholds.length - 1].color;  // Default to lowest rank if not matched
+    }
+
+    function getRankImage(bracket) {
+        const bracketMin = bracket === '2800+' ? 2800 : parseInt(bracket.split('-')[0], 10);  // Handle '2800+' case
+        // Go through the rank thresholds and return the correct image based on the Elo range
+        for (let i = 0; i < rankThresholds.length; i++) {
+            if (bracketMin >= rankThresholds[i].rank) {
+                return rankImagesCache[rankThresholds[i].rank];
+            }
+        }
+        return rankImagesCache[rankThresholds[rankThresholds.length - 1].rank];  // Default to lowest rank if not matched
+    }
+
+    // Initialize bracket counts with 2800+ as the last category
+    const bracketCounts = {
+        '800-849': 0,
+        '850-899': 0,
+        '900-949': 0,
+        '950-999': 0,
+        '1000-1049': 0,
+        '1050-1099': 0,
+        '1100-1149': 0,
+        '1150-1199': 0,
+        '1200-1249': 0,
+        '1250-1299': 0,
+        '1300-1349': 0,
+        '1350-1399': 0,
+        '1400-1449': 0,
+        '1450-1499': 0,
+        '1500-1549': 0,
+        '1550-1599': 0,
+        '1600-1649': 0,
+        '1650-1699': 0,
+        '1700-1749': 0,
+        '1750-1799': 0,
+        '1800-1849': 0,
+        '1850-1899': 0,
+        '1900-1949': 0,
+        '1950-1999': 0,
+        '2000-2049': 0,
+        '2050-2099': 0,
+        '2100-2149': 0,
+        '2150-2199': 0,
+        '2200-2249': 0,
+        '2250-2299': 0,
+        '2300-2349': 0,
+        '2350-2399': 0,
+        '2400-2449': 0,
+        '2450-2499': 0,
+        '2500-2549': 0,
+        '2550-2599': 0,
+        '2600-2649': 0,
+        '2650-2699': 0,
+        '2700-2749': 0,
+        '2750-2799': 0,
+        '2800+': 0  // Last category for 2800+
+    };
+
+    let totalPlayers = 0;
+
+    leaderboardData.forEach(player => {
+        const elo = player[0];
+        const wins = player[1];
+        const losses = player[2];
+        const totalGames = wins + losses;
+        if (totalGames >= minGames) {
+            if ((wins > 0 && (wins / totalGames * 100) > minWinrate) || (minWinrate === 0)) {
+                const bracket = getBracket(elo);
+                if (bracketCounts[bracket] !== undefined) {
+                    bracketCounts[bracket]++;
+                    totalPlayers++;
+                }
+            }
+        }
+    });
+
+    // Update total players count in the HTML
+    document.getElementById('totalPlayersCount').textContent = totalPlayers;
+
+    // Preload rank images and initialize the chart when done
+    preloadRankImages(function() {
+        const ctx = document.getElementById('rankDistributionChart').getContext('2d');
+
+        const labels = Object.keys(bracketCounts);
+        const values = Object.values(bracketCounts).map(count => (count / totalPlayers) * 100);  // Convert to percentage
+
+        const barColors = labels.map(label => getBarColor(label));
+        const maxValue = Math.round(Math.max(...values) * 1.1);
+
+        // Add this section within the <script> tags
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Percentage of Players (%)',
+                    data: values,
+                    backgroundColor: barColors,
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                layout: {
+                    padding: {
+                        top: 30,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: maxValue,  // Set dynamic max value
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';  // Show percentage on Y axis
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',  // Ensure tooltip shows for the entire column
+                        intersect: false, // Make sure tooltips show on hover over the column
+                        callbacks: {
+                            label: function(context) {
+                                const percentage = context.raw;
+                                const playerCount = bracketCounts[context.label];
+                                return `Players: ${playerCount} (${percentage.toFixed(2)}%)`;
+                            }
+                        }
+                    }
+                },
+                hover: {
+                    mode: 'index',  // Extend hover to the entire column
+                    intersect: false // This allows tooltips to show even if hovering over the empty space
+                }
+            },
+            plugins: [{
+                id: 'customIcons',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    const meta = chart.getDatasetMeta(0);
+                    const dataPoints = meta.data;
+
+                    dataPoints.forEach((dataPoint, index) => {
+                        const bracket = labels[index];
+                        const img = getRankImage(bracket);
+                        if (img) {
+                            const x = dataPoint.x - 12;  // Center image above the bar
+                            const y = dataPoint.y - 30;  // Slightly above the bar
+                            ctx.drawImage(img, x, y, 20, 20);
+                        }
+                    });
+                }
+            }]
+        };
+        const rankDistributionChart = new Chart(ctx, chartConfig);
+    });
+</script>
+
+</div>
+{% endblock %}

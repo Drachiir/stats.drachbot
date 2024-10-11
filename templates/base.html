@@ -14,7 +14,11 @@
 
         gtag('config', 'G-KB760J9ZQL');
     </script>
-    {% if classic_schedule %}
+    {% if leaderboard_data %}
+        <title>Legion TD 2 Rank Distribution</title>
+        <meta property="og:title" content="Legion TD 2 Rank Distribution" />
+        <meta property="og:image" content="https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png" />
+    {% elif classic_schedule %}
         <title>Legion TD 2 Classic Schedule</title>
         <meta property="og:title" content="Legion TD 2 Classic Schedule" />
         <meta property="og:image" content="https://cdn.legiontd2.com/icons/ClassicModes/0.png" />
@@ -138,6 +142,10 @@
                     <li class="dropdown-item">
                         <a class="nav-link" href="/classicmodes">
                             <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/ClassicModes/0.png'>Classic Schedule</a>
+                    </li>
+                    <li class="dropdown-item">
+                        <a class="nav-link" href="/rank-distribution">
+                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png'>Rank Distribution</a>
                     </li>
                 </ul>
             </li>

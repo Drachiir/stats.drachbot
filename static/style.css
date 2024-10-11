@@ -248,6 +248,11 @@ div#loading {
     box-sizing: border-box;
 }
 
+.game-card:hover{
+    background: #202020;
+    box-shadow:inset 0 0 0 1px #3a3a3a;
+}
+
 /* Position the timestamp in the top-right corner */
 .timestamp-container {
     position: absolute;

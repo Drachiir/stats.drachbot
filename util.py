@@ -54,11 +54,11 @@ wave_names= [
 
 tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [55,50,45,40,0.1], "megamindstats": [53,51,49,47,0]}
+                     "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,48,0]}
 
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                 "rollstats": [68,65,59,56,0.3], "megamindstats": [53,51,49,47,0]}
+                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
 
 with open("Files/json/slang.json", "r") as f:
     slang = json.load(f)

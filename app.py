@@ -3,7 +3,7 @@ import platform
 import json
 from datetime import datetime, timezone, timedelta
 from flask_caching import Cache
-from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session
+from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify
 import re
 import drachbot.legion_api as legion_api
 import drachbot.drachbot_db as drachbot_db
@@ -18,6 +18,8 @@ from util import get_rank_url, custom_winrate, plus_prefix, custom_divide
 from flask_apscheduler import APScheduler
 from playfab import PlayFabClientAPI, PlayFabSettings
 from flask_cors import CORS, cross_origin
+import time
+from threading import Thread
 
 cache = Cache()
 
@@ -188,6 +190,20 @@ def leaderboard():
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
                            winrate = util.custom_winrate)
 
+@app.route("/rank-distribution/", methods=['GET'])
+def rank_distribution():
+    try:
+        min_games = int(request.args.get('min_games', 1))
+    except Exception:
+        min_games = 1
+    try:
+        min_winrate = int(request.args.get('min_winrate', 0))
+    except Exception:
+        min_winrate = 0
+    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_10-24.json", "r") as f:
+        leaderboard_data = json.load(f)
+    return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate)
+
 @app.route("/api/livegames")
 def livegames_api():
     games = []
@@ -207,20 +223,45 @@ def livegames_api():
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
     return games
 
+@app.route("/api/drachbot_reroll_overlay/<rank>/<roll>")
+@cross_origin()
+def drachbot_reroll_overlay_api(rank, roll):
+    data_list = os.listdir(f"{shared_folder}/data/rollstats")
+    roll_data = {}
+    for file in data_list:
+        string_list = file.split("_")
+        if string_list[0] == defaults[0] and string_list[1] == rank:
+            with open(f"{shared_folder}/data/rollstats/{file}", "r") as f:
+                roll_data = json.load(f)
+            break
+    if roll.lower() in roll_data:
+        return [round(roll_data[roll.lower()]["Count"]/int(string_list[2])*100, 1), round(roll_data[roll.lower()]["Wins"]/roll_data[roll.lower()]["Count"]*100, 1)]
+    return roll_data
+    
 @app.route("/api/drachbot_overlay/<playername>")
 @cross_origin()
 def drachbot_overlay_api(playername):
-    api_profile = legion_api.getprofile(playername)
-    if api_profile in [0, 1]:
-        return {"Error": "Player not found"}
-    playerid = api_profile["_id"]
+    if playername == "TestData123":
+        with open("exampledata.json", "r") as f:
+            return json.load(f)
+    if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
+        playerid = playername
+    else:
+        playerid = drachbot_db.get_playerid(playername)
+        if not playerid:
+            api_profile = legion_api.getprofile(playername)
+            if api_profile in [0, 1]:
+                return {"Error": "Player not found"}
+            playerid = api_profile["_id"]
     req_columns = [
         [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
          PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.player_elo, PlayerData.game_result, PlayerData.elo_change,
          PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
         ["game_id", "date", "version", "ending_wave", "game_elo"],
         ["player_id", "player_name", "player_slot", "player_elo", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
-    history = drachbot_db.get_matchistory(playerid, 10, earlier_than_wave10=True, req_columns=req_columns, profile=api_profile, skip_stats=True)
+    history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
+    if not history:
+        history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, get_new_games=True)
     winlose = {"Wins": 0, "Losses": 0}
     elochange = 0
     mms = {}
@@ -248,7 +289,7 @@ def drachbot_overlay_api(playername):
                 else:
                     elochange += player["elo_change"]
                     winlose["Losses"] += 1
-    return {"Masterminds": mms, "Wave1": wave1, "WinLose": winlose, "EloChange": elochange}
+    return {"Masterminds": mms, "Wave1": wave1, "WinLose": winlose, "EloChange": elochange, "String": f"Last {len(history)} Games"}
 
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")
@@ -262,6 +303,59 @@ def gameviewer(gameid, wave):
 @app.route("/livegames")
 def livegames():
     return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
+
+player_refresh_state = {}
+COOLDOWN_PERIOD = 600
+
+def request_games(playerid):
+    drachbot_db.get_games_loop(playerid, 0, 1000, timeout_limit=12)
+    player_refresh_state[playerid]['in_progress'] = False
+    player_refresh_state[playerid]['cooldown_start_time'] = datetime.now(tz=timezone.utc)
+
+def get_remaining_cooldown(playerid):
+    state = player_refresh_state.get(playerid, {})
+    cooldown_start = state.get('cooldown_start_time')
+    
+    if not cooldown_start:
+        return 0
+    
+    elapsed_time = (datetime.now(tz=timezone.utc) - cooldown_start).total_seconds()
+    remaining_cooldown = max(0, COOLDOWN_PERIOD - elapsed_time)
+    
+    return remaining_cooldown
+
+@app.route("/api/request_games/<playername>")
+def request_games_api(playername):
+    if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
+        playerid = playername
+    else:
+        api_profile = legion_api.getprofile(playername)
+        if api_profile in [0, 1]:
+            return {"error": "Player not found"}
+        playerid = api_profile["_id"]
+    if playerid not in player_refresh_state:
+        player_refresh_state[playerid] = {'in_progress': False, 'cooldown_start_time': None}
+    
+    state = player_refresh_state[playerid]
+    if state['in_progress']:
+        return jsonify({"error": "Refresh already in progress"}), 400
+    if get_remaining_cooldown(playerid) > 0:
+        return jsonify({"error": "Cooldown active"}), 400
+    
+    state['in_progress'] = True
+    state['cooldown'] = 0
+    thread = Thread(target=request_games, args=(playerid,))
+    thread.start()
+    return jsonify({"message": "Refresh started"})
+    
+@app.route('/api/check_refresh_status/<playerid>')
+def check_refresh_status(playerid):
+    state = player_refresh_state.get(playerid, {'in_progress': False, 'cooldown_start_time': None})
+    cooldown_duration = get_remaining_cooldown(playerid)
+    return jsonify({
+        'in_progress': state.get('in_progress', False),
+        'cooldown': cooldown_duration
+    })
 
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
@@ -302,7 +396,7 @@ def profile(playername, stats, patch, elo, specific_key):
         referrer = request.referrer
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{new_patch}")
-        if len(playername) == 16 and re.fullmatch(r'[0-9A-F]+', playername):
+        if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
             api_profile = legion_api.getprofile(playername, by_id=True)
         else:
@@ -310,6 +404,8 @@ def profile(playername, stats, patch, elo, specific_key):
             if api_profile in [0, 1]:
                 return render_template("no_data.html", text=f"{playername} not found.")
             playerid = api_profile["_id"]
+        in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
+        cooldown_duration = get_remaining_cooldown(playerid)
         api_stats = legion_api.getstats(playerid)
         try:
             _ = api_stats["rankedWinsThisSeason"]
@@ -330,7 +426,7 @@ def profile(playername, stats, patch, elo, specific_key):
         ]
         path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.json"
         history = None
-        if os.path.isfile(path):
+        if os.path.isfile(path) and cooldown_duration == 0:
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
@@ -470,7 +566,7 @@ def profile(playername, stats, patch, elo, specific_key):
             winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
-            player_rank=player_rank)
+            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid = playerid)
     else:
         patches = patches2
         try:
@@ -842,4 +938,4 @@ else:
     from waitress import serve
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
     scheduler.start()
-    serve(app, host="0.0.0.0", port=54937)
+    serve(app, host="0.0.0.0", port=54937, threads=50)
