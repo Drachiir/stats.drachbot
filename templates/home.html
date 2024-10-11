@@ -8,9 +8,6 @@
                 box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div><br>
     <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
     <r style="font-size: 1.2rem">Legion TD 2 Ranked 2v2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
-    <div style="color: #348eff; ">
-        <r><b>New Update: You can now look up players in the search-bar below!</b></r>
-    </div>
     <form style="padding: 1vw;" class="input-group input-group-lg" id="content">
         <input type="text"
                 onclick="myFunction()"
@@ -35,39 +32,43 @@
             </ul>
         </div>
     </form>
-    {% for data in data_list %}
-        <div style="display: inline-block; padding: 0.5vw">
-            <a href="/{{ data[0] }}"><r style="font-size: 2rem; color: white"><b>{{ data[5] }}</b></r><span>&#8599;</span><br>
-                <img class="center" src="{{ image_list[loop.index - 1] }}">
-            </a>
-            <table style="margin-top:  20px; display: inline-block; overflow-x: visible; overflow-y: hidden" class="table">
-                {# HEADER 1 #}
-                <tbody>
-                <tr>
-                    <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
-                    {% for key in data[6] %}
-                        {% set stats = data[0] %}
-                        <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img src="{{ get_cdn_image(key, data[0]) }}"></a></td>
-                    {% endfor %}
-                </tr>
-                {# HEADER 1 KEYS #}
-                {% if data[0] == "wavestats" %}
-                    {% set key_list = ["Endrate", "Sendrate", "Avg Leak"] %}
-                {% elif data[0] == "megamindstats" %}
-                    {% set key_list = ["Games", "Winrate", "Rollrate"] %}
-                {% else %}
-                    {% set key_list = ["Games", "Winrate", "Pickrate"] %}
-                {% endif %}
-                {% for k in key_list %}
-                    <tr>
-                        <th><r style="white-space: nowrap;">{{ k }}</r></th>
-                        {% for key in data[6] %}
-                            <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+    <div style="display: flex; width: 100%; flex-wrap: wrap; margin-top: 3%; justify-content: center">
+        {% for data in data_list %}
+            <div style="display: inline-block; padding: 0.5vw;">
+                <a style="display: flex; gap: 5px; justify-content: center; padding-bottom: 20px" href="/{{ data[0] }}"><img style="width: 32px;" src="{{ image_list[loop.index0] }}">
+                    <r style="font-size: 1.3rem; color: white"><b>{{ data[5] }}</b></r><span  style="font-size: 1.2rem;" >&#8599;</span><br></a>
+                <div style="overflow-y: hidden; height: max-content;">
+                    <table style="overflow-x: visible; overflow-y: hidden; font-size: 0.7rem; margin-bottom: 0" class="table">
+                        {# HEADER 1 #}
+                        <tbody>
+                        <tr>
+                            <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                            {% for key in data[6] %}
+                                {% set stats = data[0] %}
+                                <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img style="width: 48px" src="{{ get_cdn_image(key, data[0]) }}"></a></td>
+                            {% endfor %}
+                        </tr>
+                        {# HEADER 1 KEYS #}
+                        {% if data[0] == "wavestats" %}
+                            {% set key_list = ["Endrate", "Sendrate", "Avg Leak"] %}
+                        {% elif data[0] == "megamindstats" %}
+                            {% set key_list = ["Games", "Winrate", "Rollrate"] %}
+                        {% else %}
+                            {% set key_list = ["Games", "Winrate", "Pickrate"] %}
+                        {% endif %}
+                        {% for k in key_list %}
+                            <tr>
+                                <th><r style="white-space: nowrap;">{{ k }}</r></th>
+                                {% for key in data[6] %}
+                                    <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
+                                {% endfor %}
+                            </tr>
                         {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
-    {% endfor %}
+                    </table>
+                </div>
+            </div>
+        {% endfor %}
+
+    </div>
 </div>
 {% endblock %}
