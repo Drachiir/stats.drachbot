@@ -398,7 +398,7 @@ def profile(playername, stats, patch, elo, specific_key):
             return redirect(f"/load/{playername}/{new_patch}")
         if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
-            api_profile = legion_api.getprofile(playername, by_id=True)
+            api_profile = legion_api.getprofile(playerid, by_id=True)
         else:
             api_profile = legion_api.getprofile(playername)
             if api_profile in [0, 1]:
@@ -443,7 +443,12 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
-            history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, stats=api_stats, profile=api_profile, pname=playername)
+            if api_stats["overallElo"] >= 2000:
+                skip_stats = True
+            else:
+                skip_stats = False
+            history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
+                                                  stats=api_stats, profile=api_profile, pname=playername, skip_stats=skip_stats)
             with open(path, "w") as f:
                 json.dump(history, f, default=str)
         history_parsed = []
