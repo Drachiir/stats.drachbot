@@ -24,7 +24,7 @@ with open("Files/json/Secrets.json", "r") as f:
 
 db = PooledPostgresqlExtDatabase(
     "postgres",
-    max_connections=50,
+    max_connections=150,
     stale_timeout=60,
     server_side_cursors=True,
     user=secret_file["pg_user"],
