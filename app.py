@@ -938,9 +938,13 @@ def stats(stats, elo, patch, specific_key):
                            playerurl = "", playername2=playername2, patch_selector = False)
 
 if platform.system() == "Windows":
+    for file in os.listdir("Files/player_cache"):
+        os.remove(f"Files/player_cache/{file}")
     app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve
     scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
     scheduler.start()
+    for file in os.listdir("Files/player_cache"):
+        os.remove(f"Files/player_cache/{file}")
     serve(app, host="0.0.0.0", port=54937, threads=50)
