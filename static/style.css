@@ -54,8 +54,9 @@ r2 {
     vertical-align: middle;
     font-size: 1rem;
 }
-td img{
-    border: 1px solid #474751;
+td img {
+  border: 1px solid #474751;
+  transition: transform 0.2s ease, border 0.2s ease;
 }
 td img:hover{
     border: #0080ff 1px solid;
