@@ -109,7 +109,7 @@ def save_game(data):
     pids = []
     for player in data["playersData"]:
         pids.append(player["playerId"])
-    if len(pids) != 4 and len(pids) != 8:
+    if len(pids) != 4 and len(pids) != 8 and len(pids) != 2:
         if len(pids) != 0:
             print("Odd number of pids for game" + data["_id"])
         else:
