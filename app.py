@@ -19,6 +19,7 @@ from flask_apscheduler import APScheduler
 from playfab import PlayFabClientAPI, PlayFabSettings
 from flask_cors import CORS, cross_origin
 import time
+import threading
 from threading import Thread
 
 cache = Cache()
@@ -67,6 +68,46 @@ def leaderboard_task():
                 print(failure.GenerateErrorReport())
     PlayFabClientAPI.LoginWithCustomID(login_request, callback)
     PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
+
+def get_playfab_stats(playfabid):
+    PlayFabSettings.TitleId = "9092"
+    login_request = {
+        "TitleId": "9092",
+        "CustomId": "LTD2Website",
+        "CreateAccount": False
+    }
+    stats_request = {
+        "PlayFabId": playfabid,
+        "StatisticName": "overallElo",
+        "MaxResultsCount": 1,
+        "ProfileConstraints": {
+            "ShowDisplayName": True,
+            "ShowStatistics": True,
+            "ShowLocations": True,
+            "ShowAvatarUrl": True,
+            "ShowContactEmailAddresses": True
+        }
+    }
+    result_event = threading.Event()
+    result = None
+    
+    def callback(success, failure):
+        nonlocal result
+        if success:
+            result = success
+        else:
+            result = None
+        result_event.set()
+    
+    PlayFabClientAPI.LoginWithCustomID(login_request, callback)
+    result_event.wait()
+    if result is None:
+        return None
+    result_event.clear()
+    
+    PlayFabClientAPI.GetLeaderboardAroundPlayer(stats_request, callback)
+    result_event.wait()
+    return result
 
 if platform.system() == "Linux":
     timeout = 600
@@ -406,21 +447,25 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = api_profile["_id"]
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
-        #Get player rank
-        player_rank = ""
-        with open("leaderboard.json", "r") as f:
-            leaderboard_data = json.load(f)
-            f.close()
-        for i, player in enumerate(leaderboard_data["Leaderboard"]):
-            if player["DisplayName"] == api_profile["playerName"]:
-                player_rank = f"Rank #{i+1}"
-                # for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
-                #     try:
-                #         api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
-                #     except Exception:
-                #         api_stats[stat_key] = 0
-                break
-        api_stats = legion_api.getstats(playerid)
+        #Get player stats
+        api_stats = {}
+        playfab_stats = get_playfab_stats(playerid)
+        if playfab_stats:
+            player = playfab_stats["Leaderboard"][0]
+            for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
+                try:
+                    api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
+                except Exception:
+                    api_stats[stat_key] = 0
+            avatar_stacks = int(player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[5].replace("@x.x", "").split("+")[1])
+            api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
+            api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
+            player_rank = f"Rank #{player["Position"]+1}"
+        else:
+            api_stats = legion_api.getstats(playerid)
+            api_stats["avatarBorder"] = ""
+            api_stats["flag"] = ""
+            player_rank = ""
         try:
             _ = api_stats["rankedWinsThisSeason"]
             _ = api_stats["rankedLossesThisSeason"]

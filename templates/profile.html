@@ -120,12 +120,20 @@
 <div class="container-lg" style="padding-top: 2vw; display: block">
     <div class="profile-main" style="position: relative">
         <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
-            <div style="text-align: center; width: 250px;">
+            <div style="text-align: center; width: max-content;">
                 <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left">
-                    <img style="vertical-align: middle; clip-path: circle();" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
+                    <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
+                    {% if api_stats["avatarBorder"] %}
+                        <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
+                    {% endif %}
                     <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
-                    <r2 style="color: gold; position: absolute; bottom: 5px; left: 70px">{{ player_rank }}</r2>
+                    <div style="position: absolute; bottom: 5px; left: 70px">
+                        <r2 style="color: gold;">{{ player_rank }}</r2>
+                        {% if api_stats["flag"] %}
+                            <img src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
+                        {% endif %}
+                    </div>
                 </div>
                     <button class="btn btn-secondary" id="refresh-btn" {% if refresh_in_progress %}disabled{% endif %}>
                         {% if refresh_in_progress %}

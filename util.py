@@ -89,6 +89,18 @@ def plus_prefix(a):
         b = str(a)
     return b
 
+def get_avatar_border(stacks):
+    if stacks >= 40:
+        return f"static/ruby_64.png"
+    elif stacks >= 20:
+        return f"static/platinum_64.png"
+    elif stacks >= 10:
+        return f"static/gold_64.png"
+    elif stacks >= 3:
+        return f"static/silver_64.png"
+    else:
+        return ""
+
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if specific_tier and pickrate < 15:
         pickrate = pickrate * 1.5
