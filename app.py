@@ -406,14 +406,29 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = api_profile["_id"]
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
-        api_stats = legion_api.getstats(playerid)
-        try:
-            _ = api_stats["rankedWinsThisSeason"]
-            _ = api_stats["rankedLossesThisSeason"]
-            _ = api_stats["overallElo"]
-            _ = api_stats["overallPeakEloThisSeason"]
-        except KeyError:
-            return render_template("no_data.html", text=f"{playername} not found.")
+        player_rank = ""
+        api_stats = {}
+        with open("leaderboard.json", "r") as f:
+            leaderboard_data = json.load(f)
+            f.close()
+        for i, player in enumerate(leaderboard_data["Leaderboard"]):
+            if player["DisplayName"] == api_profile["playerName"]:
+                player_rank = f"Rank #{i+1}"
+                for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
+                    try:
+                        api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
+                    except Exception:
+                        api_stats[stat_key] = 0
+                break
+        else:
+            api_stats = legion_api.getstats(playerid)
+            try:
+                _ = api_stats["rankedWinsThisSeason"]
+                _ = api_stats["rankedLossesThisSeason"]
+                _ = api_stats["overallElo"]
+                _ = api_stats["overallPeakEloThisSeason"]
+            except KeyError:
+                return render_template("no_data.html", text=f"{playername} not found.")
         stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
@@ -556,14 +571,6 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
-        player_rank = ""
-        with open("leaderboard.json", "r") as f:
-            leaderboard_data = json.load(f)
-            f.close()
-        for i, player in enumerate(leaderboard_data["Leaderboard"]):
-            if player["DisplayName"] == api_profile["playerName"]:
-                player_rank = f"Rank #{i+1}"
-                break
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
