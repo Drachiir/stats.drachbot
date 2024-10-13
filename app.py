@@ -406,29 +406,28 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = api_profile["_id"]
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
+        #Get player rank
         player_rank = ""
-        api_stats = {}
         with open("leaderboard.json", "r") as f:
             leaderboard_data = json.load(f)
             f.close()
         for i, player in enumerate(leaderboard_data["Leaderboard"]):
             if player["DisplayName"] == api_profile["playerName"]:
                 player_rank = f"Rank #{i+1}"
-                for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
-                    try:
-                        api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
-                    except Exception:
-                        api_stats[stat_key] = 0
+                # for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
+                #     try:
+                #         api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
+                #     except Exception:
+                #         api_stats[stat_key] = 0
                 break
-        else:
-            api_stats = legion_api.getstats(playerid)
-            try:
-                _ = api_stats["rankedWinsThisSeason"]
-                _ = api_stats["rankedLossesThisSeason"]
-                _ = api_stats["overallElo"]
-                _ = api_stats["overallPeakEloThisSeason"]
-            except KeyError:
-                return render_template("no_data.html", text=f"{playername} not found.")
+        api_stats = legion_api.getstats(playerid)
+        try:
+            _ = api_stats["rankedWinsThisSeason"]
+            _ = api_stats["rankedLossesThisSeason"]
+            _ = api_stats["overallElo"]
+            _ = api_stats["overallPeakEloThisSeason"]
+        except KeyError:
+            return render_template("no_data.html", text=f"{playername} not found.")
         stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
@@ -458,12 +457,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
-            if api_stats["overallElo"] >= 2000:
-                skip_stats = True
-            else:
-                skip_stats = False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  stats=api_stats, profile=api_profile, pname=playername, skip_stats=skip_stats)
+                                                  stats=api_stats, profile=api_profile, pname=playername)
             with open(path, "w") as f:
                 json.dump(history, f, default=str)
         history_parsed = []
