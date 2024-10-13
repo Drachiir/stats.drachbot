@@ -78,10 +78,15 @@
           rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
 </head>
-<body style="background-color: #171717;
-        opacity: 1;
-        background-size: 15px 15px;
-        background-image: repeating-linear-gradient(45deg, #0c2330 0, #102230 1px, #1c1c1c 0, #1e1e1e 50%)">
+<body style="
+    background-color: #171717;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-image:
+        radial-gradient(circle, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.9) 100%),
+        url('/static/earthking.jpg');
+">
 <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-35 border-bottom" style="text-wrap: nowrap">
     <a style="margin-left: 1vw;" href="/" class="navbar-brand">
         <img src="/static/drachia_still.png" alt="Logo" width="32" height="32" class="d-inline-block align-text-top">stats.drachbot</a>

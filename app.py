@@ -460,6 +460,12 @@ def profile(playername, stats, patch, elo, specific_key):
             avatar_stacks = int(player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[5].replace("@x.x", "").split("+")[1])
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
             api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
+            with open("static/countries.json", "r") as f:
+                countries = json.load(f)
+            if type(countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]) == list:
+                api_stats["Country"] = countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]][0]
+            else:
+                api_stats["Country"] = countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]
             player_rank = f"Rank #{player["Position"]+1}"
         else:
             api_stats = legion_api.getstats(playerid)

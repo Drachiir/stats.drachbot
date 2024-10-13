@@ -131,7 +131,7 @@
                     <div style="position: absolute; bottom: 5px; left: 70px">
                         <r2 style="color: gold;">{{ player_rank }}</r2>
                         {% if api_stats["flag"] %}
-                            <img src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
+                            <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
                         {% endif %}
                     </div>
                 </div>
