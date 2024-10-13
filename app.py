@@ -950,7 +950,7 @@ if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve
-    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=300)
+    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=180)
     scheduler.start()
     for file in os.listdir("Files/player_cache"):
         os.remove(f"Files/player_cache/{file}")
