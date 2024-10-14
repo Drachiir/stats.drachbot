@@ -118,7 +118,7 @@
 
             // Convert country code to country name using the local mapping
             const countryName = countryMapping[countryCode];
-            const countryNameLower = (typeof countryName === 'string') ? countryName.toLowerCase() : '';
+            const countryNameLower = (typeof countryName === 'string') ? countryName.toLowerCase() : countryName[0].toLowerCase();
 
             // Check if the search input matches the player name, guild tag, or country name
             if (playerName.includes(searchInput) || guildTag.includes(searchInput) || countryNameLower.includes(searchInput)) {
