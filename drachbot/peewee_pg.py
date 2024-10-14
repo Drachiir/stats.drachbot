@@ -42,7 +42,7 @@ class BaseModel(Model):
 class PlayerProfile(BaseModel):
     id = AutoField()
     player_id = TextField(unique=True)
-    player_name = TextField(unique=True)
+    player_name = TextField()
     total_games_played = IntegerField()
     ranked_wins_current_season = IntegerField()
     ranked_losses_current_season = IntegerField()
