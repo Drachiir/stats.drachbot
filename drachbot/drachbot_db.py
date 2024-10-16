@@ -1,4 +1,6 @@
 from pathlib import Path
+
+import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
 from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData
@@ -152,16 +154,19 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     games_played = playerstats["gamesPlayed"]
                 except KeyError:
                     games_played = 0
-                PlayerProfile(
-                    player_id=playerid,
-                    player_name=playerprofile["playerName"],
-                    total_games_played=games_played,
-                    ranked_wins_current_season=wins,
-                    ranked_losses_current_season=losses,
-                    ladder_points=ladder_points,
-                    offset=offset,
-                    last_updated=datetime.now(tz=timezone.utc)
-                ).save()
+                try:
+                    PlayerProfile(
+                        player_id=playerid,
+                        player_name=playerprofile["playerName"],
+                        total_games_played=games_played,
+                        ranked_wins_current_season=wins,
+                        ranked_losses_current_season=losses,
+                        ladder_points=ladder_points,
+                        offset=offset,
+                        last_updated=datetime.now(tz=timezone.utc)
+                    ).save()
+                except peewee.IntegrityError:
+                    pass
                 data = get_games_loop(playerid, 0, 100)
             else:
                 new_profile = False

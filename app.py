@@ -449,7 +449,11 @@ def profile(playername, stats, patch, elo, specific_key):
         cooldown_duration = get_remaining_cooldown(playerid)
         #Get player stats
         api_stats = {}
-        playfab_stats = get_playfab_stats(playerid)
+        playfab_stats = None
+        try:
+            playfab_stats = get_playfab_stats(playerid)
+        except Exception:
+            pass
         if playfab_stats:
             player = playfab_stats["Leaderboard"][0]
             for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
