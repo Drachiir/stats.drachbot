@@ -177,7 +177,7 @@
         try {
             const response = await fetch('/api/livegames'); // Fetch the live games data from the API
             gamesData = await response.json(); // Store the games data globally
-
+            gamesData = gamesData.slice(0, 21);
             // Sort games by ELO (highest to lowest)
             gamesData = gamesData.sort((a, b) => b[1] - a[1]);
 

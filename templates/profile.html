@@ -115,6 +115,9 @@
     .clickableDiv:hover{
         background-color: #333333 !important;
     }
+    .highlight {
+        background-color: #0796fb !important; /* Green background for the button */
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -135,46 +138,64 @@
                         {% endif %}
                     </div>
                 </div>
-                    <button class="btn btn-secondary" id="refresh-btn" {% if refresh_in_progress %}disabled{% endif %}>
-                        {% if refresh_in_progress %}
-                            Refreshing...
-                        {% else %}
-                            Refresh
-                        {% endif %}
-                    </button>
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                  <r><b>Stats Pages</b></r>
-                </button>
-                <ul class="dropdown-menu bg-black">
-                    {% for stat in stats_list %}
-                        <li class="dropdown-item">
-                            <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
-                            <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
-                            <r2>{{ stat.capitalize() }}</r2><br></a>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <div class="dropdown" style="padding-top: 4px">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Patches
-                    </button>
-                    <ul class="dropdown-menu bg-black" style="padding: 5px;" id="patchDropdown">
-                        <form id="patchForm">
-                            <li class="dropdown-item" id="patch-checkbox">
-                                <input type="checkbox" class="patch-checkbox" value="11">
-                                 <label>v11.**</label>
-                            </li>
-                            {% for p in patch_list %}
-                                <li class="dropdown-item" id="patch-checkbox">
-                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
-                                     <label>v{{ p }}</label>
+                <div>
+                    <div>
+                        <button class="btn btn-secondary" id="refresh-btn" {% if refresh_in_progress %}disabled{% endif %}>
+                            {% if refresh_in_progress %}
+                                Refreshing...
+                            {% else %}
+                                Refresh
+                            {% endif %}
+                        </button>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <r><b>Stats Pages</b></r>
+                        </button>
+                        <ul class="dropdown-menu bg-black">
+                            {% for stat in stats_list %}
+                                <li class="dropdown-item">
+                                    <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
+                                    <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
+                                    <r2>{{ stat.capitalize() }}</r2><br></a>
                                 </li>
                             {% endfor %}
-                        </form>
-                        <li class="dropdown-item text-center">
-                            <button class="btn btn-primary w-75" id="redirectButton">Go</button>
-                        </li>
-                    </ul>
+                        </ul>
+                    </div>
+                    <div class="dropdown" style="padding-top: 4px">
+                        <button class="btn btn-secondary" id="check-livegame-btn" disabled>Live Game</button>
+                        <div class="modal fade" id="liveGameModal" tabindex="-1" aria-labelledby="liveGameModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="liveGameModalLabel">Live Match Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" id="liveGameDetails">
+                                        <!-- Game details will be inserted here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Patches
+                        </button>
+                        <ul class="dropdown-menu bg-black" style="padding: 5px;" id="patchDropdown">
+                            <form id="patchForm">
+                                <li class="dropdown-item" id="patch-checkbox">
+                                    <input type="checkbox" class="patch-checkbox" value="11">
+                                     <label>v11.**</label>
+                                </li>
+                                {% for p in patch_list %}
+                                    <li class="dropdown-item" id="patch-checkbox">
+                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                         <label>v{{ p }}</label>
+                                    </li>
+                                {% endfor %}
+                            </form>
+                            <li class="dropdown-item text-center">
+                                <button class="btn btn-primary w-75" id="redirectButton">Go</button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="profile-div">
@@ -323,38 +344,133 @@
     const rankImagesCache = {};
 
     $(document).ready(function () {
-        var playerid = "{{ playerid }}";
-        var refreshBtn = $('#refresh-btn');
-        checkRefreshStatus(playerid, true);
-        // Handle button click
-        refreshBtn.click(function () {
-            refreshBtn.prop('disabled', true).text('Refreshing...');
+        const playerName = "{{ api_profile['playerName'] }}";  // Get the player's name dynamically
 
-            // Make AJAX request to start refresh process
-            $.get('/api/request_games/' + playerid, function (data) {
-                // Request successful, now wait for the process to finish
-                checkRefreshStatus(playerid, false);
-            }).fail(function () {
-                alert('Already refreshed recently, try again later!');
-                refreshBtn.prop('disabled', false).text('Refresh');
-            });
-        });
+        // Function to format the duration (rounded to minutes and seconds)
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);  // Rounded to nearest second
+            return `${minutes}m ${remainingSeconds}s`;
+        }
 
-        // Polling function to check refresh status periodically
-        function checkRefreshStatus(playerid, initial) {
-            $.get('/api/check_refresh_status/' + playerid, function (data) {
-                if (!data.in_progress && data.cooldown > 0 && !initial) {
-                    window.location.reload();
-                } else if (data.in_progress) {
-                    refreshBtn.prop('disabled', true).text('Refreshing...');
-                    // Keep polling until the process finishes
-                    setTimeout(function () {
-                        checkRefreshStatus(playerid, false);
-                    }, 3000);  // Poll every 3 seconds
+        // Function to check if the player is in a game
+        function checkLiveGameStatus() {
+            $.get(`/api/livegames/${playerName}`, function (data) {
+                if (data.length > 0) {
+                    let button = $('#check-livegame-btn');
+                    button.addClass('highlight');
+                    button.prop("disabled", false);
                 }
+            }).fail(function () {
+                console.error('Failed to retrieve live game status.');
             });
         }
+
+        // Check on page load
+        checkLiveGameStatus();
+
+        // Function to update the game duration in real-time
+        function updateGameDuration(startTime, element) {
+            setInterval(function () {
+                const currentTime = Math.floor(Date.now() / 1000);  // Get current time in seconds
+                const gameDurationInSeconds = currentTime - startTime;  // Duration in seconds
+                const formattedDuration = formatDuration(gameDurationInSeconds);  // Format duration
+                $(element).text(formattedDuration);  // Update the element's text with new duration
+            }, 1000);  // Update every second
+        }
+
+        // Handle live game check button click
+        $('#check-livegame-btn').click(function () {
+            $.get(`/api/livegames/${playerName}`, function (data) {
+                if (data.length > 0) {
+                    // Game start time and details
+                    const gameStartTime = data[0];  // Game start time (in seconds)
+                    let gameElo = data[1];
+                    let westPlayers = data[2]; // Team 1
+                    let eastPlayers = data[3]; // Team 2
+
+                    // Build the game details HTML
+                    const gameHTML = `
+                        <div class="game-card card bg-dark text-white mb-3">
+                            <div class="card-body">
+                                <div class="game-header mb-3">
+                                    <div style="display: flex; justify-content: space-between">
+                                            <div>
+                                                Game Elo: ${gameElo}
+                                            </div>
+                                            <div>
+                                                Game Time: <span id="game-duration">${formatDuration(0)}</span>
+                                            </div>
+                                    </div>
+                                </div>
+
+                                <div class="players-container d-flex justify-content-between">
+                                    <div class="team west-team text-center">
+                                        ${westPlayers.map(player => `
+                                            <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                                <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
+                                                <span>${player[0]}</span>
+                                            </a>
+                                        `).join('')}
+                                    </div>
+
+                                    <div class="team east-team text-center">
+                                        ${eastPlayers.map(player => `
+                                            <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                                <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
+                                                <span>${player[0]}</span>
+                                            </a>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    // Insert the HTML into the modal body and show the modal
+                    $('#liveGameDetails').html(gameHTML);
+                    $('#liveGameModal').modal('show');
+
+                    // Start real-time update for game duration
+                    updateGameDuration(gameStartTime, '#game-duration');
+                } else {
+                    alert('The player is not currently in a game.');
+                }
+            }).fail(function () {
+                alert('Failed to retrieve live game status.');
+            });
+        });
     });
+
+    function getRankUrl(elo) {
+        if (typeof elo !== 'number') {
+            elo = parseInt(elo, 10);
+            if (isNaN(elo)) return null;
+        }
+
+        if (elo >= 2800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png';
+        } else if (elo >= 2600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png';
+        } else if (elo >= 2400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png';
+        } else if (elo >= 2200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png';
+        } else if (elo >= 2000) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png';
+        } else if (elo >= 1800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png';
+        } else if (elo >= 1600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png';
+        } else if (elo >= 1400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png';
+        } else if (elo >= 1200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png';
+        } else {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
+        }
+    }
+
 
     function preloadRankImages(callback) {
         const rankThresholds = [

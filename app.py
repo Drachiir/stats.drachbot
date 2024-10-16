@@ -245,8 +245,9 @@ def rank_distribution():
         leaderboard_data = json.load(f)
     return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate)
 
-@app.route("/api/livegames")
-def livegames_api():
+@app.route("/api/livegames/", defaults={"playername": None})
+@app.route("/api/livegames/<playername>")
+def livegames_api(playername):
     games = []
     for game in os.listdir(shared_folder_live):
         try:
@@ -260,8 +261,11 @@ def livegames_api():
         game_elo = txt[-1]
         west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
         east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
-        games.append([mod_date, game_elo, west_players, east_players])
-    games = sorted(games, key=lambda x: int(x[1]), reverse=True)[:21]
+        if not playername:
+            games.append([mod_date, game_elo, west_players, east_players])
+        elif any(playername in sublist for sublist in west_players) or any(playername in sublist for sublist in east_players):
+            return [mod_date, game_elo, west_players, east_players]
+    games = sorted(games, key=lambda x: int(x[1]), reverse=True)
     return games
 
 @app.route("/api/drachbot_reroll_overlay/<rank>/<roll>")
