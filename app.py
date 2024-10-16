@@ -483,6 +483,10 @@ def profile(playername, stats, patch, elo, specific_key):
             _ = api_stats["overallPeakEloThisSeason"]
         except KeyError:
             return render_template("no_data.html", text=f"{playername} not found.")
+        if not api_stats["rankedWinsThisSeason"]:
+            api_stats["rankedWinsThisSeason"] = 0
+        if not api_stats["rankedLossesThisSeason"]:
+            api_stats["rankedLossesThisSeason"] = 0
         stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
