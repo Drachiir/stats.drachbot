@@ -353,7 +353,7 @@ player_refresh_state = {}
 COOLDOWN_PERIOD = 600
 
 def request_games(playerid):
-    drachbot_db.get_games_loop(playerid, 0, 500, timeout_limit=5)
+    drachbot_db.get_games_loop(playerid, 0, 500, timeout_limit=12)
     player_refresh_state[playerid]['in_progress'] = False
     player_refresh_state[playerid]['cooldown_start_time'] = datetime.now(tz=timezone.utc)
 
