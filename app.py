@@ -669,10 +669,18 @@ def profile(playername, stats, patch, elo, specific_key):
         if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
             return render_template("no_data.html", text="No Data")
         raw_data = None
-        api_profile = legion_api.getprofile(playername)
-        playerid = api_profile["_id"]
-        if playerid in [0, 1]:
-            return render_template("no_data.html", text=f"{playername} not found.")
+        if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
+            playerid = playername
+            api_profile = legion_api.getprofile(playerid, by_id=True)
+        else:
+            api_profile = legion_api.getprofile(playername)
+            if api_profile in [0, 1]:
+                api_profile = {}
+                playerid = drachbot_db.get_playerid(playername)
+                if not playerid:
+                    return render_template("no_data.html", text=f"{playername} not found.")
+            else:
+                playerid = api_profile["_id"]
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
         path = f"Files/player_cache/{playername2}_{patch}_{elo}.json"
