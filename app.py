@@ -465,9 +465,15 @@ def profile(playername, stats, patch, elo, specific_key):
                     api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
                 except Exception:
                     api_stats[stat_key] = 0
-            avatar_stacks = int(player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[5].replace("@x.x", "").split("+")[1])
+            try:
+                avatar_stacks = int(player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[5].replace("@x.x", "").split("+")[1])
+            except Exception:
+                avatar_stacks = 0
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
-            api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
+            try:
+                api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
+            except Exception:
+                api_stats["flag"] = ""
             with open("static/countries.json", "r") as f:
                 countries = json.load(f)
             if type(countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]) == list:
