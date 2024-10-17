@@ -153,7 +153,7 @@
                         <ul class="dropdown-menu bg-black">
                             {% for stat in stats_list %}
                                 <li class="dropdown-item">
-                                    <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}">
+                                    <a style="color: white; text-decoration: none;" href="/profile/{{ playername }}/{{ stat }}/{{ patch }}">
                                     <img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}">
                                     <r2>{{ stat.capitalize() }}</r2><br></a>
                                 </li>
