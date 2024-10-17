@@ -447,8 +447,12 @@ def profile(playername, stats, patch, elo, specific_key):
         else:
             api_profile = legion_api.getprofile(playername)
             if api_profile in [0, 1]:
-                return render_template("no_data.html", text=f"{playername} not found.")
-            playerid = api_profile["_id"]
+                api_profile = {}
+                playerid = drachbot_db.get_playerid(playername)
+                if not playerid:
+                    return render_template("no_data.html", text=f"{playername} not found.")
+            else:
+                playerid = api_profile["_id"]
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
         #Get player stats
@@ -460,6 +464,12 @@ def profile(playername, stats, patch, elo, specific_key):
             pass
         if playfab_stats:
             player = playfab_stats["Leaderboard"][0]
+            try:
+                api_profile["playerName"] = player["DisplayName"]
+                api_profile["avatarUrl"] = player["Profile"]["AvatarUrl"]
+                api_profile["guildTag"] = player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1]
+            except Exception:
+                pass
             for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
                 try:
                     api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
