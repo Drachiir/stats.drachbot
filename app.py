@@ -289,15 +289,12 @@ def drachbot_overlay_api(playername):
     if playername == "TestData123":
         with open("exampledata.json", "r") as f:
             return json.load(f)
-    if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
-        playerid = playername
-    else:
-        playerid = drachbot_db.get_playerid(playername)
-        if not playerid:
-            api_profile = legion_api.getprofile(playername)
-            if api_profile in [0, 1]:
-                return {"Error": "Player not found"}
-            playerid = api_profile["_id"]
+    playerid = drachbot_db.get_playerid(playername)
+    if not playerid:
+        api_profile = legion_api.getprofile(playername)
+        if api_profile in [0, 1]:
+            return {"Error": "Player not found"}
+        playerid = api_profile["_id"]
     req_columns = [
         [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
          PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.player_elo, PlayerData.game_result, PlayerData.elo_change,
@@ -444,6 +441,9 @@ def profile(playername, stats, patch, elo, specific_key):
         if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
             api_profile = legion_api.getprofile(playerid, by_id=True)
+            if api_profile in [0, 1]:
+                api_profile = legion_api.getprofile(playername)
+                playerid = api_profile["_id"]
         else:
             api_profile = legion_api.getprofile(playername)
             if api_profile in [0, 1]:
@@ -672,6 +672,9 @@ def profile(playername, stats, patch, elo, specific_key):
         if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
             api_profile = legion_api.getprofile(playerid, by_id=True)
+            if api_profile in [0, 1]:
+                api_profile = legion_api.getprofile(playername)
+                playerid = api_profile["_id"]
         else:
             api_profile = legion_api.getprofile(playername)
             if api_profile in [0, 1]:
