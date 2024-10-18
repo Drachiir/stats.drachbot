@@ -6,6 +6,7 @@
     <div style="display: flex; justify-content: center; white-space: nowrap; flex-wrap: wrap">
         <div>
             <h1 style="font-size: 22px">Rank Distribution 2024</h1>
+            <r2 style="font-size: 0.8rem">Snapshot taken 1st Oct 2024</r2><br>
             <r2>Total players: <span id="totalPlayersCount"></span></r2>  <!-- Updated this line -->
         </div>
         <div style="display: flex; width: 80%; gap: 10px; justify-content: center; flex-wrap: wrap">
@@ -26,7 +27,7 @@
         </div>
     </div>
     <!-- Canvas for the bar chart -->
-    <canvas id="rankDistributionChart" width="400" height="200"></canvas>
+    <canvas id="rankDistributionChart" style="background-color: rgba(19,19,19,0.8);"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -203,7 +204,21 @@
                         ticks: {
                             callback: function(value) {
                                 return value + '%';  // Show percentage on Y axis
-                            }
+                            },
+                            color: 'rgb(181,181,181)'  // Lighter tick labels
+                        },
+                        grid: {
+                            color: 'rgba(60,60,60,0.3)',  // Lighter color for grid lines
+                            borderColor: 'rgba(129,129,129,0.3)',  // Border color around the chart
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgb(181,181,181)'  // Lighter tick labels
+                        },
+                        grid: {
+                            color: 'rgba(60,60,60,0.3)',  // Lighter color for grid lines
+                            borderColor: 'rgba(129,129,129,0.3)',  // Border color around the chart
                         }
                     }
                 },
@@ -229,6 +244,15 @@
                 }
             },
             plugins: [{
+                id: 'customBackground',
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(19,19,19,0.8)';  // Dark gray background
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            }, {
                 id: 'customIcons',
                 afterDatasetsDraw(chart) {
                     const ctx = chart.ctx;
@@ -239,8 +263,8 @@
                         const bracket = labels[index];
                         const img = getRankImage(bracket);
                         if (img) {
-                            const x = dataPoint.x - 12;  // Center image above the bar
-                            const y = dataPoint.y - 30;  // Slightly above the bar
+                            const x = dataPoint.x - 10;  // Center image above the bar
+                            const y = dataPoint.y - 25;  // Slightly above the bar
                             ctx.drawImage(img, x, y, 20, 20);
                         }
                     });
