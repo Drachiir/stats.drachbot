@@ -52,9 +52,9 @@ wave_names= [
     "LegionLord"
 ]
 
-tier_dict_specific = {"mmstats": [68,62,59,55,0.7], "openstats": [53,40,30,20,0.2],
+tier_dict_specific = {"mmstats": [64,60,59,55,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [55,50,45,40,0.1], "megamindstats": [52,51,50,48,0]}
+                     "rollstats": [70,65,60,55,0.7], "megamindstats": [52,51,50,48,0]}
 
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
