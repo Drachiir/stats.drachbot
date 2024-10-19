@@ -161,7 +161,7 @@
                         </ul>
                     </div>
                     <div class="dropdown" style="padding-top: 4px">
-                        <button class="btn btn-secondary" id="check-livegame-btn" disabled>Live Game</button>
+                        <button class="btn btn-secondary" id="check-livegame-btn">Live Game</button>
                         <div class="modal fade" id="liveGameModal" tabindex="-1" aria-labelledby="liveGameModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
@@ -393,7 +393,6 @@
                 if (data.length > 0) {
                     let button = $('#check-livegame-btn');
                     button.addClass('highlight');
-                    button.prop("disabled", false);
                 }
             }).fail(function () {
                 console.error('Failed to retrieve live game status.');
