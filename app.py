@@ -132,6 +132,16 @@ def robots():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'robots.txt', mimetype='text/plain')
 
+@app.route('/terms-of-service.txt')
+def tos():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'terms-of-service.txt', mimetype='text/plain')
+
+@app.route('/privacy-policy.txt')
+def privacy_policy():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'privacy-policy.txt', mimetype='text/plain')
+
 @app.route('/sitemap.xml')
 def sitemap():
     return send_from_directory(os.path.join(app.root_path, 'static'),
@@ -458,10 +468,14 @@ def profile(playername, stats, patch, elo, specific_key):
         #Get player stats
         api_stats = {}
         playfab_stats = None
-        try:
-            playfab_stats = get_playfab_stats(playerid)
-        except Exception:
-            pass
+        max_retries = 3
+        attempt = 0
+        while not playfab_stats and attempt < max_retries:
+            try:
+                playfab_stats = get_playfab_stats(playerid)
+            except Exception:
+                pass
+            attempt += 1
         if playfab_stats:
             player = playfab_stats["Leaderboard"][0]
             try:
