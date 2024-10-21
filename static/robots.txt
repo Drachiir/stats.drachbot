@@ -1,6 +1,5 @@
 User-agent: *
 Disallow: /profile/*
-Allow: /profile/$
 
 Disallow: /mmstats/*
 Allow: /mmstats/$
