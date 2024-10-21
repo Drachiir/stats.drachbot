@@ -132,12 +132,12 @@ def robots():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'robots.txt', mimetype='text/plain')
 
-@app.route('/terms-of-service.txt')
+@app.route('/terms-of-service.txt/')
 def tos():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'terms-of-service.txt', mimetype='text/plain')
 
-@app.route('/privacy-policy.txt')
+@app.route('/privacy-policy.txt/')
 def privacy_policy():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'privacy-policy.txt', mimetype='text/plain')
