@@ -18,7 +18,7 @@
         url('/static/earthking.jpg');">
     <div>
         <div style="padding-left: 80px"><div id="loading"></div></div>
-        <div style="color: white; padding-top: 20px"><r>Loading Data... This may take up to a minute</r></div>
+        <div style="color: white; padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
     </div>
     <script> window.location.replace("{{ url|safe }}"); </script>
     <script src="/static/script.js"></script>

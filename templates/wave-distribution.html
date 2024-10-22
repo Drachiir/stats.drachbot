@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding-top: 40px">
+    <!-- Title and description -->
+    <div style="display: flex; justify-content: space-between; white-space: nowrap; flex-wrap: wrap">
+        <div>
+            <h1 style="font-size: 22px">Ending Wave Distribution</h1>
+            <r2>Games: {{ games }} | Patch: {{ patch }} | Avg Elo: <span><img style="width: 24px; height: auto" src="{{ get_rank_url(avg_elo) }}"></span>{{ avg_elo }}+</r2><br>
+        </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+                Patch
+            </button>
+            <ul class="dropdown-menu">
+                {% for p in patch_list %}
+                    <li><a class="dropdown-item" href="/wave-distribution/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                {% endfor %}
+            </ul>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Elo
+                </button>
+                <ul class="dropdown-menu">
+                    {% for i in elos %}
+                        <li><a class="dropdown-item" href="/wave-distribution/{{ patch }}/{{ i }}">
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
+                    {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <!-- Canvas for the bar chart -->
+    <canvas id="waveDistributionChart" style="background-color: rgba(19,19,19,0.8);"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const waveData = {{ wave_data | tojson }};  // Assuming wave_data is passed in Jinja context
+    const totalGames = {{ games }};  // Total number of games provided by server
+    const waveIconsCache = {};  // To store preloaded icons
+
+    // Placeholder icons for each wave and bar colors
+    const waveIcons = {
+        wave1: { icon: `https://cdn.legiontd2.com/icons/Crab.png`, color: 'rgb(30, 225, 225)' },  // More vibrant cyan
+        wave2: { icon: `https://cdn.legiontd2.com/icons/Wale.png`, color: 'rgb(90, 165, 255)' },  // Brighter blue
+        wave3: { icon: `https://cdn.legiontd2.com/icons/Hopper.png`, color: 'rgb(50, 110, 220)' },  // Richer blue
+        wave4: { icon: `https://cdn.legiontd2.com/icons/FlyingChicken.png`, color: 'rgb(255, 240, 10)' },  // Bright yellow
+        wave5: { icon: `https://cdn.legiontd2.com/icons/Scorpion.png`, color: 'rgb(85, 45, 85)' },  // Deep purple
+        wave6: { icon: `https://cdn.legiontd2.com/icons/Rocko.png`, color: 'rgb(230, 120, 50)' },  // Bold orange
+        wave7: { icon: `https://cdn.legiontd2.com/icons/Sludge.png`, color: 'rgb(20, 180, 80)' },  // Vivid green
+        wave8: { icon: `https://cdn.legiontd2.com/icons/Kobra.png`, color: 'rgb(210, 120, 60)' },  // Strong burnt orange
+        wave9: { icon: `https://cdn.legiontd2.com/icons/Carapace.png`, color: 'rgb(105, 110, 220)' },  // Bright lavender
+        wave10: { icon: `https://cdn.legiontd2.com/icons/Granddaddy.png`, color: 'rgb(230, 40, 90)' },  // Bright magenta
+        wave11: { icon: `https://cdn.legiontd2.com/icons/QuillShooter.png`, color: 'rgb(200, 120, 65)' },  // Vibrant orange-brown
+        wave12: { icon: `https://cdn.legiontd2.com/icons/Mantis.png`, color: 'rgb(175, 200, 60)' },  // Bright lime green
+        wave13: { icon: `https://cdn.legiontd2.com/icons/DrillGolem.png`, color: 'rgb(255, 135, 55)' },  // Bright orange
+        wave14: { icon: `https://cdn.legiontd2.com/icons/KillerSlug.png`, color: 'rgb(128,70,114)' },  // Rich plum
+        wave15: { icon: `https://cdn.legiontd2.com/icons/Quadrapus.png`, color: 'rgb(84,71,207)' },  // Bold deep blue
+        wave16: { icon: `https://cdn.legiontd2.com/icons/Cardinal.png`, color: 'rgb(136,200,64)' },  // Bright olive green
+        wave17: { icon: `https://cdn.legiontd2.com/icons/MetalDragon.png`, color: 'rgb(224,184,57)' },  // Deep metallic blue
+        wave18: { icon: `https://cdn.legiontd2.com/icons/WaleChief.png`, color: 'rgb(73,200,173)' },  // Bright forest green
+        wave19: { icon: `https://cdn.legiontd2.com/icons/DireToad.png`, color: 'rgb(225, 85, 110)' },  // Vivid red-pink
+        wave20: { icon: `https://cdn.legiontd2.com/icons/Maccabeus.png`, color: 'rgb(190, 130, 110)' },  // Warm terracotta
+        wave21: { icon: `https://cdn.legiontd2.com/icons/LegionLord.png`, color: 'rgb(255, 100, 50)' }  // Bright orange-red
+    };
+
+
+    function preloadWaveIcons(callback) {
+        let loadedIconsCount = 0;
+        const totalIcons = Object.keys(waveIcons).length;
+
+        Object.keys(waveIcons).forEach(wave => {
+            const img = new Image();
+            img.src = waveIcons[wave].icon;
+            img.onload = function() {
+                waveIconsCache[wave] = img;
+                loadedIconsCount++;
+                if (loadedIconsCount === totalIcons) {
+                    callback();
+                }
+            };
+            img.onerror = function() {
+                console.error('Failed to load icon:', waveIcons[wave].icon);
+            };
+        });
+    }
+
+    preloadWaveIcons(function() {
+        const ctx = document.getElementById('waveDistributionChart').getContext('2d');
+
+        // Extract wave labels and calculate ending percentages for each wave
+        const waves = Object.keys(waveIcons)
+            .sort((a, b) => parseInt(a.replace('wave', '')) - parseInt(b.replace('wave', '')));  // Sort waves numerically
+
+        const labels = waves.map(wave => wave.replace('wave', 'Wave '));
+        const values = waves.map(wave => (waveData[wave].EndCount / totalGames * 100).toFixed(2));  // Calculate % ending rate
+
+        const barColors = waves.map(wave => waveIcons[wave].color);  // Use the color from waveIcons
+
+        // Chart.js configuration
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ending Rate (%)',
+                    data: values,
+                    backgroundColor: barColors,  // Use dynamic bar colors from waveIcons
+                    borderColor: 'rgba(0,0,0,0.1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                layout: {
+                    padding: {
+                        top: 30,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';  // Show percentage on Y axis
+                            },
+                            color: 'rgb(181,181,181)'  // Lighter tick labels
+                        },
+                        grid: {
+                            color: 'rgba(60,60,60,0.3)',  // Lighter color for grid lines
+                            borderColor: 'rgba(129,129,129,0.3)',  // Border color around the chart
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: 'rgb(181,181,181)'  // Lighter tick labels
+                        },
+                        grid: {
+                            color: 'rgba(60,60,60,0.3)',  // Lighter color for grid lines
+                            borderColor: 'rgba(129,129,129,0.3)',  // Border color around the chart
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                const waveLabel = context.label;
+                                const endPercentage = context.raw;
+                                const endCount = waveData[`wave${labels.indexOf(waveLabel) + 1}`].EndCount;
+                                return [`End Count: ${endCount}`, `End Rate: ${endPercentage}%`];
+                            }
+                        }
+                    }
+                },
+                hover: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            plugins: [{
+                id: 'customBackground',
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.fillStyle = 'rgba(19,19,19,0.8)';  // Dark gray background
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            }, {
+                id: 'customIcons',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    const meta = chart.getDatasetMeta(0);
+                    const dataPoints = meta.data;
+
+                    dataPoints.forEach((dataPoint, index) => {
+                        const wave = `wave${index + 1}`;
+                        const img = waveIconsCache[wave];
+
+                        if (img) {
+                            const barWidth = dataPoint.width;  // Get the width of the current bar
+                            const iconSize = Math.min(barWidth * 0.8, 40);  // Scale icon based on bar width, max 40px
+                            const x = dataPoint.x - iconSize / 2;  // Center image horizontally
+                            const y = dataPoint.y - iconSize - 5;  // Slightly above the bar
+
+                            ctx.drawImage(img, x, y, iconSize, iconSize);
+                        }
+                    });
+                }
+            }]
+        };
+
+        const waveDistributionChart = new Chart(ctx, chartConfig);
+    });
+</script>
+
+
+</div>
+{% endblock %}

@@ -212,6 +212,13 @@ function redirectToGame() {
     }
 }
 
+function redirectToRecap() {
+    const input = document.getElementById('recapInput').value;
+    if(input) {
+        window.location.href = `/recap/${input}`;
+    }
+}
+
 jQuery(document).ready(function($) {
     $(".player-row").click(function(event) {
         // Check if the click was done using the middle mouse button or with a modifier key (Ctrl or Command)
