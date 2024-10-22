@@ -476,12 +476,15 @@ def get_rank_url(elo):
     return rank_url
 
 def get_avg_end_wave(data:dict) -> str:
-    wave_total = 0
-    count = 0
-    for wave in data:
-        wave_total += int(re.findall(r'\d+', wave)[0]) * data[wave]["EndCount"]
-        count += data[wave]["EndCount"]
-    return f"{round(wave_total/count, 1)}"
+    try:
+        wave_total = 0
+        count = 0
+        for wave in data:
+            wave_total += int(re.findall(r'\d+', wave)[0]) * data[wave]["EndCount"]
+            count += data[wave]["EndCount"]
+        return f"{round(wave_total/count, 1)}"
+    except Exception:
+        return ""
 
 def count_mythium(send):
     if type(send) != type(list()):

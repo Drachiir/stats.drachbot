@@ -6,7 +6,8 @@
     <div style="display: flex; justify-content: space-between; white-space: nowrap; flex-wrap: wrap">
         <div>
             <h1 style="font-size: 22px">Ending Wave Distribution</h1>
-            <r2>Games: {{ games }} | Patch: {{ patch }} | Avg Elo: <span><img style="width: 24px; height: auto" src="{{ get_rank_url(avg_elo) }}"></span>{{ avg_elo }}</r2><br>
+            <r2>Games: <b>{{ games }}</b> | Patch: <b>{{ patch }}</b> | Avg Elo: <span><img style="width: 24px; height: auto" src="{{ get_rank_url(avg_elo) }}"></span><b>{{ avg_elo }}</b>
+            | Avg End Wave: <b>{{ get_avg_end_wave(wave_data) }}</b></r2><br>
         </div>
         <div>
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
