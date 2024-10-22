@@ -464,11 +464,14 @@ def profile(playername, stats, patch, elo, specific_key):
         referrer = request.referrer
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{new_patch}")
+        #Get player api profile
         if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
             playerid = playername
             api_profile = legion_api.getprofile(playerid, by_id=True)
             if api_profile in [0, 1]:
                 api_profile = legion_api.getprofile(playername)
+                if api_profile in [0, 1]:
+                    return render_template("no_data.html", text=f"{playername} not found.")
                 playerid = api_profile["_id"]
         else:
             api_profile = legion_api.getprofile(playername)
@@ -479,9 +482,9 @@ def profile(playername, stats, patch, elo, specific_key):
                     return render_template("no_data.html", text=f"{playername} not found.")
             else:
                 playerid = api_profile["_id"]
+        # Get player stats
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
-        #Get player stats
         api_stats = {}
         playfab_stats = None
         max_retries = 3
@@ -704,6 +707,8 @@ def profile(playername, stats, patch, elo, specific_key):
             api_profile = legion_api.getprofile(playerid, by_id=True)
             if api_profile in [0, 1]:
                 api_profile = legion_api.getprofile(playername)
+                if api_profile in [0, 1]:
+                    return render_template("no_data.html", text=f"{playername} not found.")
                 playerid = api_profile["_id"]
         else:
             api_profile = legion_api.getprofile(playername)
