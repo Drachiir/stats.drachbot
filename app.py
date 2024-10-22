@@ -109,6 +109,60 @@ def get_playfab_stats(playfabid):
     result_event.wait()
     return result
 
+def get_profile_from_playfab(playername:str):
+    PlayFabSettings.TitleId = "9092"
+    login_request = {
+        "TitleId": "9092",
+        "CustomId": "LTD2Website",
+        "CreateAccount": False
+    }
+    playfab_request = {
+        "TitleDisplayName": playername
+    }
+    
+    result_event = threading.Event()
+    result = None
+    
+    def callback(success, failure):
+        nonlocal result
+        if success:
+            result = success
+        else:
+            result = None
+        result_event.set()
+    
+    PlayFabClientAPI.LoginWithCustomID(login_request, callback)
+    result_event.wait()
+    if result is None:
+        return None
+    result_event.clear()
+    
+    PlayFabClientAPI.GetAccountInfo(playfab_request, callback)
+    result_event.wait()
+    return result
+
+
+def get_player_profile(playername):
+    playerid = playername if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername) else None
+    api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
+    if api_profile in [0, 1]:
+        playfab_profile = get_profile_from_playfab(playername)
+        if playfab_profile:
+            playerid = playfab_profile["AccountInfo"]["PlayFabId"]
+            api_profile = {"playerName": playfab_profile["AccountInfo"]["TitleInfo"]["DisplayName"],
+                           "avatarUrl": playfab_profile["AccountInfo"]["TitleInfo"]["AvatarUrl"],
+                           "guildTag": ""}
+        else:
+            playerid = drachbot_db.get_playerid(playername) if not playerid else None
+            api_profile = {"playerName": playername, "avatarUrl": "icons/DefaultAvatar.png", "guildTag": ""}
+        if not playerid:
+            return None
+    else:
+        playerid = api_profile["_id"]
+    
+    return {"playerid": playerid, "api_profile": api_profile}
+
+
 if platform.system() == "Linux":
     timeout = 600
     timeout2 = 300
@@ -464,24 +518,12 @@ def profile(playername, stats, patch, elo, specific_key):
         referrer = request.referrer
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{new_patch}")
-        #Get player api profile
-        if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
-            playerid = playername
-            api_profile = legion_api.getprofile(playerid, by_id=True)
-            if api_profile in [0, 1]:
-                api_profile = legion_api.getprofile(playername)
-                if api_profile in [0, 1]:
-                    return render_template("no_data.html", text=f"{playername} not found.")
-                playerid = api_profile["_id"]
-        else:
-            api_profile = legion_api.getprofile(playername)
-            if api_profile in [0, 1]:
-                api_profile = {}
-                playerid = drachbot_db.get_playerid(playername)
-                if not playerid:
-                    return render_template("no_data.html", text=f"{playername} not found.")
-            else:
-                playerid = api_profile["_id"]
+        #get player profile
+        result = get_player_profile(playername)
+        if not result:
+            return render_template("no_data.html", text=f"{playername} not found.")
+        playerid = result["playerid"]
+        api_profile = result["api_profile"]
         # Get player stats
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
@@ -499,10 +541,16 @@ def profile(playername, stats, patch, elo, specific_key):
             player = playfab_stats["Leaderboard"][0]
             try:
                 api_profile["playerName"] = player["DisplayName"]
+            except Exception:
+                api_profile["playerName"] = playername
+            try:
                 api_profile["avatarUrl"] = player["Profile"]["AvatarUrl"]
+            except Exception:
+                api_profile["avatarUrl"] = "icons/DefaultAvatar.png"
+            try:
                 api_profile["guildTag"] = player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1]
             except Exception:
-                pass
+                api_profile["guildTag"] = ""
             for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
                 try:
                     api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
@@ -702,23 +750,12 @@ def profile(playername, stats, patch, elo, specific_key):
         if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
             return render_template("no_data.html", text="No Data")
         raw_data = None
-        if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
-            playerid = playername
-            api_profile = legion_api.getprofile(playerid, by_id=True)
-            if api_profile in [0, 1]:
-                api_profile = legion_api.getprofile(playername)
-                if api_profile in [0, 1]:
-                    return render_template("no_data.html", text=f"{playername} not found.")
-                playerid = api_profile["_id"]
-        else:
-            api_profile = legion_api.getprofile(playername)
-            if api_profile in [0, 1]:
-                api_profile = {}
-                playerid = drachbot_db.get_playerid(playername)
-                if not playerid:
-                    return render_template("no_data.html", text=f"{playername} not found.")
-            else:
-                playerid = api_profile["_id"]
+        # get player profile
+        result = get_player_profile(playername)
+        if not result:
+            return render_template("no_data.html", text=f"{playername} not found.")
+        playerid = result["playerid"]
+        api_profile = result["api_profile"]
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
         path = f"Files/player_cache/{playername2}_{patch}_{elo}.json"
