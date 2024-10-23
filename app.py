@@ -343,7 +343,8 @@ def livegames_api(playername):
         east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
         if not playername:
             games.append([mod_date, game_elo, west_players, east_players])
-        elif any(playername in sublist for sublist in west_players) or any(playername in sublist for sublist in east_players):
+        elif (any(playername.lower() in [p.lower() for p in sublist] for sublist in west_players)
+              or any(playername.lower() in [p.lower() for p in sublist] for sublist in east_players)):
             return [mod_date, game_elo, west_players, east_players]
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)
     return games
