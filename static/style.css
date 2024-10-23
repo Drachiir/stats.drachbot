@@ -71,7 +71,7 @@ tr:hover {
 td:hover::after{
   content: "";
   position: absolute;
-  background-color: #8c8c8c;
+  background-color: #ffffff;
   left: 0;
   top: -5000px;
   height: 10000px;
@@ -82,12 +82,12 @@ table th{
     border-right: 1px solid #535353;
     border-bottom: 1px solid #535353;
     border-left: 1px solid #535353;
-    opacity: .85;
+    opacity: .87;
 	background-color: #2f2f32 !important;
 }
 table td{
     border-right: 1px solid #494949;
-	background-color: rgba(19, 19, 19, 0.93) !important;
+	background-color: rgba(19, 19, 19, 0.95) !important;
 }
 
 i::before {

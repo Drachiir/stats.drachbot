@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const headers = table.querySelectorAll("tbody th");
 
         function addHeaderClass(header) {
-            if (header.innerText.startsWith("Tier") && header.parentNode.rowIndex === 1) {
+            if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 1) {
+                header.classList.add("desc");
+            }
+            else if (header.innerText.startsWith("Tier") && header.parentNode.rowIndex === 1) {
                 header.classList.add("asc");
             }
             if (header.innerText.startsWith("Games") && header.parentNode.rowIndex === 2) {
