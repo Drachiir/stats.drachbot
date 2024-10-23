@@ -11,8 +11,9 @@ import requests
 
 def get_playerid(playername):
     profile_data_query = (PlayerProfile
-                       .select(PlayerProfile.player_name, PlayerProfile.player_id)
-                       .where(fn.LOWER(PlayerProfile.player_name) == playername.casefold())).dicts()
+                          .select(PlayerProfile.player_name, PlayerProfile.player_id)
+                          .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
+                          ).dicts()
     if profile_data_query.count() == 1:
         for row in profile_data_query:
             return row["player_id"]
