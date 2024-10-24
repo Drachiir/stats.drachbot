@@ -901,10 +901,10 @@ def profile(playername, stats, patch, elo, specific_key):
                 header_cdn = "https://cdn.legiontd2.com/icons/"
                 if specific_key == "All":
                     header_keys = ["Endrate", "Sendrate", "Avg Leak"]
-                    sub_headers = [["Best Merc", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
+                    sub_headers = [["Best Send", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
-                    sub_headers = [["Mercs", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
+                    sub_headers = [["Sends", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
                 raw_data = drachbot.wavestats.wavestats(playerid, 0, elo, patch, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
@@ -1051,10 +1051,10 @@ def stats(stats, elo, patch, specific_key):
             header_cdn = "https://cdn.legiontd2.com/icons/"
             if specific_key == "All":
                 header_keys = ["Endrate", "Sendrate", "Avg Leak"]
-                sub_headers = [["Best Merc", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
+                sub_headers = [["Best Send", "Mercs", "mercstats"], ["Best Unit", "Units", "unitstats"]]
             else:
                 header_keys = ["Games", "Winrate", "Playrate"]
-                sub_headers = [["Mercs", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
+                sub_headers = [["Sends", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
             folder = "wavestats"
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):

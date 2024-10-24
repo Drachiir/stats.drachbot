@@ -37,6 +37,21 @@ def wavestats(playerid, games, min_elo, patch, sort="date", history_raw = {}):
                             wave_dict[f"wave{i+1}"]["Mercs"][merc]["Wins"] += 1
                 elif player["kingups_sent_per_wave"][i]:
                     wave_dict[f"wave{i+1}"]["SendCount"] += 1
+                    kingups_list = player["kingups_sent_per_wave"][i].split("!")
+                    for kingup in kingups_list:
+                        if kingup not in wave_dict[f"wave{i+1}"]["Mercs"]:
+                            wave_dict[f"wave{i+1}"]["Mercs"][kingup] = {"Count": 1, "Wins": 0}
+                        else:
+                            wave_dict[f"wave{i+1}"]["Mercs"][kingup]["Count"] += 1
+                        if player["game_result"] == "won":
+                            wave_dict[f"wave{i+1}"]["Mercs"][kingup]["Wins"] += 1
+                else:
+                    if "Save" not in wave_dict[f"wave{i + 1}"]["Mercs"]:
+                        wave_dict[f"wave{i + 1}"]["Mercs"]["Save"] = {"Count": 1, "Wins": 0}
+                    else:
+                        wave_dict[f"wave{i + 1}"]["Mercs"]["Save"]["Count"] += 1
+                    if player["game_result"] == "won":
+                        wave_dict[f"wave{i + 1}"]["Mercs"]["Save"]["Wins"] += 1
                 #ITERATE THROUGH UNITS BUILT
                 unit_wave_temp = player["build_per_wave"][i].split("!")
                 unit_wave = set()

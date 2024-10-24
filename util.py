@@ -153,6 +153,7 @@ def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats):
     new_dict = {}
     for xy in dict2[key]:
         if xy == "none" or not xy: continue
+        if xy == "Save": continue
         winrate = (dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*100
         pickrate = (dict2[key][xy]['Count'] / dict2['Count'])*100
         if key not in ["Mercs", "Units"]:
@@ -231,7 +232,9 @@ def get_cdn_image(string, header):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
-             | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Merc" | "Best Roll" | "Mercs" | "Best Unit" | "Champions":
+             | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Send" | "Best Roll" | "Sends" | "Best Unit" | "Champions":
+            if string == "Save":
+                return "/static/save.png"
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats":
             if (string not in mm_list) and (string != "Hybrid"):
@@ -249,8 +252,8 @@ def get_tooltip(header:str):
     if header.startswith("Best"):
         if header == "Best Add":
             return f"Best Unit built within the first 4 waves based on Win% and Play%"
-        elif header == "Best Merc":
-            return f"Best Merc based on Win% and Send% on this wave"
+        elif header == "Best Send":
+            return f"Best Send based on Win% and Send% on this wave"
         elif header == "Best Unit":
             return f"Best Unit based on Win% and Play% on this wave"
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
@@ -371,7 +374,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
                 return None
-        case "Best Merc":
+        case "Best Send":
             try:
                 return get_perf_list(data[key], 'Mercs', dict_type, specific_tier, elo, stats)[0]
             except IndexError:
