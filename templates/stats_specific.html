@@ -109,7 +109,7 @@
                             <r>{{ k }}</r>
                         </th>
                         {% for key in header_dict %}
-                            {% if stats == "wavestats" %}
+                            {% if stats == "wavestats" and not playerprofile %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count']*4, stats, specific_tier = specific_tier, dict_type = header[2]) %}
                             {% else %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2]) %}
