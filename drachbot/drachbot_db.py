@@ -199,6 +199,10 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         ranked_losses_current_season=losses,
                         last_updated=datetime.now()
                     ).where(PlayerProfile.player_id == playerid).execute()
+                    if profile:
+                        PlayerProfile.update(
+                            player_name=profile["playerName"]
+                        ).where(PlayerProfile.player_id == playerid).execute()
                     ranked_games = wins + losses
                     games_diff = ranked_games - ranked_games_old
                     if ranked_games_old < ranked_games:
