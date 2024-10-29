@@ -36,10 +36,6 @@
         <meta property="og:title" content="Legion TD 2 Livegames" />
         <meta name="description" content="The 10 highest Elo ongoing games">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
-    {% elif api_profile %}
-        <title>{{ api_profile["playerName"] }} Legion TD 2 Profile</title>
-        <meta property="og:title" content="{{ api_profile["playerName"] }} Legion TD 2 Profile" />
-        <meta property="og:image" content="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}" />
     {% elif data %}
         {% if specific_key == "All" or specific_key == "Megamind" %}
             <title>Legion TD 2 {{ title }} Stats | Patch v{{ patch }}</title>
