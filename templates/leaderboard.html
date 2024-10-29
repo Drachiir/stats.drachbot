@@ -5,18 +5,30 @@
     .player-row:hover{
         cursor: pointer;
     }
+    .highlight {
+        background-color: #ffffff !important;
+    }
+    table td{
+        background-color: rgba(30, 35, 43, 0.93) !important;
+    }
 </style>
 <div style="text-align: center; padding-top: 10px">
     <!-- Container for Search Bar -->
-    <div style="margin-bottom: 10px; display: flex; justify-content: center">
-        <div>
-            <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
+    <div style="display: flex; justify-content: center">
+        <div style="margin-bottom: 10px; display: block;">
+            <div>
+                <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
+            </div>
+            <div class="input-group" style="flex-wrap: nowrap; padding-top: 10px; width: 300px">
+                <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToLeaderboard(); }">
+                <button class="btn btn-secondary" type="button" onclick="redirectToLeaderboard()">Go</button>
+            </div>
         </div>
     </div>
     <!-- Container for Table -->
     <div style="display: inline-block; position: relative">
         <div id="result-count" style="margin-bottom: 10px; position: absolute; left: 0; top: -25px"></div>
-        <table class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
+        <table id="LeaderboardTable" class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
             <tbody>
                 <tr>
                     <th><r>Rank</r></th>
@@ -27,39 +39,39 @@
                     <th><r>Win/Lose</r></th>
                 </tr>
                 {% for player in leaderboard["Leaderboard"] %}
-                <tr class="player-row" data-href="/profile/{{ player["DisplayName"] }}">
-                    <td><r>{{ loop.index }}</r></td>
-                    <td>
-                        <div class="playername-leaderboard" style="text-align: left">
-                            <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
-                            <r class="player-name"> {{ player["DisplayName"] }}</r>
-                            <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
-                                {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
-                        </div>
-                    </td>
-                    <td>
-                        {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
-                        <div class="Country" data-country="{{ country_code }}"></div>
-                    </td>
-                    <td>
-                        <div>
-                            <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["StatValue"]) }}">
-                            <r style="padding-left: 5px">{{ player["StatValue"] }} </r>
-                        </div>
-                    </td>
-                    {% set player_stats = player["Profile"]["Statistics"] %}
-                    {% set wins = get_value(player_stats, "rankedWinsThisSeason") %}
-                    {% set losses = get_value(player_stats, "rankedLossesThisSeason") %}
-                    {% set percentage = winrate([wins, (wins+losses)]) %}
-                    <td>
-                        <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
-                    </td>
-                    <td>
-                        <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
-                            <r>{{ wins }} - {{ losses }}</r>
-                        </div>
-                    </td>
-                </tr>
+                    <tr class="player-row" data-href="/profile/{{ player["DisplayName"] }}">
+                        <td><r>{{ player["Position"] + 1 }}</r></td>
+                        <td>
+                            <div class="playername-leaderboard" style="text-align: left">
+                                <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
+                                <r class="player-name"> {{ player["DisplayName"] }}</r>
+                                <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
+                                    {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
+                            </div>
+                        </td>
+                        <td>
+                            {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
+                            <div class="Country" data-country="{{ country_code }}"></div>
+                        </td>
+                        <td>
+                            <div>
+                                <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["StatValue"]) }}">
+                                <r style="padding-left: 5px">{{ player["StatValue"] }} </r>
+                            </div>
+                        </td>
+                        {% set player_stats = player["Profile"]["Statistics"] %}
+                        {% set wins = get_value(player_stats, "rankedWinsThisSeason") %}
+                        {% set losses = get_value(player_stats, "rankedLossesThisSeason") %}
+                        {% set percentage = winrate([wins, (wins+losses)]) %}
+                        <td>
+                            <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
+                        </td>
+                        <td>
+                            <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
+                                <r>{{ wins }} - {{ losses }}</r>
+                            </div>
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -67,10 +79,37 @@
 </div>
 
 <script>
-    let countryMapping = {};
+    {% if api_profile %}
+    window.addEventListener('load', () => {
+        const table = document.getElementById('LeaderboardTable');
+        const rows = table.getElementsByTagName('tr');
+        const middleRowIndex = Math.floor(rows.length / 2);
+        const middleRow = rows[middleRowIndex+1];
 
+        // Add the highlight class to the middle row
+        middleRow.classList.add('highlight');
+
+        // Calculate the scroll position to center the middle row
+        const middleRowPosition = middleRow.getBoundingClientRect().top + window.scrollY;
+        const viewportCenter = window.innerHeight / 2;
+        const scrollToPosition = middleRowPosition - viewportCenter + (middleRow.offsetHeight / 2);
+
+        // Scroll the window to the calculated position
+        window.scrollTo({
+            top: scrollToPosition,
+            behavior: 'smooth'
+        });
+    });
+    {% endif %}
+    function redirectToLeaderboard() {
+        const input = document.getElementById('search-bar2').value;
+        if(input) {
+            window.location.href = `/leaderboard/${input}`;
+        }
+    }
+    let countryMapping = {};
     // Fetch the en.json country mapping when the page loads
-    fetch('./static/countries.json')  // Adjust the path to where your en.json file is located
+    fetch('/static/countries.json')  // Adjust the path to where your en.json file is located
         .then(response => response.json())
         .then(data => {
             countryMapping = data.countries;// Store the country mapping

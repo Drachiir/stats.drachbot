@@ -69,7 +69,7 @@ def leaderboard_task():
     PlayFabClientAPI.LoginWithCustomID(login_request, callback)
     PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
 
-def get_playfab_stats(playfabid):
+def get_playfab_stats(playfabid, result_count = 1):
     PlayFabSettings.TitleId = "9092"
     login_request = {
         "TitleId": "9092",
@@ -79,7 +79,7 @@ def get_playfab_stats(playfabid):
     stats_request = {
         "PlayFabId": playfabid,
         "StatisticName": "overallElo",
-        "MaxResultsCount": 1,
+        "MaxResultsCount": result_count,
         "ProfileConstraints": {
             "ShowDisplayName": True,
             "ShowStatistics": True,
@@ -287,13 +287,21 @@ def classic_modes():
     ]
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
-@app.route("/leaderboard")
+@app.route("/leaderboard", defaults={"playername": None})
+@app.route("/leaderboard/<playername>")
 @cache.cached(timeout=timeout2)
-def leaderboard():
-    with open("leaderboard.json", "r") as f:
-        leaderboard_data = json.load(f)
+def leaderboard(playername):
+    if not playername:
+        api_profile = None
+        with open("leaderboard.json", "r") as f:
+            leaderboard_data = json.load(f)
+    else:
+        stats = get_player_profile(playername)
+        player_id = stats["playerid"]
+        api_profile = stats["api_profile"]
+        leaderboard_data = get_playfab_stats(player_id, 100)
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
-                           winrate = util.custom_winrate)
+                           winrate = util.custom_winrate, api_profile=api_profile)
 
 @app.route("/rank-distribution/", methods=['GET'])
 def rank_distribution():
