@@ -267,9 +267,9 @@ def get_tooltip(header:str):
         case "Pickrate*":
             return "% of time picked, when available"
         case "W on 4":
-            return "Workers on Wave 4"
+            return "Workers at the end of Wave 4"
         case "W on 10":
-            return "Workers on Wave 10"
+            return "Workers at the end of Wave 10"
         case "Best Add" | "Adds":
             return "Units added within the first 4 waves"
         case "MM":
