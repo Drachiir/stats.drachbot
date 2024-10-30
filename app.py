@@ -300,6 +300,8 @@ def leaderboard(playername):
         player_id = stats["playerid"]
         api_profile = stats["api_profile"]
         leaderboard_data = get_playfab_stats(player_id, 100)
+    if not leaderboard_data:
+        return render_template("no_data.html", text=f"Error loading leaderboard, try again later.")
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
                            winrate = util.custom_winrate, api_profile=api_profile)
 
