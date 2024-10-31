@@ -211,7 +211,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:
             if get_new_games:
-                get_games_loop(playerid, 0, 10)
+                get_games_loop(playerid, 0, 20)
             raw_data = []
             if patch == "11" or patch == "10":
                 expr = GameData.version.startswith("v"+patch)
@@ -223,7 +223,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                          .select(*req_columns[0])
                          .join(GameData)
                          .where((GameData.queue == "Normal") & GameData.player_ids.contains(playerid) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
-                         .order_by(sort_arg.desc())
+                         .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                          .limit(games2*4)).dicts()
             for i, row in enumerate(game_data_query.iterator()):
                 p_data = {}
@@ -270,7 +270,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                            .select(*req_columns[0])
                            .join(GameData)
                            .where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave))
-                           .order_by(sort_arg.desc())
+                           .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                            .limit(games * 4)).dicts()
         for i, row in enumerate(game_data_query.iterator()):
             p_data = {}

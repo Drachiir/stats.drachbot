@@ -377,9 +377,9 @@ def drachbot_reroll_overlay_api(rank, roll):
 @app.route("/api/drachbot_overlay/<playername>")
 @cross_origin()
 def drachbot_overlay_api(playername):
-    if playername == "TestData123":
-        with open("exampledata.json", "r") as f:
-            return json.load(f)
+    # if playername == "TestData123":
+    #     with open("exampledata.json", "r") as f:
+    #         return json.load(f)
     playerid = drachbot_db.get_playerid(playername)
     if not playerid:
         api_profile = legion_api.getprofile(playername)
