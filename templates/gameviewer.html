@@ -25,7 +25,8 @@
         <div class="player-lane" data-player="{{ player['player_slot'] }}">
             <div class="player-info">
                 <img width="32" height="32" src="{{ get_cdn(player['legion'], "MM") }}">
-                <r style="color: var(--player{{ player["player_slot"] }}); font-weight: 400">{{ player['player_name'] }}</r>
+                <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none">
+                    <r style="color: var(--player{{ player["player_slot"] }}); font-weight: 400">{{ player['player_name'] }}</r></a>
                 <div style="float: right">
                     <img width="24" height="24" src="{{ get_rank_url(player['player_elo']) }}">
                     <r>{{ player['player_elo'] }}({{ plus_prefix(player["elo_change"]) }})</r>
@@ -54,6 +55,7 @@
             </div>
             <div class="sends-leaks" id="sends{{ loop.index0 }}"></div>
             <div class="sends-leaks" id="leaks{{ loop.index0 }}"></div>
+            <div class="copy-build" id="build{{ loop.index0 }}"></div>
         </div>
     {% endfor %}
 </div>
@@ -298,6 +300,38 @@ function changeUrlNumber(newNumber) {
     history.replaceState(null, null, newUrl);
 }
 
+function removeCopyButton(id) {
+    const copyDiv = document.getElementById(id);
+    if (copyDiv) {
+        const existingButton = copyDiv.querySelector(".btn");
+        if (existingButton) {
+            copyDiv.removeChild(existingButton);
+        }
+    }
+}
+
+function addCopyButton(id, textToCopy) {
+    removeCopyButton(id);
+    const copyDiv = document.getElementById(id);
+    if (!copyDiv) return;
+
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "Copy Build";
+    copyButton.classList.add("btn", "btn-primary", "btn-sm");
+
+    copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => {
+                alert("Build copied to clipboard!");
+            })
+            .catch(err => {
+                console.error("Failed to copy text: ", err);
+            });
+    });
+    copyDiv.appendChild(copyButton);
+}
+
+
 let currentWave = 0;
 const maxWaves = {{ game_data['ending_wave'] }};
 
@@ -341,13 +375,27 @@ function changeWave(wave) {
         });
         const buildWaveStr = playerData[index]['build_per_wave'][currentWave];
         const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
-
+        let buildJson = {"Towers":[], "Rolls": [], "LegionSpell": "", "LegionSpellPositionX": -1.0,
+            "LegionSpellPositionZ": -1.0, "Gold": 0, "Mythium": 0, "Wave": wave+1,
+            "HasChampion": false, "ChampionX": -1.0, "ChampionZ": -1.0};
         if (Array.isArray(buildWave)) {
             buildWave.forEach(build => {
                 const unit = build.split(':')[0];
                 const coord = build.split(':')[1];
                 const stacks = build.split(':')[2];
                 let [x, y] = coord.split('|').map(parseFloat);
+                buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
+                if (playerData[index]["spell_location"] !== "-1|-1" && wave > 9){
+                    const spellToMatch = playerData[index]["spell"].toLowerCase().replace(/\s+/g, "_");
+                    buildJson["LegionSpell"] = gameData["spell_choices"].find(name => name.toLowerCase().includes(spellToMatch));
+                    buildJson["LegionSpellPositionX"] = parseFloat(playerData[index]["spell_location"].split("|")[0]) - 4.5;
+                    buildJson["LegionSpellPositionZ"] = parseFloat(playerData[index]["spell_location"].split("|")[1]) - 7;
+                }
+                if (playerData[index]["champ_location"] !== "-1|-1"){
+                    buildJson["HasChampion"] = true
+                    buildJson["ChampionX"] = parseFloat(playerData[index]["champ_location"].split("|")[0]) - 4.5;
+                    buildJson["ChampionZ"] = parseFloat(playerData[index]["champ_location"].split("|")[1]) - 7;
+                }
                 const gridColumn = Math.floor(x -0.5) + 1;
                 const gridRow = 14 - Math.floor(y);
                 let leftStacks = ""
@@ -390,6 +438,8 @@ function changeWave(wave) {
         }
         const mercsReceived = playerData[index]['mercs_received_per_wave'][currentWave];
         let sendTotal = countMythium(mercsReceived);
+        buildJson["Mythium"] = sendTotal;
+        addCopyButton("build" + index, JSON.stringify(buildJson))
         const kingupsReceived = playerData[index]['kingups_received_per_wave'][currentWave].split("!");
         if (kingupsReceived[0] !== ""){
             sendTotal += (kingupsReceived.length * 20)
@@ -398,7 +448,6 @@ function changeWave(wave) {
         sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
         mercsReceived.split("!").forEach(merc =>{
             if (merc){
-                console.log(merc);
                 const unitImage = getCdnImage(merc);
                 sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
             }
