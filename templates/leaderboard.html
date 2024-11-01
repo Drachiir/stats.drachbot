@@ -39,15 +39,17 @@
                     <th><r>Win/Lose</r></th>
                 </tr>
                 {% for player in leaderboard["Leaderboard"] %}
-                    <tr class="player-row" data-href="/profile/{{ player["DisplayName"] }}">
+                    <tr class="player-row">
                         <td><r>{{ player["Position"] + 1 }}</r></td>
                         <td>
-                            <div class="playername-leaderboard" style="text-align: left">
-                                <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
-                                <r class="player-name"> {{ player["DisplayName"] }}</r>
-                                <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
-                                    {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
-                            </div>
+                            <a href="/profile/{{ player["DisplayName"] }}" class="playername-leaderboard" style="text-decoration: none; color: white">
+                                <div style="text-align: left;">
+                                    <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
+                                    <r class="player-name"> {{ player["DisplayName"] }}</r>
+                                    <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
+                                        {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
+                                </div>
+                            </a>
                         </td>
                         <td>
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
