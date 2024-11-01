@@ -220,7 +220,9 @@
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
                                  <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
-                                     <td style="text-align: left;"><r3>{{ mate_dict["Playername"][:14] }}</r3></td>
+                                     <td><a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
+                                        <r3>{{ mate_dict["Playername"][:14] }}</r3>
+                                     </a></td>
                                      <td><r3>{{ mate_dict["Count"] }}</r3></td>
                                      <td><r3>{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
                                      <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
@@ -279,7 +281,7 @@
     <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
     <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
     {% for game in history[:short_history] %}
-        <div class="clickableDiv" id="clickableDiv" data-href="{{ game["gamelink"] }}" style="background: rgba(19, 19, 19, 0.95); border-radius: 10px; display: flex; padding: 10px">
+        <div class="clickableDiv" style="position: relative; background: rgba(19, 19, 19, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="padding-left: 10px; width: 40%">
                     <div>
@@ -318,7 +320,7 @@
                                 {% else %}
                                     {% set color = "white" %}
                                 {% endif %}
-                                <a style="color: white; text-decoration: none; padding: 5px"  href="/profile/{{ player[0] }}">
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/{{ player[0] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
                                     <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
                                 </a><br>
@@ -332,6 +334,7 @@
                     </div>
                 </div>
             </div>
+            <a href="{{ game["gamelink"] }}" class="overlay-link" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></a>
         </div><br>
     {% endfor %}
     </div>
