@@ -378,6 +378,17 @@ function changeWave(wave) {
         let buildJson = {"Towers":[], "Rolls": [], "LegionSpell": "", "LegionSpellPositionX": -1.0,
             "LegionSpellPositionZ": -1.0, "Gold": 0, "Mythium": 0, "Wave": wave+1,
             "HasChampion": false, "ChampionX": -1.0, "ChampionZ": -1.0};
+        if (playerData[index]["spell_location"] !== "-1|-1" && wave > 9){
+            const spellToMatch = playerData[index]["spell"].toLowerCase().replace(/\s+/g, "_");
+            buildJson["LegionSpell"] = gameData["spell_choices"].find(name => name.toLowerCase().includes(spellToMatch));
+            buildJson["LegionSpellPositionX"] = parseFloat(playerData[index]["spell_location"].split("|")[0]) - 4.5;
+            buildJson["LegionSpellPositionZ"] = parseFloat(playerData[index]["spell_location"].split("|")[1]) - 7;
+        }
+        if (playerData[index]["champ_location"] !== "-1|-1"){
+            buildJson["HasChampion"] = true
+            buildJson["ChampionX"] = parseFloat(playerData[index]["champ_location"].split("|")[0]) - 4.5;
+            buildJson["ChampionZ"] = parseFloat(playerData[index]["champ_location"].split("|")[1]) - 7;
+        }
         if (Array.isArray(buildWave)) {
             buildWave.forEach(build => {
                 const unit = build.split(':')[0];
@@ -385,17 +396,6 @@ function changeWave(wave) {
                 const stacks = build.split(':')[2];
                 let [x, y] = coord.split('|').map(parseFloat);
                 buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
-                if (playerData[index]["spell_location"] !== "-1|-1" && wave > 9){
-                    const spellToMatch = playerData[index]["spell"].toLowerCase().replace(/\s+/g, "_");
-                    buildJson["LegionSpell"] = gameData["spell_choices"].find(name => name.toLowerCase().includes(spellToMatch));
-                    buildJson["LegionSpellPositionX"] = parseFloat(playerData[index]["spell_location"].split("|")[0]) - 4.5;
-                    buildJson["LegionSpellPositionZ"] = parseFloat(playerData[index]["spell_location"].split("|")[1]) - 7;
-                }
-                if (playerData[index]["champ_location"] !== "-1|-1"){
-                    buildJson["HasChampion"] = true
-                    buildJson["ChampionX"] = parseFloat(playerData[index]["champ_location"].split("|")[0]) - 4.5;
-                    buildJson["ChampionZ"] = parseFloat(playerData[index]["champ_location"].split("|")[1]) - 7;
-                }
                 const gridColumn = Math.floor(x -0.5) + 1;
                 const gridRow = 14 - Math.floor(y);
                 let leftStacks = ""
