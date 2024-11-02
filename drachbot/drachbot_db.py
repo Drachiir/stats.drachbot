@@ -26,12 +26,12 @@ def get_game_by_id(gameid):
         if not success:
             return {"Error": "Game not found."}
     req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-                    GameData.spell_choices, GameData.left_king_hp, GameData.right_king_hp, GameData.player_count,
+                    GameData.spell_choices, GameData.left_king_hp, GameData.right_king_hp, GameData.player_count, GameData.game_length,
                     PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                     PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
                     PlayerData.mercs_received_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_received_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
                     PlayerData.roll, PlayerData.net_worth_per_wave, PlayerData.elo_change, PlayerData.spell_location, PlayerData.champ_location],
-                   ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "left_king_hp", "right_king_hp", "player_count"],
+                   ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "left_king_hp", "right_king_hp", "player_count", "game_length"],
                    ["player_id", "player_name", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                     "champ_location", "spell_location", "fighters", "mercs_received_per_wave", "leaks_per_wave", "kingups_received_per_wave", "fighter_value_per_wave",
                     "income_per_wave", "roll", "net_worth_per_wave", "elo_change", "spell_location", "champ_location"]]
@@ -272,6 +272,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                            .where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave))
                            .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                            .limit(games * 4)).dicts()
+        temp_data = {}
         for i, row in enumerate(game_data_query.iterator()):
             p_data = {}
             # if row["version"] == "v11.07":

@@ -68,8 +68,7 @@
     </div>
     <div><r>Date: {{ game_data['date'] }}</r></div>
     <div><r>Version: {{ game_data['version'] }}</r></div>
-    {% if game_data['players_data']|length == 8 %}
-    {% endif %}
+    <div><r>Game length: {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
 </div>
 <style>
     :root{
@@ -84,7 +83,7 @@
         --UpgradeKingAttack: #ff1d1d;
         --UpgradeKingRegen: #0cca2f;
         --UpgradeKingSpell: #8f09dd;
-        --kingHpBarW: 250px;
+        --kingHpBarW: 268px;
     }
     .king_hp_bars_container{
         border-radius: 10px;
@@ -500,8 +499,13 @@ function changeWave(wave) {
     });
 }
 document.addEventListener('keydown', (e) => {
-    if (e.code === "ArrowUp" || e.code === "ArrowRight") changeWave(currentWave + 1)
-    else if (e.code === "ArrowDown" || e.code === "ArrowLeft") changeWave(currentWave - 1)
+    if (e.code === "ArrowUp" || e.code === "ArrowRight") {
+        e.preventDefault();
+        changeWave(currentWave + 1);
+    } else if (e.code === "ArrowDown" || e.code === "ArrowLeft") {
+        e.preventDefault();
+        changeWave(currentWave - 1);
+    }
 });
 
 window.addEventListener('resize', function(event) {
