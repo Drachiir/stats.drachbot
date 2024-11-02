@@ -315,7 +315,7 @@ def rank_distribution():
         min_winrate = int(request.args.get('min_winrate', 0))
     except Exception:
         min_winrate = 0
-    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_10-24.json", "r") as f:
+    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_11-24.json", "r") as f:
         leaderboard_data = json.load(f)
     return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate)
 
