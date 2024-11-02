@@ -36,7 +36,9 @@
                         <img style="float: right" width="32" height="32" src="{{ get_cdn(unit, "Unit") }}"><br>
                     {% endfor %}
                     <div style="margin-left: auto;">
-                        <img width="32" height="32" src="{{ get_cdn(player['spell'], "Spell") }}"><br>
+                        {% if player['spell'] != "none" %}
+                            <img width="32" height="32" src="{{ get_cdn(player['spell'], "Spell") }}"><br>
+                        {% endif %}
                     </div>
                 </div>
                 <div style="padding-top: 10px; display: flex; justify-content: space-between; font-size: 0.9rem">
