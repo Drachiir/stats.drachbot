@@ -540,7 +540,7 @@ def profile(playername, stats, patch, elo, specific_key):
         cooldown_duration = get_remaining_cooldown(playerid)
         api_stats = {}
         playfab_stats = None
-        max_retries = 3
+        max_retries = 2
         attempt = 0
         while not playfab_stats and attempt < max_retries:
             try:

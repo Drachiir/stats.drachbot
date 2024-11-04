@@ -18,6 +18,10 @@
         <title>Legion TD 2 Ending Wave Distribution</title>
         <meta property="og:title" content="Legion TD 2 Ending Wave Distribution" />
         <meta property="og:image" content="https://cdn.legiontd2.com/icons/LegionLord.png" />
+    {% elif profile %}
+        <title>{{ api_profile["playerName"] }} Legion TD 2 Profile</title>
+        <meta property="og:title" content="{{ api_profile["playerName"] }} Legion TD 2 Profile" />
+        <meta property="og:image" content="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}" />
     {% elif leaderboard_data %}
         <title>Legion TD 2 Rank Distribution</title>
         <meta property="og:title" content="Legion TD 2 Rank Distribution" />
