@@ -174,41 +174,37 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 if stats:
                     playerstats = stats
                 else:
-                    if not skip_stats:
-                        playerstats = legion_api.getstats(playerid)
-                if skip_stats:
-                    data = get_games_loop(playerid, 0, 10)
-                else:
-                    data = PlayerProfile.select().where(PlayerProfile.player_id == playerid).get()
-                    ranked_games_old = data.ranked_wins_current_season+data.ranked_losses_current_season
-                    try:
-                        wins = playerstats['rankedWinsThisSeason']
-                    except KeyError:
-                        wins = 0
-                    try:
-                        losses = playerstats['rankedLossesThisSeason']
-                    except KeyError:
-                        losses = 0
-                    try:
-                        ladder_points = playerstats["ladderPoints"]
-                    except KeyError:
-                        ladder_points = 0
+                    playerstats = legion_api.getstats(playerid)
+                data = PlayerProfile.select().where(PlayerProfile.player_id == playerid).get()
+                ranked_games_old = data.ranked_wins_current_season+data.ranked_losses_current_season
+                try:
+                    wins = playerstats['rankedWinsThisSeason']
+                except KeyError:
+                    wins = 0
+                try:
+                    losses = playerstats['rankedLossesThisSeason']
+                except KeyError:
+                    losses = 0
+                try:
+                    ladder_points = playerstats["ladderPoints"]
+                except KeyError:
+                    ladder_points = 0
+                PlayerProfile.update(
+                    ladder_points = ladder_points,
+                    ranked_wins_current_season=wins,
+                    ranked_losses_current_season=losses,
+                    last_updated=datetime.now()
+                ).where(PlayerProfile.player_id == playerid).execute()
+                if profile:
                     PlayerProfile.update(
-                        ladder_points = ladder_points,
-                        ranked_wins_current_season=wins,
-                        ranked_losses_current_season=losses,
-                        last_updated=datetime.now()
+                        player_name=profile["playerName"]
                     ).where(PlayerProfile.player_id == playerid).execute()
-                    if profile:
-                        PlayerProfile.update(
-                            player_name=profile["playerName"]
-                        ).where(PlayerProfile.player_id == playerid).execute()
-                    ranked_games = wins + losses
-                    games_diff = ranked_games - ranked_games_old
-                    if ranked_games_old < ranked_games:
-                        games_count += get_games_loop(playerid, 0, games_diff)
-                    if games_count > 0:
-                        PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
+                ranked_games = wins + losses
+                games_diff = ranked_games - ranked_games_old
+                if ranked_games_old < ranked_games:
+                    games_count += get_games_loop(playerid, 0, games_diff)
+                if games_count > 0:
+                    PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:
             if get_new_games:
                 get_games_loop(playerid, 0, 20)
