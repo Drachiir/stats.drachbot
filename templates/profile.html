@@ -45,7 +45,7 @@
         height: 100% !important;
     }
     .profile-main {
-        background: rgba(19, 19, 19, 0.95);
+        background: rgba(25, 25, 25, 0.95);
         border-radius: 10px;
         box-shadow:inset 0 0 0 1px #3a3a3a;
     }
@@ -111,12 +111,19 @@
     .clickableDiv{
         cursor: pointer;
         box-shadow:inset 0 0 0 1px #3a3a3a;
+        transition: background-color 0.2s ease, border 0.2s ease;
     }
     .clickableDiv:hover{
-        background-color: #333333 !important;
+        background-color: #252525 !important;
     }
     .highlight {
         background-color: #0796fb !important; /* Green background for the button */
+    }
+    .fav-imgs{
+        transition: transform 0.2s ease, border 0.2s ease;
+    }
+    .fav-imgs:hover{
+        transform: scale(1.1);
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -220,7 +227,7 @@
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
                                  <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
-                                     <td><a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
+                                     <td style="text-align: left"><a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
                                         <r3>{{ mate_dict["Playername"][:14] }}</r3>
                                      </a></td>
                                      <td><r3>{{ mate_dict["Count"] }}</r3></td>
@@ -237,7 +244,7 @@
                     <r2>Wave 1 Tendency:</r2><br>
                     <div style="display: flex">
                         {% for x in ["UpgradeKingAttack", "Snail", "Mythium32"] %}
-                            <div style="position: relative;">
+                            <div class="fav-imgs" style="position: relative;">
                                 <img style="width: var(--waveimgsize)"  src="https://cdn.legiontd2.com/icons/{{ x }}.png">
                                 <r2 style="position: absolute; bottom: -4px; left: 0;" class="strokeText">{{ wave1[loop.index0] }}%</r2>
                             </div>
@@ -251,7 +258,7 @@
                         <r2>{{ fav_category[0] }}:</r2><br>
                         <div style="display: flex">
                         {% for key in fav_category[2] %}
-                            <div style="position: relative;">
+                            <div class="fav-imgs" style="position: relative;">
                                 {% if fav_category[3] == "mmstats" %}
                                     {% set url_key = key %}
                                 {% else %}
@@ -281,7 +288,7 @@
     <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
     <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
     {% for game in history[:short_history] %}
-        <div class="clickableDiv" style="position: relative; background: rgba(19, 19, 19, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
+        <div class="clickableDiv" style="position: relative; background: rgba(25, 25, 25, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="padding-left: 10px; width: 40%">
                     <div>
