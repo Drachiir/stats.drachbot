@@ -630,6 +630,10 @@ def profile(playername, stats, patch, elo, specific_key):
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   stats=api_stats, profile=api_profile, pname=playername)
+            try:
+                os.remove(path)
+            except Exception:
+                pass
             with open(path, "w") as f:
                 json.dump(history, f, default=str)
         history_parsed = []
