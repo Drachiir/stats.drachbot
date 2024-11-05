@@ -411,11 +411,13 @@ function changeWave(wave) {
                     const unitImage = getCdnImage(unitName);
                     let topString = "0"
                     let topStringStacks = "50%"
+                    let xOffsetChamp = xOffset
                     if (yOffset !== 0){
                         topString = "8px"
                         topStringStacks = "65%"
                     }
                     if (xOffset !== 0){
+                        xOffsetChamp += 64;
                         xOffset += 2;
                     } else {
                         leftStacks = "left: 0;"
@@ -425,7 +427,7 @@ function changeWave(wave) {
                         gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
                     }
                     if (coord === playerData[index]["champ_location"]){
-                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; left: 55%">`;
+                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
                     }
                     if (wave > 9){
                         if (coord === playerData[index]["spell_location"]){
