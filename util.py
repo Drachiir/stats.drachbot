@@ -474,8 +474,10 @@ def get_rank_url(elo):
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png'
     elif elo >= 1200:
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png'
-    else:
+    elif elo >= 1000:
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png'
+    else:
+        rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Unranked.png'
     return rank_url
 
 def get_avg_end_wave(data:dict) -> str:
