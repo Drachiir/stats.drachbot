@@ -82,7 +82,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
     return games_count
 
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
-                    sort_by = "date", req_columns = [], profile = None, stats = None, pname = "",
+                    sort_by = "date", req_columns = [], playerprofile = None, playerstats = None, pname = "",
                     skip_stats=False, get_new_games = False):
     patch_list = []
     if earlier_than_wave10:
@@ -126,10 +126,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if PlayerProfile.get_or_none(PlayerProfile.player_id == playerid) is None:
                 print(playerid + ' profile not found, creating new database entry...')
                 new_profile = True
-                if stats:
-                    playerstats = stats
-                else:
-                    playerstats = legion_api.getstats(playerid)
                 try:
                     wins = playerstats['rankedWinsThisSeason']
                 except KeyError:
@@ -138,10 +134,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     losses = playerstats['rankedLossesThisSeason']
                 except KeyError:
                     losses = 0
-                if profile:
-                    playerprofile = profile
-                else:
-                    playerprofile = legion_api.getprofile(pname)
                 offset = 0
                 try:
                     ladder_points = playerstats["ladderPoints"]
@@ -155,6 +147,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     PlayerProfile(
                         player_id=playerid,
                         player_name=playerprofile["playerName"],
+                        avatar_url=playerprofile["avatarUrl"],
+                        country=playerstats["flag"],
                         total_games_played=games_played,
                         ranked_wins_current_season=wins,
                         ranked_losses_current_season=losses,
@@ -167,10 +161,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 data = get_games_loop(playerid, 0, 100)
             else:
                 new_profile = False
-                if stats:
-                    playerstats = stats
-                else:
-                    playerstats = legion_api.getstats(playerid)
                 data = PlayerProfile.select().where(PlayerProfile.player_id == playerid).get()
                 ranked_games_old = data.ranked_wins_current_season+data.ranked_losses_current_season
                 try:
@@ -186,15 +176,14 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 except KeyError:
                     ladder_points = 0
                 PlayerProfile.update(
+                    player_name=playerprofile["playerName"],
+                    avatar_url=playerprofile["avatarUrl"],
+                    country=playerstats["flag"],
                     ladder_points = ladder_points,
                     ranked_wins_current_season=wins,
                     ranked_losses_current_season=losses,
                     last_updated=datetime.now()
                 ).where(PlayerProfile.player_id == playerid).execute()
-                if profile:
-                    PlayerProfile.update(
-                        player_name=profile["playerName"]
-                    ).where(PlayerProfile.player_id == playerid).execute()
                 ranked_games = wins + losses
                 games_diff = ranked_games - ranked_games_old
                 if ranked_games_old < ranked_games:

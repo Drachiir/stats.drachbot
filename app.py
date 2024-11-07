@@ -587,6 +587,7 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats = legion_api.getstats(playerid)
             api_stats["avatarBorder"] = ""
             api_stats["flag"] = ""
+            api_stats["Country"] = ""
             player_rank = ""
         try:
             _ = api_stats["rankedWinsThisSeason"]
@@ -629,7 +630,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  stats=api_stats, profile=api_profile, pname=playername)
+                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername)
             try:
                 os.remove(path)
             except Exception:
@@ -792,7 +793,7 @@ def profile(playername, stats, patch, elo, specific_key):
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
-            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername)
+            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
             with open(path, "w") as f:
                 json.dump(history_raw, f, default=str)
         match stats:

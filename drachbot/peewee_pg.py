@@ -25,7 +25,7 @@ with open("Files/json/Secrets.json", "r") as f:
 db = PooledPostgresqlExtDatabase(
     "postgres",
     max_connections=None,
-    stale_timeout=60,
+    stale_timeout=90,
     server_side_cursors=True,
     user=secret_file["pg_user"],
     password=secret_file["pg_password"],
@@ -43,6 +43,8 @@ class PlayerProfile(BaseModel):
     id = AutoField()
     player_id = TextField(unique=True)
     player_name = TextField()
+    avatar_url = TextField(null=True)
+    country = TextField(null=True)
     total_games_played = IntegerField()
     ranked_wins_current_season = IntegerField()
     ranked_losses_current_season = IntegerField()
