@@ -398,6 +398,27 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
             else:
                 return f"{round(data[key]["LeakedGold"] / (wave_values[int(wave_num[0]) - 1] * (data[key]["Count"] * 4)) * 100, 1)}%"
 
+def get_gamestats_values(data):
+    pre10_count, pre10send_count = 0, 0
+    count, send_count = 0, 0
+    wave_total, wave_count = 0, 0
+    pre10_mythium, post10_mythium = 0, 0
+    pre10_ratio, post10_ratio = 0, 0
+    for wave in data["WaveDict"]:
+        wave_total += int(re.findall(r'\d+', wave)[0]) * data["WaveDict"][wave]["EndCount"]
+        wave_count += data["WaveDict"][wave]["EndCount"]
+        if int(re.findall(r'\d+', wave)[0]) <= 10:
+            pre10_count += data["WaveDict"][wave]["Count"]
+            pre10send_count += data["WaveDict"][wave]["SendCount"]
+        if int(re.findall(r'\d+', wave)[0]) > 10:
+            count += data["WaveDict"][wave]["Count"]
+            send_count += data["WaveDict"][wave]["SendCount"]
+    avg_end = wave_total/wave_count
+    avg_end2 = round((avg_end-10), 1)
+    return {"1-10": f"{round(10 * (1 - (pre10send_count / pre10_count)), 1)}/10 ({round((10 * (1 - (pre10send_count / pre10_count)))/10*100, 1)}%)",
+            "11+": f"{round((avg_end - 10) * (1 - (send_count / count)), 1)}/{avg_end2} ({round((avg_end2 * (1 - (send_count / count)))/avg_end2*100, 1)}%)",
+            "avg_end": f"{round(avg_end, 1)}"}
+
 def time_ago(time=False):
     now = datetime.utcnow()
     if type(time) is int:
@@ -491,21 +512,25 @@ def get_avg_end_wave(data:dict) -> str:
     except Exception:
         return ""
 
-def count_mythium(send):
+def count_mythium(send, seperate = False):
     if type(send) != type(list()):
         if send == "":
             send = []
         else:
             send = send.split("!")
-    send_amount = 0
+    inc_amount = 0
+    power_amount = 0
     for x in send:
         if "Upgrade" in x:
             continue
         if x in incmercs:
-            send_amount += incmercs.get(x)
+            inc_amount += incmercs.get(x)
         else:
-            send_amount += powermercs.get(x)
-    return send_amount
+            power_amount += powermercs.get(x)
+    if seperate:
+        return inc_amount, power_amount
+    else:
+        return inc_amount + power_amount
 
 def calc_leak(leak, wave, return_gold = False):
     if type(leak) != type(list()):

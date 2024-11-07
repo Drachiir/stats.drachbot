@@ -12,9 +12,10 @@ import drachbot.openstats
 import drachbot.spellstats
 import drachbot.unitstats
 import drachbot.wavestats
+import drachbot.gamestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
-from util import get_rank_url, custom_winrate, plus_prefix, custom_divide
+from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values
 from flask_apscheduler import APScheduler
 from playfab import PlayFabClientAPI, PlayFabSettings
 from flask_cors import CORS, cross_origin
@@ -600,7 +601,7 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["rankedWinsThisSeason"] = 0
         if not api_stats["rankedLossesThisSeason"]:
             api_stats["rankedLossesThisSeason"] = 0
-        stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
+        stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"]
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Items/Megamind.png",
@@ -608,7 +609,8 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/LegionSpell.png",
             "https://cdn.legiontd2.com/icons/Reroll.png",
             "https://cdn.legiontd2.com/icons/Value10000.png",
-            "https://cdn.legiontd2.com/icons/LegionKing.png"
+            "https://cdn.legiontd2.com/icons/LegionKing.png",
+            "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
         ]
         path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.json"
         history = None
@@ -763,7 +765,7 @@ def profile(playername, stats, patch, elo, specific_key):
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
         
-        if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
+        if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats", "gamestats"]:
             return render_template("no_data.html", text="No Data")
         raw_data = None
         # get player profile
@@ -786,13 +788,14 @@ def profile(playername, stats, patch, elo, specific_key):
                 with open(path, "r") as f:
                     history_raw = json.load(f)
         if not history_raw:
-            req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices,
+            req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
-                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave],
-                           ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices"],
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                           ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
-                            "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave"]]
+                            "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
+                            "income_per_wave"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
             with open(path, "w") as f:
                 json.dump(history_raw, f, default=str)
@@ -924,10 +927,18 @@ def profile(playername, stats, patch, elo, specific_key):
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
+            case "gamestats":
+                title = f"{playername2}'s Game"
+                title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
+                header_title = "Game"
+                raw_data = drachbot.gamestats.gamestats(playerid=playerid, history_raw=history_raw)
+                games = raw_data[3]
+                avg_elo = raw_data[4]
+                raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
         if type(raw_data) == str:
             return render_template("no_data.html", text="No Data")
         if raw_data:
-            if stats != "mmstats" and stats != "megamindstats":
+            if stats != "mmstats" and stats != "megamindstats" and stats != "gamestats":
                 new_dict = {}
                 for key in raw_data:
                     if raw_data[key]["Count"] != 0:
@@ -940,6 +951,15 @@ def profile(playername, stats, patch, elo, specific_key):
         if stats == "mmstats" and specific_key != "Megamind":
             if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
                 return render_template("no_data.html", text="No Data")
+        elos = [2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400, 1200, 1000, 0]
+        if stats == "gamestats":
+            return render_template("gamestats.html", data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
+                                   games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
+                                   human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
+                                   specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
+                                   stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
+                                   get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl="", playername2=playername2, patch_selector=True,
+                                   title=title, title_image=title_image, header_title=header_title)
         if specific_key == "All":
             html_file = "stats.html"
         else:
@@ -951,7 +971,6 @@ def profile(playername, stats, patch, elo, specific_key):
             specific_tier = True
         else:
             specific_tier = False
-        elos = [2800, 2600, 2400, 2200, 2000, 1800, 1600, 1400, 1200, 1000, 0]
         return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
                                games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
                                human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
@@ -967,7 +986,7 @@ def profile(playername, stats, patch, elo, specific_key):
 @cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
     playername2=""
-    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats"]:
+    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats", "gamestats"]:
         return render_template("no_data.html", text="No Data")
     raw_data = None
     match stats:
@@ -1071,6 +1090,11 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Sends", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
             folder = "wavestats"
+        case "gamestats":
+            title = "Game"
+            title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
+            header_title = "Game"
+            folder = "gamestats"
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):
             games = file.split("_")[2]
@@ -1084,7 +1108,7 @@ def stats(stats, elo, patch, specific_key):
                 raw_data = json.load(f)
                 f.close()
     if raw_data:
-        if stats != "mmstats":
+        if stats != "mmstats" and stats != "gamestats":
             new_dict = {}
             for key in raw_data:
                 if raw_data[key]["Count"] != 0:
@@ -1097,7 +1121,15 @@ def stats(stats, elo, patch, specific_key):
     if stats == "mmstats" and specific_key != "Megamind":
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
             return render_template("no_data.html", text="No Data")
-    if specific_key == "All":
+    if stats == "gamestats":
+        return render_template("gamestats.html", data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
+                               games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
+                               human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
+                               specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values =util.get_gamestats_values,
+                               stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list,
+                               mod_date=mod_date, get_tooltip=util.get_tooltip, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
+                               playerurl="", playername2=playername2, patch_selector=False, title=title, title_image=title_image, header_title=header_title)
+    elif specific_key == "All":
         html_file = "stats.html"
     else:
         html_file = "stats_specific.html"

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <style>
+        r {
+          font-family: "Roboto", sans-serif;
+          font-weight: 300;
+          font-style: normal;
+        }
+        r2 {
+            font-family: "Roboto", sans-serif;
+            font-weight: 300;
+            font-style: normal;
+            vertical-align: middle;
+            font-size: 1rem;
+        }
+        r3 {
+            font-family: "Roboto", monospace;
+            font-weight: 300;
+            font-style: normal;
+            font-size: 1rem;
+        }
+        r4 {
+            font-family: "Roboto", monospace;
+            font-weight: 500;
+            font-style: normal;
+            font-size: 1rem;
+        }
+    </style>
+    <div style="padding-top: 15px;">
+        <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
+        <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
+        <div style="float:right;">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Elo
+            </button>
+            <ul class="dropdown-menu">
+                {% for i in elo_brackets %}
+                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
+                        <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
+                {% endfor %}
+            </ul>
+            {% if not patch_selector %}
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Patch
+                </button>
+                <ul class="dropdown-menu">
+                    {% for p in patch_list %}
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="dropdown" style="float: right; padding-left: 5px">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Patches
+                    </button>
+                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
+                        <form id="patchForm">
+                            <li class="dropdown-item">
+                                <label>
+                                    <input type="checkbox" id="selectAll"> Select/Unselect All
+                                </label>
+                            </li>
+                            {% for p in patch_list %}
+                                <li class="dropdown-item" id="patch-checkbox">
+                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                     v{{ p }}
+                                </li>
+                            {% endfor %}
+                        </form>
+                        <li class="dropdown-item text-center">
+                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        <br>
+        {% set gamestats_values = get_gamestats_values(data) %}
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
+        Avg End Wave: <b>{{ gamestats_values["avg_end"] }}</b> | <b>v{{ patch }}</b></r>
+        <div style="display: flex; flex-wrap: wrap; padding-top: 20px">
+            <div style="width: 40%; display: inline-block">
+                <table class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
+                    <tr><th><r4>Waves</r4></th><th><r4>1-10</r4></th><th><r4>11+</r4></th></tr>
+                    <tr><th><r4>Mythium Saved</r4></th><td><r3>{{ gamestats_values["1-10"] }}</r3></td><td><r3>{{ gamestats_values["11+"] }}</r3></td></tr>
+                    <tr><th><r4>Inc/Power<br>Merc Ratio</r4></th><td><r3>1-10</r3></td><td><r3>11+</r3></td></tr>
+                    <tr><th><r4>Mythium Sent</r4></th><td><r3>1-10</r3></td><td><r3>11+</r3></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% if patch_selector %}
+<script>
+    // Function to get patches from URL
+    function getSelectedPatchesFromUrl() {
+        // Extract the URL parts (assumes the URL format: /playerurl/stats/patches/elo)
+        const urlParts = window.location.pathname.split('/');
+        if (urlParts.length >= 4) {
+            // The third part of the URL should contain the patches (comma-separated)
+            const patches = urlParts[4].split(',');
+            return patches;
+        }
+        return [];
+    }
+
+    // Preselect checkboxes based on the URL
+    function preselectPatches() {
+        const selectedPatches = getSelectedPatchesFromUrl();
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            if (selectedPatches.includes(checkbox.value)) {
+                checkbox.checked = true;
+            }
+        });
+
+        // If all checkboxes are checked, check the "Select All" box
+        const allChecked = selectedPatches.length > 0 && selectedPatches.length === document.querySelectorAll('.patch-checkbox').length;
+        document.getElementById('selectAll').checked = allChecked;
+    }
+    // Event listener for the "Select/Unselect All" checkbox
+    document.getElementById('selectAll').addEventListener('change', function () {
+        var isChecked = this.checked;
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            checkbox.checked = isChecked;
+        });
+    });
+
+    // Event listener for the "Go" button
+    document.getElementById('redirectButton').addEventListener('click', function () {
+        // Get all the selected patches
+        var selectedPatches = [];
+        document.querySelectorAll('.patch-checkbox:checked').forEach(function (checkbox) {
+            selectedPatches.push(checkbox.value);
+        });
+
+        // If no patches selected, prevent action
+        if (selectedPatches.length === 0) {
+            alert('Please select at least one patch.');
+            return;
+        }
+
+        // Create a comma-delimited string of the selected patches
+        var patches = selectedPatches.join(',');
+
+        // Get the base values from your current variables (using template variables)
+        var playerurl = "{{ playerurl }}";
+        var stats = "{{ stats }}";
+        var elo = "{{ elo }}";
+
+        // Construct the URL
+        var url = playerurl + '/' + stats + '/' + patches + '/' + elo;
+
+        // Redirect to the new URL
+        window.location.href = url;
+    });
+
+    // Prevent the dropdown from closing when clicking inside the dropdown content
+    document.getElementById('patchDropdown').addEventListener('click', function (event) {
+        event.stopPropagation();  // Stop dropdown from closing when clicking inside
+    });
+
+    // Add click event directly on checkboxes to prevent issues
+    document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+        checkbox.addEventListener('click', function (event) {
+            event.stopPropagation(); // Prevent dropdown from closing
+        });
+    });
+    document.querySelectorAll('#patch-checkbox').forEach(function (label) {
+        label.addEventListener('click', function (event) {
+            var checkbox = this.querySelector('input[type="checkbox"]');
+            checkbox.checked = !checkbox.checked; // Toggle checkbox state
+            event.stopPropagation(); // Prevent dropdown from closing
+        });
+    });
+
+    // Preselect checkboxes when the page loads
+    window.onload = preselectPatches;
+</script>
+{% endif %}
+{% endblock %}
