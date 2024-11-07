@@ -26,7 +26,6 @@ def wavestats(playerid, games, min_elo, patch, sort="date", history_raw = {}):
                     merc_wave_temp = player["mercs_sent_per_wave"][i].split("!")
                     merc_wave = set()
                     for merc in merc_wave_temp:
-                        merc = merc.split("_unit_")[0].replace("_", " ")
                         merc_wave.add(merc)
                     for merc in merc_wave:
                         if merc not in wave_dict[f"wave{i+1}"]["Mercs"]:
