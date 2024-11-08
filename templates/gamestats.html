@@ -135,77 +135,92 @@
     const lightColor = 'rgba(255,255,255,0.9)';
     const gridColor = 'rgba(255,255,255,0.3)';
     const ctx2 = document.getElementById('myChart2').getContext('2d');
-    let myChart2 = new Chart(ctx2, {
-        type: 'line',
-        data: {
-            labels: Array.from({ length: avgWorkerPerWave.length }, (_, i) => `Wave ${i + 1}`),
-            datasets: [{
-                label: 'Avg. Worker',
-                data: chartData.workers,
-                fill: false,
-                borderColor: 'rgb(46,81,255)',
-                backgroundColor: 'rgb(46,81,255)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
+
+    function createChart(selectedData) {
+        return new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: Array.from({ length: chartData.workers.length }, (_, i) => `Wave ${i + 1}`),
+                datasets: [{
+                    label: selectedData === "leaks" ? 'Avg. Leak%' : 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1),
+                    data: chartData[selectedData],
+                    fill: false,
+                    borderColor: selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)',
+                    backgroundColor: selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            color: lightColor
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        bodyColor: lightColor,
+                        titleColor: lightColor
+                    },
+                    labels: {
+                        color: lightColor
+                    }
                 },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    bodyColor: lightColor,
-                    titleColor: lightColor
-                },
-                labels: {
-                    color: lightColor
-                }
-        },
-        scales: {
-            x: {
-                ticks: {
-                    color: lightColor
-                },
-                grid: {
-                    color: gridColor
+                scales: {
+                    x: {
+                        ticks: {
+                            color: lightColor
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: lightColor
+                        },
+                        grid: {
+                            color: gridColor
+                        }
+                    }
                 }
             },
-            y: {
-                ticks: {
-                    color: lightColor
+            plugins: [
+                {
+                    id: 'customBackground',
+                    beforeDraw: (chart) => {
+                        const ctx = chart.ctx;
+                        ctx.save();
+                        ctx.fillStyle = 'rgb(33,37,41)';
+                        ctx.fillRect(0, 0, chart.width, chart.height);
+                        ctx.restore();
+                    }
                 },
-                grid: {
-                    color: gridColor
-                }
-            }
-            }
-        },
-        plugins: [
-            {
-                id: 'customBackground',
-                beforeDraw: (chart) => {
-                    const ctx = chart.ctx;
-                    ctx.save();
-                    ctx.fillStyle = 'rgb(33,37,41)';
-                    ctx.fillRect(0, 0, chart.width, chart.height);
-                    ctx.restore();
-                }
-            },
-        ]
-    });
-    document.getElementById('dataSelect').addEventListener('change', function(event) {
-        const selectedData = event.target.value;
+            ]
+        });
+    }
+    function updateChart(selectedData) {
         myChart2.data.datasets[0].data = chartData[selectedData];
-        if (selectedData === "leaks"){
-            myChart2.data.datasets[0].label = 'Avg. Leak%';
-        } else {
-            myChart2.data.datasets[0].label = 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1);
-        }
+        myChart2.data.datasets[0].label = selectedData === "leaks" ? 'Avg. Leak%' : 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1);
+        myChart2.data.datasets[0].borderColor = selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)';
+        myChart2.data.datasets[0].backgroundColor = selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)';
         myChart2.update();
+    }
+
+    const dataSelect = document.getElementById('dataSelect');
+    const savedSelection = localStorage.getItem('selectedDataOption') || 'workers';
+    dataSelect.value = savedSelection;
+
+    const myChart2 = createChart(savedSelection);
+
+    dataSelect.addEventListener('change', function(event) {
+        const selectedData = event.target.value;
+        localStorage.setItem('selectedDataOption', selectedData);
+        updateChart(selectedData);
     });
 </script>
 <script>
@@ -263,7 +278,6 @@ const filteredData = [
     wave1Data['King']['Upgrade King Regen']
 ];
 
-// Filter out labels, colors, and data where the value is 0
 const labels = [
     'Snail',
     'Save',
@@ -342,7 +356,6 @@ new Chart(ctx, {
     plugins: [iconPlugin]  // Add the custom icon plugin here
 });
 </script>
-
 {% if patch_selector %}
 <script>
     // Function to get patches from URL
