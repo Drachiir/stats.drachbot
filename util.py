@@ -1,10 +1,7 @@
 import json
 import re
-from copyreg import pickle
 from datetime import datetime
 from re import findall
-
-from anyio import value
 
 modes = [
     'Super Fiesta',     # classic_special_mode_0
