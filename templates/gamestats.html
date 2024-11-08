@@ -138,9 +138,9 @@
     let myChart2 = new Chart(ctx2, {
         type: 'line',
         data: {
-            labels: Array.from({ length: avgLeakPerWave.length }, (_, i) => `Wave ${i + 1}`),
+            labels: Array.from({ length: avgWorkerPerWave.length }, (_, i) => `Wave ${i + 1}`),
             datasets: [{
-                label: 'Worker per Wave',
+                label: 'Avg. Worker',
                 data: chartData.workers,
                 fill: false,
                 borderColor: 'rgb(46,81,255)',
@@ -200,7 +200,11 @@
     document.getElementById('dataSelect').addEventListener('change', function(event) {
         const selectedData = event.target.value;
         myChart2.data.datasets[0].data = chartData[selectedData];
-        myChart2.data.datasets[0].label = selectedData.charAt(0).toUpperCase() + selectedData.slice(1) + ' per Wave';
+        if (selectedData === "leaks"){
+            myChart2.data.datasets[0].label = 'Avg. Leak%';
+        } else {
+            myChart2.data.datasets[0].label = 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1);
+        }
         myChart2.update();
     });
 </script>
@@ -310,7 +314,7 @@ new Chart(ctx, {
                 font: {
                     family: 'Roboto',
                     size: 21,
-                    weight: 'bold'
+                    weight: 400
                 },
                 color: '#ffffff',
                 padding: {
