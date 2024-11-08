@@ -16,12 +16,12 @@
     <!-- Container for Search Bar -->
     <div style="display: flex; justify-content: center">
         <div style="margin-bottom: 10px; display: block;">
-            <div>
-                <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
-            </div>
-            <div class="input-group" style="flex-wrap: nowrap; padding-top: 10px; width: 300px">
+            <div class="input-group" style="flex-wrap: nowrap; width: 300px">
                 <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToLeaderboard(); }">
                 <button class="btn btn-secondary" type="button" onclick="redirectToLeaderboard()">Go</button>
+            </div>
+            <div style="padding-top: 10px;">
+                <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
             </div>
         </div>
     </div>
