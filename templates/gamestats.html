@@ -102,7 +102,7 @@
         {% endif %}
         <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> | <b>v{{ patch }}</b></r>
         <div style="padding-top: 10px">
-            <canvas id="myChart2" width="400" height="150"></canvas>
+            <canvas id="myChart2" width="400" height="500"></canvas>
         </div>
         <div style="display: flex; flex-wrap: wrap; padding-top: 10px; justify-content: space-evenly;">
             <div style="width: max-content; text-align: center">
@@ -150,6 +150,7 @@
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'top',
