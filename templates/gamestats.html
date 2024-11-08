@@ -122,8 +122,8 @@
         </div>
     </div>
 <script>
-    const avgLeakPerWave = {{ gamestats_values["leaks"] }};
     const avgWorkerPerWave = {{ gamestats_values["workers"] }};
+        const avgLeakPerWave = {{ gamestats_values["leaks"] }};
     const avgIncomePerWave = {{ gamestats_values["income"] }};
     const avgValuePerWave = {{ gamestats_values["value"] }};
     const chartData = {
@@ -135,6 +135,12 @@
     const lightColor = 'rgba(255,255,255,0.9)';
     const gridColor = 'rgba(255,255,255,0.3)';
     const ctx2 = document.getElementById('myChart2').getContext('2d');
+    const statColors = {
+        "workers": 'rgb(46,81,255)',
+        "leaks": 'rgb(243,54,96)',
+        "income": 'rgb(214,188,41)',
+        "value": 'rgb(35,232,101)',
+    }
 
     function createChart(selectedData) {
         return new Chart(ctx2, {
@@ -145,8 +151,8 @@
                     label: selectedData === "leaks" ? 'Avg. Leak%' : 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1),
                     data: chartData[selectedData],
                     fill: false,
-                    borderColor: selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)',
-                    backgroundColor: selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)',
+                    borderColor: statColors[selectedData],
+                    backgroundColor: statColors[selectedData],
                     tension: 0.1
                 }]
             },
@@ -206,8 +212,8 @@
     function updateChart(selectedData) {
         myChart2.data.datasets[0].data = chartData[selectedData];
         myChart2.data.datasets[0].label = selectedData === "leaks" ? 'Avg. Leak%' : 'Avg. ' + selectedData.charAt(0).toUpperCase() + selectedData.slice(1);
-        myChart2.data.datasets[0].borderColor = selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)';
-        myChart2.data.datasets[0].backgroundColor = selectedData === "leaks" ? 'rgb(255, 99, 132)' : 'rgb(46,81,255)';
+        myChart2.data.datasets[0].borderColor = statColors[selectedData];
+        myChart2.data.datasets[0].backgroundColor = statColors[selectedData];
         myChart2.update();
     }
 
