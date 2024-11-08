@@ -4,6 +4,8 @@ from copyreg import pickle
 from datetime import datetime
 from re import findall
 
+from anyio import value
+
 modes = [
     'Super Fiesta',     # classic_special_mode_0
     'Giga Mercs',       # classic_special_mode_6
@@ -398,26 +400,48 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
             else:
                 return f"{round(data[key]["LeakedGold"] / (wave_values[int(wave_num[0]) - 1] * (data[key]["Count"] * 4)) * 100, 1)}%"
 
-def get_gamestats_values(data):
+def get_gamestats_values(data, games, playerprofile = False):
     pre10_count, pre10send_count = 0, 0
     count, send_count = 0, 0
     wave_total, wave_count = 0, 0
     pre10_mythium, post10_mythium = 0, 0
-    pre10_ratio, post10_ratio = 0, 0
-    for wave in data["WaveDict"]:
+    pre10_ratio, post10_ratio = [0, 0], [0, 0]
+    avg_leak_per_wave = []
+    avg_worker_per_wave = []
+    avg_income_per_wave = []
+    avg_value_per_wave = []
+    for i, wave in enumerate(data["WaveDict"]):
         wave_total += int(re.findall(r'\d+', wave)[0]) * data["WaveDict"][wave]["EndCount"]
         wave_count += data["WaveDict"][wave]["EndCount"]
+        avg_leak_per_wave.append(round(data["WaveDict"][wave]["LeakedGold"] / (wave_values[i] * data["WaveDict"][wave]["Count"]) * 100, 1))
+        avg_worker_per_wave.append(round(data["WaveDict"][wave]["Worker"] / data["WaveDict"][wave]["Count"], 1))
+        avg_income_per_wave.append(round(data["WaveDict"][wave]["Income"] / data["WaveDict"][wave]["Count"], 1))
+        avg_value_per_wave.append(round(data["WaveDict"][wave]["Value"] / data["WaveDict"][wave]["Count"], 1))
         if int(re.findall(r'\d+', wave)[0]) <= 10:
             pre10_count += data["WaveDict"][wave]["Count"]
             pre10send_count += data["WaveDict"][wave]["SendCount"]
+            pre10_mythium += data["WaveDict"][wave]["IncomeMerc"] + data["WaveDict"][wave]["PowerMerc"]
+            pre10_ratio[0] += data["WaveDict"][wave]["IncomeMerc"]
+            pre10_ratio[1] += data["WaveDict"][wave]["PowerMerc"]
         if int(re.findall(r'\d+', wave)[0]) > 10:
             count += data["WaveDict"][wave]["Count"]
             send_count += data["WaveDict"][wave]["SendCount"]
+            post10_mythium += data["WaveDict"][wave]["IncomeMerc"] + data["WaveDict"][wave]["PowerMerc"]
+            post10_ratio[0] += data["WaveDict"][wave]["IncomeMerc"]
+            post10_ratio[1] += data["WaveDict"][wave]["PowerMerc"]
     avg_end = wave_total/wave_count
     avg_end2 = round((avg_end-10), 1)
+    def divide(x, y):
+        try:
+            return round(x / y * 100)
+        except ZeroDivisionError:
+            return 0
+    print(avg_leak_per_wave)
     return {"1-10": f"{round(10 * (1 - (pre10send_count / pre10_count)), 1)}/10 ({round((10 * (1 - (pre10send_count / pre10_count)))/10*100, 1)}%)",
             "11+": f"{round((avg_end - 10) * (1 - (send_count / count)), 1)}/{avg_end2} ({round((avg_end2 * (1 - (send_count / count)))/avg_end2*100, 1)}%)",
-            "avg_end": f"{round(avg_end, 1)}"}
+            "avg_end": f"{round(avg_end, 1)}", "pre10_myth_ratio": f"{divide(pre10_ratio[0], pre10_mythium)}% / {divide(pre10_ratio[1], pre10_mythium)}%",
+            "post10_myth_ratio": f"{divide(post10_ratio[0], post10_mythium)}% / {divide(post10_ratio[1], post10_mythium)}%", "pre10_myth": round(pre10_mythium / games),
+            "post10_myth": round(post10_mythium / games), "workers": avg_worker_per_wave, "leaks": avg_leak_per_wave, "income": avg_income_per_wave, "value": avg_value_per_wave}
 
 def time_ago(time=False):
     now = datetime.utcnow()

@@ -958,7 +958,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                    human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                                    specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
                                    stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
-                                   get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl="", playername2=playername2, patch_selector=True,
+                                   get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}/", playername2=playername2, patch_selector=True,
                                    title=title, title_image=title_image, header_title=header_title)
         if specific_key == "All":
             html_file = "stats.html"
@@ -1098,10 +1098,10 @@ def stats(stats, elo, patch, specific_key):
     for file in os.listdir(shared_folder+f"data/{folder}/"):
         if file.startswith(f"{patch}_{elo}"):
             games = file.split("_")[2]
-            if games == "o":
-                return render_template("no_data.html", text="No Data")
-            else:
+            try:
                 games = int(games)
+            except Exception:
+                return render_template("no_data.html", text="No Data")
             avg_elo = file.split("_")[3].replace(".json", "")
             with open(shared_folder+f"data/{folder}/"+file, "r") as f:
                 mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())

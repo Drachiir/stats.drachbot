@@ -26,31 +26,48 @@
             font-style: normal;
             font-size: 1rem;
         }
+        .middle_td{
+             line-height: 45px
+        }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <div style="padding-top: 15px;">
         <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
         <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
-        <div style="float:right;">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                Elo
-            </button>
-            <ul class="dropdown-menu">
-                {% for i in elo_brackets %}
-                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
-                        <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
-                {% endfor %}
-            </ul>
-            {% if not patch_selector %}
+        <div style="float:right; display: flex; gap: 10px; padding-top: 10px">
+            <div style="display: flex; white-space: nowrap">
+                <label style="line-height: 35px; padding-right: 5px" for="dataSelect">Select Data: </label>
+                <select class="form-select" id="dataSelect">
+                    <option value="workers">Workers</option>
+                    <option value="leaks">Leaks</option>
+                    <option value="income">Income</option>
+                    <option value="value">Value</option>
+                </select>
+            </div>
+            <div>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    Patch
+                    Elo
                 </button>
                 <ul class="dropdown-menu">
-                    {% for p in patch_list %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                    {% for i in elo_brackets %}
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% endfor %}
                 </ul>
+            </div>
+            {% if not patch_selector %}
+                <div>
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        Patch
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for p in patch_list %}
+                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
             {% else %}
                 <div class="dropdown" style="float: right; padding-left: 5px">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -78,20 +95,250 @@
             {% endif %}
         </div>
         <br>
-        {% set gamestats_values = get_gamestats_values(data) %}
-        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
-        Avg End Wave: <b>{{ gamestats_values["avg_end"] }}</b> | <b>v{{ patch }}</b></r>
-        <div style="display: flex; flex-wrap: wrap; padding-top: 20px">
-            <div style="width: 40%; display: inline-block">
-                <table class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
-                    <tr><th><r4>Waves</r4></th><th><r4>1-10</r4></th><th><r4>11+</r4></th></tr>
-                    <tr><th><r4>Mythium Saved</r4></th><td><r3>{{ gamestats_values["1-10"] }}</r3></td><td><r3>{{ gamestats_values["11+"] }}</r3></td></tr>
-                    <tr><th><r4>Inc/Power<br>Merc Ratio</r4></th><td><r3>1-10</r3></td><td><r3>11+</r3></td></tr>
-                    <tr><th><r4>Mythium Sent</r4></th><td><r3>1-10</r3></td><td><r3>11+</r3></td></tr>
-                </table>
+        {% if patch_selector %}
+            {% set gamestats_values = get_gamestats_values(data, games, playerprofile = True) %}
+        {% else %}
+            {% set gamestats_values = get_gamestats_values(data, games*4) %}
+        {% endif %}
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> | <b>v{{ patch }}</b></r>
+        <div style="padding-top: 10px">
+            <canvas id="myChart2" width="400" height="150"></canvas>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; padding-top: 10px; justify-content: space-evenly;">
+            <div style="width: max-content; text-align: center">
+                <r3 style="font-size: 1.3rem; font-weight: 500;">Send Stats</r3>
+                <div style="padding-top: 10px">
+                    <table class="table table-hover table-bordered" style="white-space: nowrap;">
+                        <tr><th><r4>Wave</r4></th><th><r4>1-10</r4></th><th><r4>11+</r4></th></tr>
+                        <tr><th><r4>Waves Saved</r4></th><td><r3>{{ gamestats_values["1-10"] }}</r3></td><td><r3>{{ gamestats_values["11+"] }}</r3></td></tr>
+                        <tr><th><r4>Income/Power<br>Send Ratio</r4></th><td class="middle_td"><r3>{{ gamestats_values["pre10_myth_ratio"] }}</r3></td><td class="middle_td"><r3>{{ gamestats_values["post10_myth_ratio"] }}</r3></td></tr>
+                        <tr><th><r4>Mythium Sent</r4></th><td><r3>{{ gamestats_values["pre10_myth"] }}</r3></td><td><r3>{{ gamestats_values["post10_myth"] }}</r3></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div style="width: max-content; height: 250px;">
+                <canvas id="wave1Chart"></canvas>
             </div>
         </div>
     </div>
+<script>
+    const avgLeakPerWave = {{ gamestats_values["leaks"] }};
+    const avgWorkerPerWave = {{ gamestats_values["workers"] }};
+    const avgIncomePerWave = {{ gamestats_values["income"] }};
+    const avgValuePerWave = {{ gamestats_values["value"] }};
+    const chartData = {
+        workers: avgWorkerPerWave,
+        leaks: avgLeakPerWave,
+        income: avgIncomePerWave,
+        value: avgValuePerWave
+    };
+    const lightColor = 'rgba(255,255,255,0.9)';
+    const gridColor = 'rgba(255,255,255,0.3)';
+    const ctx2 = document.getElementById('myChart2').getContext('2d');
+    let myChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: Array.from({ length: avgLeakPerWave.length }, (_, i) => `Wave ${i + 1}`),
+            datasets: [{
+                label: 'Worker per Wave',
+                data: chartData.workers,
+                fill: false,
+                borderColor: 'rgb(46,81,255)',
+                backgroundColor: 'rgb(46,81,255)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    bodyColor: lightColor,
+                    titleColor: lightColor
+                },
+                labels: {
+                    color: lightColor
+                }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    color: lightColor
+                },
+                grid: {
+                    color: gridColor
+                }
+            },
+            y: {
+                ticks: {
+                    color: lightColor
+                },
+                grid: {
+                    color: gridColor
+                }
+            }
+            }
+        },
+        plugins: [
+            {
+                id: 'customBackground',
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.fillStyle = 'rgb(33,37,41)';
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            },
+        ]
+    });
+    document.getElementById('dataSelect').addEventListener('change', function(event) {
+        const selectedData = event.target.value;
+        myChart2.data.datasets[0].data = chartData[selectedData];
+        myChart2.data.datasets[0].label = selectedData.charAt(0).toUpperCase() + selectedData.slice(1) + ' per Wave';
+        myChart2.update();
+    });
+</script>
+<script>
+const totalGames = {{ data['WaveDict']["wave1"]["Count"] }}
+const wave1Data = {{ data['Wave1Stats']|tojson }};
+const iconPlugin = {
+    id: 'customIconPlugin',
+    beforeInit(chart) {
+        // Preload images
+        chart.iconImages = {};
+    },
+    afterDatasetsDraw(chart) {
+        const ctx = chart.ctx;
+        const segments = chart.getDatasetMeta(0).data;
+        const iconSize = 30;  // Adjust icon size as needed
+
+        // Draw icons AFTER tooltips
+        segments.forEach((segment, index) => {
+            // Use tooltipPosition() to get reliable coordinates for each segment
+            const position = segment.tooltipPosition();
+            const x = position.x;
+            const y = position.y;
+
+            let key = chart.data.labels[index].replace(/ /g, '');  // Remove spaces from the label
+            if (key === "Save") {
+                key = "Mythium32";
+            }
+            const iconUrl = `https://cdn.legiontd2.com/icons/${key}.png`;
+
+            // If image is not already loaded, load it
+            if (!chart.iconImages[key]) {
+                const img = new Image();
+                img.src = iconUrl;
+                img.onload = () => {
+                    chart.iconImages[key] = img;
+                    ctx.drawImage(img, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+                };
+                img.onerror = () => {
+                    console.error(`Failed to load image for ${key} at URL: ${iconUrl}`);
+                };
+            } else {
+                // Use preloaded image
+                const img = chart.iconImages[key];
+                ctx.drawImage(img, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+            }
+        });
+    }
+};
+
+const filteredData = [
+    wave1Data['Snail'],
+    wave1Data['Save'],
+    wave1Data['King']['Upgrade King Attack'],
+    wave1Data['King']['Upgrade King Spell'],
+    wave1Data['King']['Upgrade King Regen']
+];
+
+// Filter out labels, colors, and data where the value is 0
+const labels = [
+    'Snail',
+    'Save',
+    'Upgrade King Attack',
+    'Upgrade King Spell',
+    'Upgrade King Regen'
+];
+
+const backgroundColors = [
+    '#ff621a', // Snail
+    '#1997ff', // Save
+    '#ff1d1d', // King Attack
+    '#8f09dd', // King Spell
+    '#0cca2f'  // King Regen
+];
+
+const filteredLabels = [];
+const filteredColors = [];
+const filteredDataValues = [];
+
+filteredData.forEach((value, index) => {
+    if (value > 0) {
+        filteredLabels.push(labels[index]);
+        filteredColors.push(backgroundColors[index]);
+        filteredDataValues.push(value);
+    }
+});
+
+const ctx = document.getElementById('wave1Chart').getContext('2d');
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: filteredLabels,
+        datasets: [{
+            label: 'Wave 1',
+            data: filteredDataValues,
+            backgroundColor: filteredColors,
+            borderWidth: 0,
+            hoverOffset: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        animation: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Wave 1 Sends',
+                font: {
+                    family: 'Roboto',
+                    size: 21,
+                    weight: 'bold'
+                },
+                color: '#ffffff',
+                padding: {
+                    bottom: 10
+                }
+            },
+            legend: {
+                position: 'none'
+            },
+            tooltip: {
+                enabled: true,
+                position: 'nearest',
+                zIndex: 10000,
+                callbacks: {
+                    label: function(context) {
+                        const count = context.raw;
+                        let percentage = count / (totalGames) * 100
+                        return [
+                            `Games: ${count} (${percentage.toFixed(2)}%)`
+                        ];}
+                }
+            }
+        }
+    },
+    plugins: [iconPlugin]  // Add the custom icon plugin here
+});
+</script>
+
 {% if patch_selector %}
 <script>
     // Function to get patches from URL
