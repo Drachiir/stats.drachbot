@@ -601,16 +601,16 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["rankedWinsThisSeason"] = 0
         if not api_stats["rankedLossesThisSeason"]:
             api_stats["rankedLossesThisSeason"] = 0
-        stats_list = ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"]
+        stats_list = ["gamestats", "mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
         image_list = [
+            "https://cdn.legiontd2.com/icons/DefaultAvatar.png",
             "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Items/Megamind.png",
             "https://cdn.legiontd2.com/icons/Mastery/5.png",
             "https://cdn.legiontd2.com/icons/LegionSpell.png",
             "https://cdn.legiontd2.com/icons/Reroll.png",
             "https://cdn.legiontd2.com/icons/Value10000.png",
-            "https://cdn.legiontd2.com/icons/LegionKing.png",
-            "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
+            "https://cdn.legiontd2.com/icons/LegionKing.png"
         ]
         path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.json"
         history = None
