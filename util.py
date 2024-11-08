@@ -410,10 +410,10 @@ def get_gamestats_values(data, games, playerprofile = False):
     for i, wave in enumerate(data["WaveDict"]):
         wave_total += int(re.findall(r'\d+', wave)[0]) * data["WaveDict"][wave]["EndCount"]
         wave_count += data["WaveDict"][wave]["EndCount"]
-        avg_leak_per_wave.append(round(data["WaveDict"][wave]["LeakedGold"] / (wave_values[i] * data["WaveDict"][wave]["Count"]) * 100, 1))
-        avg_worker_per_wave.append(round(data["WaveDict"][wave]["Worker"] / data["WaveDict"][wave]["Count"], 1))
-        avg_income_per_wave.append(round(data["WaveDict"][wave]["Income"] / data["WaveDict"][wave]["Count"], 1))
-        avg_value_per_wave.append(round(data["WaveDict"][wave]["Value"] / data["WaveDict"][wave]["Count"], 1))
+        avg_leak_per_wave.append(round(data["WaveDict"][wave]["LeakedGold"] / (wave_values[i] * data["WaveDict"][wave]["Count"]) * 100 if wave_values[i] != 0 and data["WaveDict"][wave]["Count"] != 0 else 0, 1))
+        avg_worker_per_wave.append(round(data["WaveDict"][wave]["Worker"] / data["WaveDict"][wave]["Count"] if data["WaveDict"][wave]["Count"] != 0 else 0, 1))
+        avg_income_per_wave.append(round(data["WaveDict"][wave]["Income"] / data["WaveDict"][wave]["Count"] if data["WaveDict"][wave]["Count"] != 0 else 0, 1))
+        avg_value_per_wave.append(round(data["WaveDict"][wave]["Value"] / data["WaveDict"][wave]["Count"] if data["WaveDict"][wave]["Count"] != 0 else 0, 1))
         if int(re.findall(r'\d+', wave)[0]) <= 10:
             pre10_count += data["WaveDict"][wave]["Count"]
             pre10send_count += data["WaveDict"][wave]["SendCount"]
