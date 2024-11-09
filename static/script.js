@@ -116,29 +116,23 @@ function filterFunction() {
   const div = document.getElementById("myDropdown");
   const ul = div.getElementsByTagName("ul")[0];
   const a = ul.getElementsByTagName("a");
-
-  // Check if the custom input element already exists
   let firstResult = ul.getElementsByClassName('user-input-result')[0];
 
   if (!firstResult) {
-    // If it doesn't exist, create a new list item for the user's input
     firstResult = document.createElement('li');
     firstResult.className = 'user-input-result';
     firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
     ul.insertBefore(firstResult, ul.firstChild); // Insert at the top
   } else {
-    // Update the custom search item with the new input
     firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
   }
 
-  // Show the first custom search result if the user has entered something
   if (input.value.trim() !== "") {
     firstResult.style.display = "";
   } else {
     firstResult.style.display = "none";
   }
 
-  // Loop through the existing list items and filter based on input
   for (let i = 1; i < ul.children.length; i++) {
     const item = ul.children[i].getElementsByTagName("a")[0];
     const txtValue = item.textContent || item.innerText;
@@ -149,24 +143,16 @@ function filterFunction() {
     }
   }
 
-  // Add event listener for Enter key
   input.addEventListener('keydown', function(event) {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent form submission if inside a form
-
-      // Find the first visible <a> element
+      event.preventDefault();
       const firstVisibleLink = ul.querySelector('li:not([style*="display: none"]) a');
-
-      // If found, navigate to its href
       if (firstVisibleLink) {
-
-        // Navigate to the href
         window.location.href = firstVisibleLink.href;
       }
     }
   });
 
-  // Add event listeners to each dropdown link
   for (let i = 0; i < a.length; i++) {
     a[i].addEventListener('click', function(event) {
     });
@@ -201,23 +187,62 @@ function loading(){
     $("#content").hide();
 }
 
+async function getSearchSuggestions() {
+    const input = document.getElementById('profileInput').value;
+    const suggestionsBox = document.getElementById('suggestions');
+    if (!input) {
+        suggestionsBox.style.display = 'none';
+        return;
+    }
+    try {
+        const response = await fetch(`/api/get_search_results/${encodeURIComponent(input)}`);
+        const suggestions = await response.json();
+        if (!document.getElementById('profileInput').value) {
+            suggestionsBox.style.display = 'none';
+            return;
+        }
+        if (suggestions.length > 0) {
+            suggestionsBox.innerHTML = '';
+            suggestions.forEach(player => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.className = 'dropdown-item';
+
+                const avatarUrl = player.avatar_url
+                    ? `https://cdn.legiontd2.com/${player.avatar_url}`
+                    : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
+
+                suggestionItem.innerHTML = `
+                    <a style="text-decoration: none; color: white" href="/profile/${player.player_name}">
+                    <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
+                    <span>${player.player_name}</span></a>
+                `;
+
+                suggestionItem.onclick = () => {
+                    document.getElementById('profileInput').value = player.player_name;
+                    redirectToProfile();
+                };
+                suggestionsBox.appendChild(suggestionItem);
+            });
+            suggestionsBox.style.display = 'block';
+        } else {
+            suggestionsBox.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error fetching search suggestions:', error);
+    }
+}
+
 function redirectToProfile() {
     const input = document.getElementById('profileInput').value;
     if(input) {
-        window.location.href = `/profile/${input}`;
+        window.location.href = `/profile/${encodeURIComponent(input)}`;
     }
 }
+
 
 function redirectToGame() {
     const input = document.getElementById('gameInput').value;
     if(input) {
         window.location.href = `/gameviewer/${input}`;
-    }
-}
-
-function redirectToRecap() {
-    const input = document.getElementById('recapInput').value;
-    if(input) {
-        window.location.href = `/recap/${input}`;
     }
 }

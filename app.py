@@ -22,6 +22,8 @@ from flask_cors import CORS, cross_origin
 import time
 import threading
 from threading import Thread
+from drachbot.peewee_pg import PlayerProfile
+from peewee import fn
 
 cache = Cache()
 
@@ -490,6 +492,19 @@ def check_refresh_status(playerid):
         'in_progress': state.get('in_progress', False),
         'cooldown': cooldown_duration
     })
+
+@app.route('/api/get_search_results/<search_term>', methods=['GET'])
+def get_search_results(search_term):
+    query = (PlayerProfile
+             .select(PlayerProfile.player_name, PlayerProfile.avatar_url)
+             .where(fn.LOWER(PlayerProfile.player_name).contains(search_term.lower()))
+             .limit(5))
+
+    players = [{'player_name': player.player_name,
+                'avatar_url': player.avatar_url}
+               for player in query]
+    return jsonify(players), 200
+
 
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
