@@ -265,6 +265,10 @@ div#loading {
     font-size: 0.9rem; /* You can adjust the font size as needed */
 }
 
+.timestamp{
+    font-size: 1.1rem;
+}
+
 /* Game header styling */
 .game-header {
     margin-bottom: 10px;
@@ -284,6 +288,7 @@ div#loading {
 
 /* Teams styling */
 .team {
+    position: relative;
     flex: 1;
     display: flex;
     flex-direction: column;

@@ -1,6 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .rankHover{
+        position: absolute;
+        left: 40%;
+        bottom: -14px;
+        font-size: 0.7rem;
+        color: #9e9e9e;
+    }
+</style>
 <div style="text-align: center; width: 100%; color: #fff11b; padding: 10px"><r>Note: Elo ± calculations are not accurate for games with Duos</r></div>
 <div class="main-container">
     <div id="games-container">
@@ -9,26 +18,15 @@
 </div>
 
 <script>
-    // Function to calculate the relative time
     function getRelativeTime(timestamp) {
         const now = new Date().getTime();
-        const timeDifference = Math.floor(now - timestamp * 1000); // Convert POSIX to milliseconds
+        const timeDifference = Math.floor(now - timestamp * 1000);
 
         const seconds = Math.floor(timeDifference / 1000);
-        const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-
-        if (seconds < 60) {
-            return rtf.format(-seconds, 'second');
-        } else if (seconds < 3600) {
-            return rtf.format(-Math.floor(seconds / 60), 'minute');
-        } else if (seconds < 86400) {
-            return rtf.format(-Math.floor(seconds / 3600), 'hour');
-        } else {
-            return rtf.format(-Math.floor(seconds / 86400), 'day');
-        }
+        const minutes = Math.floor(seconds / 60);
+        return `${minutes}:${String((seconds % 60)).padStart(2, '0')}`;
     }
 
-    // Function to get rank URL based on ELO (JavaScript version of your Python get_rank_url)
     function getRankUrl(elo) {
         if (typeof elo !== 'number') {
             elo = parseInt(elo, 10);
@@ -58,81 +56,65 @@
         }
     }
 
-    let gamesData = []; // Global variable to store fetched games data
-
-    // Function to update all timestamps
+    let gamesData = [];
     function updateAllTimestamps() {
         const elements = document.querySelectorAll('.timestamp');
         elements.forEach(el => {
-            const posixTimestamp = parseFloat(el.getAttribute('data-timestamp')); // Get timestamp from data attribute
+            const posixTimestamp = parseFloat(el.getAttribute('data-timestamp'));
             const relativeTime = getRelativeTime(posixTimestamp);
             el.innerText = relativeTime;
         });
     }
 
-    // Function to calculate team Elo stats (average, win probability, elo change)
     function calculateTeamStats(team1, team2) {
-        // Calculate average Elo for both teams (convert to numbers)
         const team1_avgElo = team1.reduce((sum, player) => sum + parseFloat(player[1]), 0) / team1.length;
         const team2_avgElo = team2.reduce((sum, player) => sum + parseFloat(player[1]), 0) / team2.length;
 
-        // Ensure Elos are valid numbers (in case they were incorrectly passed)
         const team1Elo = parseFloat(team1_avgElo);
         const team2Elo = parseFloat(team2_avgElo);
 
-        // Calculate win probabilities for each team
         const winProbabilityTeam1 = calculateWinProbability(team1Elo, team2Elo);
         const winProbabilityTeam2 = 1 - winProbabilityTeam1;
 
-        // Calculate Elo change for a win/loss scenario
         const team1EloChange = calculateEloChange(team1Elo, team2Elo, 1);
         const team2EloChange = calculateEloChange(team2Elo, team1Elo, 1);
 
         return {
             team1_avgElo: Math.round(team1Elo),
             team2_avgElo: Math.round(team2Elo),
-            winProbabilityTeam1: (winProbabilityTeam1 * 100).toFixed(2), // Convert to percentage
-            winProbabilityTeam2: (winProbabilityTeam2 * 100).toFixed(2), // Convert to percentage
+            winProbabilityTeam1: (winProbabilityTeam1 * 100).toFixed(2),
+            winProbabilityTeam2: (winProbabilityTeam2 * 100).toFixed(2),
             team1EloChange: Math.round(team1EloChange),
             team2EloChange: Math.round(team2EloChange)
         };
     }
 
-    // Function to calculate win probability for teamA against teamB
     function calculateWinProbability(teamA_elo, teamB_elo) {
         const expectedA = 1 / (1 + Math.pow(10, (teamB_elo - teamA_elo) / 400));
         return expectedA;
     }
 
-    // Function to calculate Elo change for a team
     function calculateEloChange(teamElo, opponentElo, result) {
-        const K = 32; // K-factor
+        const K = 32;
         const winProb = calculateWinProbability(teamElo, opponentElo);
         let eloChange = K * (result - winProb);
-
-        // Apply min/max Elo change limits
         if (eloChange > 30) eloChange = 30;
         if (eloChange < -30) eloChange = -30;
-        if (result === 1 && eloChange < 2) eloChange = 2;  // Ensure at least +2 Elo for a win
-        if (result === 0 && eloChange > -2) eloChange = -2; // Ensure at least -2 Elo for a loss
+        if (result === 1 && eloChange < 2) eloChange = 2;
+        if (result === 0 && eloChange > -2) eloChange = -2;
 
         return eloChange;
     }
 
-    // Function to render games in the container
     function renderGames(games) {
         const gamesContainer = document.getElementById('games-container');
-        gamesContainer.innerHTML = ''; // Clear any previous content
+        gamesContainer.innerHTML = '';
 
         games.forEach(game => {
             const gameElo = game[1];
             const westPlayers = game[2];
             const eastPlayers = game[3];
-
-            // Calculate the team stats
             const teamStats = calculateTeamStats(westPlayers, eastPlayers);
-
-            // Create HTML structure for each game
             const gameHTML = `
                     <div class="game-card">
                         <div class="timestamp-container">
@@ -146,16 +128,20 @@
                             <div class="team">
                                 ${westPlayers.map(player => `
                                     <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${player[0]}</span>
+                                        <div style="position: relative">
+                                            <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                            <span>${player[0]}</span>
+                                        </div>
                                     </a>
                                 `).join('')}
                             </div>
                             <div class="team">
                                 ${eastPlayers.map(player => `
                                     <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
-                                        <span>${player[0]}</span>
+                                        <div style="position: relative">
+                                            <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                            <span>${player[0]}</span>
+                                        </div>
                                     </a>
                                 `).join('')}
                             </div>
@@ -164,38 +150,29 @@
                 `;
             gamesContainer.innerHTML += gameHTML;
         });
-
-        // Update the relative time for all timestamps
         updateAllTimestamps();
     }
 
-
-
-
-    // Function to fetch and store games from the API
     async function fetchGames() {
         try {
-            const response = await fetch('/api/livegames'); // Fetch the live games data from the API
-            gamesData = await response.json(); // Store the games data globally
+            const baseUrl = window.location.origin.includes('127.0.0.1')
+                ? 'https://drachbot.site'
+                : '';
+            const response = await fetch(`${baseUrl}/api/livegames`);
+            gamesData = await response.json();
             gamesData = gamesData.slice(0, 21);
-            // Sort games by ELO (highest to lowest)
             gamesData = gamesData.sort((a, b) => b[1] - a[1]);
-
-            // Initial render of games with the current search query (if any)
             renderGames(gamesData);
 
         } catch (error) {
             console.error('Error fetching games:', error);
         }
     }
-
-
-    // Initial fetch and update
     fetchGames(gamesData);
-
-    // Update games periodically (e.g., every minute)
     setInterval(() => {
-        fetchGames(gamesData); // Re-fetch the games periodically to get live updates
+        fetchGames(gamesData);
     }, 10000); // Refresh every 10 seconds
+
+    setInterval(updateAllTimestamps, 1000);
 </script>
 {% endblock %}
