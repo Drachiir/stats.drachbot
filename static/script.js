@@ -106,6 +106,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+const statsInput = document.getElementById('statsInput');
+if (statsInput) {
+    statsInput.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    });
+}
+
 function showHomeDropdown() {
     const dropdown = document.getElementById("statsDropdown");
     dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
