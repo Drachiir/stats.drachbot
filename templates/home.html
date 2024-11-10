@@ -1,38 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    #homeDropdown {
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+    }
+</style>
 <div class="container-lg" style="padding-top: 2vw; text-align: center; display: inline-block;">
     <div><img id="mask" style="clip-path: circle();object-fit: cover;
                 border-radius: 50%;
                 border: 2px solid rgb(84,152,219);
                 box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div><br>
     <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
-    <r style="font-size: 1.2rem">Legion TD 2 Ranked 2v2 Stats | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
+    <r style="font-size: 1.2rem">Legion TD 2 Stats for Ranked 2v2 | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
     <a href="/gamestats"><r style="color: dodgerblue; font-size: 1.3rem; font-weight: 400">Check out the new Game Stats page ↗️</r></a><br>
-    <form style="padding: 1vw;" class="input-group input-group-lg" id="content">
-        <input type="text"
-                onclick="myFunction()"
-                data-bs-toggle="dropdown"
-                class="form-control"
-                placeholder="Search Playername/Unit/Mastermind etc.."
-                id="myInput"
-                onkeyup="filterFunction()">
-        <div style="text-align: center" id="myDropdown" class="dropdown-content">
-            <ul class="dropdown-menu dropdown-scrollbar">
-                {% for list in keys %}
-                    {% for k in list[1] %}
-                        {% if k == "Megamind" %}
-                            {% set stats = "megamindstats" %}
-                        {% else %}
-                            {% set stats = list[0] %}
-                        {% endif %}
-                        <li><a class="dropdown-item" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
-                            <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(k, list[0]) }}">{{ k|capitalize }} - {{ list[0]|capitalize }} </a></li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
+    <div style="display: flex; justify-content: space-evenly; padding-top: 15px">
+        <div class="search-container" style="position: relative; width: 45%">
+            <div class="input-group input-group-lg profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
+                <input type="text" id="profileInput2" class="form-control" placeholder="Search Player"
+                       aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions2'))">
+                <button class="btn btn-secondary" type="button" onclick="redirectToProfile(document.getElementById('profileInput2'))">Go</button>
+            </div>
+            <div id="suggestions2" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
         </div>
-    </form>
+        <div style="width: 45%">
+            <form id="content" class="d-flex position-relative">
+                <div class="input-group input-group-lg w-100 position-relative">
+                    <input type="text"
+                           onclick="showHomeDropdown()"
+                           class="form-control rounded-pill"
+                           placeholder="Search Unit/Mastermind/Legion Spell"
+                           id="statsInput"
+                           onkeyup="statsFilter()">
+                </div>
+                <div id="homeDropdown" class="dropdown-menu dropdown-scrollbar w-100 mt-1 position-absolute" style="display: none; top: 100%;">
+                    <ul class="list-unstyled mb-0">
+                        {% for list in keys %}
+                            {% for k in list[1] %}
+                                {% if k == "Megamind" %}
+                                    {% set stats = "megamindstats" %}
+                                {% else %}
+                                    {% set stats = list[0] %}
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center" href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ k }}">
+                                        <img loading="lazy" style="width: 24px; margin-right: 8px;" src="{{ get_cdn_image(k, list[0]) }}">
+                                        {{ k|capitalize }} - {{ list[0]|capitalize }}
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </form>
+        </div>
+    </div>
     <div style="display: flex; width: 100%; flex-wrap: wrap; margin-top: 3%; justify-content: center">
         {% for data in data_list %}
             <div style="display: inline-block; padding: 0.5vw;">

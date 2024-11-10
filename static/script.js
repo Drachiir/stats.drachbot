@@ -106,77 +106,37 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-function myFunction() {
-    document.getElementById("myDropdown").classList.toggle("show");
-}
-
-function filterFunction() {
-  const input = document.getElementById("myInput");
-  const filter = input.value.toUpperCase();
-  const div = document.getElementById("myDropdown");
-  const ul = div.getElementsByTagName("ul")[0];
-  const a = ul.getElementsByTagName("a");
-  let firstResult = ul.getElementsByClassName('user-input-result')[0];
-
-  if (!firstResult) {
-    firstResult = document.createElement('li');
-    firstResult.className = 'user-input-result';
-    firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
-    ul.insertBefore(firstResult, ul.firstChild); // Insert at the top
-  } else {
-    firstResult.innerHTML = `<a class="dropdown-item" href="/load/${input.value}"><img loading="lazy" style="width: 24px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">${input.value} - Player Search</a>`;
-  }
-
-  if (input.value.trim() !== "") {
-    firstResult.style.display = "";
-  } else {
-    firstResult.style.display = "none";
-  }
-
-  for (let i = 1; i < ul.children.length; i++) {
-    const item = ul.children[i].getElementsByTagName("a")[0];
-    const txtValue = item.textContent || item.innerText;
-    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      ul.children[i].style.display = "";
-    } else {
-      ul.children[i].style.display = "none";
-    }
-  }
-
-  input.addEventListener('keydown', function(event) {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      const firstVisibleLink = ul.querySelector('li:not([style*="display: none"]) a');
-      if (firstVisibleLink) {
-        window.location.href = firstVisibleLink.href;
-      }
-    }
-  });
-
-  for (let i = 0; i < a.length; i++) {
-    a[i].addEventListener('click', function(event) {
+function showHomeDropdown() {
+    const dropdown = document.getElementById("homeDropdown");
+    dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+    document.addEventListener("click", (event) => {
+        const input = document.getElementById("statsInput");
+        if (!dropdown.contains(event.target) && event.target !== input) {
+            dropdown.style.display = "none";
+        }
     });
-  }
 }
 
-function filterFunction2() {
-  const input = document.getElementById("myInput");
-  const filter = input.value.toUpperCase();
-  const dropdown = document.getElementById("myDropdown");
-  const ul = dropdown.getElementsByTagName("ul")[0];
-  const li = ul.getElementsByTagName("li");
-
-  // Loop through all list items and hide those that don't match the search query
-  for (let i = 0; i < li.length; i++) {
-    const a = li[i].getElementsByTagName("a")[0];
-    const txtValue = a.textContent || a.innerText;
-    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-      li[i].style.display = "";
-    } else {
-      li[i].style.display = "none";
+function statsFilter() {
+    const input = document.getElementById("statsInput");
+    const filter = input.value.toUpperCase();
+    const dropdown = document.getElementById("homeDropdown");
+    const ul = dropdown.getElementsByTagName("ul")[0];
+    const li = ul.getElementsByTagName("li");
+    let hasVisibleItems = false;
+    for (let i = 0; i < li.length; i++) {
+        const a = li[i].getElementsByTagName("a")[0];
+        const txtValue = a.textContent || a.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+        } else {
+            li[i].style.display = "none";
+        }
     }
-  }
+    dropdown.style.display = hasVisibleItems ? "block" : "none";
 }
+
 
 function refreshPage() {
     window.location.reload();  // Refresh the page
@@ -187,22 +147,22 @@ function loading(){
     $("#content").hide();
 }
 
-async function getSearchSuggestions() {
-    const input = document.getElementById('profileInput').value;
-    const suggestionsBox = document.getElementById('suggestions');
+async function getSearchSuggestions(inputElement, suggestionsBoxElement) {
+    const input = inputElement.value;
     if (!input) {
-        suggestionsBox.style.display = 'none';
+        suggestionsBoxElement.style.display = 'none';
         return;
     }
     try {
         const response = await fetch(`/api/get_search_results/${encodeURIComponent(input)}`);
         const suggestions = await response.json();
-        if (!document.getElementById('profileInput').value) {
-            suggestionsBox.style.display = 'none';
+        if (!inputElement.value) {
+            suggestionsBoxElement.style.display = 'none';
             return;
         }
+
         if (suggestions.length > 0) {
-            suggestionsBox.innerHTML = '';
+            suggestionsBoxElement.innerHTML = '';
             suggestions.forEach(player => {
                 const suggestionItem = document.createElement('div');
                 suggestionItem.className = 'dropdown-item';
@@ -218,26 +178,36 @@ async function getSearchSuggestions() {
                 `;
 
                 suggestionItem.onclick = () => {
-                    document.getElementById('profileInput').value = player.player_name;
+                    inputElement.value = player.player_name;
                     redirectToProfile();
                 };
-                suggestionsBox.appendChild(suggestionItem);
+                suggestionsBoxElement.appendChild(suggestionItem);
             });
-            suggestionsBox.style.display = 'block';
+            suggestionsBoxElement.style.display = 'block';
         } else {
-            suggestionsBox.style.display = 'none';
+            suggestionsBoxElement.style.display = 'none';
         }
     } catch (error) {
         console.error('Error fetching search suggestions:', error);
     }
 }
 
-function redirectToProfile() {
-    const input = document.getElementById('profileInput').value;
-    if(input) {
+function handleEnterPress(event) {
+    if (event.key === 'Enter') {
+        redirectToProfile(event.target);
+    }
+}
+
+function redirectToProfile(inputElement) {
+    const input = inputElement.value;
+    if (input) {
         window.location.href = `/profile/${encodeURIComponent(input)}`;
     }
 }
+
+document.querySelectorAll('.profile-input').forEach(input => {
+    input.addEventListener('keydown', handleEnterPress);
+});
 
 
 function redirectToGame() {

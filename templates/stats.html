@@ -62,8 +62,8 @@
                                   border-0 border-bottom
                                   shadow-none mb-2"
                            placeholder="Search..."
-                           id="myInput"
-                           onkeyup="filterFunction2()">
+                           id="statsInput"
+                           onkeyup="statsFilter()">
                         {% for d in data_keys %}
                             <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
                                 <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>

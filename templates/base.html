@@ -60,10 +60,9 @@
         {% endif %}
     {% else %}
         <title>Legion TD 2 Stats, Best Openers, Masterminds, Legion Spells and Units.</title>
-        <title>{% block title %} {% endblock %}</title>
-        <meta name="description" content="Legion TD 2 Stats {{ patch }}">
+        <meta name="description" content="Legion TD 2 Stats {{ patch }} by Drachbot. Discover top openers, best masterminds, legion spells, and unit rankings based on the latest data. Updated continuously to keep you ahead in every match.">
         <meta property="og:title" content="Legion TD 2 Stats {{ patch }}" />
-        <meta property="og:description" content="Legion TD 2 Stats, Best Openers, Masterminds, Legion Spells and Units.">
+        <meta property="og:description" content="Legion TD 2 Stats {{ patch }} by Drachbot. Discover top openers, best masterminds, legion spells, and unit rankings based on the latest data. Updated continuously to keep you ahead in every match.">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% endif %}
     <meta charset="utf-8">
@@ -196,12 +195,14 @@
                 <a href="https://ko-fi.com/drachbot" class="nav-link">Ko-Fi</a>
             </li>
             <li>
-                <div class="input-group" style="flex-wrap: nowrap; padding-right: 10px; position: relative;">
-                    <input type="text" id="profileInput" class="form-control" placeholder="Search Player" aria-label="Profile Name"
-                           oninput="getSearchSuggestions()" onkeydown="if(event.key === 'Enter'){ redirectToProfile(); }">
-                    <button class="btn btn-secondary" type="button" onclick="redirectToProfile()">Go</button>
+                <div class="search-container" style="position: relative;">
+                    <div class="input-group profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
+                        <input type="text" id="profileInput1" class="form-control" placeholder="Search Player"
+                               aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions1'))">
+                        <button class="btn btn-secondary" type="button" onclick="redirectToProfile(document.getElementById('profileInput1'))">Go</button>
+                    </div>
+                    <div id="suggestions1" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
                 </div>
-                <div id="suggestions" class="dropdown-menu" style="display: none;"></div>
             </li>
             <li>
                 <div class="input-group" style="flex-wrap: nowrap">
