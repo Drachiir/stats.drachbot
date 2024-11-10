@@ -230,33 +230,29 @@
     });
 </script>
 <script>
-const totalGames = {{ data['WaveDict']["wave1"]["Count"] }}
-const wave1Data = {{ data['Wave1Stats']|tojson }};
+const totalGames = {{ data['WaveDict']["wave1"]["Count"] }};
+const wave1Data = {{ data['Wave1Stats'] | tojson }};
 const iconPlugin = {
     id: 'customIconPlugin',
     beforeInit(chart) {
-        // Preload images
         chart.iconImages = {};
     },
     afterDatasetsDraw(chart) {
         const ctx = chart.ctx;
         const segments = chart.getDatasetMeta(0).data;
-        const iconSize = 30;  // Adjust icon size as needed
+        const iconSize = 30;
 
-        // Draw icons AFTER tooltips
         segments.forEach((segment, index) => {
-            // Use tooltipPosition() to get reliable coordinates for each segment
             const position = segment.tooltipPosition();
             const x = position.x;
             const y = position.y;
 
-            let key = chart.data.labels[index].replace(/ /g, '');  // Remove spaces from the label
+            let key = chart.data.labels[index].replace(/ /g, '');
             if (key === "Save") {
                 key = "Mythium32";
             }
             const iconUrl = `https://cdn.legiontd2.com/icons/${key}.png`;
 
-            // If image is not already loaded, load it
             if (!chart.iconImages[key]) {
                 const img = new Image();
                 img.src = iconUrl;
@@ -268,13 +264,18 @@ const iconPlugin = {
                     console.error(`Failed to load image for ${key} at URL: ${iconUrl}`);
                 };
             } else {
-                // Use preloaded image
                 const img = chart.iconImages[key];
                 ctx.drawImage(img, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
             }
         });
     }
 };
+
+function humanReadableNumber(value) {
+    if (value >= 1e6) return (value / 1e6).toFixed(1) + "M";
+    if (value >= 1e3) return (value / 1e3).toFixed(1) + "k";
+    return value.toString();
+}
 
 const filteredData = [
     wave1Data['Snail'],
@@ -293,11 +294,11 @@ const labels = [
 ];
 
 const backgroundColors = [
-    '#ff621a', // Snail
-    '#1997ff', // Save
-    '#ff1d1d', // King Attack
-    '#8f09dd', // King Spell
-    '#0cca2f'  // King Regen
+    '#ff621a',   // Snail
+    '#1997ff',   // Save
+    '#ff1d1d',   // King Attack
+    '#8f09dd',   // King Spell
+    '#0cca2f'    // King Regen
 ];
 
 const filteredLabels = [];
@@ -350,16 +351,27 @@ new Chart(ctx, {
                 zIndex: 10000,
                 callbacks: {
                     label: function(context) {
+                        if (['Upgrade King Attack', 'Upgrade King Spell', 'Upgrade King Regen'].includes(context.label)) {
+                            const totalKingUpgrades = wave1Data['King']['Upgrade King Attack']
+                                                    + wave1Data['King']['Upgrade King Spell']
+                                                    + wave1Data['King']['Upgrade King Regen'];
+                            let percentage = totalKingUpgrades / totalGames * 100;
+                            return [
+                                `King: ${humanReadableNumber(totalKingUpgrades)} (${percentage.toFixed(2)}%)`,
+                                `- Attack: ${humanReadableNumber(wave1Data['King']['Upgrade King Attack'])} (${(wave1Data['King']['Upgrade King Attack'] / totalGames * 100).toFixed(2)}%)`,
+                                `- Spell: ${humanReadableNumber(wave1Data['King']['Upgrade King Spell'])} (${(wave1Data['King']['Upgrade King Spell'] / totalGames * 100).toFixed(2)}%)`,
+                                `- Regen: ${humanReadableNumber(wave1Data['King']['Upgrade King Regen'])} (${(wave1Data['King']['Upgrade King Regen'] / totalGames * 100).toFixed(2)}%)`
+                            ];
+                        }
                         const count = context.raw;
-                        let percentage = count / (totalGames) * 100
-                        return [
-                            `Games: ${count} (${percentage.toFixed(2)}%)`
-                        ];}
+                        let percentage = count / totalGames * 100;
+                        return [`Games: ${humanReadableNumber(count)} (${percentage.toFixed(2)}%)`];
+                    }
                 }
             }
         }
     },
-    plugins: [iconPlugin]  // Add the custom icon plugin here
+    plugins: [iconPlugin]
 });
 </script>
 {% if patch_selector %}
