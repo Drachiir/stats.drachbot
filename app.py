@@ -947,6 +947,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
                 header_title = "Game"
                 raw_data = drachbot.gamestats.gamestats(playerid=playerid, history_raw=history_raw)
+                if type(raw_data) == str:
+                    return render_template("no_data.html", text="No Data")
                 games = raw_data[3]
                 avg_elo = raw_data[4]
                 raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
