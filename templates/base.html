@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en" data-bs-theme="dark" xmlns="http://www.w3.org/1999/html">
 <head>
+    <meta charset="utf-8">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-KB760J9ZQL"></script>
     <script>
@@ -59,13 +60,12 @@
             <meta property="og:image" content="{{ get_cdn_image(specific_key, header_title) }}" />
         {% endif %}
     {% else %}
-        <title>Legion TD 2 Stats, Best Openers, Masterminds, Legion Spells and Units.</title>
+        <title>Legion TD 2 Stats, Best Openers, Masterminds | Drachbot</title>
         <meta name="description" content="Legion TD 2 Stats {{ patch }} by Drachbot. Discover top openers, best masterminds, legion spells, and unit rankings based on the latest data. Updated continuously to keep you ahead in every match.">
         <meta property="og:title" content="Legion TD 2 Stats {{ patch }}" />
         <meta property="og:description" content="Legion TD 2 Stats {{ patch }} by Drachbot. Discover top openers, best masterminds, legion spells, and unit rankings based on the latest data. Updated continuously to keep you ahead in every match.">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% endif %}
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
@@ -82,7 +82,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
     <style>
         .navbar-brand:hover {
-            color: #9540ff; /* Or any color you want */
+            color: #9540ff;
         }
     </style>
 </head>

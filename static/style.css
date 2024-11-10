@@ -351,3 +351,10 @@ div#loading {
   overflow-y: auto;
 }
 
+#statsDropdown {
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1000;
+}
+

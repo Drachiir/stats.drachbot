@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    #homeDropdown {
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 1000;
-    }
-</style>
 <div class="container-lg" style="padding-top: 2vw; text-align: center; display: inline-block;">
     <div><img id="mask" style="clip-path: circle();object-fit: cover;
                 border-radius: 50%;
@@ -19,9 +12,8 @@
     <div style="display: flex; justify-content: space-evenly; padding-top: 15px">
         <div class="search-container" style="position: relative; width: 45%">
             <div class="input-group input-group-lg profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
-                <input type="text" id="profileInput2" class="form-control" placeholder="Search Player"
+                <input type="text" id="profileInput2" class="form-control rounded-pill" placeholder="Search Player"
                        aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions2'))">
-                <button class="btn btn-secondary" type="button" onclick="redirectToProfile(document.getElementById('profileInput2'))">Go</button>
             </div>
             <div id="suggestions2" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
         </div>
@@ -35,7 +27,7 @@
                            id="statsInput"
                            onkeyup="statsFilter()">
                 </div>
-                <div id="homeDropdown" class="dropdown-menu dropdown-scrollbar w-100 mt-1 position-absolute" style="display: none; top: 100%;">
+                <div id="statsDropdown" class="dropdown-menu dropdown-scrollbar w-100 mt-1 position-absolute" style="display: none; top: 100%;">
                     <ul class="list-unstyled mb-0">
                         {% for list in keys %}
                             {% for k in list[1] %}

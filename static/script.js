@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function showHomeDropdown() {
-    const dropdown = document.getElementById("homeDropdown");
+    const dropdown = document.getElementById("statsDropdown");
     dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
     document.addEventListener("click", (event) => {
         const input = document.getElementById("statsInput");
@@ -120,7 +120,7 @@ function showHomeDropdown() {
 function statsFilter() {
     const input = document.getElementById("statsInput");
     const filter = input.value.toUpperCase();
-    const dropdown = document.getElementById("homeDropdown");
+    const dropdown = document.getElementById("statsDropdown");
     const ul = dropdown.getElementsByTagName("ul")[0];
     const li = ul.getElementsByTagName("li");
     let hasVisibleItems = false;
@@ -136,7 +136,6 @@ function statsFilter() {
     }
     dropdown.style.display = hasVisibleItems ? "block" : "none";
 }
-
 
 function refreshPage() {
     window.location.reload();  // Refresh the page
