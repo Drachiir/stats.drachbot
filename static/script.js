@@ -155,50 +155,57 @@ function loading(){
     $("#content").hide();
 }
 
+let debounceTimeout;
+
 async function getSearchSuggestions(inputElement, suggestionsBoxElement) {
     const input = inputElement.value;
     if (!input) {
         suggestionsBoxElement.style.display = 'none';
         return;
     }
-    try {
-        const response = await fetch(`/api/get_search_results/${encodeURIComponent(input)}`);
-        const suggestions = await response.json();
-        if (!inputElement.value) {
-            suggestionsBoxElement.style.display = 'none';
-            return;
+    clearTimeout(debounceTimeout);
+    debounceTimeout = setTimeout(async () => {
+        try {
+            const response = await fetch(`/api/get_search_results/${encodeURIComponent(input)}`);
+            const suggestions = await response.json();
+
+            if (!inputElement.value) {
+                suggestionsBoxElement.style.display = 'none';
+                return;
+            }
+
+            if (suggestions.length > 0) {
+                suggestionsBoxElement.innerHTML = '';
+                suggestions.forEach(player => {
+                    const suggestionItem = document.createElement('div');
+                    suggestionItem.className = 'dropdown-item';
+
+                    const avatarUrl = player.avatar_url
+                        ? `https://cdn.legiontd2.com/${player.avatar_url}`
+                        : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
+
+                    suggestionItem.innerHTML = `
+                        <a style="text-decoration: none; color: white" href="/profile/${player.player_name}">
+                        <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
+                        <span>${player.player_name}</span></a>
+                    `;
+
+                    suggestionItem.onclick = () => {
+                        inputElement.value = player.player_name;
+                        redirectToProfile();
+                    };
+                    suggestionsBoxElement.appendChild(suggestionItem);
+                });
+                suggestionsBoxElement.style.display = 'block';
+            } else {
+                suggestionsBoxElement.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error fetching search suggestions:', error);
         }
-
-        if (suggestions.length > 0) {
-            suggestionsBoxElement.innerHTML = '';
-            suggestions.forEach(player => {
-                const suggestionItem = document.createElement('div');
-                suggestionItem.className = 'dropdown-item';
-
-                const avatarUrl = player.avatar_url
-                    ? `https://cdn.legiontd2.com/${player.avatar_url}`
-                    : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
-
-                suggestionItem.innerHTML = `
-                    <a style="text-decoration: none; color: white" href="/profile/${player.player_name}">
-                    <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
-                    <span>${player.player_name}</span></a>
-                `;
-
-                suggestionItem.onclick = () => {
-                    inputElement.value = player.player_name;
-                    redirectToProfile();
-                };
-                suggestionsBoxElement.appendChild(suggestionItem);
-            });
-            suggestionsBoxElement.style.display = 'block';
-        } else {
-            suggestionsBoxElement.style.display = 'none';
-        }
-    } catch (error) {
-        console.error('Error fetching search suggestions:', error);
-    }
+    }, 200);
 }
+
 
 function handleEnterPress(event) {
     if (event.key === 'Enter') {

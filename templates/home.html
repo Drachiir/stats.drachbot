@@ -2,17 +2,18 @@
 
 {% block content %}
 <div class="container-lg" style="padding-top: 2vw; text-align: center; display: inline-block;">
-    <div><img id="mask" style="clip-path: circle();object-fit: cover;
+    <div style="padding-bottom: 15px"><img id="mask" style="clip-path: circle();object-fit: cover;
                 border-radius: 50%;
                 border: 2px solid rgb(84,152,219);
-                box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div><br>
-    <r id="mask" style="font-size: 3.5rem"><b>stats.drachbot</b></r><br>
-    <r style="font-size: 1.2rem">Legion TD 2 Stats for Ranked 2v2 | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></r><br>
-    <a href="/gamestats"><r style="color: dodgerblue; font-size: 1.3rem; font-weight: 400">Check out the new Game Stats page ↗️</r></a><br>
-    <div style="display: flex; justify-content: space-evenly; padding-top: 15px">
+                box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div>
+    <h1 id="mask" style="font-size: 3.5rem; font-family: Roboto,serif; padding-bottom: 20px; font-weight: 100;"><b>stats.drachbot</b></h1>
+    <p class="strokeText2" style="font-size: 1.2rem; font-family: Roboto,serif; margin: 0">Legion TD 2 Stats for Ranked 2v2 | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></p>
+    <br><a href="/gamestats" style="text-decoration: none;"><r class="strokeText2" style="color: #70f9ff; font-size: 1.3rem; font-weight: 400;">
+        Check out the new Game Stats page ↗️</r></a><br>
+    <div style="display: flex; justify-content: space-evenly; padding-top: 35px">
         <div class="search-container" style="position: relative; width: 45%">
             <div class="input-group input-group-lg profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
-                <input type="text" id="profileInput2" class="form-control rounded-pill" placeholder="Search Player"
+                <input type="text" id="profileInput2" class="form-control rounded-pill" placeholder="Search Playername"
                        aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions2'))">
             </div>
             <div id="suggestions2" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
@@ -53,7 +54,7 @@
         {% for data in data_list %}
             <div style="display: inline-block; padding: 0.5vw;">
                 <a style="display: flex; gap: 5px; justify-content: center; padding-bottom: 20px" href="/{{ data[0] }}"><img style="width: 32px;" src="{{ image_list[loop.index0] }}">
-                    <r style="font-size: 1.3rem; color: white"><b>{{ data[5] }}</b></r><span  style="font-size: 1.2rem;" >&#8599;</span><br></a>
+                    <r class="strokeText2" style="font-size: 1.3rem; color: white"><b>{{ data[5] }}</b></r><span  style="font-size: 1.2rem;" >&#8599;</span><br></a>
                 <div style="overflow-y: hidden; height: max-content;">
                     <table style="overflow-x: visible; overflow-y: hidden; font-size: 0.7rem; margin-bottom: 0" class="table">
                         {# HEADER 1 #}

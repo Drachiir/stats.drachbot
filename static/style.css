@@ -358,3 +358,8 @@ div#loading {
     z-index: 1000;
 }
 
+.strokeText2{
+    -webkit-text-stroke: 1px black;
+    paint-order: stroke fill;
+}
+
