@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
-
+{% block html_head %}
+    {% if api_profile %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+{% endblock %}
 {% block content %}
 <style>
     .player-row:hover{
