@@ -21,3 +21,8 @@ Allow: /unitstats/$
 
 Disallow: /wavestats/*
 Allow: /wavestats/$
+
+Disallow: /gamestats/*
+Allow: /gamestats/$
+
+Disallow: /gameviewer/*

@@ -62,4 +62,11 @@
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- /gamestats/ -->
+  <url>
+    <loc>https://stats.drachbot.site/gamestats/</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
