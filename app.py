@@ -874,7 +874,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
-                raw_data = drachbot.openstats.openstats(playerid, 0, elo, patch, unit=specific_key, data_only=True, history_raw=history_raw)
+                raw_data = drachbot.openstats.openstats(playerid, 0, elo, patch, data_only=True, history_raw=history_raw)
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]

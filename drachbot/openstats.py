@@ -12,9 +12,8 @@ else:
     shared_folder = "shared/Images/"
     shared2_folder = "shared2/"
 
-def openstats(playerid, games, min_elo, patch, sort="date", unit = "all", data_only = False, transparent = False, history_raw = {}):
+def openstats(playerid, games, min_elo, patch, sort="date", data_only = False, transparent = False, history_raw = {}):
     unit_dict = {}
-    unit = unit.lower()
     with open('Files/json/units.json', 'r') as f:
         units_json = json.load(f)
     for u_js in units_json:
@@ -25,15 +24,6 @@ def openstats(playerid, games, min_elo, patch, sort="date", unit = "all", data_o
                 string = string.replace(' unit id', '')
                 unit_dict[string] = {'Count': 0, 'Wins': 0, 'Worker': 0, 'Elo': 0, 'OpenWith': {}, 'MMs': {}, 'Spells': {}, "Cost": u_js["totalValue"]}
     unit_dict['pack rat nest'] = {'Count': 0, 'Wins': 0, 'Worker': 0, 'Elo': 0, 'OpenWith': {}, 'MMs': {}, 'Spells': {}, "Cost": 75}
-    if unit != "all":
-        if unit in util.slang:
-            unit = util.slang.get(unit)
-        if unit not in unit_dict:
-            close_matches = difflib.get_close_matches(unit, list(unit_dict.keys()))
-            if len(close_matches) > 0:
-                unit = close_matches[0]
-            else:
-                return unit + " unit not found."
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
@@ -116,13 +106,7 @@ def openstats(playerid, games, min_elo, patch, sort="date", unit = "all", data_o
                 except KeyError:
                     continue
             counter += 4
-    new_patches = []
-    for x in patches:
-        string = x
-        periods = string.count('.')
-        new_patches.append(string.split('.', periods)[0].replace('v', '') + '.' + string.split('.', periods)[1])
-    patches = list(dict.fromkeys(new_patches))
-    patches = sorted(patches, key=lambda x: int(x.split(".")[0] + x.split(".")[1]), reverse=True)
+            
     newIndex = sorted(unit_dict, key=lambda x: unit_dict[x]['Count'], reverse=True)
     unit_dict = {k: unit_dict[k] for k in newIndex}
     avgelo = round(sum(gameelo_list)/len(gameelo_list))
