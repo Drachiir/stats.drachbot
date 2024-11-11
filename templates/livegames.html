@@ -2,22 +2,48 @@
 
 {% block content %}
 <style>
-    .rankHover{
+    .rankHover {
         position: absolute;
         left: 40%;
         bottom: -14px;
         font-size: 0.7rem;
         color: #9e9e9e;
     }
+    .pagination {
+        text-align: center;
+        display: flex;
+        gap: 10px;
+        height: 50%;
+        padding-top: 10px;
+    }
+    .pagination button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
 </style>
-<div style="text-align: center; width: 100%; color: #fff11b; padding: 10px"><r>Note: Elo ± calculations are not accurate for games with Duos</r></div>
+<div style="display: flex; padding: 10px">
+    <div class="pagination">
+        <button class="btn btn-secondary btn-sm" id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
+        <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="changePage(1)">Next</button>
+    </div>
+    <div style="text-align: center; width: 100%; color: #fff11b; padding: 10px"><r>Note: Elo ± calculations are not accurate for games with Duos</r></div>
+</div>
 <div class="main-container">
     <div id="games-container">
         <!-- The games will be dynamically injected here -->
     </div>
+
+    <div class="pagination">
+        <button class="btn btn-secondary btn-sm" id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
+        <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="changePage(1)">Next</button>
+    </div>
 </div>
 
 <script>
+    let gamesData = [];
+    let currentPage = 1;
+    const gamesPerPage = 21;
+
     function getRelativeTime(timestamp) {
         const now = new Date().getTime();
         const timeDifference = Math.floor(now - timestamp * 1000);
@@ -56,7 +82,6 @@
         }
     }
 
-    let gamesData = [];
     function updateAllTimestamps() {
         const elements = document.querySelectorAll('.timestamp');
         elements.forEach(el => {
@@ -116,61 +141,75 @@
             const eastPlayers = game[3];
             const teamStats = calculateTeamStats(westPlayers, eastPlayers);
             const gameHTML = `
-                    <div class="game-card">
-                        <div class="timestamp-container">
-                            <span class="timestamp" data-timestamp="${game[0]}"></span>
+                <div class="game-card">
+                    <div class="timestamp-container">
+                        <span class="timestamp" data-timestamp="${game[0]}"></span>
+                    </div>
+                    <div class="game-header">
+                        Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
+                        <div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">±${teamStats.team1EloChange} / ±${teamStats.team2EloChange}</div>
+                    </div>
+                    <div class="players-container">
+                        <div class="team">
+                            ${westPlayers.map(player => `
+                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                    <div style="position: relative">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                        <span>${player[0]}</span>
+                                    </div>
+                                </a>
+                            `).join('')}
                         </div>
-                        <div class="game-header">
-                            Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
-                            <div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">±${teamStats.team1EloChange} / ±${teamStats.team2EloChange}</div>
-                        </div>
-                        <div class="players-container">
-                            <div class="team">
-                                ${westPlayers.map(player => `
-                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <div style="position: relative">
-                                            <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
-                                            <span>${player[0]}</span>
-                                        </div>
-                                    </a>
-                                `).join('')}
-                            </div>
-                            <div class="team">
-                                ${eastPlayers.map(player => `
-                                    <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                        <div style="position: relative">
-                                            <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
-                                            <span>${player[0]}</span>
-                                        </div>
-                                    </a>
-                                `).join('')}
-                            </div>
+                        <div class="team">
+                            ${eastPlayers.map(player => `
+                                <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
+                                    <div style="position: relative">
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                        <span>${player[0]}</span>
+                                    </div>
+                                </a>
+                            `).join('')}
                         </div>
                     </div>
-                `;
+                </div>
+            `;
             gamesContainer.innerHTML += gameHTML;
         });
+
         updateAllTimestamps();
     }
 
-    async function fetchGames() {
+    async function fetchGames(page = 1) {
         try {
             const baseUrl = window.location.origin.includes('127.0.0.1')
                 ? 'https://drachbot.site'
                 : '';
             const response = await fetch(`${baseUrl}/api/livegames`);
             gamesData = await response.json();
-            gamesData = gamesData.slice(0, 21);
             gamesData = gamesData.sort((a, b) => b[1] - a[1]);
-            renderGames(gamesData);
-
+            const start = (page - 1) * gamesPerPage;
+            const end = start + gamesPerPage;
+            renderGames(gamesData.slice(start, end));
+            updatePaginationButtons();
         } catch (error) {
             console.error('Error fetching games:', error);
         }
     }
-    fetchGames(gamesData);
+
+    function changePage(direction) {
+        currentPage += direction;
+        fetchGames(currentPage);
+    }
+
+    function updatePaginationButtons() {
+        document.getElementById('prevBtn').disabled = currentPage === 1;
+        document.getElementById('nextBtn').disabled = currentPage * gamesPerPage >= gamesData.length;
+    }
+
+    fetchGames(currentPage);
+
     setInterval(() => {
-        fetchGames(gamesData);
+        fetchGames(currentPage);
     }, 10000); // Refresh every 10 seconds
 
     setInterval(updateAllTimestamps, 1000);
