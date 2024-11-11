@@ -136,7 +136,7 @@
                         <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                     </th>
                     {% for key in data %}
-                        {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True) %}
+                        {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
                         {% if sub_value in mm_list %}
                             <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
                                     src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
@@ -152,7 +152,7 @@
                                 <r style="white-space: nowrap;">{{ sub_key }}</r>
                             </th>
                             {% for key in data %}
-                                {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True) %}
+                                {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
                                 {% if stats == "wavestats" and not playername2 %}
                                     <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']*4)}}</td>
                                 {% else %}

@@ -52,8 +52,8 @@ wave_names= [
 ]
 
 tier_dict_specific = {"mmstats": [64,60,59,55,0.7], "openstats": [53,40,30,20,0.2],
-                     "spellstats": [55,45,35,25,0.4], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [70,65,60,55,0.7], "megamindstats": [52,51,50,48,0]}
+                     "spellstats": [75,65,45,30,3], "unitstats": [55,50,45,40,0.1],
+                     "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
 
 tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
@@ -148,7 +148,7 @@ def human_format(num):
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', 'K', 'M', 'B', 'T'][magnitude])
 
-def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats):
+def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats, profile=False):
     new_dict = {}
     for xy in dict2[key]:
         if xy == "none" or not xy: continue
@@ -156,7 +156,7 @@ def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats):
         winrate = (dict2[key][xy]['Wins'] / dict2[key][xy]['Count'])*100
         pickrate = (dict2[key][xy]['Count'] / dict2['Count'])*100
         if key not in ["Mercs", "Units"]:
-            if winrate < dict2['Wins'] / dict2['Count']:
+            if (winrate < dict2['Wins'] / dict2['Count'] * 100) and not profile:
                 continue
             tier_score = get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats)
             new_dict[xy] = tier_score
@@ -342,47 +342,47 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return "D", tier_score, 'Red'
         case "Best Opener":
             try:
-                return get_perf_list(data[key], 'Opener', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'Opener', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except Exception:
                 return 0
         case "Best Spell":
             try:
-                return get_perf_list(data[key], 'Spells', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'Spells', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except KeyError:
                 try:
-                    return get_perf_list(data[key], 'Spell', dict_type, specific_tier, elo, stats)[0]
+                    return get_perf_list(data[key], 'Spell', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
                 except Exception:
                     return 0
             except IndexError:
                 return None
         case "Best Add":
             try:
-                return get_perf_list(data[key], 'OpenWith', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'OpenWith', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best Roll":
             try:
-                return get_perf_list(data[key], 'Rolls', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'Rolls', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best Combo":
             try:
-                return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best MMs":
             try:
-                return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'MMs', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best Send":
             try:
-                return get_perf_list(data[key], 'Mercs', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'Mercs', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best Unit":
             try:
-                return get_perf_list(data[key], 'Units', dict_type, specific_tier, elo, stats)[0]
+                return get_perf_list(data[key], 'Units', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Endrate":
