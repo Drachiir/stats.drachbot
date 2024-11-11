@@ -227,13 +227,15 @@ def get_unit_name_list(name):
         new_string = "MPS"
     return new_string
 
-def get_cdn_image(string, header):
+def get_cdn_image(string, header, profile = False):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
              | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Send" | "Best Roll" | "Sends" | "Best Unit" | "Champions":
             if string == "Save":
                 return "/static/save.png"
+            if not string and profile:
+                return f"https://cdn.legiontd2.com/icons/Worker.png"
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats":
             if (string not in mm_list) and (string != "Hybrid"):

@@ -314,7 +314,7 @@
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(game["Spell"], "Spell") }}">
                         </div>
                         {% for opener_unit in game["Opener"].split(",")|reverse %}
-                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(opener_unit, "Unit") }}">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(opener_unit, "Unit", profile=True) }}">
                         {% endfor %}
                     </div>
                 </div>

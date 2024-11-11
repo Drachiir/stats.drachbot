@@ -1,6 +1,7 @@
 import platform
 import json
 import difflib
+import traceback
 
 import util
 import drachbot.legion_api as legion_api
@@ -18,12 +19,13 @@ def openstats(playerid, games, min_elo, patch, sort="date", data_only = False, t
         units_json = json.load(f)
     for u_js in units_json:
         if u_js["totalValue"] != '':
-            if u_js["unitId"] and 270 > int(u_js["totalValue"]) > 0:
+            if u_js["unitId"] and 270 >= int(u_js["totalValue"]) > 0:
                 string = u_js["unitId"]
                 string = string.replace('_', ' ')
                 string = string.replace(' unit id', '')
                 unit_dict[string] = {'Count': 0, 'Wins': 0, 'Worker': 0, 'Elo': 0, 'OpenWith': {}, 'MMs': {}, 'Spells': {}, "Cost": u_js["totalValue"]}
     unit_dict['pack rat nest'] = {'Count': 0, 'Wins': 0, 'Worker': 0, 'Elo': 0, 'OpenWith': {}, 'MMs': {}, 'Spells': {}, "Cost": 75}
+    unit_dict['worker'] = {'Count': 0, 'Wins': 0, 'Worker': 0, 'Elo': 0, 'OpenWith': {}, 'MMs': {}, 'Spells': {}, "Cost": 0}
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
@@ -49,6 +51,8 @@ def openstats(playerid, games, min_elo, patch, sort="date", data_only = False, t
             opener_ranked.extend([[]])
             x = x.split("!")
             for y in x:
+                if not y:
+                    y = "worker"
                 string = y.split('_unit_id:')
                 opener_ranked[i].append(string[0].replace('_', ' '))
         counter = 0
