@@ -222,6 +222,7 @@ elos = defaults_json["Elos"]
 patches = defaults_json["Patches"]
 patches2 = defaults_json["Patches2"]
 buff_spells = defaults_json["BuffSpells"]
+website_stats = defaults_json["StatCategories"]
 
 @app.route("/")
 @cache.cached(timeout=timeout)
@@ -616,7 +617,7 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["rankedWinsThisSeason"] = 0
         if not api_stats["rankedLossesThisSeason"]:
             api_stats["rankedLossesThisSeason"] = 0
-        stats_list = ["gamestats", "mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
+        stats_list = website_stats
         image_list = [
             "https://cdn.legiontd2.com/icons/DefaultAvatar.png",
             "https://cdn.legiontd2.com/icons/Mastermind.png",
@@ -638,6 +639,7 @@ def profile(playername, stats, patch, elo, specific_key):
             else:
                 with open(path, "r") as f:
                     history = json.load(f)
+                    f.close()
         if not history:
             req_columns = [
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
@@ -780,8 +782,8 @@ def profile(playername, stats, patch, elo, specific_key):
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
         
-        if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats", "gamestats"]:
-            return render_template("no_data.html", text="No Data")
+        if stats not in website_stats:
+            return render_template("no_data.html", text="Page not found.")
         raw_data = None
         # get player profile
         result = get_player_profile(playername)
@@ -802,6 +804,7 @@ def profile(playername, stats, patch, elo, specific_key):
             else:
                 with open(path, "r") as f:
                     history_raw = json.load(f)
+                    f.close()
         if not history_raw:
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
@@ -1003,8 +1006,8 @@ def profile(playername, stats, patch, elo, specific_key):
 @cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
     playername2=""
-    if stats not in ["mmstats", "openstats", "spellstats", "unitstats", "megamindstats", "rollstats", "wavestats", "gamestats"]:
-        return render_template("no_data.html", text="No Data")
+    if stats not in website_stats:
+        return render_template("no_data.html", text="Page not found.")
     raw_data = None
     match stats:
         case "megamindstats":

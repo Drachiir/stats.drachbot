@@ -1,5 +1,4 @@
 from pathlib import Path
-
 import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
@@ -83,7 +82,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns = [], playerprofile = None, playerstats = None, pname = "",
-                    skip_stats=False, get_new_games = False):
+                    skip_stats=False, get_new_games = False, max_elo = 9001):
     patch_list = []
     if earlier_than_wave10:
         earliest_wave = 2
@@ -249,19 +248,15 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if games == 0:
                 games = GameData.select().where((GameData.queue == "Normal") & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave)).count()
             expr = True
-        if games > 150000:
-            games = 150000
         game_data_query = (PlayerData
                            .select(*req_columns[0])
                            .join(GameData)
-                           .where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave))
+                           .where((GameData.queue == "Normal") & expr & (max_elo >= GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave))
                            .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                            .limit(games * 4)).dicts()
         temp_data = {}
         for i, row in enumerate(game_data_query.iterator()):
             p_data = {}
-            # if row["version"] == "v11.07":
-            #     continue
             for field in req_columns[2]:
                 p_data[field] = row[field]
             if i % 4 == 0:
