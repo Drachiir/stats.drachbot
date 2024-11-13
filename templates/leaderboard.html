@@ -6,18 +6,33 @@
 {% endblock %}
 {% block content %}
 <style>
-    .player-row:hover{
+    .player-row:hover {
         cursor: pointer;
     }
     .highlight {
         background-color: #ffffff !important;
     }
-    table td{
+    table td {
         background-color: rgba(30, 35, 43, 0.93) !important;
+    }
+    th {
+        cursor: pointer;
+        position: relative;
+    }
+    th .sort-arrow {
+        font-size: 0.8em;
+        margin-left: 5px;
+        display: inline-block;
+        transition: transform 0.2s ease;
+    }
+    th.sorted-asc .sort-arrow {
+        transform: rotate(180deg); /* Rotate arrow up */
+    }
+    th.sorted-desc .sort-arrow {
+        transform: rotate(0deg); /* Arrow points down */
     }
 </style>
 <div style="text-align: center; padding-top: 10px">
-    <!-- Container for Search Bar -->
     <div style="display: flex; justify-content: center">
         <div style="margin-bottom: 10px; display: block;">
             <div class="input-group" style="flex-wrap: nowrap; width: 300px">
@@ -29,24 +44,30 @@
             </div>
         </div>
     </div>
-    <!-- Container for Table -->
+</div>
+<div style="text-align: center; padding-top: 10px">
     <div style="display: inline-block; position: relative">
         <div id="result-count" style="margin-bottom: 10px; position: absolute; left: 0; top: -25px"></div>
-        <table id="LeaderboardTable" class="table table-hover table-bordered" style="white-space: nowrap; display: inline-block;">
-            <tbody>
+        <table id="LeaderboardTable" class="table table-hover table-bordered">
+            <thead>
                 <tr>
-                    <th><r>Rank</r></th>
+                    <th class="sorted-desc" onclick="sortTable(0, 'numeric')"><r>Rank <span class="sort-arrow">▼</span></r></th>
                     <th><r>Player</r></th>
                     <th><r>Country</r></th>
-                    <th><r>Elo</r></th>
-                    <th><r>Winrate</r></th>
-                    <th><r>Win/Lose</r></th>
+                    <th class="sorted-asc" onclick="sortTable(3, 'numeric')">Elo <span class="sort-arrow">▼</span></th>
+                    <th class="sorted-asc" onclick="sortTable(4, 'numeric')">Winrate <span class="sort-arrow">▼</span></th>
+                    <th class="sorted-asc" onclick="sortTable(5, 'games')">Win/Lose <span class="sort-arrow">▼</span></th>
                 </tr>
+            </thead>
+            <tbody>
                 {% for player in leaderboard["Leaderboard"] %}
-                    <tr class="player-row">
+                    {% set wins = get_value(player["Profile"]["Statistics"], "rankedWinsThisSeason") %}
+                    {% set losses = get_value(player["Profile"]["Statistics"], "rankedLossesThisSeason") %}
+                    {% set percentage = winrate([wins, (wins+losses)]) %}
+                    <tr class="player-row" data-games="{{ wins + losses }}">
                         <td><r>{{ player["Position"] + 1 }}</r></td>
                         <td>
-                            <a href="/profile/{{ player["DisplayName"] }}" class="playername-leaderboard" style="text-decoration: none; color: white">
+                            <a href="/profile/{{ player["DisplayName"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
                                 <div style="text-align: left;">
                                     <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
                                     <r class="player-name"> {{ player["DisplayName"] }}</r>
@@ -59,24 +80,9 @@
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
                             <div class="Country" data-country="{{ country_code }}"></div>
                         </td>
-                        <td>
-                            <div>
-                                <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(player["StatValue"]) }}">
-                                <r style="padding-left: 5px">{{ player["StatValue"] }} </r>
-                            </div>
-                        </td>
-                        {% set player_stats = player["Profile"]["Statistics"] %}
-                        {% set wins = get_value(player_stats, "rankedWinsThisSeason") %}
-                        {% set losses = get_value(player_stats, "rankedLossesThisSeason") %}
-                        {% set percentage = winrate([wins, (wins+losses)]) %}
-                        <td>
-                            <r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r>
-                        </td>
-                        <td>
-                            <div class="win-lose-ldb" style="width: 150px; padding-left: 5px">
-                                <r>{{ wins }} - {{ losses }}</r>
-                            </div>
-                        </td>
+                        <td><r>{{ player["StatValue"] }}</r></td>
+                        <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
+                        <td><r>{{ wins }} - {{ losses }}</r></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -84,6 +90,38 @@
     </div>
 </div>
 
+<script>
+    function sortTable(columnIndex, type) {
+        const table = document.getElementById("LeaderboardTable");
+        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const header = table.querySelectorAll("th")[columnIndex];
+        const isAsc = header.classList.contains("sorted-asc");
+
+        table.querySelectorAll("th").forEach(th => th.classList.remove("sorted-asc", "sorted-desc"));
+
+        rows.sort((a, b) => {
+            let aValue, bValue;
+
+            if (type === 'numeric') {
+                aValue = parseFloat(a.cells[columnIndex].textContent);
+                bValue = parseFloat(b.cells[columnIndex].textContent);
+            } else if (type === 'games') {
+                aValue = parseInt(a.getAttribute('data-games'));
+                bValue = parseInt(b.getAttribute('data-games'));
+            } else {
+                aValue = a.cells[columnIndex].textContent.toLowerCase();
+                bValue = b.cells[columnIndex].textContent.toLowerCase();
+            }
+
+            return isAsc ? aValue - bValue : bValue - aValue;
+        });
+
+        rows.forEach(row => table.querySelector("tbody").appendChild(row));
+
+        header.classList.toggle("sorted-asc", !isAsc);
+        header.classList.toggle("sorted-desc", isAsc);
+    }
+</script>
 <script>
     {% if api_profile %}
     window.addEventListener('load', () => {
