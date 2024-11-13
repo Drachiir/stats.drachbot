@@ -80,7 +80,7 @@
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
                             <div class="Country" data-country="{{ country_code }}"></div>
                         </td>
-                        <td><r>{{ player["StatValue"] }}</r></td>
+                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
                         <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
                         <td><r>{{ wins }} - {{ losses }} ({{ wins+losses }})</r></td>
                     </tr>
