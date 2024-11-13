@@ -97,8 +97,6 @@
         const header = table.querySelectorAll("th")[columnIndex];
         const isAsc = header.classList.contains("sorted-asc");
 
-        table.querySelectorAll("th").forEach(th => th.classList.remove("sorted-asc", "sorted-desc"));
-
         rows.sort((a, b) => {
             let aValue, bValue;
 
