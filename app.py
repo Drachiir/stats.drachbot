@@ -506,6 +506,18 @@ def get_search_results(search_term):
                for player in query]
     return jsonify(players), 200
 
+@app.route('/api/get_player_stats/<playername>', methods=['GET'])
+def get_player_stats(playername):
+    playerid = drachbot_db.get_playerid(playername)
+    if not playerid:
+        api_profile = legion_api.getprofile(playername)
+        if api_profile in [0, 1]:
+            return jsonify({"Statsus": "Not Found"}), 400
+        else:
+            playerid = api_profile["_id"]
+    api_stats = legion_api.getstats(playerid)
+    return api_stats
+
 
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
