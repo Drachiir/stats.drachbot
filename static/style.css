@@ -14,14 +14,22 @@
     height: 400px;
     overflow: scroll;
 }
-.asc:after{
-    content:'◂';
+.header:after {
+    content: '◂';
     position: absolute;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 1;
 }
-.desc:after{
-    content:'▸';
-    position: absolute;
+
+.header.asc:after {
+    transform: rotate(0deg);
 }
+
+.header.desc:after {
+    transform: rotate(180deg);
+}
+
+
 table {
     width: 100%;
     border-collapse: separate; /* Don't collapse */

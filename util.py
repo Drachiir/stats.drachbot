@@ -51,14 +51,6 @@ wave_names= [
     "LegionLord"
 ]
 
-tier_dict_specific = {"mmstats": [64,60,59,55,0.7], "openstats": [53,40,30,20,0.2],
-                     "spellstats": [75,65,45,30,3], "unitstats": [55,50,45,40,0.1],
-                     "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
-
-tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
-                 "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
-
 with open("Files/json/slang.json", "r") as f:
     slang = json.load(f)
     f.close()
@@ -99,6 +91,14 @@ def get_avatar_border(stacks):
         return f"static/silver_64.png"
     else:
         return ""
+
+tier_dict_specific = {"mmstats": [64,60,59,55,0.7], "openstats": [53,40,30,20,0.2],
+                     "spellstats": [75,65,45,30,3], "unitstats": [55,50,45,40,0.1],
+                     "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
+
+tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
+                 "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
+                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if specific_tier and pickrate < 15:

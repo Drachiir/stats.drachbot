@@ -95,6 +95,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Attach click event listener to header cells
         headers.forEach((header, index) => {
             if (!header.innerText.startsWith("Best") && index > 0) {
+                header.classList.add("header");
                 header.addEventListener("click", function () {
                     const asc = !header.classList.contains("asc");
                     header.classList.toggle("asc", asc);
