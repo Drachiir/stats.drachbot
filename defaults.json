@@ -1,9 +1,9 @@
 {
   "Defaults":  ["11.09", 1800],
-  "Defaults2":  ["11.09,11.08,11.07", 0],
+  "Defaults2":  ["11.10,11.09,11.08", 0],
   "Elos":  [2800, 2600, 2400, 2200, 2000, 1800],
   "Patches": ["11.09", "11.08", "11.07", "11.06", "11.05", "11.04", "11.03", "11.02", "11.01", "11.00", "10.11", "10.10", "10.09", "10.08"],
-  "Patches2": ["11.09", "11.08", "11.07", "11.06", "11.05", "11.04", "11.03", "11.02", "11.01", "11.00"],
+  "Patches2": ["11.10", "11.09", "11.08", "11.07", "11.06", "11.05", "11.04", "11.03", "11.02", "11.01", "11.00"],
   "MMs": ["All", "LockIn", "Greed", "Redraw", "Yolo", "Fiesta", "CashOut", "Castle", "Cartel", "Chaos", "Champion", "DoubleLockIn", "Kingsguard", "Megamind"],
   "BuffSpells": ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"],
   "StatCategories": ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"]
