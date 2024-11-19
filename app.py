@@ -337,7 +337,8 @@ def wave_distribution(patch, elo):
     else:
         return render_template("no_data.html", text=f"No data.")
     return render_template("wave-distribution.html", wave_data=wave_data, patch=patch, elo= elo, games= games,
-                           avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave)
+                           avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
+                           human_format=util.human_format)
 
 @app.route("/api/livegames/", defaults={"playername": None})
 @app.route("/api/livegames/<playername>")
