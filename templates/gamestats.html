@@ -100,7 +100,8 @@
         {% else %}
             {% set gamestats_values = get_gamestats_values(data, games*4) %}
         {% endif %}
-        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> | <b>v{{ patch }}</b></r>
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> | <b>v{{ patch }}</b> |
+        Avg Game Length: <b>{{ (data["GameLength"] / 60 / games)|round(1) }} mins</b></r>
         <div style="padding-top: 10px">
             <canvas id="myChart2" width="400" height="500"></canvas>
         </div>
