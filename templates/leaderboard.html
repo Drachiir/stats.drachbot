@@ -78,7 +78,9 @@
                                     <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
                                     <r class="player-name"> {{ player["DisplayName"] }}</r>
                                     <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
-                                        {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}</r>
+                                        {% if player["Profile"]["ContactEmailAddresses"] %}
+                                            {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}
+                                        {% endif %}</r>
                                 </div>
                             </a>
                         </td>
