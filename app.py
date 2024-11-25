@@ -301,6 +301,8 @@ def leaderboard(playername):
             leaderboard_data = json.load(f)
     else:
         stats = get_player_profile(playername)
+        if not stats:
+            return render_template("no_data.html", text=f"Player { playername } not found.")
         player_id = stats["playerid"]
         api_profile = stats["api_profile"]
         leaderboard_data = get_playfab_stats(player_id, 100)

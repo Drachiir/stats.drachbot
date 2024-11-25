@@ -63,6 +63,12 @@
                 {% for player in leaderboard["Leaderboard"] %}
                     {% set wins = get_value(player["Profile"]["Statistics"], "rankedWinsThisSeason") %}
                     {% set losses = get_value(player["Profile"]["Statistics"], "rankedLossesThisSeason") %}
+                    {% if not wins %}
+                        {% set wins = 0 %}
+                    {% endif %}
+                    {% if not losses %}
+                        {% set losses = 0 %}
+                    {% endif %}
                     {% set percentage = winrate([wins, (wins+losses)]) %}
                     <tr class="player-row" data-games="{{ wins + losses }}">
                         <td><r>{{ player["Position"] + 1 }}</r></td>
