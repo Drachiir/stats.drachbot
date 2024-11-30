@@ -26,7 +26,13 @@
         <button class="btn btn-secondary btn-sm" id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
         <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="changePage(1)">Next</button>
     </div>
-    <div style="text-align: center; width: 100%; color: #fff11b; padding: 10px"><r>Note: Elo ± calculations are not accurate for games with Duos</r></div>
+    <div style="text-align: center; width: 100%; color: #fff11b; padding: 10px">
+        <label style="color: white">
+            <input type="checkbox" id="toggleSellout" onchange="toggleSelloutScores()"> Show Sellout Scores
+        </label>
+        <img style="margin-right: 20px;" src="https://cdn.7tv.app/emote/01H5N1K7DR0004J7X9EEXWJ76A/1x.webp">
+        <r>Note: Elo ± calculations are not accurate for games with Duos</r>
+    </div>
 </div>
 <div class="main-container">
     <div id="games-container">
@@ -43,6 +49,7 @@
     let gamesData = [];
     let currentPage = 1;
     const gamesPerPage = 21;
+    let showSelloutScores = false;
 
     function getRelativeTime(timestamp) {
         const now = new Date().getTime();
@@ -80,15 +87,6 @@
         } else {
             return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
         }
-    }
-
-    function updateAllTimestamps() {
-        const elements = document.querySelectorAll('.timestamp');
-        elements.forEach(el => {
-            const posixTimestamp = parseFloat(el.getAttribute('data-timestamp'));
-            const relativeTime = getRelativeTime(posixTimestamp);
-            el.innerText = relativeTime;
-        });
     }
 
     function calculateTeamStats(team1, team2) {
@@ -131,6 +129,33 @@
         return eloChange;
     }
 
+    function calculateSelloutScores(westPlayers, eastPlayers) {
+        const scores = {};
+        const westOrder = [westPlayers[0], westPlayers[1]];
+        const eastOrder = [eastPlayers[0], eastPlayers[1]];
+        const sendingOrder = [
+            [westOrder[0], eastOrder[0], westOrder[1], eastOrder[1]],
+            [westOrder[1], eastOrder[1], westOrder[0], eastOrder[0]],
+            [eastOrder[0], westOrder[1], eastOrder[1], westOrder[0]],
+            [eastOrder[1], westOrder[0], eastOrder[0], westOrder[1]]
+        ];
+
+        sendingOrder.forEach(([you, teammate, opponent, other]) => {
+            const youScore = parseInt(you[1]);
+            const teammateScore = parseInt(teammate[1]);
+            const opponentScore = parseInt(opponent[1]);
+            const otherScore = parseInt(other[1]);
+            scores[you[0]] = youScore + otherScore - teammateScore - opponentScore;
+        });
+
+        return scores;
+    }
+
+    function toggleSelloutScores() {
+        showSelloutScores = document.getElementById('toggleSellout').checked;
+        renderGames(gamesData.slice((currentPage - 1) * gamesPerPage, currentPage * gamesPerPage));
+    }
+
     function renderGames(games) {
         const gamesContainer = document.getElementById('games-container');
         gamesContainer.innerHTML = '';
@@ -140,6 +165,7 @@
             const westPlayers = game[2];
             const eastPlayers = game[3];
             const teamStats = calculateTeamStats(westPlayers, eastPlayers);
+            const selloutScores = calculateSelloutScores(westPlayers, eastPlayers);
             const gameHTML = `
                 <div class="game-card">
                     <div class="timestamp-container">
@@ -154,7 +180,10 @@
                             ${westPlayers.map(player => `
                                 <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                     <div style="position: relative">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <div class="rankHover">
+                                            (${showSelloutScores ? selloutScores[player[0]] : player[1]})
+                                        </div>
                                         <span>${player[0]}</span>
                                     </div>
                                 </a>
@@ -164,7 +193,10 @@
                             ${eastPlayers.map(player => `
                                 <a class="player" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                     <div style="position: relative">
-                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank"><div class="rankHover">(${player[1]})</div>
+                                        <img src="${getRankUrl(player[1])}" alt="${player[0]} rank">
+                                        <div class="rankHover">
+                                            (${showSelloutScores ? selloutScores[player[0]] : player[1]})
+                                        </div>
                                         <span>${player[0]}</span>
                                     </div>
                                 </a>
@@ -208,11 +240,19 @@
         document.getElementById('nextBtn2').disabled = currentPage * gamesPerPage >= gamesData.length;
     }
 
+    function updateAllTimestamps() {
+        const timestamps = document.querySelectorAll('.timestamp');
+        timestamps.forEach(element => {
+            const timestamp = element.getAttribute('data-timestamp');
+            element.textContent = getRelativeTime(timestamp);
+        });
+    }
+
     fetchGames(currentPage);
 
     setInterval(() => {
         fetchGames(currentPage);
-    }, 10000); // Refresh every 10 seconds
+    }, 10000);
 
     setInterval(updateAllTimestamps, 1000);
 </script>
