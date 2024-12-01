@@ -174,6 +174,15 @@
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="liveGameModalLabel">Live Match Details</h5>
+                                        <div style="display: flex; align-items: center; padding-left: 50px">
+                                            <div id="toggle-sellout" class="btn-group" role="group">
+                                                <button type="button" class="btn btn-sm btn-primary active" id="elo-toggle">Elo</button>
+                                                <button type="button" class="btn btn-sm btn-primary" id="sellout-toggle">Sellout Score</button>
+                                            </div>
+                                            <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3351115892" target="_blank" style="margin-left: 8px; text-decoration: none;">
+                                                <span title="Learn about Sellout Score">?</span>
+                                            </a>
+                                        </div>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" id="liveGameDetails">
@@ -352,6 +361,9 @@
     const values = {{ values|tojson }};
     const dataLength = labels.length;
     const rankImagesCache = {};
+    const baseUrl = window.location.origin.includes('127.0.0.1')
+        ? 'https://drachbot.site'
+        : '';
 
     $(document).ready(function () {
         var playerid = "{{ playerid }}";
@@ -399,7 +411,7 @@
 
         // Function to check if the player is in a game
         function checkLiveGameStatus() {
-            $.get(`/api/livegames/${playerName}`, function (data) {
+            $.get(baseUrl + `/api/livegames/${playerName}`, function (data) {
                 if (data.length > 0) {
                     let button = $('#check-livegame-btn');
                     button.addClass('highlight');
@@ -421,47 +433,68 @@
                 $(element).text(formattedDuration);  // Update the element's text with new duration
             }, 1000);  // Update every second
         }
-
         // Handle live game check button click
         $('#check-livegame-btn').click(function () {
-            $.get(`/api/livegames/${playerName}`, function (data) {
+            $.get(baseUrl + `/api/livegames/${playerName}`, function (data) {
                 if (data.length > 0) {
-                    // Game start time and details
                     const gameStartTime = data[0];  // Game start time (in seconds)
                     let gameElo = data[1];
                     let westPlayers = data[2]; // Team 1
                     let eastPlayers = data[3]; // Team 2
+
+                    // Calculate sellout scores
+                    const calculateSelloutScore = (you, teammate, opponent, other) => you + other - teammate - opponent;
+
+                    const westSelloutScores = westPlayers.map((player, index) => {
+                        const you = parseInt(player[1]);
+                        const teammate = parseInt(westPlayers[1 - index][1]); // teammate is the other player in the same team
+                        const opponent = parseInt(eastPlayers[index][1]); // opponent is aligned by sending order
+                        const other = parseInt(eastPlayers[1 - index][1]); // other opponent
+                        return calculateSelloutScore(you, teammate, opponent, other);
+                    });
+
+                    const eastSelloutScores = eastPlayers.map((player, index) => {
+                        const you = parseInt(player[1]);
+                        const teammate = parseInt(eastPlayers[1 - index][1]); // teammate is the other player in the same team
+                        const opponent = parseInt(westPlayers[1 - index][1]); // opponent is aligned by sending order
+                        const other = parseInt(westPlayers[index][1]); // other opponent
+                        return calculateSelloutScore(you, teammate, opponent, other);
+                    });
 
                     // Build the game details HTML
                     const gameHTML = `
                         <div class="game-card card bg-dark text-white mb-3">
                             <div class="card-body">
                                 <div class="game-header mb-3">
-                                    <div style="display: flex; justify-content: space-between">
-                                            <div>
-                                                Game Elo: ${gameElo}
-                                            </div>
-                                            <div>
-                                                Game Time: <span id="game-duration">${formatDuration(0)}</span>
-                                            </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap; height: 40px; gap: 30px; flex-wrap: wrap">
+                                        <div>
+                                            Game Elo: ${gameElo}
+                                        </div>
+                                        <div>
+                                            Game Time: <span id="game-duration">${formatDuration(0)}</span>
+                                        </div>
                                     </div>
                                 </div>
 
                                 <div class="players-container d-flex justify-content-between">
                                     <div class="team west-team text-center">
-                                        ${westPlayers.map(player => `
+                                        ${westPlayers.map((player, index) => `
                                             <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                                 <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
                                                 <span>${player[0]}</span>
+                                                <div class="rankHover" data-type="elo" style="display: block;">${player[1]}</div>
+                                                <div class="rankHover" data-type="sellout" style="display: none;">${westSelloutScores[index]}</div>
                                             </a>
                                         `).join('')}
                                     </div>
 
                                     <div class="team east-team text-center">
-                                        ${eastPlayers.map(player => `
+                                        ${eastPlayers.map((player, index) => `
                                             <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
                                                 <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
                                                 <span>${player[0]}</span>
+                                                <div class="rankHover" data-type="elo" style="display: block;">${player[1]}</div>
+                                                <div class="rankHover" data-type="sellout" style="display: none;">${eastSelloutScores[index]}</div>
                                             </a>
                                         `).join('')}
                                     </div>
@@ -476,6 +509,21 @@
 
                     // Start real-time update for game duration
                     updateGameDuration(gameStartTime, '#game-duration');
+
+                    // Toggle Elo / Sellout Score display when the button is clicked
+                    $('#elo-toggle').click(function() {
+                        $('#elo-toggle').addClass('active');
+                        $('#sellout-toggle').removeClass('active');
+                        $('.rankHover[data-type="elo"]').show();
+                        $('.rankHover[data-type="sellout"]').hide();
+                    });
+
+                    $('#sellout-toggle').click(function() {
+                        $('#sellout-toggle').addClass('active');
+                        $('#elo-toggle').removeClass('active');
+                        $('.rankHover[data-type="sellout"]').show();
+                        $('.rankHover[data-type="elo"]').hide();
+                    });
                 } else {
                     alert('The player is not currently in a game.');
                 }
@@ -483,6 +531,7 @@
                 alert('Failed to retrieve live game status.');
             });
         });
+
     });
 
     function getRankUrl(elo) {
