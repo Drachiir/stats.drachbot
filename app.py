@@ -15,7 +15,7 @@ import drachbot.wavestats
 import drachbot.gamestats
 import util
 from drachbot.peewee_pg import GameData, PlayerData
-from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values
+from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values, human_format, clean_unit_name
 from flask_apscheduler import APScheduler
 from playfab import PlayFabClientAPI, PlayFabSettings
 from flask_cors import CORS, cross_origin
@@ -351,13 +351,24 @@ def wave_distribution(patch, elo):
 def proleaks(wave):
     for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
         if datajson.startswith(f"{defaults[0]}"):
+            games = datajson.split("_")[2]
+            try:
+                games = int(games)
+            except Exception:
+                return render_template("no_data.html", text="No Data")
+            avg_elo = datajson.split("_")[3].replace(".json", "")
             with open(f"{shared_folder}/data/proleaks/{datajson}", "r") as f:
                 data = json.load(f)
                 break
     else:
         return render_template("no_data.html", text=f"No data.")
-    return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                           const_file = util.const_file, plus_prefix = util.plus_prefix)
+    units = set()
+    for leak in data[f"Wave{wave}"]:
+        for unit in leak["build"].split("!"):
+            units.add(unit.split(":")[0])
+    return render_template("proleaks.html", units = list(units), proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                           const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch = defaults[0], human_format = util.human_format,
+                           clean_unit_name = util.clean_unit_name)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})
