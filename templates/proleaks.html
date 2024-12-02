@@ -51,7 +51,7 @@
         <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
                 <b>v{{ patch_name }}</b></r>
     </div>
-    <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px">
+    <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px; flex-wrap: wrap">
         <div id="pagination" class="pagination-container" style="padding-right: 20px;">
             <!-- Pagination buttons will be dynamically added here -->
         </div>
@@ -402,7 +402,7 @@ function updatePagination(totalItems) {
         <button class="btn btn-primary" style="margin-left: 5px;" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">Next</button>
     `;
     paginationContainer.innerHTML += `
-        <span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>
+        <span style="margin: 0 10px;">Page ${currentPage}/${totalPages}</span>
     `;
 }
 
