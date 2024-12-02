@@ -367,7 +367,7 @@ def proleaks(wave):
         for unit in leak["build"].split("!"):
             units.add(unit.split(":")[0])
     return render_template("proleaks.html", units = list(units), proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                           const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch = defaults[0], human_format = util.human_format,
+                           const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = defaults[0], human_format = util.human_format,
                            clean_unit_name = util.clean_unit_name)
 
 

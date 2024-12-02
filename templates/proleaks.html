@@ -49,10 +49,10 @@
     <div>
         <img style="height: 64px" src="https://overlay.drachbot.site/emotes/proleak.png">
         <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
-                <b>v{{ patch }}</b></r>
+                <b>v{{ patch_name }}</b></r>
     </div>
     <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px">
-        <div id="pagination" class="pagination-container">
+        <div id="pagination" class="pagination-container" style="padding-right: 20px;">
             <!-- Pagination buttons will be dynamically added here -->
         </div>
         <div>
@@ -69,11 +69,10 @@
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
-                Snail
+                Send
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" onclick="setSnailFilter('')">All</a></li>
-                <li><a class="dropdown-item" onclick="setSnailFilter('Snail')">Only Snail</a></li>
+            <ul class="dropdown-menu" id="sendDropdown">
+                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any</a></li>
             </ul>
         </div>
         <div class="dropdown">
@@ -90,6 +89,7 @@
                        placeholder="Search..."
                        id="statsInput"
                        onkeyup="statsFilter()">
+                    <li onclick="fetchUnitData('')"><a class="dropdown-item">Any</a></li>
                     {% for unit in units %}
                         <li onclick="fetchUnitData('{{ unit }}')"><a class="dropdown-item"><img loading="lazy" style="width: 24px;" src="{{ get_cdn(unit, "Unit") }}">{{ clean_unit_name(unit) }}</a></li>
                     {% endfor %}
@@ -130,7 +130,7 @@ const wave = "{{ wave }}";
 const constantStats = {{ const_file|tojson }};
 let selectedUnit = null;  // Variable to store the selected unit
 let currentPage = 1;      // Default page is 1
-let snailFilter = '';
+let sendFilter = '';
 
 function countMythium(send) {
     if (!Array.isArray(send)) {
@@ -276,21 +276,20 @@ function getRankUrl(elo) {
 }
 
 function setSnailFilter(value) {
-    snailFilter = value;  // Set Snail filter to the selected value (empty or "Snail")
-    currentPage = 1;       // Reset to the first page when filter changes
-    updateURL();           // Update URL with current filter
-    renderFilteredBuilds(); // Render filtered builds
+    sendFilter = value;
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
 }
-// Load builds based on the current query parameters (unit and page)
+
 function loadPage() {
     const urlParams = new URLSearchParams(window.location.search);
-    selectedUnit = urlParams.get('unit');
+    selectedUnit = urlParams.get('unit') || '';
     currentPage = parseInt(urlParams.get('page')) || 1;
-    snailFilter = urlParams.get('snail'); // Get the "Snail" filter from the URL
+    sendFilter = urlParams.get('send') || ''; // Ensure no null value for snail filter
     renderFilteredBuilds(); // Render the builds based on filters
 }
 
-// Fetch the data based on the selected unit
 function fetchUnitData(unit) {
     selectedUnit = unit;
     currentPage = 1;
@@ -302,28 +301,45 @@ function updateURL() {
     const newURL = new URL(window.location);
     newURL.searchParams.set('unit', selectedUnit);
     newURL.searchParams.set('page', currentPage);
-    newURL.searchParams.set('snail', snailFilter);
+    newURL.searchParams.set('send', sendFilter);
     window.history.pushState({}, '', newURL);  // Update the browser's URL without reloading
+}
+
+function populateSendDropdown(data) {
+    const sendsSet = new Set();
+    data.forEach(build => {
+        if (build.send) {
+            sendsSet.add(build.send);
+        }
+    });
+    const dropdownMenu = document.getElementById('sendDropdown');
+    dropdownMenu.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+    sendsSet.forEach(send => {
+        const sendItem = document.createElement('li');
+        sendItem.innerHTML = `<a class="dropdown-item" onclick="setSnailFilter('${send}')">${send.replace(/!/g, ', ')}</a>`;
+        dropdownMenu.appendChild(sendItem);
+    });
 }
 
 function renderFilteredBuilds() {
     let filteredData;
-
-    // If no unit is selected, show all builds
-    if (!selectedUnit && !snailFilter) {
+    if (!selectedUnit && !sendFilter) {
         filteredData = proleak_data;
+        populateSendDropdown(filteredData)
     } else {
         filteredData = proleak_data.filter(game => {
             // Filter by unit
             let unitMatch = !selectedUnit || game['build'].split('!').some(build => build.includes(selectedUnit));
 
             // Filter by Snail condition
-            let snailMatch = snailFilter === '' || game['send'] === snailFilter;
+            let snailMatch = sendFilter === '' || game['send'] === sendFilter;
 
             return unitMatch && snailMatch; // Only include builds that match both conditions
         });
     }
-
+    if (!sendFilter && selectedUnit){
+        populateSendDropdown(filteredData)
+    }
     const startIndex = (currentPage - 1) * 4;
     const paginatedData = filteredData.slice(startIndex, startIndex + 4);
 
@@ -331,25 +347,24 @@ function renderFilteredBuilds() {
     updatePagination(filteredData.length);  // Update pagination
 }
 
-
 function updatePagination(totalItems) {
     const totalPages = Math.ceil(totalItems / 4);
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
 
-    if (currentPage > 1) {
-        paginationContainer.innerHTML += `<button class="btn btn-secondary" onclick="goToPage(currentPage - 1)">Previous</button>`;
-    }
-
-    if (currentPage < totalPages) {
-        paginationContainer.innerHTML += `<button class="btn btn-secondary" onclick="goToPage(currentPage + 1)">Next</button>`;
-    } else {
-        paginationContainer.innerHTML += `<button class="btn btn-secondary" onclick="goToPage(1)">Next</button>`;
-    }
-
-    paginationContainer.innerHTML += `<span>Page ${currentPage} of ${totalPages}</span>`;
+    // Add space between the buttons by adding margin to them
+    paginationContainer.innerHTML += `
+        <button class="btn btn-primary" style="margin-right: 5px;" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">Previous</button>
+    `;
+    paginationContainer.innerHTML += `
+        <button class="btn btn-primary" style="margin-left: 5px;" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">Next</button>
+    `;
+    paginationContainer.innerHTML += `
+        <span style="margin: 0 10px;">Page ${currentPage} of ${totalPages}</span>
+    `;
 }
-// Go to a specific page and update the URL
+
+
 function goToPage(page) {
     currentPage = page;
     updateURL();  // Update URL with the current page
@@ -358,128 +373,135 @@ function goToPage(page) {
 
 
 function renderBuild(data) {
+    // The number of builds to render (maximum 4)
+    const totalBuilds = 4;
+
+    // Loop through all player build elements (up to 4)
     document.querySelectorAll('.player-build').forEach((lane, index) => {
-        // Only render data if there's enough data
-        if (index < data.length) {
-            const buildData = data[index];
-
-            // Render the build information
-            lane.querySelector('.fighter-value').innerText = buildData['value'];
-            lane.querySelector('.player-name').innerText = buildData['playername'];
-            lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
-            lane.querySelector('.player-legion-image').src = `https://cdn.legiontd2.com/icons/Items/${buildData['mastermind']}.png`;
-            lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'];
-            lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
-
-            const grid = lane.querySelector('.grid');
-            grid.querySelectorAll('.grid-square').forEach(square => {
-                square.innerHTML = ''; // Remove previous units
-            });
-
-            const buildWaveStr = buildData['build'];
-            const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
-            let buildJson = {
-                "Towers": [],
-                "Rolls": [],
-                "LegionSpell": "",
-                "LegionSpellPositionX": -1.0,
-                "LegionSpellPositionZ": -1.0,
-                "Gold": 0,
-                "Mythium": 0,
-                "Wave": wave,
-                "HasChampion": false,
-                "ChampionX": -1.0,
-                "ChampionZ": -1.0
-            };
-
-            if (buildData["champ"]) {
-                buildJson["HasChampion"] = true;
-                buildJson["ChampionX"] = parseFloat(buildData["champ"].split("|")[0]) - 4.5;
-                buildJson["ChampionZ"] = parseFloat(buildData["champ"].split("|")[1]) - 7;
-            }
-
-            if (Array.isArray(buildWave)) {
-                buildWave.forEach(build => {
-                    const unit = build.split(':')[0];
-                    const coord = build.split(':')[1];
-                    const stacks = build.split(':')[2];
-                    let [x, y] = coord.split('|').map(parseFloat);
-                    buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
-                    const gridColumn = Math.floor(x - 0.5) + 1;
-                    const gridRow = 14 - Math.floor(y);
-                    let leftStacks = "";
-                    x = x - 0.5;
-                    y = y - 0.5;
-                    let xOffset = (x % 1) * 100;
-                    const yOffset = (y % 1) * 100;
-                    const gridSquare = grid.querySelector(`.grid-square[style*="grid-column: ${gridColumn};"][style*="grid-row: ${gridRow};"]`);
-                    if (gridSquare) {
-                        const unitName = unit.split('_unit_id')[0];
-                        const unitImage = getCdnImage(unitName);
-                        let topString = "0";
-                        let topStringStacks = "50%";
-                        let xOffsetChamp = xOffset;
-                        if (yOffset !== 0) {
-                            topString = "8px";
-                            topStringStacks = "65%";
-                        }
-                        if (xOffset !== 0) {
-                            xOffsetChamp += 64;
-                            xOffset += 2;
-                        } else {
-                            leftStacks = "left: 0;";
-                        }
-                        gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
-                        if (stacks !== "0") {
-                            gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
-                        }
-                        if (coord === buildData["champ"]) {
-                            gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
-                        }
-                    }
-                });
-            } else {
-                console.error('buildWave is not an array:', buildWave);
-            }
-
-            // Update sends and leaks
-            const mercsReceived = buildData["send"];
-            let sendTotal = countMythium(mercsReceived);
-            buildJson["Mythium"] = sendTotal;
-            addCopyButton("build" + index, JSON.stringify(buildJson));
-
-            const sendsDiv = document.getElementById("sends" + index);
-            sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
-
-            mercsReceived.split("!").forEach(merc => {
-                if (merc) {
-                    const unitImage = getCdnImage(merc);
-                    sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
-                }
-            });
-
-            // Leaks
-            const leaksCurrentWave = buildData["leak"];
-            let leakPercentage = calcLeak(leaksCurrentWave, wave);
-            const leaksDiv = document.getElementById("leaks" + index);
-            leaksDiv.innerHTML = "";
-            if (leakPercentage > 0) {
-                let color = "red";
-                if (leakPercentage <= 40) {
-                    color = "yellow";
-                } else if (leakPercentage <= 89) {
-                    color = "orange";
-                }
-                leaksDiv.innerHTML = `<r style="color: ${color}">${leakPercentage}%</r>`;
-            }
-
-            leaksCurrentWave.split("!").forEach(leak => {
-                if (leak) {
-                    const unitImage = getCdnImage(leak);
-                    leaksDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
-                }
-            });
+        const buildData = data[index];
+        if (!buildData) {
+            lane.style.display = 'none';
+            return;
+        } else {
+            lane.style.display = 'block';
         }
+
+        // Render the build information as usual
+        lane.querySelector('.fighter-value').innerText = buildData['value'];
+        lane.querySelector('.player-name').innerText = buildData['playername'];
+        lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
+        lane.querySelector('.player-legion-image').src = `https://cdn.legiontd2.com/icons/Items/${buildData['mastermind']}.png`;
+        lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/' + wave;
+        lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
+
+        // Grid rendering (same logic as before)
+        const grid = lane.querySelector('.grid');
+        grid.querySelectorAll('.grid-square').forEach(square => {
+            square.innerHTML = ''; // Remove previous units
+        });
+
+        const buildWaveStr = buildData['build'];
+        const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
+        let buildJson = {
+            "Towers": [],
+            "Rolls": [],
+            "LegionSpell": "",
+            "LegionSpellPositionX": -1.0,
+            "LegionSpellPositionZ": -1.0,
+            "Gold": 0,
+            "Mythium": 0,
+            "Wave": wave,
+            "HasChampion": false,
+            "ChampionX": -1.0,
+            "ChampionZ": -1.0
+        };
+
+        if (buildData["champ"]) {
+            buildJson["HasChampion"] = true;
+            buildJson["ChampionX"] = parseFloat(buildData["champ"].split("|")[0]) - 4.5;
+            buildJson["ChampionZ"] = parseFloat(buildData["champ"].split("|")[1]) - 7;
+        }
+
+        if (Array.isArray(buildWave)) {
+            buildWave.forEach(build => {
+                const unit = build.split(':')[0];
+                const coord = build.split(':')[1];
+                const stacks = build.split(':')[2];
+                let [x, y] = coord.split('|').map(parseFloat);
+                buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
+                const gridColumn = Math.floor(x - 0.5) + 1;
+                const gridRow = 14 - Math.floor(y);
+                let leftStacks = "";
+                x = x - 0.5;
+                y = y - 0.5;
+                let xOffset = (x % 1) * 100;
+                const yOffset = (y % 1) * 100;
+                const gridSquare = grid.querySelector(`.grid-square[style*="grid-column: ${gridColumn};"][style*="grid-row: ${gridRow};"]`);
+                if (gridSquare) {
+                    const unitName = unit.split('_unit_id')[0];
+                    const unitImage = getCdnImage(unitName);
+                    let topString = "0";
+                    let topStringStacks = "50%";
+                    let xOffsetChamp = xOffset;
+                    if (yOffset !== 0) {
+                        topString = "8px";
+                        topStringStacks = "65%";
+                    }
+                    if (xOffset !== 0) {
+                        xOffsetChamp += 64;
+                        xOffset += 2;
+                    } else {
+                        leftStacks = "left: 0;";
+                    }
+                    gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
+                    if (stacks !== "0") {
+                        gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
+                    }
+                    if (coord === buildData["champ"]) {
+                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
+                    }
+                }
+            });
+        } else {
+            console.error('buildWave is not an array:', buildWave);
+        }
+
+        // Update sends and leaks
+        const mercsReceived = buildData["send"];
+        let sendTotal = countMythium(mercsReceived);
+        buildJson["Mythium"] = sendTotal;
+        addCopyButton("build" + index, JSON.stringify(buildJson));
+
+        const sendsDiv = document.getElementById("sends" + index);
+        sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
+
+        mercsReceived.split("!").forEach(merc => {
+            if (merc) {
+                const unitImage = getCdnImage(merc);
+                sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
+
+        // Leaks
+        const leaksCurrentWave = buildData["leak"];
+        let leakPercentage = calcLeak(leaksCurrentWave, wave);
+        const leaksDiv = document.getElementById("leaks" + index);
+        leaksDiv.innerHTML = "";
+        if (leakPercentage > 0) {
+            let color = "red";
+            if (leakPercentage <= 40) {
+                color = "yellow";
+            } else if (leakPercentage <= 89) {
+                color = "orange";
+            }
+            leaksDiv.innerHTML = `<r style="color: ${color}">${leakPercentage}%</r>`;
+        }
+        leaksCurrentWave.split("!").forEach(leak => {
+            if (leak) {
+                const unitImage = getCdnImage(leak);
+                leaksDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
     });
 }
 window.onload = loadPage;
