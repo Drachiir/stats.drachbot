@@ -66,6 +66,18 @@
                 <li><a class="dropdown-item" href="/proleaks/3">Wave3</a></li>
             </ul>
         </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Elo
+            </button>
+            <ul class="dropdown-menu">
+                {% for elo_bracket in [2800, 2600, 2400, 2200, 2000, 1800] %}
+                    <li style="white-space: nowrap"><a class="dropdown-item" onclick="setEloFilter({{ elo_bracket }})">
+                    <img style="width: 24px; height: auto" src="{{ get_rank_url(elo_bracket) }}">{{ elo_bracket }}+</a></li>
+                {% endfor %}
+            </ul>
+        </div>
         <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
@@ -81,7 +93,7 @@
                 Units
             </button>
             <div id="statsDropdown" class="dropdown-content">
-                <ul class="dropdown-menu dropdown-scrollbar">
+                <ul class="dropdown-menu dropdown-scrollbar" id="unitDropdown">
                     <input type="text"
                        class="form-control
                               border-0 border-bottom
@@ -89,10 +101,7 @@
                        placeholder="Search..."
                        id="statsInput"
                        onkeyup="statsFilter()">
-                    <li onclick="fetchUnitData('')"><a class="dropdown-item">Any</a></li>
-                    {% for unit in units %}
-                        <li onclick="fetchUnitData('{{ unit }}')"><a class="dropdown-item"><img loading="lazy" style="width: 24px;" src="{{ get_cdn(unit, "Unit") }}">{{ clean_unit_name(unit) }}</a></li>
-                    {% endfor %}
+                    <li onclick="setUnitFilter('')"><a class="dropdown-item">Any</a></li>
                 </ul>
             </div>
         </div>
@@ -131,6 +140,7 @@ const constantStats = {{ const_file|tojson }};
 let selectedUnit = null;  // Variable to store the selected unit
 let currentPage = 1;      // Default page is 1
 let sendFilter = '';
+let eloFilter = 0;
 
 function countMythium(send) {
     if (!Array.isArray(send)) {
@@ -282,15 +292,23 @@ function setSnailFilter(value) {
     renderFilteredBuilds();
 }
 
+function setEloFilter(value) {
+    eloFilter = value;
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
+}
+
 function loadPage() {
     const urlParams = new URLSearchParams(window.location.search);
     selectedUnit = urlParams.get('unit') || '';
     currentPage = parseInt(urlParams.get('page')) || 1;
-    sendFilter = urlParams.get('send') || ''; // Ensure no null value for snail filter
-    renderFilteredBuilds(); // Render the builds based on filters
+    sendFilter = urlParams.get('send') || '';
+    eloFilter = urlParams.get('elo') || 0;
+    renderFilteredBuilds(true);
 }
 
-function fetchUnitData(unit) {
+function setUnitFilter(unit) {
     selectedUnit = unit;
     currentPage = 1;
     updateURL();
@@ -302,7 +320,8 @@ function updateURL() {
     newURL.searchParams.set('unit', selectedUnit);
     newURL.searchParams.set('page', currentPage);
     newURL.searchParams.set('send', sendFilter);
-    window.history.pushState({}, '', newURL);  // Update the browser's URL without reloading
+    newURL.searchParams.set('elo', eloFilter);
+    window.history.pushState({}, '', newURL);
 }
 
 function populateSendDropdown(data) {
@@ -321,28 +340,51 @@ function populateSendDropdown(data) {
     });
 }
 
-function renderFilteredBuilds() {
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function populateUnitDropdown(data) {
+    const unitSet = new Set();
+    data.forEach(build => {
+        if (build.build) {
+            build.build.split('!').forEach(unit => {
+                if (unit) {
+                    unitSet.add(unit.split(":")[0]);
+                }
+            });
+        }
+    });
+    const dropdownMenu = document.getElementById('unitDropdown');
+    dropdownMenu.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+    unitSet.forEach(unit => {
+        const unitItem = document.createElement('li');
+        unitItem.innerHTML = `<a class="dropdown-item" onclick="setUnitFilter('${unit}')"><img style="width: 24px;" src="${getCdnImage(unit)}"> ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}</a>`;
+        dropdownMenu.appendChild(unitItem);
+    });
+}
+
+function renderFilteredBuilds(first_load=false) {
     let filteredData;
-    if (!selectedUnit && !sendFilter) {
+    if (!selectedUnit && !sendFilter && !eloFilter) {
         filteredData = proleak_data;
         populateSendDropdown(filteredData)
     } else {
         filteredData = proleak_data.filter(game => {
-            // Filter by unit
             let unitMatch = !selectedUnit || game['build'].split('!').some(build => build.includes(selectedUnit));
-
-            // Filter by Snail condition
             let snailMatch = sendFilter === '' || game['send'] === sendFilter;
+            let eloMatch = eloFilter === '' || game['elo'] >= parseInt(eloFilter, 10);
 
-            return unitMatch && snailMatch; // Only include builds that match both conditions
+            return unitMatch && snailMatch && eloMatch;
         });
     }
-    if (!sendFilter && selectedUnit){
+    if ((!sendFilter && selectedUnit) || first_load){
         populateSendDropdown(filteredData)
     }
     const startIndex = (currentPage - 1) * 4;
     const paginatedData = filteredData.slice(startIndex, startIndex + 4);
-
+    populateUnitDropdown(filteredData)
     renderBuild(paginatedData);  // Render builds
     updatePagination(filteredData.length);  // Update pagination
 }
