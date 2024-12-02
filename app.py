@@ -346,6 +346,20 @@ def wave_distribution(patch, elo):
                            avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
                            human_format=util.human_format)
 
+@app.route('/proleaks/', defaults= {"wave": 1})
+@app.route('/proleaks/<wave>')
+def proleaks(wave):
+    for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
+        if datajson.startswith(f"{defaults[0]}"):
+            with open(f"{shared_folder}/data/proleaks/{datajson}", "r") as f:
+                data = json.load(f)
+                break
+    else:
+        return render_template("no_data.html", text=f"No data.")
+    return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                           const_file = util.const_file, plus_prefix = util.plus_prefix)
+
+
 @app.route("/api/livegames/", defaults={"playername": None})
 @app.route("/api/livegames/<playername>")
 def livegames_api(playername):

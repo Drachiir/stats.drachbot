@@ -1,0 +1,322 @@
+{% extends 'base.html' %}
+{% block html_head %}
+    {% if api_profile %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+{% endblock %}
+{% block content %}
+<style>
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(9, 28px);
+        grid-template-rows: repeat(14, 28px);
+        gap: 2px;
+        position: relative;
+    }
+    .grid-square {
+        background-color: #474747;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .grid-square img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    .sends-leaks{
+        padding-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        overflow: hidden;
+        height: 58px;
+    }
+    .player-build {
+        width: 300px;
+        min-width: 300px;
+        padding: 15px;
+        margin: 10px;
+        background-color: #1c1c1c;
+        border: 1px solid #444;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+</style>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-evenly">
+    {% for i in range(8) %}
+        <div class="player-build" data-player="{{ loop.index0 }}">
+            <img class="player-legion-image" width="32" height="32" src="">
+            <a class="player-profile-link" href="" style="text-decoration: none">
+                    <r class="player-name" style="font-weight: 400"></r></a>
+                <div class="player-elo" style="float: right"></div><br>
+            <div style="display: flex; justify-content: space-evenly; width: 100%">
+                <div>
+                    <img width="20" height="auto" src="https://cdn.legiontd2.com/Icons/Value32.png"><r class="fighter-value"></r>
+                </div>
+                <a style="text-decoration: none" class="game-link" href=""><r>Game Link↗️</r></a>
+            </div>
+            <div class="grid" data-build="0">
+                {% for row in range(14) %}
+                    {% for col in range(9) %}
+                        <div class="grid-square" style="grid-column: {{ col + 1 }}; grid-row: {{ row + 1 }};"></div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="sends-leaks" id="sends{{ loop.index0 }}"></div>
+            <div class="sends-leaks" id="leaks{{ loop.index0 }}"></div>
+            <div class="copy-build" id="build{{ loop.index0 }}"></div>
+        </div>
+    {% endfor %}
+</div>
+<script>
+const proleak_data = {{ proleak_data[:8]|tojson }};
+const wave = "{{ wave }}";
+const constantStats = {{ const_file|tojson }};
+
+function countMythium(send) {
+    if (!Array.isArray(send)) {
+        if (send === "") {
+            send = [];
+        } else {
+            send = send.split("!");
+        }
+    }
+    let sendAmount = 0;
+    send.forEach(x => {
+        if (x.includes("Upgrade")) {
+            return;
+        }
+        if (x in constantStats['incmercs']) {
+            sendAmount += constantStats['incmercs'][x];
+        } else {
+            sendAmount += constantStats['powermercs'][x];
+        }
+    });
+    return sendAmount;
+}
+
+function calcLeak(leak, wave, returnGold = false) {
+    if (!Array.isArray(leak)) {
+        if (leak === "") {
+            leak = [];
+        } else {
+            leak = leak.split("!");
+        }
+    }
+    let leakAmount = 0;
+    let waveTotal = constantStats['wave_values'][wave];
+
+    leak.forEach(x => {
+        if (x in constantStats['creep_values']) {
+            leakAmount += constantStats['creep_values'][x][1];
+        } else if (x in constantStats['incmercs']) {
+            leakAmount += (constantStats['incmercs'][x] / 20) * 4;
+        } else if (x in constantStats['powermercs']) {
+            if (x === "Imp") {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 3;
+            } else {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 6;
+            }
+        }
+    });
+
+    if (returnGold) {
+        return leakAmount;
+    } else {
+        return Math.round((leakAmount / waveTotal) * 100);
+    }
+}
+
+function getCdnImage(name) {
+    let newString = "";
+    var splitChar;
+    if (name.includes("_")) {
+        if (name.includes("_unit_id")) {
+            name = name.split("_unit_id")[0];
+            if (name[0] === " ") {
+                name = name.slice(1);
+            }
+        }
+        splitChar = "_";
+    } else {
+        splitChar = " ";
+    }
+    name.split(splitChar).forEach((word) => {
+        newString += word.charAt(0).toUpperCase() + word.slice(1);
+    });
+    if (newString === "HellRaiserBuffed") {
+        newString = "HellRaiser";
+    } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
+        newString = "PackRat(Footprints)";
+    } else if (newString === "Aps") {
+        newString = "APS";
+    } else if (newString === "Mps") {
+        newString = "MPS";
+    }
+    return `https://cdn.legiontd2.com/icons/${newString}.png`;
+}
+
+function removeCopyButton(id) {
+    const copyDiv = document.getElementById(id);
+    if (copyDiv) {
+        const existingButton = copyDiv.querySelector(".btn");
+        if (existingButton) {
+            copyDiv.removeChild(existingButton);
+        }
+    }
+}
+
+function addCopyButton(id, textToCopy) {
+    removeCopyButton(id);
+    const copyDiv = document.getElementById(id);
+    if (!copyDiv) return;
+
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "Copy Build";
+    copyButton.classList.add("btn", "btn-primary", "btn-sm");
+
+    copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => {
+                alert("Build copied to clipboard!");
+            })
+            .catch(err => {
+                console.error("Failed to copy text: ", err);
+            });
+    });
+    copyDiv.appendChild(copyButton);
+}
+
+function getRankUrl(elo) {
+    if (typeof elo !== 'number') {
+        elo = parseInt(elo, 10);
+        if (isNaN(elo)) return null;
+    }
+
+    if (elo >= 2800) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png';
+    } else if (elo >= 2600) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png';
+    } else if (elo >= 2400) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png';
+    } else if (elo >= 2200) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png';
+    } else if (elo >= 2000) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png';
+    } else if (elo >= 1800) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png';
+    } else if (elo >= 1600) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png';
+    } else if (elo >= 1400) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png';
+    } else if (elo >= 1200) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png';
+    } else {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
+    }
+}
+
+function renderBuild(data) {
+    document.querySelectorAll('.player-build').forEach((lane, index) => {
+        lane.querySelector('.fighter-value').innerText = data[index]['value'];
+        lane.querySelector('.player-name').innerText = data[index]['playername'];
+        lane.querySelector('.player-profile-link').href = '/profile/' + data[index]['playername'];
+        lane.querySelector('.player-legion-image').src = getCdnImage(data[index]['mastermind']);
+        lane.querySelector('.game-link').href = '/gameviewer/' + data[index]['game_id'];
+        lane.querySelector('.player-elo').innerHTML = `<r>${data[index]['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(data[index]['elo'])}">`;
+        const grid = lane.querySelector('.grid');
+        grid.querySelectorAll('.grid-square').forEach(square => {
+            square.innerHTML = ''; // Remove previous units
+        });
+        const buildWaveStr = data[index]['build'];
+        const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
+        let buildJson = {"Towers":[], "Rolls": [], "LegionSpell": "", "LegionSpellPositionX": -1.0,
+            "LegionSpellPositionZ": -1.0, "Gold": 0, "Mythium": 0, "Wave": wave+1,
+            "HasChampion": false, "ChampionX": -1.0, "ChampionZ": -1.0};
+        if (data[index]["champ"]){
+            buildJson["HasChampion"] = true
+            buildJson["ChampionX"] = parseFloat(data[index]["champ"].split("|")[0]) - 4.5;
+            buildJson["ChampionZ"] = parseFloat(data[index]["champ"].split("|")[1]) - 7;
+        }
+        if (Array.isArray(buildWave)) {
+            buildWave.forEach(build => {
+                const unit = build.split(':')[0];
+                const coord = build.split(':')[1];
+                const stacks = build.split(':')[2];
+                let [x, y] = coord.split('|').map(parseFloat);
+                buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
+                const gridColumn = Math.floor(x -0.5) + 1;
+                const gridRow = 14 - Math.floor(y);
+                let leftStacks = ""
+                x = x - 0.5
+                y = y - 0.5
+                let xOffset = (x % 1) * 100;
+                const yOffset = (y % 1) * 100;
+                const gridSquare = grid.querySelector(`.grid-square[style*="grid-column: ${gridColumn};"][style*="grid-row: ${gridRow};"]`);
+                if (gridSquare) {
+                    const unitName = unit.split('_unit_id')[0];
+                    const unitImage = getCdnImage(unitName);
+                    let topString = "0"
+                    let topStringStacks = "50%"
+                    let xOffsetChamp = xOffset
+                    if (yOffset !== 0){
+                        topString = "8px"
+                        topStringStacks = "65%"
+                    }
+                    if (xOffset !== 0){
+                        xOffsetChamp += 64;
+                        xOffset += 2;
+                    } else {
+                        leftStacks = "left: 0;"
+                    }
+                    gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
+                    if (stacks !== "0"){
+                        gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
+                    }
+                    if (coord === data[index]["champ"]){
+                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
+                    }
+                }
+            });
+        } else {
+            console.error('buildWave is not an array:', buildWave);
+        }
+        const mercsReceived = data[index]["send"];
+        let sendTotal = countMythium(mercsReceived);
+        buildJson["Mythium"] = sendTotal;
+        addCopyButton("build" + index, JSON.stringify(buildJson))
+        const sendsDiv = document.getElementById("sends" + index);
+        sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
+        mercsReceived.split("!").forEach(merc =>{
+            if (merc){
+                const unitImage = getCdnImage(merc);
+                sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
+        // Leaks
+        const leaksCurrentWave = data[index]["leak"];
+        let leakPercentage = calcLeak(leaksCurrentWave, wave);
+        console.log(leakPercentage)
+        const leaksDiv = document.getElementById("leaks" + index);
+        console.log(leaksDiv)
+        leaksDiv.innerHTML = "";
+        if (leakPercentage > 0){
+            let color = "red"
+            if (leakPercentage <= 40){
+                color = "yellow"
+            } else if (leakPercentage <= 89){
+                color = "orange"
+            }
+            leaksDiv.innerHTML = `<r style="color: ${color}">${leakPercentage}%</r>`;
+        }
+        leaksCurrentWave.split("!").forEach(leak =>{
+            if (leak){
+                const unitImage = getCdnImage(leak);
+                leaksDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
+    });
+}
+renderBuild(proleak_data);
+</script>
+{% endblock %}
