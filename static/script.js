@@ -144,7 +144,6 @@ function statsFilter() {
             li[i].style.display = "none";
         }
     }
-    dropdown.style.display = hasVisibleItems ? "block" : "none";
 }
 
 function refreshPage() {

@@ -357,7 +357,7 @@ function populateUnitDropdown(data) {
         }
     });
     const dropdownMenu = document.getElementById('unitDropdown');
-    dropdownMenu.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+    dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
     unitSet.forEach(unit => {
         const unitItem = document.createElement('li');
         unitItem.innerHTML = `<a class="dropdown-item" onclick="setUnitFilter('${unit}')"><img style="width: 24px;" src="${getCdnImage(unit)}"> ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}</a>`;
@@ -382,9 +382,11 @@ function renderFilteredBuilds(first_load=false) {
     if ((!sendFilter && selectedUnit) || first_load){
         populateSendDropdown(filteredData)
     }
+    if ((!selectedUnit) || first_load || eloFilter){
+        populateUnitDropdown(filteredData)
+    }
     const startIndex = (currentPage - 1) * 4;
     const paginatedData = filteredData.slice(startIndex, startIndex + 4);
-    populateUnitDropdown(filteredData)
     renderBuild(paginatedData);  // Render builds
     updatePagination(filteredData.length);  // Update pagination
 }
