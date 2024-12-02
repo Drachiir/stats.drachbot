@@ -224,6 +224,10 @@ patches2 = defaults_json["Patches2"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
 
+@app.route("/api/defaults")
+def api_defaults():
+    return defaults_json
+
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
