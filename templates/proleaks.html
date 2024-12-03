@@ -191,7 +191,7 @@ function calcLeak(leak, wave, returnGold = false) {
         }
     }
     let leakAmount = 0;
-    let waveTotal = constantStats['wave_values'][wave];
+    let waveTotal = constantStats['wave_values'][wave-1];
 
     leak.forEach(x => {
         if (x in constantStats['creep_values']) {
