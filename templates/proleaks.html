@@ -45,7 +45,7 @@
         cursor: pointer;
     }
 </style>
-<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 15px">
+<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px">
     <div>
         <img style="height: 64px; margin-right: 10px;" src="https://overlay.drachbot.site/emotes/proleak.png">
         <r style="font-size: 1rem;">
@@ -59,7 +59,7 @@
             <!-- Pagination buttons will be dynamically added here -->
         </div>
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Send
             </button>
@@ -69,7 +69,7 @@
             </ul>
         </div>
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Units
             </button>
@@ -87,7 +87,7 @@
             </div>
         </div>
         <div>
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                     Wave
             </button>
@@ -98,7 +98,7 @@
             </ul>
         </div>
         <div>
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Elo
             </button>
@@ -110,7 +110,7 @@
             </ul>
         </div>
         <div>
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                     Patch
             </button>
@@ -121,7 +121,7 @@
             </ul>
         </div>
         <div>
-            <button class="btn btn-warning" onclick="resetFilters()">Reset Filters</button>
+            <button class="btn btn-warning btn-sm" onclick="resetFilters()">Reset Filters</button>
         </div>
     </div>
 </div>
@@ -429,13 +429,13 @@ function updatePagination(totalItems) {
 
     // Add space between the buttons by adding margin to them
     paginationContainer.innerHTML += `
-        <button class="btn btn-primary" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
+        <button class="btn btn-primary btn-sm" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
     `;
     paginationContainer.innerHTML += `
         <span style="margin: 0 10px;">Page ${currentPage}/${totalPages}</span>
     `;
     paginationContainer.innerHTML += `
-        <button class="btn btn-primary" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">→</button>
+        <button class="btn btn-primary btn-sm" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">→</button>
     `;
 }
 
