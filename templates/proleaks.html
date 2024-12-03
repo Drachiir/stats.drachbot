@@ -84,7 +84,8 @@
                 Send
             </button>
             <ul class="dropdown-menu" id="sendDropdown">
-                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any</a></li>
+                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any Send</a></li>
+                <li><a class="dropdown-item" onclick="setSnailFilter('Nosend')">No send</a></li>
             </ul>
         </div>
         <div class="dropdown">
@@ -332,7 +333,7 @@ function populateSendDropdown(data) {
         }
     });
     const dropdownMenu = document.getElementById('sendDropdown');
-    dropdownMenu.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+    dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
     sendsSet.forEach(send => {
         const sendItem = document.createElement('li');
         sendItem.innerHTML = `<a class="dropdown-item" onclick="setSnailFilter('${send}')">${send.replace(/!/g, ', ')}</a>`;
@@ -373,7 +374,10 @@ function renderFilteredBuilds(first_load=false) {
     } else {
         filteredData = proleak_data.filter(game => {
             let unitMatch = !selectedUnit || game['build'].split('!').some(build => build.includes(selectedUnit));
-            let snailMatch = sendFilter === '' || game['send'] === sendFilter;
+            let snailMatch =
+                (sendFilter === '' && game['send'] === '') || // Matches "No send" when sendFilter is "Nosend"
+                (sendFilter === 'Nosend' && game['send'] === '') || // Matches when user selects "Nosend"
+                (sendFilter !== '' && sendFilter !== 'Nosend' && game['send'] === sendFilter); // Matches other send filters
             let eloMatch = eloFilter === '' || game['elo'] >= parseInt(eloFilter, 10);
 
             return unitMatch && snailMatch && eloMatch;
