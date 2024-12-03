@@ -346,12 +346,13 @@ def wave_distribution(patch, elo):
                            avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
                            human_format=util.human_format)
 
-@app.route('/proleaks/', defaults= {"wave": 1})
-@app.route('/proleaks/<wave>')
+@app.route('/proleaks/', defaults= {"wave": 1, "patch": defaults[0]})
+@app.route('/proleaks/<wave>', defaults= {"patch": defaults[0]})
+@app.route('/proleaks/<wave>/<patch>')
 @cache.cached(timeout=timeout)
-def proleaks(wave):
+def proleaks(wave, patch):
     for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
-        if datajson.startswith(f"{defaults[0]}"):
+        if datajson.startswith(f"{patch}"):
             games = datajson.split("_")[2]
             try:
                 games = int(games)
@@ -364,8 +365,8 @@ def proleaks(wave):
     else:
         return render_template("no_data.html", text=f"No data.")
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                           const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = defaults[0], human_format = util.human_format,
-                           clean_unit_name = util.clean_unit_name)
+                           const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
+                           clean_unit_name = util.clean_unit_name, patch_list = patches)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})
