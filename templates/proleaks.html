@@ -151,8 +151,11 @@
         </div>
     {% endfor %}
 </div>
+<script type="application/json" id="proleak-data">
+    {{ proleak_data|tojson|safe }}
+</script>
 <script>
-const proleak_data = {{ proleak_data|tojson }};
+const proleak_data = JSON.parse(document.getElementById('proleak-data').textContent);
 const wave = "{{ wave }}";
 const constantStats = {{ const_file|tojson }};
 let selectedUnit = null;  // Variable to store the selected unit
