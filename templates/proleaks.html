@@ -375,7 +375,7 @@ function renderFilteredBuilds(first_load=false) {
         filteredData = proleak_data.filter(game => {
             let unitMatch = !selectedUnit || game['build'].split('!').some(build => build.includes(selectedUnit));
             let snailMatch =
-                (sendFilter === '' && game['send'] === '') || // Matches "No send" when sendFilter is "Nosend"
+                (sendFilter === '') || // Matches "No send" when sendFilter is "Nosend"
                 (sendFilter === 'Nosend' && game['send'] === '') || // Matches when user selects "Nosend"
                 (sendFilter !== '' && sendFilter !== 'Nosend' && game['send'] === sendFilter); // Matches other send filters
             let eloMatch = eloFilter === '' || game['elo'] >= parseInt(eloFilter, 10);
