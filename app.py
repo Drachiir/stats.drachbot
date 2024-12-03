@@ -366,7 +366,7 @@ def proleaks(wave, patch):
         return render_template("no_data.html", text=f"No data.")
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                            const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
-                           clean_unit_name = util.clean_unit_name, patch_list = patches)
+                           clean_unit_name = util.clean_unit_name, patch_list = patches, wave_string = f"Wave{wave}")
 
 
 @app.route("/api/livegames/", defaults={"playername": None})
