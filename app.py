@@ -378,18 +378,18 @@ def livegames_api(playername):
             with open(f"{shared_folder_live}/{game}", "r", encoding="utf_8") as f2:
                 txt = f2.readlines()
                 f2.close()
-        except FileNotFoundError:
+            path2 = f"{shared_folder_live}/{game}"
+            mod_date = datetime.fromtimestamp(os.path.getmtime(path2), tz=timezone.utc).timestamp()
+            game_elo = txt[-1]
+            west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
+            east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
+            if not playername:
+                games.append([mod_date, game_elo, west_players, east_players])
+            elif (any(playername.lower() in [p.lower() for p in sublist] for sublist in west_players)
+                  or any(playername.lower() in [p.lower() for p in sublist] for sublist in east_players)):
+                return [mod_date, game_elo, west_players, east_players]
+        except Exception:
             continue
-        path2 = f"{shared_folder_live}/{game}"
-        mod_date = datetime.fromtimestamp(os.path.getmtime(path2), tz=timezone.utc).timestamp()
-        game_elo = txt[-1]
-        west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
-        east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
-        if not playername:
-            games.append([mod_date, game_elo, west_players, east_players])
-        elif (any(playername.lower() in [p.lower() for p in sublist] for sublist in west_players)
-              or any(playername.lower() in [p.lower() for p in sublist] for sublist in east_players)):
-            return [mod_date, game_elo, west_players, east_players]
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)
     return games
 
