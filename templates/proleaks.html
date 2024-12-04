@@ -98,7 +98,7 @@
                 Elo
             </button>
             <ul class="dropdown-menu">
-                {% for elo_bracket in [2800, 2600, 2400, 2200, 2000, 1800, 0] %}
+                {% for elo_bracket in [2800, 2600, 2400, 2200, 2000, 1800, 1600, 0] %}
                     <li style="white-space: nowrap"><a class="dropdown-item" onclick="setEloFilter({{ elo_bracket }})">
                     <img style="width: 24px; height: auto" src="{{ get_rank_url(elo_bracket) }}">{{ elo_bracket }}+</a></li>
                 {% endfor %}
