@@ -75,14 +75,9 @@
             </button>
             <div id="statsDropdown" class="dropdown-content">
                 <ul class="dropdown-menu dropdown-scrollbar" id="unitDropdown">
-                    <input type="text"
-                       class="form-control
-                              border-0 border-bottom
-                              shadow-none mb-2"
-                       placeholder="Search..."
-                       id="statsInput"
-                       onkeyup="statsFilter()">
-                    <li onclick="setUnitFilter('')"><a class="dropdown-item">Any</a></li>
+                    <input type="text" class="form-control border-0 border-bottom shadow-none mb-2"
+                           placeholder="Search..." id="statsInput" onkeyup="unitDropdownFilter()">
+                    <li onclick="setUnitFilter('RESET')"><a class="dropdown-item">Reset Units</a></li>
                 </ul>
             </div>
         </div>
@@ -103,7 +98,7 @@
                 Elo
             </button>
             <ul class="dropdown-menu">
-                {% for elo_bracket in [2800, 2600, 2400, 2200, 2000, 0] %}
+                {% for elo_bracket in [2800, 2600, 2400, 2200, 2000, 1800, 0] %}
                     <li style="white-space: nowrap"><a class="dropdown-item" onclick="setEloFilter({{ elo_bracket }})">
                     <img style="width: 24px; height: auto" src="{{ get_rank_url(elo_bracket) }}">{{ elo_bracket }}+</a></li>
                 {% endfor %}
@@ -158,8 +153,8 @@
 const proleak_data = JSON.parse(document.getElementById('proleak-data').textContent);
 const wave = "{{ wave }}";
 const constantStats = {{ const_file|tojson }};
-let selectedUnit = null;  // Variable to store the selected unit
-let currentPage = 1;      // Default page is 1
+let selectedUnits = [];
+let currentPage = 1;
 let sendFilter = '';
 let eloFilter = 0;
 
@@ -322,7 +317,8 @@ function setEloFilter(value) {
 
 function loadPage() {
     const urlParams = new URLSearchParams(window.location.search);
-    selectedUnit = urlParams.get('unit') || '';
+    const unitParam = urlParams.get('unit');
+    selectedUnits = unitParam ? unitParam.split(',') : [];
     currentPage = parseInt(urlParams.get('page')) || 1;
     sendFilter = urlParams.get('send') || '';
     eloFilter = urlParams.get('elo') || 0;
@@ -330,25 +326,32 @@ function loadPage() {
 }
 
 function setUnitFilter(unit) {
-    selectedUnit = unit;
-    currentPage = 1;
+    if (unit === "RESET"){
+        selectedUnits = []
+    }
+    else if (selectedUnits.includes(unit)) {
+        selectedUnits = selectedUnits.filter(u => u !== unit);
+    } else {
+        selectedUnits.push(unit);
+    }
     updateURL();
     renderFilteredBuilds();
 }
 
 function resetFilters() {
-    selectedUnit = '';
+    selectedUnits = [];
     sendFilter = '';
     eloFilter = 0;
-    currentPage = 1; // Reset to the first page
-    updateURL(); // Update the URL to reflect the cleared filters
-    renderFilteredBuilds(); // Re-render the builds with no filters
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
 }
+
 
 
 function updateURL() {
     const newURL = new URL(window.location);
-    newURL.searchParams.set('unit', selectedUnit);
+    newURL.searchParams.set('unit', selectedUnits.join(','));
     newURL.searchParams.set('page', currentPage);
     newURL.searchParams.set('send', sendFilter);
     newURL.searchParams.set('elo', eloFilter);
@@ -371,6 +374,11 @@ function populateSendDropdown(data) {
     });
 }
 
+document.getElementById('unitDropdown').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+
 function capitalize(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -387,50 +395,61 @@ function populateUnitDropdown(data) {
             });
         }
     });
+
+    const units = Array.from(unitSet);
+    units.sort((a, b) => {
+        const isSelectedA = selectedUnits.includes(a);
+        const isSelectedB = selectedUnits.includes(b);
+        if (isSelectedA && !isSelectedB) return -1;
+        if (!isSelectedA && isSelectedB) return 1;
+        return a.localeCompare(b);
+    });
+
     const dropdownMenu = document.getElementById('unitDropdown');
     dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
-    unitSet.forEach(unit => {
+    units.forEach(unit => {
+        const isChecked = selectedUnits.includes(unit) ? "checked" : "";
         const unitItem = document.createElement('li');
-        unitItem.innerHTML = `<a class="dropdown-item" onclick="setUnitFilter('${unit}')"><img style="width: 24px;" src="${getCdnImage(unit)}"> ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}</a>`;
+        unitItem.innerHTML = `
+            <label class="dropdown-item" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" style="margin: 0;" ${isChecked} onclick="setUnitFilter('${unit}')">
+                <img style="width: 24px;" src="${getCdnImage(unit)}">
+                ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}
+            </label>`;
         dropdownMenu.appendChild(unitItem);
     });
 }
 
-function renderFilteredBuilds(first_load=false) {
+
+function renderFilteredBuilds(first_load = false) {
     let filteredData;
-    if (!selectedUnit && !sendFilter && !eloFilter) {
+    if (!selectedUnits.length && !sendFilter && !eloFilter) {
         filteredData = proleak_data;
-        populateSendDropdown(filteredData)
     } else {
         filteredData = proleak_data.filter(game => {
-            let unitMatch = !selectedUnit || game['build'].split('!').some(build => build.includes(selectedUnit));
-            let snailMatch =
-                (sendFilter === '') || // Matches "No send" when sendFilter is "Nosend"
-                (sendFilter === 'Nosend' && game['send'] === '') || // Matches when user selects "Nosend"
-                (sendFilter !== '' && sendFilter !== 'Nosend' && game['send'] === sendFilter); // Matches other send filters
+            let unitMatch = selectedUnits.every(unit =>
+                game['build'].split('!').some(build => build.includes(unit))
+            );
+            let snailMatch = (sendFilter === '') ||
+                             (sendFilter === 'Nosend' && game['send'] === '') ||
+                             (sendFilter !== '' && sendFilter !== 'Nosend' && game['send'] === sendFilter);
             let eloMatch = eloFilter === '' || game['elo'] >= parseInt(eloFilter, 10);
 
             return unitMatch && snailMatch && eloMatch;
         });
     }
-    if ((!sendFilter && selectedUnit) || first_load){
-        populateSendDropdown(filteredData)
-    }
-    if ((!selectedUnit) || first_load || eloFilter){
-        populateUnitDropdown(filteredData)
-    }
+    populateSendDropdown(filteredData);
+    populateUnitDropdown(filteredData);
     const startIndex = (currentPage - 1) * 4;
     const paginatedData = filteredData.slice(startIndex, startIndex + 4);
-    renderBuild(paginatedData);  // Render builds
-    updatePagination(filteredData.length);  // Update pagination
+    renderBuild(paginatedData);
+    updatePagination(filteredData.length);
 }
 
 function updatePagination(totalItems) {
     const totalPages = Math.ceil(totalItems / 4);
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
-
-    // Add space between the buttons by adding margin to them
     paginationContainer.innerHTML += `
         <button class="btn btn-primary btn-sm" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
     `;
@@ -445,16 +464,40 @@ function updatePagination(totalItems) {
 
 function goToPage(page) {
     currentPage = page;
-    updateURL();  // Update URL with the current page
-    renderFilteredBuilds();  // Render builds for the selected page
+    updateURL();
+    renderFilteredBuilds();
 }
 
+function unitDropdownFilter() {
+    const input = document.getElementById("statsInput");
+    const filter = input.value.toUpperCase();
+    const dropdown = document.getElementById("statsDropdown");
+    const ul = dropdown.getElementsByTagName("ul")[0];
+    const li = ul.getElementsByTagName("li");
+
+    let hasVisibleItems = false;
+
+    for (let i = 0; i < li.length; i++) {
+        const a = li[i].getElementsByTagName("a")[0] || li[i].querySelector(".dropdown-item");
+        const checkbox = li[i].querySelector("input[type='checkbox']");
+        const txtValue = a ? (a.textContent || a.innerText) : "";
+        if (checkbox && checkbox.checked) {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+        }
+        else if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+    if (!hasVisibleItems) {
+        console.log("No visible items after filtering.");
+    }
+}
 
 function renderBuild(data) {
-    // The number of builds to render (maximum 4)
-    const totalBuilds = 4;
-
-    // Loop through all player build elements (up to 4)
     document.querySelectorAll('.player-build').forEach((lane, index) => {
         const buildData = data[index];
         if (!buildData) {
@@ -464,7 +507,6 @@ function renderBuild(data) {
             lane.style.display = 'block';
         }
 
-        // Render the build information as usual
         lane.querySelector('.fighter-value').innerText = buildData['value'];
         lane.querySelector('.player-name').innerText = buildData['playername'];
         lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
@@ -472,10 +514,9 @@ function renderBuild(data) {
         lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/' + wave;
         lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
 
-        // Grid rendering (same logic as before)
         const grid = lane.querySelector('.grid');
         grid.querySelectorAll('.grid-square').forEach(square => {
-            square.innerHTML = ''; // Remove previous units
+            square.innerHTML = '';
         });
 
         const buildWaveStr = buildData['build'];
