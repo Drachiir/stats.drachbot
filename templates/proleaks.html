@@ -478,6 +478,11 @@ function unitDropdownFilter() {
     let hasVisibleItems = false;
 
     for (let i = 0; i < li.length; i++) {
+        if (li[i].getAttribute("onclick") === "setUnitFilter('RESET')") {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+            continue;
+        }
         const a = li[i].getElementsByTagName("a")[0] || li[i].querySelector(".dropdown-item");
         const checkbox = li[i].querySelector("input[type='checkbox']");
         const txtValue = a ? (a.textContent || a.innerText) : "";
