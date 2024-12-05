@@ -49,8 +49,7 @@
     <div>
         <img style="height: 64px; margin-right: 10px;" src="https://overlay.drachbot.site/emotes/proleak.png">
         <r style="font-size: 1rem;">
-            <b>{{ human_format(games) }}</b> Games | Avg Elo:
-            <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }}</b> |
+            <b>{{ human_format(games) }}</b> Games |
             <b>v{{ patch_name }} | Wave {{ wave }} <img style="width: 24px;" src="{{ get_cdn(wave_string, "Wave") }}"></b>
         </r>
     </div>
@@ -59,17 +58,7 @@
             <!-- Pagination buttons will be dynamically added here -->
         </div>
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                Send
-            </button>
-            <ul class="dropdown-menu" id="sendDropdown">
-                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any Send</a></li>
-                <li><a class="dropdown-item" onclick="setSnailFilter('Nosend')">No send</a></li>
-            </ul>
-        </div>
-        <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Units
             </button>
@@ -81,19 +70,18 @@
                 </ul>
             </div>
         </div>
-        <div>
-            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    Wave
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Send
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/proleaks/1/{{ patch_name }}">Wave1</a></li>
-                <li><a class="dropdown-item" href="/proleaks/2/{{ patch_name }}">Wave2</a></li>
-                <li><a class="dropdown-item" href="/proleaks/3/{{ patch_name }}">Wave3</a></li>
+            <ul class="dropdown-menu" id="sendDropdown">
+                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any Send</a></li>
+                <li><a class="dropdown-item" onclick="setSnailFilter('Nosend')">No send</a></li>
             </ul>
         </div>
         <div>
-            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                     aria-expanded="false">
                 Elo
             </button>
@@ -105,7 +93,18 @@
             </ul>
         </div>
         <div>
-            <button class="btn btn-secondary dropdown-toggle btn-sm" type="button" data-bs-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Wave
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/proleaks/1/{{ patch_name }}">Wave1</a></li>
+                <li><a class="dropdown-item" href="/proleaks/2/{{ patch_name }}">Wave2</a></li>
+                <li><a class="dropdown-item" href="/proleaks/3/{{ patch_name }}">Wave3</a></li>
+            </ul>
+        </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                     Patch
             </button>
@@ -116,7 +115,7 @@
             </ul>
         </div>
         <div>
-            <button class="btn btn-warning btn-sm" onclick="resetFilters()">Reset Filters</button>
+            <button class="btn btn-warning" onclick="resetFilters()">Reset Filters</button>
         </div>
     </div>
 </div>
@@ -459,13 +458,13 @@ function updatePagination(totalItems) {
     const paginationContainer = document.getElementById('pagination');
     paginationContainer.innerHTML = '';
     paginationContainer.innerHTML += `
-        <button class="btn btn-primary btn-sm" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
+        <button class="btn btn-primary" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
     `;
     paginationContainer.innerHTML += `
         <span style="margin: 0 10px;">Page ${currentPage}/${totalPages}</span>
     `;
     paginationContainer.innerHTML += `
-        <button class="btn btn-primary btn-sm" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">→</button>
+        <button class="btn btn-primary" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">→</button>
     `;
 }
 
