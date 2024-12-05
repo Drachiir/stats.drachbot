@@ -360,13 +360,14 @@ def proleaks(wave, patch):
                 return render_template("no_data.html", text="No Data")
             avg_elo = datajson.split("_")[3].replace(".json", "")
             with open(f"{shared_folder}/data/proleaks/{datajson}", "r") as f:
+                mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/proleaks/{datajson}")).timestamp())
                 data = json.load(f)
                 break
     else:
         return render_template("no_data.html", text=f"No data.")
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                            const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
-                           clean_unit_name = util.clean_unit_name, patch_list = patches, wave_string = f"Wave{wave}")
+                           clean_unit_name = util.clean_unit_name, patch_list = patches, wave_string = f"Wave{wave}", mod_date=mod_date)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})
