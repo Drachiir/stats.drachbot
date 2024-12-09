@@ -92,11 +92,11 @@ def get_avatar_border(stacks):
     else:
         return ""
 
-tier_dict_specific = {"mmstats": [64,60,59,55,0.7], "openstats": [53,40,30,20,0.2],
+tier_dict_specific = {"mmstats": [64,60,58,56,0.7], "openstats": [53,40,30,20,0.2],
                      "spellstats": [75,65,45,30,3], "unitstats": [55,50,45,40,0.1],
                      "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
 
-tier_dict_all = {"mmstats": [68,62,59,55,0.4], "openstats": [57,50,40,25,0.2],
+tier_dict_all = {"mmstats": [68,62,60,58,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
                  "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
 
@@ -109,9 +109,9 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     else:
         tier_dict = tier_dict_all
     elo = str(elo)
-    elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03}
+    elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03, "1600": 0.04}
     if elo not in elo_dict:
-        elo = "1800"
+        elo = "1600"
     if stats != "megamindstats":
         tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
     else:
