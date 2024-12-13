@@ -2,22 +2,29 @@ from pathlib import Path
 import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
-from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData
+from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData, db
 from playhouse.postgres_ext import *
 import datetime
 from datetime import datetime, timezone
 import requests
+from peewee import InterfaceError, OperationalError
+from psycopg2 import OperationalError as Psycopg2OperationalError
 
 def get_playerid(playername):
-    profile_data_query = (PlayerProfile
-                          .select(PlayerProfile.player_name, PlayerProfile.player_id)
-                          .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
-                          ).dicts()
-    if profile_data_query.count() == 1:
-        for row in profile_data_query:
-            return row["player_id"]
-    else:
-        return None
+    with db.atomic():
+        try:
+            profile_data_query = (PlayerProfile
+                                  .select(PlayerProfile.player_id)
+                                  .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
+                                  .dicts())
+            rows = list(profile_data_query)
+            if len(rows) == 1:
+                return rows[0]["player_id"]
+            else:
+                return None
+        except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
+            print(f"Database error: {e}")
+            return None
 
 def get_game_by_id(gameid):
     if GameData.get_or_none(GameData.game_id == gameid) is None:
