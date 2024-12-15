@@ -125,6 +125,29 @@
     .fav-imgs:hover{
         transform: scale(1.1);
     }
+    #loading-spinner {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 9999;
+        display: none; /* Initially hidden */
+        text-align: center;
+    }
+
+    .spinner {
+        border: 8px solid #f3f3f3; /* Light gray background */
+        border-top: 8px solid #3498db; /* Blue top */
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite; /* Infinite spin */
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -295,7 +318,7 @@
         </div>
     </div>
     <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
-    <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px">
+    <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px" id="match-history">
     {% for game in history[:short_history] %}
         <div class="clickableDiv" style="position: relative; background: rgba(25, 25, 25, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
@@ -354,10 +377,207 @@
                 </div>
             </div>
             <a href="{{ game["gamelink"] }}" class="overlay-link" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></a>
-        </div><br>
+        </div>
     {% endfor %}
+    <div id="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
     </div>
 </div>
+<script>
+    const playerName = "{{ api_profile['playerName'] }}";
+    const playerId = "{{ playerid }}";
+    const patch = "{{ patch }}";
+    let currentPage = 1;
+    let isLoading = false;
+    let allGamesLoaded = false;
+
+    function getRankUrl(elo) {
+        if (typeof elo !== 'number') {
+            elo = parseInt(elo, 10);
+            if (isNaN(elo)) return null;
+        }
+
+        if (elo >= 2800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png';
+        } else if (elo >= 2600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png';
+        } else if (elo >= 2400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png';
+        } else if (elo >= 2200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png';
+        } else if (elo >= 2000) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png';
+        } else if (elo >= 1800) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png';
+        } else if (elo >= 1600) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png';
+        } else if (elo >= 1400) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png';
+        } else if (elo >= 1200) {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png';
+        } else {
+            return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
+        }
+    }
+
+    function getUnitName(name) {
+        if (!name) return "";
+
+        let splitChar = name.includes("_") ? "_" : " ";
+        if (name.includes("_unit_id")) {
+            name = name.split("_unit_id")[0];
+            if (name.startsWith(" ")) {
+                name = name.slice(1);
+            }
+        }
+
+        let newString = name.split(splitChar).map(str => str.charAt(0).toUpperCase() + str.slice(1)).join("");
+
+        switch (newString) {
+            case "HellRaiserBuffed":
+                return "HellRaiser";
+            case "PackRat(footprints)":
+            case "PackRatNest":
+                return "PackRat(Footprints)";
+            case "Aps":
+                return "APS";
+            case "Mps":
+                return "MPS";
+            default:
+                return newString;
+        }
+    }
+
+    function getCDN(string, header, profile = false) {
+        if (header === "Unit") {
+            if (string === "Save") return "/static/save.png";
+            if (!string && profile) return "https://cdn.legiontd2.com/icons/Worker.png";
+            return `https://cdn.legiontd2.com/icons/${getUnitName(string)}.png`;
+        }
+
+        if (header === "MMs") {
+            return `https://cdn.legiontd2.com/icons/Items/${string}.png`;
+        }
+
+        if (header === "Spell") {
+            return `https://cdn.legiontd2.com/icons/${getUnitName(string)
+                .replace("PresstheAttack", "PressTheAttack")
+                .replace("None", "Granddaddy")}.png`;
+        }
+        return "";
+    }
+
+    function createGameElement(game) {
+        const gameDiv = document.createElement('div');
+        gameDiv.className = 'clickableDiv';
+        gameDiv.style.cssText = "position: relative; background: rgba(25, 25, 25, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;";
+
+        gameDiv.innerHTML = `
+            <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
+                <div style="padding-left: 10px; width: 40%">
+                    <div>
+                        <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="${game.EndWave}">
+                        ${game.Result_String[0]
+                            ? `<r2 style="color: #6af945; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`
+                            : `<r2 style="color: #d64444; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`}
+                    </div>
+                    <div style="display: flex; gap: 5px; overflow: hidden">
+                        <div style="position: relative;">
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="${getCDN(game.Mastermind, 'MMs')}">
+                            ${game.Megamind
+                                ? `<img loading="lazy" style="top:0;left: 0; position: absolute; clip-path: circle(); width: calc(var(--imgsize) / 2)" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">`
+                                : ''}
+                        </div>
+                        <div>
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="https://cdn.legiontd2.com/Icons/Worker.png">
+                            <r style="font-size: var(--textsize)">${game.Worker}</r>
+                        </div>
+                        <div>
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="${getCDN(game.Spell, 'Spell')}">
+                        </div>
+                        ${game.Opener.split(',').reverse().map(openerUnit => `
+                            <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="${getCDN(openerUnit, 'Unit', true)}">
+                        `).join('')}
+                    </div>
+                </div>
+                <div style="display: flex; white-space: nowrap; gap: 20px; align-items: center; width: 40%">
+                    ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
+                        <div style="width: 50%">
+                            ${group.map(player => `
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/${player[0]}">
+                                    <img style="width: 16px;" src="${getRankUrl(player[1])}">
+                                    <r2 style="font-size: var(--textsize); color: ${player[0] === playerName ? '#34a9db' : 'white'}">${player[0]}</r2>
+                                </a><br>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="width: 20%; position: relative;">
+                    <div style="position: absolute; top: -15%; right: 0">
+                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">${game.time_ago}</r2>
+                    </div>
+                    <div style="position: absolute; bottom: -15%; right: 0">
+                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">${game.Version}</r2>
+                    </div>
+                </div>
+            </div>
+            <a href="${game.gamelink}" class="overlay-link" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></a>
+        `;
+
+        return gameDiv;
+    }
+
+    async function loadMoreGames() {
+        if (isLoading) return;
+        if (allGamesLoaded) return;
+        isLoading = true;
+
+        const url = `/api/get_player_matchhistory/${playerName}/${playerId}/${patch}/${currentPage}`;
+        console.log(url);
+
+        let spinnerTimeout;
+        const spinner = document.getElementById('loading-spinner');
+        spinner.style.display = 'none';
+
+        try {
+            spinner.style.display = 'block';
+            const response = await fetch(url);
+            if (!response.ok) {
+                allGamesLoaded = true;
+                throw new Error("Failed to fetch data");
+            }
+
+            const data = await response.json();
+
+            const matchHistoryDiv = document.getElementById('match-history');
+            data.forEach(game => {
+                const gameElement = createGameElement(game);
+                matchHistoryDiv.appendChild(gameElement);
+            });
+
+            currentPage++;
+        } catch (error) {
+            console.error("Error loading more games:", error);
+        } finally {
+            isLoading = false;
+            setTimeout(() => {
+                clearTimeout(spinnerTimeout);
+                spinner.style.display = 'none';
+            }, 200);
+        }
+    }
+
+    const matchHistoryDiv = document.getElementById('match-history');
+    matchHistoryDiv.addEventListener('scroll', () => {
+        if (
+            matchHistoryDiv.scrollTop + matchHistoryDiv.clientHeight >=
+            matchHistoryDiv.scrollHeight - 10
+        ) {
+            loadMoreGames();
+        }
+    });
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     const labels = {{ labels|tojson }};

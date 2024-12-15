@@ -549,6 +549,60 @@ def get_player_stats(playername):
     api_stats = legion_api.getstats(playerid)
     return api_stats
 
+@app.route('/api/get_player_matchhistory/<playername>/<playerid>/<patch>/<page>', methods=['GET'])
+def get_player_matchhistory(playername, playerid, patch, page):
+    path = f"Files/player_cache/{playername}_profile_{patch}.json"
+    try:
+        with open(path, "r") as f:
+            history = json.load(f)
+            f.close()
+    except FileNotFoundError:
+        req_columns = [
+            [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
+             PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
+             PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell, PlayerData.workers_per_wave],
+            ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
+            ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
+             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
+        history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
+        try:
+            os.remove(path)
+        except Exception:
+            pass
+        with open(path, "w") as f:
+            json.dump(history, f, default=str)
+    history_parsed = []
+    slice_int = 20*int(page)
+    for game in history[slice_int:][:20]:
+        if type(game["date"]) == str:
+            game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
+        end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
+        temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
+            , "Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
+                     "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "", "Worker": "", "Megamind": False}
+        for player in game["players_data"]:
+            temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
+            if player["player_id"] == playerid:
+                # Match history details
+                temp_dict["Opener"] = player["opener"]
+                temp_dict["Mastermind"] = player["legion"]
+                try:
+                    temp_dict["Spell"] = player["spell"]
+                except KeyError:
+                    temp_dict["Spell"] = "None"
+                if player["megamind"]:
+                    temp_dict["Megamind"] = True
+                temp_dict["Worker"] = round(player["workers_per_wave"][-1], 1)
+                temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
+                if player["game_result"] == "won":
+                    won = True
+                else:
+                    won = False
+                temp_dict["Result_String"] = [won, f"Wave {game["ending_wave"]}"]
+        history_parsed.append(temp_dict)
+    if not history_parsed:
+        return "No data found", 404
+    return history_parsed
 
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
