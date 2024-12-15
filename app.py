@@ -690,8 +690,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
             except Exception:
                 api_stats["flag"] = ""
-            with open("static/countries.json", "r") as f:
-                countries = json.load(f)
+            countries = util.COUNTRIES_CACHE
             if type(countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]) == list:
                 api_stats["Country"] = countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]][0]
             else:

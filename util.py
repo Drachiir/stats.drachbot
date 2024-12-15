@@ -58,6 +58,9 @@ with open("Files/json/slang.json", "r") as f:
 with open("Files/json/const.json", "r") as f:
     const_file = json.load(f)
     f.close()
+
+with open("static/countries.json", "r") as f:
+    COUNTRIES_CACHE = json.load(f)
     
 incmercs = const_file.get("incmercs")
 powermercs = const_file.get("powermercs")
