@@ -24,6 +24,7 @@ import threading
 from threading import Thread
 from drachbot.peewee_pg import PlayerProfile
 from peewee import fn
+import msgpack
 
 cache = Cache()
 
@@ -730,7 +731,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/LegionKing.png",
             "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
         ]
-        path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.json"
+        path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.msgpack"
         history = None
         if os.path.isfile(path) and cooldown_duration == 0:
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
@@ -739,9 +740,8 @@ def profile(playername, stats, patch, elo, specific_key):
             if minutes_diff > 5:
                 os.remove(path)
             else:
-                with open(path, "r") as f:
-                    history = json.load(f)
-                    f.close()
+                with open(path, "rb") as f:
+                    history = msgpack.unpackb(f.read(), raw=False)
         if not history:
             req_columns = [
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
@@ -756,8 +756,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 os.remove(path)
             except Exception:
                 pass
-            with open(path, "w") as f:
-                json.dump(history, f, default=str)
+            with open(path, "wb") as f:
+                f.write(msgpack.packb(history, default=str))
         history_parsed = []
         winlose = [0, 0]
         elochange = 0
@@ -895,7 +895,7 @@ def profile(playername, stats, patch, elo, specific_key):
         api_profile = result["api_profile"]
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
-        path = f"Files/player_cache/{playername2}_{patch}_{elo}.json"
+        path = f"Files/player_cache/{playername2}_{patch}_{elo}.msgpack"
         history_raw = None
         if os.path.isfile(path):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
@@ -904,9 +904,8 @@ def profile(playername, stats, patch, elo, specific_key):
             if minutes_diff > 30:
                 os.remove(path)
             else:
-                with open(path, "r") as f:
-                    history_raw = json.load(f)
-                    f.close()
+                with open(path, "rb") as f:
+                    history_raw = msgpack.unpackb(f.read(), raw=False)
         if not history_raw:
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
@@ -917,8 +916,8 @@ def profile(playername, stats, patch, elo, specific_key):
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
-            with open(path, "w") as f:
-                json.dump(history_raw, f, default=str)
+            with open(path, "wb") as f:
+                f.write(msgpack.packb(history_raw, default=str))
         match stats:
             case "megamindstats":
                 header_title = "MM"
