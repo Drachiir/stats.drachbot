@@ -558,11 +558,10 @@ def get_player_stats(playername):
 
 @app.route('/api/get_player_matchhistory/<playername>/<playerid>/<patch>/<page>', methods=['GET'])
 def get_player_matchhistory(playername, playerid, patch, page):
-    path = f"Files/player_cache/{playername}_profile_{patch}.json"
+    path = f"Files/player_cache/{playername}_profile_{patch}.msgpack"
     try:
-        with open(path, "r") as f:
-            history = json.load(f)
-            f.close()
+        with open(path, "rb") as f:
+            history = msgpack.unpackb(f.read(), raw=False)
     except FileNotFoundError:
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
@@ -576,8 +575,8 @@ def get_player_matchhistory(playername, playerid, patch, page):
             os.remove(path)
         except Exception:
             pass
-        with open(path, "w") as f:
-            json.dump(history, f, default=str)
+        with open(path, "wb") as f:
+            f.write(msgpack.packb(history, default=str))
     history_parsed = []
     slice_int = 20*int(page)
     for game in history[slice_int:][:20]:
