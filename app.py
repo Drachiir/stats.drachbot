@@ -566,10 +566,11 @@ def get_player_matchhistory(playername, playerid, patch, page):
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
-             PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell, PlayerData.workers_per_wave],
+             PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
+             PlayerData.workers_per_wave, PlayerData.mvp_score],
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
+             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score"]]
         history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
         try:
             os.remove(path)
@@ -579,16 +580,21 @@ def get_player_matchhistory(playername, playerid, patch, page):
             f.write(msgpack.packb(history, default=str))
     history_parsed = []
     slice_int = 20*int(page)
+    player_map = {1: [1, 2, 3], 2: [0, 2, 3], 5: [3, 0, 1], 6: [2, 0, 1]}
     for game in history[slice_int:][:20]:
         if type(game["date"]) == str:
             game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
         end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
         temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
             , "Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
-                     "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "", "Worker": "", "Megamind": False}
+                     "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "",
+                     "Worker": "", "Megamind": False, "MVP": False}
         for player in game["players_data"]:
             temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
             if player["player_id"] == playerid:
+                teammate = game["players_data"][player_map[player["player_slot"]][0]]
+                if player["mvp_score"] > teammate["mvp_score"]:
+                    temp_dict["MVP"] = True
                 # Match history details
                 temp_dict["Opener"] = player["opener"]
                 temp_dict["Mastermind"] = player["legion"]
@@ -745,10 +751,11 @@ def profile(playername, stats, patch, elo, specific_key):
             req_columns = [
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
                  PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
-                 PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell, PlayerData.workers_per_wave],
+                 PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
+                 PlayerData.workers_per_wave, PlayerData.mvp_score],
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave"]]
+                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score"]]
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername)
             try:
@@ -770,13 +777,15 @@ def profile(playername, stats, patch, elo, specific_key):
         player_dict = {"Teammates": {}, "Enemies": {}}
         games = len(history)
         short_history = 20
+        mvp_count = 0
         for game in history:
             if type(game["date"]) == str:
                 game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
                          ,"Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
-                         "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "", "Worker": "", "Megamind": False}
+                         "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "",
+                         "Spell": "", "Worker": "", "Megamind": False, "MVP": False}
             for player in game["players_data"]:
                 temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
                 if player["player_id"] == playerid:
@@ -784,6 +793,9 @@ def profile(playername, stats, patch, elo, specific_key):
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
                     enemy2 = game["players_data"][player_map[player["player_slot"]][2]]
+                    if player["mvp_score"] > teammate["mvp_score"]:
+                        temp_dict["MVP"] = True
+                        mvp_count += 1
                     for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
                         if p[0]["player_id"] in player_dict[p[1]]:
                             player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
@@ -862,6 +874,10 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
+        try:
+            mvp_rate = round(mvp_count / games * 100, 1)
+        except ZeroDivisionError:
+            mvp_rate = 0
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
@@ -869,7 +885,7 @@ def profile(playername, stats, patch, elo, specific_key):
             winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
-            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid = playerid)
+            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_rate=mvp_rate)
     else:
         patches = patches2
         try:

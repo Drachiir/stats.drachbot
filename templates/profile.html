@@ -249,7 +249,8 @@
             <div class="profile-div">
                 <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Patch: ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
                 <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
-                <r2>Elo: {{ elochange }}</r2>
+                <r2>Elo: {{ elochange }}</r2><br>
+                <r2>MVP Rate: {{ mvp_rate }}%</r2>
             </div>
             {% for x in ["Teammates", "Enemies"] %}
                 <div class="profile-div">
@@ -329,6 +330,9 @@
                             <r2 style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
                         {% else %}
                             <r2 style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% endif %}
+                        {% if game["MVP"] %}
+                            <r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>
                         {% endif %}
                     </div>
                     <div style="display: flex; gap: 5px; overflow: hidden">
@@ -481,6 +485,9 @@
                         ${game.Result_String[0]
                             ? `<r2 style="color: #6af945; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`
                             : `<r2 style="color: #d64444; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`}
+                        ${game.MVP
+                            ? `<r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>`
+                            : ""}
                     </div>
                     <div style="display: flex; gap: 5px; overflow: hidden">
                         <div style="position: relative;">
