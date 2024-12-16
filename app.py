@@ -331,6 +331,7 @@ def rank_distribution(snapshot):
     snapshots_list = []
     for ss in os.listdir(f"{shared_folder}/leaderboard"):
         snapshots_list.append(ss.split("_")[2].replace(".json", ""))
+    snapshots_list = sorted(snapshots_list, key=lambda x: int(x.split("-")[1]+x.split("-")[0]), reverse=True)
     return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate,
                            snapshots_list=snapshots_list)
 
