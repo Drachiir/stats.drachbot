@@ -315,8 +315,9 @@ def leaderboard(playername):
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
                            winrate = util.custom_winrate, api_profile=api_profile)
 
-@app.route("/rank-distribution/", methods=['GET'])
-def rank_distribution():
+@app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': defaults_json["RankDistributionDate"]})
+@app.route("/rank-distribution/<snapshot>", methods=['GET'])
+def rank_distribution(snapshot):
     try:
         min_games = int(request.args.get('min_games', 1))
     except Exception:
@@ -325,9 +326,13 @@ def rank_distribution():
         min_winrate = int(request.args.get('min_winrate', 0))
     except Exception:
         min_winrate = 0
-    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_12-24.json", "r") as f:
+    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_{snapshot}.json", "r") as f:
         leaderboard_data = json.load(f)
-    return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate)
+    snapshots_list = []
+    for ss in os.listdir(f"{shared_folder}/leaderboard"):
+        snapshots_list.append(ss.split("_")[2].replace(".json", ""))
+    return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate,
+                           snapshots_list=snapshots_list)
 
 @app.route('/wave-distribution/', defaults={"elo": defaults[1], "patch": defaults[0]})
 @app.route('/wave-distribution/<patch>/', defaults={"elo": defaults[1]})

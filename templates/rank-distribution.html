@@ -6,7 +6,7 @@
     <div style="display: flex; justify-content: center; white-space: nowrap; flex-wrap: wrap">
         <div>
             <h1 style="font-size: 22px">Rank Distribution 2024</h1>
-            <r2 style="font-size: 0.9rem">Snapshot taken 16th Dec 2024</r2><br>
+            <r2 style="font-size: 0.9rem">Snapshot taken 1st Dec 2024</r2><br>
             <r2>Total players: <span id="totalPlayersCount"></span></r2>  <!-- Updated this line -->
         </div>
         <div style="display: flex; width: 80%; gap: 10px; justify-content: center; flex-wrap: wrap">
@@ -24,6 +24,17 @@
                     </div>
                 </div>
             </form>
+            <div>
+                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Snapshots
+                </button>
+                <ul class="dropdown-menu">
+                    {% for ss in snapshots_list %}
+                        <li><a class="dropdown-item" href="/rank-distribution/{{ ss }}">{{ ss }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
     <!-- Canvas for the bar chart -->
