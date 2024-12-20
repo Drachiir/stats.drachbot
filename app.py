@@ -799,7 +799,6 @@ def profile(playername, stats, patch, elo, specific_key):
                     for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
                         if p[0]["player_id"] in player_dict[p[1]]:
                             player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
-                            player_dict[p[1]][p[0]["player_id"]]["Playername"] = p[0]["player_name"]
                             player_dict[p[1]][p[0]["player_id"]]["EloChange"] += player["elo_change"]
                         else:
                             player_dict[p[1]][p[0]["player_id"]] = {"Count": 1, "Wins": 0, "Playername": p[0]["player_name"], "EloChange": player["elo_change"]}
