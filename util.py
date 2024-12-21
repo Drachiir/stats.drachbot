@@ -120,6 +120,8 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     else:
         tier_score = winrate
     if stats != "megamindstats":
+        if not specific_tier and pickrate < 5:
+            tier_score /= 2
         if (winrate > 80) and (pickrate < 10):
             tier_score = tier_score / 2
         if winrate < 50:
