@@ -965,7 +965,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
                 elif specific_key == "Champion":
                     header_keys = ["Games", "Winrate", "Playrate"]
-                    sub_headers = [["Champions", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+                    sub_headers = [["Champions", "Targets", "rollstats"], ["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 else:
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
@@ -1154,7 +1154,7 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
-                sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+                sub_headers = [["Champions", "Targets", "rollstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             else:
                 header_keys = ["Tier", "Games", "Winrate", "Playrate"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
