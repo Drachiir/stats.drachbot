@@ -298,7 +298,6 @@ def classic_modes():
 
 @app.route("/leaderboard", defaults={"playername": None})
 @app.route("/leaderboard/<playername>")
-@cache.cached(timeout=timeout2)
 def leaderboard(playername):
     if not playername:
         api_profile = None
