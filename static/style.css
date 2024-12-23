@@ -63,7 +63,7 @@ r2 {
     font-size: 1rem;
 }
 td img {
-  border: 1px solid #474751;
+  border: 1px solid rgba(71, 71, 81, 0);
   transition: transform 0.2s ease, border 0.2s ease;
 }
 td img:hover{
@@ -87,9 +87,9 @@ td:hover::after{
   z-index: -1;
 }
 table th{
-    border-right: 1px solid #535353;
-    border-bottom: 1px solid #535353;
-    border-left: 1px solid #535353;
+    border-right: 1px solid #737373;
+    border-bottom: 1px solid #737373;
+    border-left: 1px solid #737373;
     opacity: .87;
 	background-color: #2f2f32 !important;
 }
@@ -160,8 +160,8 @@ a[data-title]:hover::after, a[data-title]:active::after{
     z-index: 9;
 }
 div#loading {
-    border: 16px solid #ffffff; /* Light grey */
-    border-top: 16px solid #344adb; /* Blue */
+    border: 16px solid rgba(255, 255, 255, 0); /* Light grey */
+    border-top: 16px solid #3482db; /* Blue */
     border-radius: 50%;
     width: 120px;
     height: 120px;
