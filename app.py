@@ -479,7 +479,7 @@ def livegames():
     return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
 
 player_refresh_state = {}
-COOLDOWN_PERIOD = 600
+COOLDOWN_PERIOD = 300
 
 def request_games(playerid, limit):
     drachbot_db.get_games_loop(playerid, 0, 500, timeout_limit=limit)
@@ -745,7 +745,7 @@ def profile(playername, stats, patch, elo, specific_key):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 5:
+            if minutes_diff > 10:
                 os.remove(path)
             else:
                 with open(path, "rb") as f:
