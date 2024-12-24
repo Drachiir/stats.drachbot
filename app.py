@@ -481,8 +481,8 @@ def livegames():
 player_refresh_state = {}
 COOLDOWN_PERIOD = 600
 
-def request_games(playerid):
-    drachbot_db.get_games_loop(playerid, 0, 200, timeout_limit=3)
+def request_games(playerid, limit):
+    drachbot_db.get_games_loop(playerid, 0, 500, timeout_limit=limit)
     player_refresh_state[playerid]['in_progress'] = False
     player_refresh_state[playerid]['cooldown_start_time'] = datetime.now(tz=timezone.utc)
 
@@ -498,8 +498,11 @@ def get_remaining_cooldown(playerid):
     
     return remaining_cooldown
 
-@app.route("/api/request_games/<playername>")
-def request_games_api(playername):
+@app.route("/api/request_games/<playername>", defaults={"limit": 2})
+@app.route("/api/request_games/<playername>/<limit>")
+def request_games_api(playername, limit):
+    limit = int(limit)
+    limit = 5 if limit > 5 else limit
     if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
         playerid = playername
     else:
@@ -511,14 +514,15 @@ def request_games_api(playername):
         player_refresh_state[playerid] = {'in_progress': False, 'cooldown_start_time': None}
     
     state = player_refresh_state[playerid]
+    remaining_cooldown = get_remaining_cooldown(playerid)
     if state['in_progress']:
         return jsonify({"error": "Refresh already in progress"}), 400
-    if get_remaining_cooldown(playerid) > 0:
-        return jsonify({"error": "Cooldown active"}), 400
+    if remaining_cooldown > 0:
+        return jsonify({"error": f"Refresh on cooldown for {round(remaining_cooldown/60, 1)} minutes"}), 400
     
     state['in_progress'] = True
     state['cooldown'] = 0
-    thread = Thread(target=request_games, args=(playerid,))
+    thread = Thread(target=request_games, args=(playerid, limit,))
     thread.start()
     return jsonify({"message": "Refresh started"})
     
@@ -755,8 +759,9 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score"]]
+            skip_game_refresh = True if api_stats["overallElo"] > 1750 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername)
+                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh)
             try:
                 os.remove(path)
             except Exception:

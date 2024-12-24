@@ -89,7 +89,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
-                    skip_stats=False, get_new_games = False, max_elo = 9001):
+                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False):
     if req_columns is None:
         req_columns = []
     patch_list = []
@@ -202,10 +202,11 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 ).where(PlayerProfile.player_id == playerid).execute()
                 ranked_games = wins + losses
                 games_diff = ranked_games - ranked_games_old
-                if ranked_games_old < ranked_games:
-                    games_count += get_games_loop(playerid, 0, games_diff)
-                if games_count > 0:
-                    PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
+                if not skip_game_refresh:
+                    if ranked_games_old < ranked_games:
+                        games_count += get_games_loop(playerid, 0, games_diff)
+                    if games_count > 0:
+                        PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:
             if get_new_games:
                 get_games_loop(playerid, 0, 20)

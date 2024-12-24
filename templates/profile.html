@@ -604,11 +604,12 @@
             refreshBtn.prop('disabled', true).text('Refreshing...');
 
             // Make AJAX request to start refresh process
-            $.get('/api/request_games/' + playerid, function (data) {
+            $.get('/api/request_games/' + playerid, function (response) {
                 // Request successful, now wait for the process to finish
                 checkRefreshStatus(playerid, false);
-            }).fail(function () {
-                alert('Already refreshed recently, try again later!');
+            }).fail(function (response) {
+                alert(response.responseJSON.error);
+                console.log(response.responseJSON.error);
                 refreshBtn.prop('disabled', false).text('Refresh');
             });
         });
