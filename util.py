@@ -585,6 +585,8 @@ def get_value_playfab(list_of_dicts, value, version=8):
     for x in list_of_dicts:
         if (x["Name"] == value) and (x["Version"] == version):
             return x["Value"]
+    else:
+        return 0
         
 def clean_unit_name(name):
     return name.split("_unit_id")[0].replace("_", " ").capitalize()
