@@ -263,7 +263,9 @@ function initializeSearchBars() {
     searchBars.forEach(({ inputId, boxId }) => {
         const searchInput = document.getElementById(inputId);
         const suggestionsBox = document.getElementById(boxId);
-
+        if (!searchInput || !suggestionsBox) {
+            return;
+        }
         searchInput.addEventListener('input', () => getSearchSuggestions(searchInput, suggestionsBox));
         searchInput.addEventListener('focus', () => handleFocus(searchInput, suggestionsBox));
         setupClickOutsideListener(searchInput, suggestionsBox);
