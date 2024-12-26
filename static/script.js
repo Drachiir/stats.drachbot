@@ -146,23 +146,75 @@ function statsFilter() {
     }
 }
 
-function refreshPage() {
-    window.location.reload();  // Refresh the page
-}
-
 function loading(){
     $("#loading").show();
     $("#content").hide();
 }
 
 let debounceTimeout;
+const RECENT_PROFILES_KEY = 'recentVisitedProfiles';
+
+function getRecentlyVisitedProfiles() {
+    const profiles = localStorage.getItem(RECENT_PROFILES_KEY);
+    return profiles ? JSON.parse(profiles) : [];
+}
+
+function addToRecentlyVisited(profile) {
+    const profiles = getRecentlyVisitedProfiles();
+    const existingIndex = profiles.findIndex(p => p.player_name === profile.player_name);
+
+    if (existingIndex > -1) {
+        profiles.splice(existingIndex, 1);
+    }
+
+    profiles.unshift(profile);
+
+    if (profiles.length > 5) {
+        profiles.pop();
+    }
+
+    localStorage.setItem(RECENT_PROFILES_KEY, JSON.stringify(profiles));
+}
+
+function renderSuggestions(suggestions, suggestionsBoxElement, inputElement) {
+    if (suggestions.length > 0) {
+        suggestionsBoxElement.innerHTML = '';
+        suggestions.forEach(player => {
+            const suggestionItem = document.createElement('div');
+            suggestionItem.className = 'dropdown-item';
+
+            const avatarUrl = player.avatar_url
+                ? `https://cdn.legiontd2.com/${player.avatar_url}`
+                : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
+
+            suggestionItem.innerHTML = `
+                <div style="text-decoration: none; color: white; cursor: pointer" href="/profile/${player.player_name}">
+                <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
+                <span>${player.player_name}</span></div>
+            `;
+
+            suggestionItem.onclick = () => {
+                inputElement.value = player.player_name;
+                addToRecentlyVisited(player);
+                redirectToProfile(inputElement);
+            };
+            suggestionsBoxElement.appendChild(suggestionItem);
+        });
+        suggestionsBoxElement.style.display = 'block';
+    } else {
+        suggestionsBoxElement.style.display = 'none';
+    }
+}
 
 async function getSearchSuggestions(inputElement, suggestionsBoxElement) {
     const input = inputElement.value;
+
     if (!input) {
-        suggestionsBoxElement.style.display = 'none';
+        const recentProfiles = getRecentlyVisitedProfiles();
+        renderSuggestions(recentProfiles, suggestionsBoxElement, inputElement);
         return;
     }
+
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(async () => {
         try {
@@ -174,37 +226,51 @@ async function getSearchSuggestions(inputElement, suggestionsBoxElement) {
                 return;
             }
 
-            if (suggestions.length > 0) {
-                suggestionsBoxElement.innerHTML = '';
-                suggestions.forEach(player => {
-                    const suggestionItem = document.createElement('div');
-                    suggestionItem.className = 'dropdown-item';
-
-                    const avatarUrl = player.avatar_url
-                        ? `https://cdn.legiontd2.com/${player.avatar_url}`
-                        : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
-
-                    suggestionItem.innerHTML = `
-                        <a style="text-decoration: none; color: white" href="/profile/${player.player_name}">
-                        <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
-                        <span>${player.player_name}</span></a>
-                    `;
-
-                    suggestionItem.onclick = () => {
-                        inputElement.value = player.player_name;
-                        redirectToProfile();
-                    };
-                    suggestionsBoxElement.appendChild(suggestionItem);
-                });
-                suggestionsBoxElement.style.display = 'block';
-            } else {
-                suggestionsBoxElement.style.display = 'none';
-            }
+            renderSuggestions(suggestions, suggestionsBoxElement, inputElement);
         } catch (error) {
             console.error('Error fetching search suggestions:', error);
         }
     }, 200);
 }
+
+function handleFocus(inputElement, suggestionsBoxElement) {
+    const input = inputElement.value;
+    const recentProfiles = getRecentlyVisitedProfiles();
+    if (!input) {
+        renderSuggestions(recentProfiles, suggestionsBoxElement, inputElement);
+    } else {
+        getSearchSuggestions(inputElement, suggestionsBoxElement);
+    }
+}
+
+function setupClickOutsideListener(searchInput, suggestionsBox) {
+    document.addEventListener('click', (event) => {
+        const isClickInsideInput = searchInput.contains(event.target);
+        const isClickInsideBox = suggestionsBox.contains(event.target);
+
+        if (!isClickInsideInput && !isClickInsideBox) {
+            suggestionsBox.style.display = 'none';
+        }
+    });
+}
+
+function initializeSearchBars() {
+    const searchBars = [
+        { inputId: 'profileInput1', boxId: 'suggestions1' },
+        { inputId: 'profileInput2', boxId: 'suggestions2' },
+    ];
+
+    searchBars.forEach(({ inputId, boxId }) => {
+        const searchInput = document.getElementById(inputId);
+        const suggestionsBox = document.getElementById(boxId);
+
+        searchInput.addEventListener('input', () => getSearchSuggestions(searchInput, suggestionsBox));
+        searchInput.addEventListener('focus', () => handleFocus(searchInput, suggestionsBox));
+        setupClickOutsideListener(searchInput, suggestionsBox);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initializeSearchBars);
 
 
 function handleEnterPress(event) {

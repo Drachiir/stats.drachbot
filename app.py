@@ -535,6 +535,7 @@ def check_refresh_status(playerid):
         'cooldown': cooldown_duration
     })
 
+@app.route('/api/get_search_results/', methods=['GET'], defaults={"search_term": ""})
 @app.route('/api/get_search_results/<search_term>', methods=['GET'])
 def get_search_results(search_term):
     query = (PlayerProfile
