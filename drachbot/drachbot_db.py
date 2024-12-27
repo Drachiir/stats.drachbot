@@ -217,16 +217,16 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 expr = fn.Substr(GameData.version, 2, 5).in_(patch_list)
             else:
                 expr = True
-            if games == 0:
-                games2 = GameData.select().where(GameData.player_ids.contains(playerid)).count()
-            else:
-                games2 = games
             game_data_query = (PlayerData
                          .select(*req_columns[0])
                          .join(GameData)
                          .where((GameData.queue == "Normal") & GameData.player_ids.contains(playerid) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
                          .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
-                         .limit(games2*4)).dicts()
+                         ).dicts()
+
+            if games != 0:
+                game_data_query = game_data_query.limit(games*4)
+
             for i, row in enumerate(game_data_query.iterator()):
                 p_data = {}
                 for field in req_columns[2]:
