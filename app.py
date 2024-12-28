@@ -50,7 +50,7 @@ def leaderboard_task():
         "CreateAccount": False,
         "StartPosition": 0,
         "StatisticName": "overallEloThisSeasonAtLeastOneGamePlayed",
-        "MaxResultsCount": 100,
+        "MaxResultsCount": 150,
         "ProfileConstraints": {
             "ShowDisplayName": True,
             "ShowStatistics": True,
@@ -1296,7 +1296,7 @@ if platform.system() == "Windows":
     app.run(host="0.0.0.0", debug=True)
 else:
     from waitress import serve
-    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=180)
+    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=240)
     scheduler.start()
     for file in os.listdir("Files/player_cache"):
         os.remove(f"Files/player_cache/{file}")
