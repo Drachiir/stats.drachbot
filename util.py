@@ -99,7 +99,7 @@ tier_dict_specific = {"mmstats": [64,60,58,56,0.7], "openstats": [73,70,65,60,1]
                      "spellstats": [75,65,60,55,3], "unitstats": [73,70,65,60,2],
                      "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
 
-tier_dict_all = {"mmstats": [68,62,60,58,0.4], "openstats": [57,50,40,25,0.2],
+tier_dict_all = {"mmstats": [66,63,60,55,0.4], "openstats": [57,50,40,25,0.2],
                  "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
                  "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
 
