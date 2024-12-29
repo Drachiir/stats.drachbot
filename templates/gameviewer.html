@@ -25,19 +25,19 @@
 <div class="players-container">
     {% for player in game_data['players_data'] %}
         <div class="player-lane" data-player="{{ player['player_slot'] }}">
-            <div class="player-info">
-                <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
-                    <div style="display: flex; align-items: center; gap: 5px;">
-                        <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none; flex-grow: 1;">
+            <div class="player-info" style="position: relative">
+                {% if player["mvp_score"] >= game_data['players_data'][player_map[loop.index0]]["mvp_score"] %}
+                    <r2 xtitle="MVP Score: {{ player['mvp_score'] }}" style="color: goldenrod; font-size: 0.9rem; position: absolute; top: -12px; right: 45%">[MVP]</r2>
+                {% endif %}
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 5px; width: 65%">
+                        <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none; flex-grow: 1; width: 100%;">
                             <img width="32" height="32" src="{{ get_cdn(player['legion'], 'MM') }}">
                             <r style="color: var(--player{{ player['player_slot'] }}); font-weight: 400;">
                                 {{ player['player_name'] }}
                             </r>
                             {% if player["party_size"] > 1 %}
                                 <img style="width: 16px;" src="/static/party.png">
-                            {% endif %}
-                            {% if player["mvp_score"] >= game_data['players_data'][player_map[loop.index0]]["mvp_score"] %}
-                                <r2 xtitle="MVP Score: {{ player['mvp_score'] }}" style="color: goldenrod; font-size: 0.9rem;">[MVP]</r2>
                             {% endif %}
                         </a>
                     </div>
@@ -72,7 +72,7 @@
             </div>
             <div class="sends-leaks" id="sends{{ loop.index0 }}"></div>
             <div class="sends-leaks" id="leaks{{ loop.index0 }}"></div>
-            <div class="copy-build" id="build{{ loop.index0 }}"></div>
+            <div style="padding-top: 10px" class="copy-build" id="build{{ loop.index0 }}"></div>
         </div>
     {% endfor %}
 </div>
