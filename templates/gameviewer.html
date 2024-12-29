@@ -26,13 +26,26 @@
     {% for player in game_data['players_data'] %}
         <div class="player-lane" data-player="{{ player['player_slot'] }}">
             <div class="player-info">
-                <img width="32" height="32" src="{{ get_cdn(player['legion'], "MM") }}">
-                <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none">
-                    <r style="color: var(--player{{ player["player_slot"] }}); font-weight: 400">{{ player['player_name'] }}</r></a>
-                <div style="float: right">
-                    <img width="24" height="24" src="{{ get_rank_url(player['player_elo']) }}">
-                    <r>{{ player['player_elo'] }}({{ plus_prefix(player["elo_change"]) }})</r>
-                </div><br>
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none; flex-grow: 1;">
+                            <img width="32" height="32" src="{{ get_cdn(player['legion'], 'MM') }}">
+                            <r style="color: var(--player{{ player['player_slot'] }}); font-weight: 400;">
+                                {{ player['player_name'] }}
+                            </r>
+                            {% if player["party_size"] > 1 %}
+                                <img style="width: 16px;" src="/static/party.png">
+                            {% endif %}
+                            {% if player["mvp_score"] >= game_data['players_data'][player_map[loop.index0]]["mvp_score"] %}
+                                <r2 xtitle="MVP Score: {{ player['mvp_score'] }}" style="color: goldenrod; font-size: 0.9rem;">[MVP]</r2>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div>
+                        <img width="24" height="24" src="{{ get_rank_url(player['player_elo']) }}">
+                        <r>{{ player['player_elo'] }}({{ plus_prefix(player["elo_change"]) }})</r>
+                    </div>
+                </div>
                 <div class="units-roll">
                     {% for unit in player["roll"].split(",") %}
                         <img style="float: right" width="32" height="32" src="{{ get_cdn(unit, "Unit") }}"><br>

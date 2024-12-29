@@ -469,10 +469,11 @@ def drachbot_overlay_api(playername):
 @app.route("/gameviewer/<gameid>/<wave>")
 def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(gameid)
+    player_map = {0: 1, 1: 0, 2: 3, 3: 2}
     if data == {"Error": "Game not found."}:
         return render_template("no_data.html", text="Game ID not found/valid")
     return render_template("gameviewer.html", game_data = data, game_viewer = True, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                           const_file = util.const_file, plus_prefix = util.plus_prefix, wave=wave)
+                           const_file = util.const_file, plus_prefix = util.plus_prefix, wave=wave, player_map=player_map)
     
 @app.route("/livegames")
 def livegames():
@@ -571,10 +572,10 @@ def get_player_matchhistory(playername, playerid, patch, page):
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
              PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
-             PlayerData.workers_per_wave, PlayerData.mvp_score],
+             PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score"]]
+             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
         history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
         try:
             os.remove(path)
@@ -594,7 +595,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
                      "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "",
                      "Worker": "", "Megamind": False, "MVP": False}
         for player in game["players_data"]:
-            temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
+            temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"]])
             if player["player_id"] == playerid:
                 teammate = game["players_data"][player_map[player["player_slot"]][0]]
                 if player["mvp_score"] > teammate["mvp_score"]:
@@ -756,10 +757,10 @@ def profile(playername, stats, patch, elo, specific_key):
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
                  PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
                  PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
-                 PlayerData.workers_per_wave, PlayerData.mvp_score],
+                 PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score"]]
+                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
             skip_game_refresh = True if api_stats["overallElo"] > 1750 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh)
@@ -792,7 +793,7 @@ def profile(playername, stats, patch, elo, specific_key):
                          "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "",
                          "Spell": "", "Worker": "", "Megamind": False, "MVP": False}
             for player in game["players_data"]:
-                temp_dict["players_data"].append([player["player_name"], player["player_elo"]])
+                temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"]])
                 if player["player_id"] == playerid:
                     # Players
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]

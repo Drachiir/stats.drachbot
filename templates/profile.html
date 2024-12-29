@@ -366,6 +366,9 @@
                                 <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/{{ player[0] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
                                     <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
+                                    {% if player[2] > 1 %}
+                                        <img style="width: 16px;" src="/static/party.png">
+                                    {% endif %}
                                 </a><br>
                             {% endfor %}
                         </div>
@@ -515,6 +518,7 @@
                                 <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/${player[0]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
                                     <r2 style="font-size: var(--textsize); color: ${player[0] === playerName ? '#34a9db' : 'white'}">${player[0]}</r2>
+                                    ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
                                 </a><br>
                             `).join('')}
                         </div>
