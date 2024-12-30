@@ -499,7 +499,7 @@ def get_remaining_cooldown(playerid):
     
     return remaining_cooldown
 
-@app.route("/api/request_games/<playername>", defaults={"limit": 2})
+@app.route("/api/request_games/<playername>", defaults={"limit": 1})
 @app.route("/api/request_games/<playername>/<limit>")
 def request_games_api(playername, limit):
     limit = int(limit)

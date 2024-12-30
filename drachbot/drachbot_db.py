@@ -220,12 +220,24 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             game_data_query = (PlayerData
                          .select(*req_columns[0])
                          .join(GameData)
-                         .where((GameData.queue == "Normal") & GameData.player_ids.contains(playerid) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
-                         .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
+                         .where(GameData.player_ids.contains(playerid) & (GameData.queue == "Normal") & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
+                         .order_by(sort_arg.desc())
                          ).dicts()
 
             if games != 0:
                 game_data_query = game_data_query.limit(games*4)
+
+            # def explain_query(query):
+            #     sql, params = query.sql()
+            #     explain_sql = "EXPLAIN ANALYZE " + sql
+            #     with db.connection_context():
+            #         result = db.execute_sql(explain_sql, params)
+            #         return result.fetchall()
+            #
+            # explain_result = explain_query(game_data_query)
+            #
+            # for row in explain_result:
+            #     print(row[0])
 
             for i, row in enumerate(game_data_query.iterator()):
                 p_data = {}
