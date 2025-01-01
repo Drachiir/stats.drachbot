@@ -253,25 +253,59 @@
                 <r2>MVP Rate: {{ mvp_rate }}%</r2>
             </div>
             {% for x in ["Teammates", "Enemies"] %}
-                <div class="profile-div">
-                    <table class="table table-sm table-hover scrollable" style="display: inline-block; max-height: 140px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
+                <div class="profile-div" style="position: relative;">
+                    <table class="table table-sm table-hover scrollable"
+                           style="display: inline-block; max-height: 140px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
                         <tbody>
-                        <tr><th><r3>{{ x }}</r3></th><th><r3>Games</r3></th><th><r3>Winrate</r3></th><th><r3>Elo</r3></th></tr>
+                            <tr>
+                                <th><r3>{{ x }}</r3></th>
+                                <th><r3>Games</r3></th>
+                                <th><r3>Winrate</r3></th>
+                                <th><r3>Elo</r3></th>
+                            </tr>
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
-                                 <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
-                                     <td style="text-align: left"><a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
-                                        <r3>{{ mate_dict["Playername"][:14] }}</r3>
-                                     </a></td>
-                                     <td><r3>{{ mate_dict["Count"] }}</r3></td>
-                                     <td><r3>{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
-                                     <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
-                                 </tr>
+                                <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
+                                    <td style="text-align: left">
+                                        <a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
+                                            <r3>{{ mate_dict["Playername"][:14] }}</r3>
+                                        </a>
+                                    </td>
+                                    <td><r3>{{ mate_dict["Count"] }}</r3></td>
+                                    <td><r3>{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
+                                    <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
+                                </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                    <button style="position: absolute" class="btn btn-primary btn-sm fullscreen-btn" data-bs-toggle="modal" data-bs-target="#tableModal" onclick="renderTableModal('{{ x }}')">Fullscreen</button>
                 </div>
             {% endfor %}
+
+            <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content" style="height: 90vh;">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="tableModalLabel">Table Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" id="tableModalBody" style="overflow-y: auto;">
+                            <!-- Search bar -->
+                            <div style="margin-bottom: 10px;">
+                                <input
+                                    type="text"
+                                    id="searchPlayer"
+                                    class="form-control"
+                                    placeholder="Search player by name"
+                                    onkeyup="filterTable()"
+                                />
+                            </div>
+                            <!-- Rendered table will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; width: 100%">
                 <div class="profile-div">
                     <r2>Wave 1 Tendency:</r2><br>
@@ -391,6 +425,166 @@
     </div>
     </div>
 </div>
+<style>
+    th.ascending .sort-indicator::after {
+        content: "▲";
+    }
+
+    th.descending .sort-indicator::after {
+        content: "▼";
+    }
+
+    th {
+        cursor: pointer;
+        position: relative;
+    }
+
+    th .sort-indicator {
+        margin-left: 5px;
+        display: inline-block;
+        transition: transform 0.3s ease-in-out; /* Animation for rotation */
+    }
+
+    /* For ascending sorting */
+    th.ascending .sort-indicator {
+        transform: rotate(0deg); /* Keep the arrow in the default position for ascending */
+    }
+
+    /* For descending sorting */
+    th.descending .sort-indicator {
+        transform: rotate(180deg); /* Rotate the arrow 180 degrees for descending */
+    }
+</style>
+
+<script>
+    // Player data from Jinja variable
+    const playerDict = {{ player_dict | tojson }};
+
+    function renderTableModal(tableKey) {
+        const modalTitle = document.getElementById("tableModalLabel");
+        const modalBody = document.getElementById("tableModalBody");
+
+        // Set the modal title
+        modalTitle.textContent = `${tableKey} Data`;
+
+        // Clear previous table content
+        modalBody.innerHTML = `
+            <div style="margin-bottom: 10px;">
+                <input
+                    type="text"
+                    id="searchPlayer"
+                    class="form-control"
+                    placeholder="Search player by name"
+                    onkeyup="filterTable()"
+                />
+            </div>
+        `;
+
+        // Check if the data exists for the given key
+        const tableData = playerDict[tableKey];
+        if (!tableData) {
+            modalBody.innerHTML += "<p>No data available</p>";
+            return;
+        }
+
+        // Create a new table
+        const table = document.createElement("table");
+        table.className = "table table-bordered table-hover";
+        table.id = "sortableTable"; // For identifying the table
+        table.style.width = "100%";
+
+        // Create the table header
+        const thead = document.createElement("thead");
+        thead.innerHTML = `
+            <tr>
+                <th onclick="sortTable(0)">Playername <span class="sort-indicator"></span></th>
+                <th onclick="sortTable(1)">Games <span class="sort-indicator"></span></th>
+                <th onclick="sortTable(2)">Winrate <span class="sort-indicator"></span></th>
+                <th onclick="sortTable(3)">Win-Lose <span class="sort-indicator"></span></th>
+                <th onclick="sortTable(4)">Elo <span class="sort-indicator"></span></th>
+            </tr>
+        `;
+        table.appendChild(thead);
+
+        // Create the table body
+        const tbody = document.createElement("tbody");
+        tbody.id = "tableBody";
+
+        Object.keys(tableData).forEach(playerId => {
+            const player = tableData[playerId];
+            const winrate = ((player.Wins / player.Count) * 100).toFixed(2);
+            const losses = player.Count - player.Wins;
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td style="text-align: left; color: white;">
+                    <a href="/profile/${player.Playername}" style="text-decoration: none; color: white;">${player.Playername}</a>
+                </td>
+                <td>${player.Count}</td>
+                <td>${winrate}%</td>
+                <td>${player.Wins} - ${losses}</td>
+                <td>${player.EloChange > 0 ? "+" : ""}${player.EloChange}</td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+
+        // Append the table to the modal body
+        modalBody.appendChild(table);
+    }
+
+    function sortTable(columnIndex) {
+        const table = document.getElementById("sortableTable");
+        const tbody = table.querySelector("tbody");
+        const rows = Array.from(tbody.rows);
+
+        // Determine the sort direction
+        const currentHeader = table.querySelectorAll("th")[columnIndex];
+        const ascending = !currentHeader.classList.contains("ascending");
+
+        // Clear any existing direction indicators
+        table.querySelectorAll("th").forEach(th => th.classList.remove("ascending", "descending"));
+
+        // Add the appropriate direction class
+        currentHeader.classList.add(ascending ? "ascending" : "descending");
+
+        // Sort the rows
+        rows.sort((a, b) => {
+            const aText = a.cells[columnIndex].textContent.trim();
+            const bText = b.cells[columnIndex].textContent.trim();
+
+            // Handle numeric and text sorting
+            const aValue = isNaN(aText) ? aText : parseFloat(aText);
+            const bValue = isNaN(bText) ? bText : parseFloat(bText);
+
+            if (aValue < bValue) return ascending ? -1 : 1;
+            if (aValue > bValue) return ascending ? 1 : -1;
+            return 0;
+        });
+
+        // Re-add sorted rows to the table body
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    function filterTable() {
+        const input = document.getElementById("searchPlayer");
+        const filter = input.value.toLowerCase();
+        const tbody = document.getElementById("tableBody");
+        const rows = tbody.rows;
+
+        for (let i = 0; i < rows.length; i++) {
+            const playerCell = rows[i].cells[0];
+            const playerName = playerCell.textContent || playerCell.innerText;
+
+            if (playerName.toLowerCase().includes(filter)) {
+                rows[i].style.display = "";
+            } else {
+                rows[i].style.display = "none";
+            }
+        }
+    }
+</script>
 <script>
     const playerName = "{{ api_profile['playerName'] }}";
     const playerId = "{{ playerid }}";
