@@ -278,7 +278,13 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <button style="position: absolute" class="btn btn-primary btn-sm fullscreen-btn" data-bs-toggle="modal" data-bs-target="#tableModal" onclick="renderTableModal('{{ x }}')">Fullscreen</button>
+                    <button style="position: absolute; font-size: 20px; padding: 0; background: none; border: none; right: -20px; top: -3px;"
+                            class="btn btn-primary btn-sm fullscreen-btn"
+                            data-bs-toggle="modal"
+                            data-bs-target="#tableModal"
+                            onclick="renderTableModal('{{ x }}')">
+                        <i class="fas fa-expand"></i>
+                    </button>
                 </div>
             {% endfor %}
 
@@ -426,14 +432,6 @@
     </div>
 </div>
 <style>
-    th.ascending .sort-indicator::after {
-        content: "▲";
-    }
-
-    th.descending .sort-indicator::after {
-        content: "▼";
-    }
-
     th {
         cursor: pointer;
         position: relative;
@@ -442,32 +440,25 @@
     th .sort-indicator {
         margin-left: 5px;
         display: inline-block;
-        transition: transform 0.3s ease-in-out; /* Animation for rotation */
+        transition: transform 0.3s ease-in-out;
     }
 
-    /* For ascending sorting */
     th.ascending .sort-indicator {
-        transform: rotate(0deg); /* Keep the arrow in the default position for ascending */
+        transform: rotate(0deg);
     }
 
-    /* For descending sorting */
     th.descending .sort-indicator {
-        transform: rotate(180deg); /* Rotate the arrow 180 degrees for descending */
+        transform: rotate(180deg);
     }
 </style>
-
 <script>
-    // Player data from Jinja variable
     const playerDict = {{ player_dict | tojson }};
 
     function renderTableModal(tableKey) {
         const modalTitle = document.getElementById("tableModalLabel");
         const modalBody = document.getElementById("tableModalBody");
-
-        // Set the modal title
         modalTitle.textContent = `${tableKey} Data`;
 
-        // Clear previous table content
         modalBody.innerHTML = `
             <div style="margin-bottom: 10px;">
                 <input
@@ -480,33 +471,29 @@
             </div>
         `;
 
-        // Check if the data exists for the given key
         const tableData = playerDict[tableKey];
         if (!tableData) {
             modalBody.innerHTML += "<p>No data available</p>";
             return;
         }
 
-        // Create a new table
         const table = document.createElement("table");
         table.className = "table table-bordered table-hover";
-        table.id = "sortableTable"; // For identifying the table
+        table.id = "sortableTable";
         table.style.width = "100%";
 
-        // Create the table header
         const thead = document.createElement("thead");
         thead.innerHTML = `
             <tr>
-                <th onclick="sortTable(0)">Playername <span class="sort-indicator"></span></th>
-                <th onclick="sortTable(1)">Games <span class="sort-indicator"></span></th>
-                <th onclick="sortTable(2)">Winrate <span class="sort-indicator"></span></th>
-                <th onclick="sortTable(3)">Win-Lose <span class="sort-indicator"></span></th>
-                <th onclick="sortTable(4)">Elo <span class="sort-indicator"></span></th>
+                <th onclick="sortTable(0)">Playername <span class="sort-indicator">▼</span></th>
+                <th onclick="sortTable(1)">Games <span class="sort-indicator">▼</span></th>
+                <th onclick="sortTable(2)">Win-Lose <span class="sort-indicator">▼</span></th>
+                <th onclick="sortTable(3)">Winrate <span class="sort-indicator">▼</span></th>
+                <th onclick="sortTable(4)">Elo <span class="sort-indicator">▼</span></th>
             </tr>
         `;
         table.appendChild(thead);
 
-        // Create the table body
         const tbody = document.createElement("tbody");
         tbody.id = "tableBody";
 
@@ -521,17 +508,16 @@
                     <a href="/profile/${player.Playername}" style="text-decoration: none; color: white;">${player.Playername}</a>
                 </td>
                 <td>${player.Count}</td>
-                <td>${winrate}%</td>
                 <td>${player.Wins} - ${losses}</td>
+                <td>${winrate}%</td>
                 <td>${player.EloChange > 0 ? "+" : ""}${player.EloChange}</td>
             `;
             tbody.appendChild(row);
         });
 
         table.appendChild(tbody);
-
-        // Append the table to the modal body
         modalBody.appendChild(table);
+        sortTable(1);
     }
 
     function sortTable(columnIndex) {
@@ -539,33 +525,32 @@
         const tbody = table.querySelector("tbody");
         const rows = Array.from(tbody.rows);
 
-        // Determine the sort direction
         const currentHeader = table.querySelectorAll("th")[columnIndex];
-        const ascending = !currentHeader.classList.contains("ascending");
+        const isDescending = !currentHeader.classList.contains("descending");
 
-        // Clear any existing direction indicators
         table.querySelectorAll("th").forEach(th => th.classList.remove("ascending", "descending"));
 
-        // Add the appropriate direction class
-        currentHeader.classList.add(ascending ? "ascending" : "descending");
+        if (isDescending) {
+            currentHeader.classList.add("descending");
+        } else {
+            currentHeader.classList.add("ascending");
+        }
 
-        // Sort the rows
         rows.sort((a, b) => {
             const aText = a.cells[columnIndex].textContent.trim();
             const bText = b.cells[columnIndex].textContent.trim();
 
-            // Handle numeric and text sorting
             const aValue = isNaN(aText) ? aText : parseFloat(aText);
             const bValue = isNaN(bText) ? bText : parseFloat(bText);
 
-            if (aValue < bValue) return ascending ? -1 : 1;
-            if (aValue > bValue) return ascending ? 1 : -1;
+            if (aValue < bValue) return isDescending ? 1 : -1;
+            if (aValue > bValue) return isDescending ? -1 : 1;
             return 0;
         });
 
-        // Re-add sorted rows to the table body
         rows.forEach(row => tbody.appendChild(row));
     }
+
 
     function filterTable() {
         const input = document.getElementById("searchPlayer");
