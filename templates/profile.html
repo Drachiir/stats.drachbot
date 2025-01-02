@@ -247,11 +247,74 @@
                 <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
             </div>
             <div class="profile-div">
-                <r2><b>Last {{ history|length }} Games </b></r2><i data-title="Patch: ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
-                <r2>{{ winlose[0] }}W - {{ winlose[1] }}L<br>({{ winrate([winlose[0], (winlose[0]+winlose[1])]) }} WR%)</r2><br>
-                <r2>Elo: {{ elochange }}</r2><br>
-                <r2>MVP Rate: {{ mvp_rate }}%</r2>
+                <r2>
+                    <b>Last {{ history|length }} Games </b>
+                </r2>
+                <i data-title="Patch: ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
+                <div class="button-container">
+                    <button class="state-button" onclick="switchState('Overall')" id="btn-Overall">Total</button>
+                    <button class="state-button" onclick="switchState('SoloQ')" id="btn-SoloQ">Solo</button>
+                    <button class="state-button" onclick="switchState('DuoQ')" id="btn-DuoQ">Duo</button>
+                </div>
+                <div id="stats-display"></div>
             </div>
+            <style>
+                .button-container {
+                    display: flex;
+                    gap: 5px;
+                    margin-bottom: 2px;
+                }
+
+                .state-button {
+                    padding: 2px 3px;
+                    font-size: 12px;
+                    border: 1px solid #00c4ff;
+                    border-radius: 5px;
+                    background-color: #393939;
+                    color: #00c4ff;
+                    cursor: pointer;
+                    transition: background-color 0.3s, color 0.3s;
+                }
+
+                .state-button:hover {
+                    background-color: #00c4ff;
+                    color: #393939;
+                }
+
+                .state-button.active {
+                    background-color: #00c4ff;
+                    color: #393939;
+                }
+            </style>
+            <script>
+                const winlose = {{ winlose | tojson }};
+                const elochange = {{ elochange | tojson }};
+                const mvpCount = {{ mvp_count | tojson }};
+                const winrate = (wins, total) => (total > 0 ? ((wins / total) * 100).toFixed(2) : 0);
+
+                function formatElo(elo) {
+                    return elo > 0 ? `+${elo}` : elo;
+                }
+
+                function switchState(state) {
+                    const statsDisplay = document.getElementById('stats-display');
+                    const wins = winlose[state][0];
+                    const losses = winlose[state][1];
+                    const totalGames = wins + losses;
+                    const wr = winrate(wins, totalGames);
+                    const elo = formatElo(elochange[state]);
+                    const mvp = mvpCount[state];
+
+                    statsDisplay.innerHTML = `
+                        <r2>${wins}W - ${losses}L<br>(${wr} WR%)</r2><br>
+                        <r2>Elo: ${elo}</r2><br>
+                        <r2>MVP Rate: ${(mvp / totalGames * 100).toFixed(1)}%</r2>
+                    `;
+                    document.querySelectorAll('.state-button').forEach(btn => btn.classList.remove('active'));
+                    document.getElementById(`btn-${state}`).classList.add('active');
+                }
+                document.addEventListener("DOMContentLoaded", () => switchState('Overall'));
+            </script>
             {% for x in ["Teammates", "Enemies"] %}
                 <div class="profile-div" style="position: relative;">
                     <table class="table table-sm table-hover scrollable"

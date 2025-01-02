@@ -771,8 +771,9 @@ def profile(playername, stats, patch, elo, specific_key):
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history, default=str))
         history_parsed = []
-        winlose = [0, 0]
-        elochange = 0
+        winlose = {"Overall": [0,0], "SoloQ": [0,0], "DuoQ": [0,0]}
+        elochange = {"Overall": 0, "SoloQ": 0, "DuoQ": 0}
+        mvp_count = {"Overall": 0, "SoloQ": 0, "DuoQ": 0}
         values = []
         labels = []
         mms = {}
@@ -783,7 +784,6 @@ def profile(playername, stats, patch, elo, specific_key):
         player_dict = {"Teammates": {}, "Enemies": {}}
         games = len(history)
         short_history = 20
-        mvp_count = 0
         for game in history:
             if type(game["date"]) == str:
                 game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
@@ -799,9 +799,6 @@ def profile(playername, stats, patch, elo, specific_key):
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
                     enemy2 = game["players_data"][player_map[player["player_slot"]][2]]
-                    if player["mvp_score"] > teammate["mvp_score"]:
-                        temp_dict["MVP"] = True
-                        mvp_count += 1
                     for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
                         if p[0]["player_id"] in player_dict[p[1]]:
                             player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
@@ -853,14 +850,20 @@ def profile(playername, stats, patch, elo, specific_key):
                     game_date = game["date"]
                     labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
+                    elochange["Overall"] += player["elo_change"]
+                    elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
+                    if player["mvp_score"] > teammate["mvp_score"]:
+                        temp_dict["MVP"] = True
+                        mvp_count["Overall"] += 1
+                        mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
                     if player["game_result"] == "won":
                         won = True
-                        elochange += player["elo_change"]
-                        winlose[0] += 1
+                        winlose["Overall"][0] += 1
+                        winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][0] += 1
                     else:
                         won = False
-                        elochange += player["elo_change"]
-                        winlose[1] += 1
+                        winlose["Overall"][1] += 1
+                        winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][1] += 1
                     temp_dict["Result_String"] = [won, f"Wave {game["ending_wave"]}"]
             history_parsed.append(temp_dict)
         newIndex = sorted(mms, key=lambda x: mms[x], reverse=True)
@@ -879,18 +882,14 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
-        try:
-            mvp_rate = round(mvp_count / games * 100, 1)
-        except ZeroDivisionError:
-            mvp_rate = 0
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
-            winlose=winlose, elochange=util.plus_prefix(elochange), playerurl = f"/profile/{playername}/", values=values,
+            winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}/", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
-            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_rate=mvp_rate)
+            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count)
     else:
         patches = patches2
         try:
