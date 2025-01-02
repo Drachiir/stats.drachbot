@@ -182,22 +182,36 @@ function renderSuggestions(suggestions, suggestionsBoxElement, inputElement) {
         suggestions.forEach(player => {
             const suggestionItem = document.createElement('div');
             suggestionItem.className = 'dropdown-item';
+            suggestionItem.style.display = 'flex';
+            suggestionItem.style.alignItems = 'center';
+            suggestionItem.style.padding = '5px 10px';
+            suggestionItem.style.cursor = 'pointer';
 
             const avatarUrl = player.avatar_url
                 ? `https://cdn.legiontd2.com/${player.avatar_url}`
                 : 'https://cdn.legiontd2.com/icons/DefaultAvatar.png';
 
-            suggestionItem.innerHTML = `
-                <div style="text-decoration: none; color: white; cursor: pointer" href="/profile/${player.player_name}">
-                <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar">
-                <span>${player.player_name}</span></div>
+            const playerLink = document.createElement('a');
+            playerLink.style.textDecoration = 'none';
+            playerLink.style.color = 'white';
+            playerLink.style.display = 'flex';
+            playerLink.style.alignItems = 'center';
+            playerLink.style.width = '100%';
+            playerLink.href = `/profile/${player.player_name}`;
+
+            playerLink.innerHTML = `
+                <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar" style="margin-right: 10px;">
+                <span>${player.player_name}</span>
             `;
+
+            suggestionItem.appendChild(playerLink);
 
             suggestionItem.onclick = () => {
                 inputElement.value = player.player_name;
                 addToRecentlyVisited(player);
                 redirectToProfile(inputElement);
             };
+
             suggestionsBoxElement.appendChild(suggestionItem);
         });
         suggestionsBoxElement.style.display = 'block';
