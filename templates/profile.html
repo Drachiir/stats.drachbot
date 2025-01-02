@@ -136,12 +136,12 @@
     }
 
     .spinner {
-        border: 8px solid rgba(243, 243, 243, 0); /* Light gray background */
-        border-top: 8px solid #3498db; /* Blue top */
+        border: 8px solid rgba(243, 243, 243, 0);
+        border-top: 8px solid #3498db;
         border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        animation: spin 1s linear infinite; /* Infinite spin */
+        width: 100px;
+        height: 100px;
+        animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
@@ -194,7 +194,7 @@
                         <button class="btn btn-secondary" id="check-livegame-btn">Live Game</button>
                         <div class="modal fade" id="liveGameModal" tabindex="-1" aria-labelledby="liveGameModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
-                                <div class="modal-content">
+                                <div class="modal-content" style="background-color: #1c1c1c">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="liveGameModalLabel">Live Match Details</h5>
                                         <div style="display: flex; align-items: center; padding-left: 50px">
@@ -353,7 +353,7 @@
 
             <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl">
-                    <div class="modal-content" style="height: 90vh;">
+                    <div class="modal-content" style="height: 90vh; background-color: #1c1c1c">
                         <div class="modal-header">
                             <h5 class="modal-title" id="tableModalLabel">Table Details</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -946,7 +946,7 @@
 
                     // Build the game details HTML
                     const gameHTML = `
-                        <div class="game-card card bg-dark text-white mb-3">
+                        <div class="game-card card text-white mb-3" style="background-color: #1c1c1c">
                             <div class="card-body">
                                 <div class="game-header mb-3">
                                     <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap; height: 40px; gap: 30px; flex-wrap: wrap">
