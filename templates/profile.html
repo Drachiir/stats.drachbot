@@ -603,8 +603,15 @@
             const aText = a.cells[columnIndex].textContent.trim();
             const bText = b.cells[columnIndex].textContent.trim();
 
-            const aValue = isNaN(aText) ? aText : parseFloat(aText);
-            const bValue = isNaN(bText) ? bText : parseFloat(bText);
+            const parseValue = (text) => {
+                if (text.endsWith('%')) {
+                    return parseFloat(text.slice(0, -1));
+                }
+                return isNaN(text) ? text : parseFloat(text);
+            };
+
+            const aValue = parseValue(aText);
+            const bValue = parseValue(bText);
 
             if (aValue < bValue) return isDescending ? 1 : -1;
             if (aValue > bValue) return isDescending ? -1 : 1;
@@ -613,7 +620,6 @@
 
         rows.forEach(row => tbody.appendChild(row));
     }
-
 
     function filterTable() {
         const input = document.getElementById("searchPlayer");
