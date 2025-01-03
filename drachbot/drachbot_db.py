@@ -216,8 +216,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 PlayerProfile.update(
                     player_name=playerprofile["playerName"],
                     avatar_url=playerprofile["avatarUrl"],
-                    country=playerstats["flag"],
-                    guild_tag=playerprofile["guildTag"],
+                    country=playerstats["flag"] if playerstats["flag"] else data.country,
+                    guild_tag=playerprofile["guildTag"] if playerprofile["guildTag"] else data.guild_tag,
                     ladder_points = ladder_points,
                     ranked_wins_current_season=wins,
                     ranked_losses_current_season=losses,
