@@ -1,9 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <style>
+        .noWrapStats{
+            white-space: nowrap;
+        }
+        @media (max-width: 800px) {
+            .noWrapStats {
+                white-space: wrap;
+            }
+        }
+    </style>
     <div style="padding-top: 15px;">
-        <div style="display: flex; justify-content: space-between">
-            <div style="white-space: nowrap">
+        <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
+            <div class="noWrapStats">
                 <div style="position: relative">
                     <img style="float:left; padding-right: 20px; padding-bottom: 10px" src="{{ get_cdn_image(specific_key, header_title) }}">
                     {% if stats == "megamindstats" and key != "Megamind" %}
