@@ -6,6 +6,7 @@
         --textsize: clamp(0.6rem, 1vw, 1.2rem);
         --waveimgsize: clamp(36px, 5vw, 48px);
         --imgsize: clamp(20px, 3vw, 28px);
+        --blueAccent: #0095ff;
     }
     r {
       font-family: "Roboto", sans-serif;
@@ -96,12 +97,12 @@
     }
     /* Handle - the draggable part of the scrollbar */
     .scrollable::-webkit-scrollbar-thumb {
-        background: #3a99ff; /* Darker gray handle */
+        background: var(--blueAccent); /* Darker gray handle */
         border-radius: 10px; /* Round edges */
     }
     /* Handle on hover */
     .scrollable::-webkit-scrollbar-thumb:hover {
-        background: #31afdd; /* Darker on hover */
+        background: var(--blueAccent); /* Darker on hover */
     }
     .strokeText{
         -webkit-text-stroke: 3px black;
@@ -117,7 +118,7 @@
         background-color: #252525 !important;
     }
     .highlight {
-        background-color: #0796fb !important; /* Green background for the button */
+        background-color: var(--blueAccent) !important; /* Green background for the button */
     }
     .fav-imgs{
         transition: transform 0.2s ease, border 0.2s ease;
@@ -250,7 +251,7 @@
                 <r2>
                     <b>Last {{ history|length }} Games </b>
                 </r2>
-                <i data-title="Patch: ({{ patch }})" style="font-size:14px; color: #00c4ff" class="fa">?</i><br>
+                <i data-title="Patch: ({{ patch }})" style="font-size:14px; color: var(--blueAccent)" class="fa">?</i><br>
                 <div class="button-container">
                     <button class="state-button" onclick="switchState('Overall')" id="btn-Overall">Total</button>
                     <button class="state-button" onclick="switchState('SoloQ')" id="btn-SoloQ">Solo</button>
@@ -268,21 +269,21 @@
                 .state-button {
                     padding: 2px 3px;
                     font-size: 12px;
-                    border: 1px solid #00c4ff;
+                    border: 1px solid var(--blueAccent);
                     border-radius: 5px;
                     background-color: #393939;
-                    color: #00c4ff;
+                    color: var(--blueAccent);
                     cursor: pointer;
                     transition: background-color 0.3s, color 0.3s;
                 }
 
                 .state-button:hover {
-                    background-color: #00c4ff;
+                    background-color: var(--blueAccent);
                     color: #393939;
                 }
 
                 .state-button.active {
-                    background-color: #00c4ff;
+                    background-color: var(--blueAccent);
                     color: #393939;
                 }
             </style>

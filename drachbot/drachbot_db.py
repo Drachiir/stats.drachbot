@@ -26,6 +26,27 @@ def get_playerid(playername):
             print(f"Database error: {e}")
             return None
 
+def get_player_profile(playername):
+    with db.atomic():
+        try:
+            profile_data_query = (PlayerProfile
+                                  .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
+                                          PlayerProfile.guild_tag, PlayerProfile.avatar_url)
+                                  .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
+                                  .dicts())
+            rows = list(profile_data_query)
+            if len(rows) == 1:
+                playerid = rows[0]["player_id"]
+                api_profile = {"playerName": rows[0]["player_name"],
+                               "avatarUrl": rows[0]["avatar_url"],
+                               "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else ""}
+                return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"]}
+            else:
+                return None
+        except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
+            print(f"Database error: {e}")
+            return None
+
 def get_game_by_id(gameid):
     if GameData.get_or_none(GameData.game_id == gameid) is None:
         success = legion_api.save_game_by_id(gameid)
@@ -165,6 +186,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         player_name=playerprofile["playerName"],
                         avatar_url=playerprofile["avatarUrl"],
                         country=playerstats["flag"],
+                        guild_tag=playerprofile["guildTag"],
                         total_games_played=games_played,
                         ranked_wins_current_season=wins,
                         ranked_losses_current_season=losses,
@@ -195,6 +217,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     player_name=playerprofile["playerName"],
                     avatar_url=playerprofile["avatarUrl"],
                     country=playerstats["flag"],
+                    guild_tag=playerprofile["guildTag"],
                     ladder_points = ladder_points,
                     ranked_wins_current_season=wins,
                     ranked_losses_current_season=losses,

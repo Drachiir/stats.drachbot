@@ -154,16 +154,15 @@ def get_player_profile(playername):
         if playfab_profile:
             playerid = playfab_profile["AccountInfo"]["PlayFabId"]
             api_profile = {"playerName": playfab_profile["AccountInfo"]["TitleInfo"]["DisplayName"],
-                           "avatarUrl": playfab_profile["AccountInfo"]["TitleInfo"]["AvatarUrl"],
-                           "guildTag": ""}
+                           "avatarUrl": playfab_profile["AccountInfo"]["TitleInfo"]["AvatarUrl"]}
         else:
             playerid = drachbot_db.get_playerid(playername) if not playerid else None
-            api_profile = {"playerName": playername, "avatarUrl": "icons/DefaultAvatar.png", "guildTag": ""}
+            api_profile = {"playerName": playername, "avatarUrl": "icons/DefaultAvatar.png"}
         if not playerid:
             return None
     else:
         playerid = api_profile["_id"]
-    
+    api_profile["guildTag"] = ""
     return {"playerid": playerid, "api_profile": api_profile}
 
 
@@ -333,7 +332,7 @@ def rank_distribution(snapshot):
         snapshots_list.append(ss.split("_")[2].replace(".json", ""))
     snapshots_list = sorted(snapshots_list, key=lambda x: int(x.split("-")[1]+x.split("-")[0]), reverse=True)
     return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate,
-                           snapshots_list=snapshots_list)
+                           snapshots_list=snapshots_list, snapshot=snapshot)
 
 @app.route('/wave-distribution/', defaults={"elo": defaults[1], "patch": defaults[0]})
 @app.route('/wave-distribution/<patch>/', defaults={"elo": defaults[1]})
@@ -661,24 +660,23 @@ def profile(playername, stats, patch, elo, specific_key):
         if not referrer or '/load' not in referrer:
             return redirect(f"/load/{playername}/{new_patch}")
         #get player profile
-        result = get_player_profile(playername)
-        if not result:
-            return render_template("no_data.html", text=f"{playername} not found.")
-        playerid = result["playerid"]
-        api_profile = result["api_profile"]
+        api_stats = {"avatarBorder": "", "flag": "", "Country": ""}
+        drachbot_profile = drachbot_db.get_player_profile(playername)
+        if drachbot_profile:
+            playerid = drachbot_profile["playerid"]
+            api_profile = drachbot_profile["api_profile"]
+            country = drachbot_profile["country"]
+        else:
+            result = get_player_profile(playername)
+            if not result:
+                return render_template("no_data.html", text=f"{playername} not found.")
+            playerid = result["playerid"]
+            api_profile = result["api_profile"]
+            country = ""
         # Get player stats
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
-        api_stats = {}
-        playfab_stats = None
-        max_retries = 2
-        attempt = 0
-        while not playfab_stats and attempt < max_retries:
-            try:
-                playfab_stats = get_playfab_stats(playerid)
-            except Exception:
-                pass
-            attempt += 1
+        playfab_stats = get_playfab_stats(playerid)
         if playfab_stats:
             player = playfab_stats["Leaderboard"][0]
             try:
@@ -703,21 +701,11 @@ def profile(playername, stats, patch, elo, specific_key):
             except Exception:
                 avatar_stacks = 0
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
-            try:
-                api_stats["flag"] = player["Profile"]["Locations"][0]["CountryCode"]
-            except Exception:
-                api_stats["flag"] = ""
-            countries = util.COUNTRIES_CACHE
-            if type(countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]) == list:
-                api_stats["Country"] = countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]][0]
-            else:
-                api_stats["Country"] = countries["countries"][player["Profile"]["Locations"][0]["CountryCode"]]
+
+            country = player["Profile"]["Locations"][0]["CountryCode"]
             player_rank = f"Rank #{player["Position"]+1}"
         else:
             api_stats = legion_api.getstats(playerid)
-            api_stats["avatarBorder"] = ""
-            api_stats["flag"] = ""
-            api_stats["Country"] = ""
             player_rank = ""
         try:
             _ = api_stats["rankedWinsThisSeason"]
@@ -726,6 +714,15 @@ def profile(playername, stats, patch, elo, specific_key):
             _ = api_stats["overallPeakEloThisSeason"]
         except KeyError:
             return render_template("no_data.html", text=f"{playername} not found.")
+
+        api_stats["flag"] = country
+        if country:
+            countries = util.COUNTRIES_CACHE
+            if type(countries["countries"][country]) == list:
+                api_stats["Country"] = countries["countries"][country][0]
+            else:
+                api_stats["Country"] = countries["countries"][country]
+
         if not api_stats["rankedWinsThisSeason"]:
             api_stats["rankedWinsThisSeason"] = 0
         if not api_stats["rankedLossesThisSeason"]:
@@ -761,7 +758,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
-            skip_game_refresh = True if api_stats["overallElo"] > 1750 else False
+            skip_game_refresh = True if api_stats["overallElo"] > 1800 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh)
             try:

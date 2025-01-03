@@ -7,5 +7,5 @@
   "MMs": ["All", "LockIn", "Greed", "Redraw", "Yolo", "Fiesta", "CashOut", "Castle", "Cartel", "Chaos", "Champion", "DoubleLockIn", "Kingsguard", "Megamind"],
   "BuffSpells": ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"],
   "StatCategories": ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"],
-  "RankDistributionDate": "12-24"
+  "RankDistributionDate": "01-25"
 }
