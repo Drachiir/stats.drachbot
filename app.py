@@ -904,11 +904,16 @@ def profile(playername, stats, patch, elo, specific_key):
             return render_template("no_data.html", text="Page not found.")
         raw_data = None
         # get player profile
-        result = get_player_profile(playername)
-        if not result:
-            return render_template("no_data.html", text=f"{playername} not found.")
-        playerid = result["playerid"]
-        api_profile = result["api_profile"]
+        drachbot_profile = drachbot_db.get_player_profile(playername)
+        if drachbot_profile:
+            playerid = drachbot_profile["playerid"]
+            api_profile = drachbot_profile["api_profile"]
+        else:
+            result = get_player_profile(playername)
+            if not result:
+                return render_template("no_data.html", text=f"{playername} not found.")
+            playerid = result["playerid"]
+            api_profile = result["api_profile"]
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
         path = f"Files/player_cache/{playername2}_{patch}_{elo}.msgpack"
@@ -1096,7 +1101,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                    specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
                                    stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                    get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}/", playername2=playername2, patch_selector=True,
-                                   title=title, title_image=title_image, header_title=header_title)
+                                   title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"])
         if specific_key == "All":
             html_file = "stats.html"
         else:
@@ -1115,7 +1120,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                                sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                data_keys=raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True, playerprofile = True)
+                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True, playerprofile = True, player_avatar_url = api_profile["avatarUrl"])
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})

@@ -2,85 +2,92 @@
 
 {% block content %}
     <div style="padding-top: 15px;">
-        <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
-        <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
-        <div style="float:right;">
-            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                Elo
-            </button>
-            <ul class="dropdown-menu">
-                {% for i in elo_brackets %}
-                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
-                        <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
-                {% endfor %}
-            </ul>
-            {% if not patch_selector %}
+        <div style="display: flex; justify-content: space-between">
+            <div style="white-space: nowrap">
+                <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
+                {% if player_avatar_url %}
+                    <img style="height: 32px" src="https://cdn.legiontd2.com/{{ player_avatar_url }}">
+                {% endif %}
+                <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
+                <br>
+                {% if stats == "wavestats" %}
+                    <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
+                    Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>v{{ patch }}</b></r>
+                {% else %}
+                    <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
+                    <b>v{{ patch }}</b></r>
+                {% endif %}
+            </div>
+            <div>
                 <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
-                    Patch
+                    Elo
                 </button>
                 <ul class="dropdown-menu">
-                    {% for p in patch_list %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
+                    {% for i in elo_brackets %}
+                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
                     {% endfor %}
                 </ul>
-            {% else %}
-                <div class="dropdown" style="float: right; padding-left: 5px">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Patches
+                {% if not patch_selector %}
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        Patch
                     </button>
-                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
-                        <form id="patchForm">
-                            <li class="dropdown-item">
-                                <label>
-                                    <input type="checkbox" id="selectAll"> Select/Unselect All
-                                </label>
-                            </li>
-                            {% for p in patch_list %}
-                                <li class="dropdown-item" id="patch-checkbox">
-                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
-                                     v{{ p }}
-                                </li>
-                            {% endfor %}
-                        </form>
-                        <li class="dropdown-item text-center">
-                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
-                        </li>
-                    </ul>
-                </div>
-            {% endif %}
-            <div style="float: left; padding-right: 5px;" class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    {{ header_title }}
-                </button>
-                <div id="statsDropdown" class="dropdown-content">
-                    <ul class="dropdown-menu dropdown-scrollbar">
-                        <input type="text"
-                           class="form-control
-                                  border-0 border-bottom
-                                  shadow-none mb-2"
-                           placeholder="Search..."
-                           id="statsInput"
-                           onkeyup="statsFilter()">
-                        {% for d in data_keys %}
-                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
-                                <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
+                    <ul class="dropdown-menu">
+                        {% for p in patch_list %}
+                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
                         {% endfor %}
                     </ul>
+                {% else %}
+                    <div class="dropdown" style="float: right; padding-left: 5px">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Select Patches
+                        </button>
+                        <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
+                            <form id="patchForm">
+                                <li class="dropdown-item">
+                                    <label>
+                                        <input type="checkbox" id="selectAll"> Select/Unselect All
+                                    </label>
+                                </li>
+                                {% for p in patch_list %}
+                                    <li class="dropdown-item" id="patch-checkbox">
+                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                         v{{ p }}
+                                    </li>
+                                {% endfor %}
+                            </form>
+                            <li class="dropdown-item text-center">
+                                <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+                <div style="float: left; padding-right: 5px;" class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        {{ header_title }}
+                    </button>
+                    <div id="statsDropdown" class="dropdown-content">
+                        <ul class="dropdown-menu dropdown-scrollbar">
+                            <input type="text"
+                               class="form-control
+                                      border-0 border-bottom
+                                      shadow-none mb-2"
+                               placeholder="Search..."
+                               id="statsInput"
+                               onkeyup="statsFilter()">
+                            {% for d in data_keys %}
+                                <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
+                                    <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <br>
-        {% if stats == "wavestats" %}
-            <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
-            Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>v{{ patch }}</b></r>
-        {% else %}
-            <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
-            <b>v{{ patch }}</b></r>
-        {% endif %}
-        <table style="margin-top:  20px; display: inline-block;" class="table"
+        <table style="margin-top:  10px; display: inline-block;" class="table"
                id="myTable">
             {# HEADER 1 #}
             <thead>
