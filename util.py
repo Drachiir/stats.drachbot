@@ -1,5 +1,6 @@
 import json
 import re
+import time
 from datetime import datetime
 from re import findall
 
@@ -61,7 +62,11 @@ with open("Files/json/const.json", "r") as f:
 
 with open("static/countries.json", "r") as f:
     COUNTRIES_CACHE = json.load(f)
-    
+
+with open("defaults.json", "r") as f:
+    defaults_json = json.load(f)
+    f.close()
+
 incmercs = const_file.get("incmercs")
 powermercs = const_file.get("powermercs")
 creep_values = const_file.get("creep_values")
@@ -74,7 +79,9 @@ current_minelo = const_file.get("current_minelo")
 
 aura_spells = ["hero", "magician", "vampire"]
 buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"]
-mm_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard', 'Megamind']
+
+mm_list: list = defaults_json["MMs"]
+mm_list.remove("All")
 
 def plus_prefix(a):
     if a > 0:
@@ -590,3 +597,12 @@ def get_value_playfab(list_of_dicts, value, version=8):
         
 def clean_unit_name(name):
     return name.split("_unit_id")[0].replace("_", " ").capitalize()
+
+def timing_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()  # Record start time
+        result = func(*args, **kwargs)
+        end_time = time.time()  # Record end time
+        print(f"{func.__name__} took {end_time - start_time:.4f} seconds")
+        return result
+    return wrapper

@@ -1,11 +1,13 @@
 import json
 import drachbot.legion_api as legion_api
+import util
 
 def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
     if mastermind == 'All':
-        mmnames_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard', 'Megamind']
+        mmnames_list = util.mm_list
+        mmnames_list.append("Megamind")
     elif mastermind == 'Megamind':
-        mmnames_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard']
+        mmnames_list = util.mm_list
     else:
         mmnames_list = [mastermind]
     masterminds_dict = {}
@@ -31,7 +33,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
     if len(history_raw) == 0:
         return 'No games found.'
     games = len(history_raw)
-    case_list = ['LockIn', 'Greed', 'Redraw', 'Yolo', 'Fiesta', 'CashOut', 'Castle', 'Cartel', 'Chaos', 'Champion', 'DoubleLockIn', 'Kingsguard']
+    case_list = util.mm_list
     patches = set()
     megamind_count = 0
     for game in history_raw:
