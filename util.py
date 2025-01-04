@@ -102,37 +102,34 @@ def get_avatar_border(stacks):
     else:
         return ""
 
-tier_dict_specific = {"mmstats": [64,60,58,56,0.7], "openstats": [73,70,65,60,1],
-                     "spellstats": [75,65,60,55,3], "unitstats": [73,70,65,60,2],
-                     "rollstats": [73,70,65,60,1], "megamindstats": [52,51,50,48,0]}
 
-tier_dict_all = {"mmstats": [66,63,60,55,0.4], "openstats": [57,50,40,25,0.2],
-                 "spellstats": [67,62,59,55,0.4], "unitstats": [60,57,52,47,0.2],
-                 "rollstats": [68,65,59,56,0.3], "megamindstats": [52,51,50,48,0]}
+tier_dict_specific = {
+    "mmstats": 0.7, "openstats": 1,
+    "spellstats": 3, "unitstats": 2,
+    "rollstats": 1, "megamindstats": 0
+}
+
+tier_dict_all = {
+    "mmstats": 0.5, "openstats": 0.2,
+    "spellstats": 0.4, "unitstats": 0.2,
+    "rollstats": 0.3, "megamindstats": 0
+}
+
+elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03, "1600": 0.04}
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if specific_tier and pickrate < 15:
-        pickrate = pickrate * 1.5
-    if dict_type:
-        stats = dict_type
-        tier_dict = tier_dict_specific
-    else:
-        tier_dict = tier_dict_all
-    elo = str(elo)
-    elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03, "1600": 0.04}
-    if elo not in elo_dict:
-        elo = "1600"
+        pickrate *= 1.5
+    tier_dict = tier_dict_specific if dict_type else tier_dict_all
+    elo = elo_dict.get(str(elo), 0.04)
+
     if stats != "megamindstats":
-        tier_score = (winrate * (elo_dict[elo] * 2 + 1)) + (pickrate * (tier_dict[stats][4] - elo_dict[elo]))
+        tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
+        if not specific_tier and pickrate < 5 or (winrate > 80 and pickrate < 1):
+            tier_score /= 2
     else:
         tier_score = winrate
-    if stats != "megamindstats":
-        if not specific_tier and pickrate < 5:
-            tier_score /= 2
-        if (winrate > 80) and (pickrate < 10):
-            tier_score = tier_score / 2
-        if winrate < 50:
-            tier_score -= tier_dict[stats][0] / 20
+
     return tier_score
 
 def custom_winrate(value, no_dec=False):
@@ -332,24 +329,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                     pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
             except Exception:
                 pickrate = 0
-            if dict_type:
-                stats = dict_type
-                tier_dict = tier_dict_specific
-            else:
-                tier_dict = tier_dict_all
-            tier_score = get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats)
-            if tier_score >= tier_dict[stats][0]+tier_dict[stats][0]/10:
-                return "S+", tier_score, 'Yellow'
-            elif tier_score >= tier_dict[stats][0]:
-                return "S", tier_score, 'Gold'
-            elif tier_score >= tier_dict[stats][1]:
-                return "A", tier_score, 'GreenYellow'
-            elif tier_score >= tier_dict[stats][2]:
-                return "B", tier_score, 'MediumSeaGreen'
-            elif tier_score >= tier_dict[stats][3]:
-                return "C", tier_score, 'DarkOrange'
-            else:
-                return "D", tier_score, 'Red'
+            return get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats)
         case "Best Opener":
             try:
                 return get_perf_list(data[key], 'Opener', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]

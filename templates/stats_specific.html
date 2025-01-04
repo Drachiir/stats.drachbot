@@ -101,6 +101,7 @@
         </div>
         {# HEADER 1 #}
         {% for header in sub_headers %}
+            {% set loop_num = loop.index %}
             <table style="display: inline-block;" class="table"
                    id="myTable{{ loop.index }}">
                 <tbody>
@@ -135,7 +136,7 @@
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2]) %}
                             {% endif %}
                             {% if k == "Tier" %}
-                                <td data="{{ data[1] }}" style="color: {{ data[2] }}">{{ data[0] }}</td>
+                                <td id="tierCell{{ loop_num }}" data="{{ data }}"></td>
                             {% else %}
                                 <td>{{ data }}</td>
                             {% endif %}
@@ -149,4 +150,54 @@
 {% if patch_selector %}
 <script src="/static/profile_patches2.js"></script>
 {% endif %}
+<script>
+    function assignTiers(tableIndex) {
+        const cells = [...document.querySelectorAll(`#tierCell${tableIndex}`)];
+        if (cells.length === 0) return;
+
+        const dataValues = cells.map(cell => ({
+            cell,
+            value: parseFloat(cell.getAttribute('data'))
+        })).sort((a, b) => b.value - a.value);
+
+        const numCells = dataValues.length;
+        const dCount = Math.max(2, Math.ceil(numCells * 0.1));
+        const remainingCount = numCells - dCount;
+        const sPlusCount = 1;
+        const sCount = Math.max(2, Math.floor(remainingCount / 9));
+        const otherTiersCount = remainingCount - sCount;
+        const tierShare = Math.floor(otherTiersCount / 3);
+        const aCount = tierShare;
+        const bCount = tierShare;
+        const cCount = otherTiersCount - (aCount + bCount) - 1;
+
+        dataValues.forEach((item, index) => {
+            let tier, color;
+
+            if (index < sPlusCount) {
+                tier = 'S+';
+                color = 'Yellow';
+            } else if (index < sPlusCount + sCount) {
+                tier = 'S';
+                color = 'Gold';
+            } else if (index < sPlusCount + sCount + aCount) {
+                tier = 'A';
+                color = 'GreenYellow';
+            } else if (index < sPlusCount + sCount + aCount + bCount) {
+                tier = 'B';
+                color = 'MediumSeaGreen';
+            } else if (index < sPlusCount + sCount + aCount + bCount + cCount) {
+                tier = 'C';
+                color = 'DarkOrange';
+            } else {
+                tier = 'D';
+                color = 'Red';
+            }
+
+            item.cell.textContent = `${tier}`;
+            item.cell.style.color = color;
+        });
+    }
+    [1, 2, 3, 4, 5].forEach(assignTiers);
+</script>
 {% endblock %}
