@@ -115,7 +115,7 @@ tier_dict_all = {
     "rollstats": 0.3, "megamindstats": 0
 }
 
-elo_dict = {"2800": 0, "2600": 0, "2400": 0, "2200": 0.01, "2000": 0.02, "1800": 0.03, "1600": 0.04}
+elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.1}
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     if specific_tier and pickrate < 15:
