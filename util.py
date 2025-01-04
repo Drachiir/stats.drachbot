@@ -267,7 +267,7 @@ def get_tooltip(header:str):
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
         case "Tier":
-            return "Tier based on Win% and Play% EXPERIMENTAL"
+            return "Tier based on Win%, Play% and Elo"
         case "Usage Rate":
             return "% of time this Unit appears on End boards"
         case "Pickrate":
