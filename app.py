@@ -889,6 +889,9 @@ def profile(playername, stats, patch, elo, specific_key):
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count)
     else:
+        for szn in ["12", "11"]:
+            if szn in patch.split(","):
+                patch = szn
         patches = patches2
         try:
             elo = int(elo)

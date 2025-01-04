@@ -68,18 +68,22 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Select Patches
                         </button>
-                        <ul class="dropdown-menu bg-black" style="padding: 10px;" id="patchDropdown">
+                        <ul class="dropdown-menu bg-black" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
                             <form id="patchForm">
-                                <li class="dropdown-item">
-                                    <label>
-                                        <input type="checkbox" id="selectAll"> Select/Unselect All
-                                    </label>
+                                <li class="dropdown-item" id="patch-checkbox">
+                                    <input type="checkbox" class="patch-checkbox" value="12">
+                                     <label>v12.**</label>
                                 </li>
                                 {% for p in patch_list %}
-                                    <li class="dropdown-item">
-                                        <label style="width: 100%;">
-                                            <input type="checkbox" class="patch-checkbox" value="{{ p }}"> v{{ p }}
-                                        </label>
+                                    {% if p == "11.11" %}
+                                        <li class="dropdown-item" id="patch-checkbox">
+                                            <input type="checkbox" class="patch-checkbox" value="11">
+                                             <label>v11.**</label>
+                                        </li>
+                                    {% endif %}
+                                    <li class="dropdown-item" id="patch-checkbox">
+                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                                         <label>v{{ p }}</label>
                                     </li>
                                 {% endfor %}
                             </form>
@@ -139,84 +143,6 @@
         {% endfor %}
     </div>
 {% if patch_selector %}
-<script>
-    // Function to get patches from URL
-    function getSelectedPatchesFromUrl() {
-        // Extract the URL parts (assumes the URL format: /playerurl/stats/patches/elo)
-        const urlParts = window.location.pathname.split('/');
-        if (urlParts.length >= 4) {
-            // The third part of the URL should contain the patches (comma-separated)
-            const patches = urlParts[4].split(',');
-            return patches;
-        }
-        return [];
-    }
-
-    // Preselect checkboxes based on the URL
-    function preselectPatches() {
-        const selectedPatches = getSelectedPatchesFromUrl();
-        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
-            if (selectedPatches.includes(checkbox.value)) {
-                checkbox.checked = true;
-            }
-        });
-
-        // If all checkboxes are checked, check the "Select All" box
-        const allChecked = selectedPatches.length > 0 && selectedPatches.length === document.querySelectorAll('.patch-checkbox').length;
-        document.getElementById('selectAll').checked = allChecked;
-    }
-    // Event listener for the "Select/Unselect All" checkbox
-    document.getElementById('selectAll').addEventListener('change', function () {
-        var isChecked = this.checked;
-        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
-            checkbox.checked = isChecked;
-        });
-    });
-
-    // Event listener for the "Go" button
-    document.getElementById('redirectButton').addEventListener('click', function () {
-        // Get all the selected patches
-        var selectedPatches = [];
-        document.querySelectorAll('.patch-checkbox:checked').forEach(function (checkbox) {
-            selectedPatches.push(checkbox.value);
-        });
-
-        // If no patches selected, prevent action
-        if (selectedPatches.length === 0) {
-            alert('Please select at least one patch.');
-            return;
-        }
-
-        // Create a comma-delimited string of the selected patches
-        var patches = selectedPatches.join(',');
-
-        // Get the base values from your current variables (using template variables)
-        var playerurl = "{{ playerurl }}";
-        var stats = "{{ stats }}";
-        var elo = "{{ elo }}";
-        var key = "{{ specific_key }}";
-        // Construct the URL
-        var url = playerurl + '/' + stats + '/' + patches + '/' + elo + '/' + key;
-
-        // Redirect to the new URL
-        window.location.href = url;
-    });
-
-    // Prevent the dropdown from closing when clicking inside the dropdown content
-    document.getElementById('patchDropdown').addEventListener('click', function (event) {
-        event.stopPropagation();  // Stop dropdown from closing when clicking inside
-    });
-
-    // Event listener to toggle checkbox when clicking on list item/label
-    document.querySelectorAll('.dropdown-item label').forEach(function (label) {
-        label.addEventListener('click', function (event) {
-            var checkbox = this.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked; // Toggle checkbox state
-            event.stopPropagation(); // Prevent dropdown from closing
-        });
-    });
-    // Preselect checkboxes when the page loads
-    window.onload = preselectPatches;
-</script>
+<script src="/static/profile_patches2.js"></script>
 {% endif %}
 {% endblock %}
