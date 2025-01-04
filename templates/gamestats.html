@@ -29,14 +29,22 @@
         .middle_td{
              line-height: 45px
         }
+        .linkTextNoDeco{
+            text-decoration: none;
+            color: white;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <div style="padding-top: 15px;">
         <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
         {% if player_avatar_url %}
+            <a class="linkTextNoDeco" href="{{ playerurl }}">
             <img style="height: 32px" src="https://cdn.legiontd2.com/{{ player_avatar_url }}">
         {% endif %}
         <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
+        {% if player_avatar_url %}
+            </a>
+        {% endif %}
         <div style="float:right; display: flex; gap: 10px; padding-top: 10px">
             <div style="display: flex; white-space: nowrap">
                 <label style="line-height: 35px; padding-right: 5px" for="dataSelect">Select Data: </label>

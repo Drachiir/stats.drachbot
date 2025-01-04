@@ -376,3 +376,8 @@ div#loading {
     paint-order: stroke fill;
 }
 
+.linkTextNoDeco{
+    text-decoration: none;
+    color: white;
+}
+
