@@ -4,7 +4,7 @@ import util
 
 def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
     if mastermind == 'All':
-        mmnames_list = util.mm_list
+        mmnames_list = util.mm_list[:]
         mmnames_list.append("Megamind")
     elif mastermind == 'Megamind':
         mmnames_list = util.mm_list
