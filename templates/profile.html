@@ -7,6 +7,7 @@
         --waveimgsize: clamp(36px, 5vw, 48px);
         --imgsize: clamp(20px, 3vw, 28px);
         --blueAccent: #0095ff;
+        --blackBg: rgba(21, 21, 21, 0.96);
     }
     r {
       font-family: "Roboto", sans-serif;
@@ -46,9 +47,9 @@
         height: 100% !important;
     }
     .profile-main {
-        background: rgba(25, 25, 25, 0.95);
+        background: var(--blackBg);
         border-radius: 10px;
-        box-shadow:inset 0 0 0 1px #3a3a3a;
+        box-shadow:inset 0 0 0 1px #272727;
     }
     @media (max-width: 480px) {
         .profile-main {
@@ -111,11 +112,11 @@
     }
     .clickableDiv{
         cursor: pointer;
-        box-shadow:inset 0 0 0 1px #3a3a3a;
+        box-shadow:inset 0 0 0 1px #272727;
         transition: background-color 0.2s ease, border 0.2s ease;
     }
     .clickableDiv:hover{
-        background-color: #252525 !important;
+        background-color: #1c1c1c !important;
     }
     .highlight {
         background-color: var(--blueAccent) !important; /* Green background for the button */
@@ -428,10 +429,11 @@
             </div>
         </div>
     </div>
-    <div style="text-align: center"><r2 style="font-size: 1.5rem">Ranked Match History</r2></div>
-    <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px" id="match-history">
+    <div style="text-align: center"><r2 style="font-size: 1.5rem"><b>Ranked Match History</b></r2></div>
+    <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px;
+                display: flex; flex-direction: column; gap: 3px;" id="match-history">
     {% for game in history[:short_history] %}
-        <div class="clickableDiv" style="position: relative; background: rgba(25, 25, 25, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
+        <div class="clickableDiv" style="position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="padding-left: 10px; width: 40%">
                     <div>
@@ -733,7 +735,7 @@
     function createGameElement(game) {
         const gameDiv = document.createElement('div');
         gameDiv.className = 'clickableDiv';
-        gameDiv.style.cssText = "position: relative; background: rgba(25, 25, 25, 0.95); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;";
+        gameDiv.style.cssText = "position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;";
 
         gameDiv.innerHTML = `
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
