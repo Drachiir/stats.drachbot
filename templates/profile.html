@@ -137,7 +137,7 @@
     }
 
     .spinner {
-        border: 8px solid rgba(243, 243, 243, 0);
+        border: 8px solid rgb(255, 255, 255);
         border-top: 8px solid #3498db;
         border-radius: 50%;
         width: 100px;
@@ -153,7 +153,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
     <div class="profile-main" style="position: relative">
-        <div style="padding: 10px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
+        <div style="padding: 8px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
             <div style="text-align: center; width: max-content;">
                 <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left">
                     <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
@@ -1066,7 +1066,8 @@
             { rank: 1600, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png' },
             { rank: 1400, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png' },
             { rank: 1200, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png' },
-            { rank: 1000, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png' }
+            { rank: 1000, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png' },
+            { rank: 0, url: 'https://cdn.legiontd2.com/icons/Ranks/Simple/Unranked.png' }
         ];
 
         let loadedImagesCount = 0;
@@ -1100,12 +1101,13 @@
         if (value >= 1600) return rankImagesCache[1600];
         if (value >= 1400) return rankImagesCache[1400];
         if (value >= 1200) return rankImagesCache[1200];
-        return rankImagesCache[1000];
+        if (value >= 1000) return rankImagesCache[1000];
+        return rankImagesCache[0];
     }
 
     function getLineColor(value) {
-        if (value >= 3000) return 'rgb(89,103,255)';
-        if (value >= 2800) return 'rgb(68,78,179)';
+        if (value >= 3000) return 'rgb(67,103,220)';
+        if (value >= 2800) return 'rgb(43,52,135)';
         if (value >= 2600) return 'rgb(216,153,191)';
         if (value >= 2400) return 'rgb(50,179,161)';
         if (value >= 2200) return 'rgb(178,66,191)';
@@ -1114,7 +1116,8 @@
         if (value >= 1600) return 'rgb(24,78,80)';
         if (value >= 1400) return 'rgb(255, 165, 0)';
         if (value >= 1200) return 'rgb(192, 192, 192)';
-        return 'rgb(139, 69, 19)';
+        if (value >= 1000) return 'rgb(139, 69, 19)';
+        return 'rgb(129,129,129)';
     }
 
     const customPlugin = {
