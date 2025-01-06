@@ -233,6 +233,9 @@
         table.addEventListener('scroll', () => {
             scrollTop.scrollLeft = table.scrollLeft;
         });
+        setTimeout(() => {
+            fakeContent.style.width = table.scrollWidth + 'px';
+        }, 666)
     });
 </script>
 {% if patch_selector %}
