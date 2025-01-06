@@ -228,27 +228,28 @@
 </style>
 <script>
     window.addEventListener("load", function () {
-        setTimeout(() => {
-            const scrollTop = document.querySelector('.scroll-top');
-            const table = document.querySelector('#myTable');
-            scrollTop.style.overflowX = 'auto';
-            const fakeScroll = document.createElement('div');
-            fakeScroll.style.height = '1px';
+        const scrollTop = document.querySelector('.scroll-top');
+        const table = document.querySelector('#myTable');
+        scrollTop.style.overflowX = 'auto';
+        const fakeScroll = document.createElement('div');
+        fakeScroll.style.height = '1px';
+        fakeScroll.style.width = table.scrollWidth + 'px';
+        scrollTop.appendChild(fakeScroll);
+
+        scrollTop.addEventListener('scroll', () => {
+            table.scrollLeft = scrollTop.scrollLeft;
+        });
+
+        table.addEventListener('scroll', () => {
+            scrollTop.scrollLeft = table.scrollLeft;
+        });
+
+        window.addEventListener('resize', () => {
             fakeScroll.style.width = table.scrollWidth + 'px';
-            scrollTop.appendChild(fakeScroll);
-
-            scrollTop.addEventListener('scroll', () => {
-                table.scrollLeft = scrollTop.scrollLeft;
-            });
-
-            table.addEventListener('scroll', () => {
-                scrollTop.scrollLeft = table.scrollLeft;
-            });
-
-            window.addEventListener('resize', () => {
-                fakeScroll.style.width = table.scrollWidth + 'px';
-            });
-        }, 200);
+        });
+        setTimeout(() => {
+            fakeScroll.style.width = table.scrollWidth + 'px';
+        }, 500)
     });
 </script>
 {% if patch_selector %}
