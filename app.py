@@ -354,7 +354,6 @@ def wave_distribution(patch, elo):
 @app.route('/proleaks/', defaults= {"wave": 1, "patch": defaults[0]})
 @app.route('/proleaks/<wave>', defaults= {"patch": defaults[0]})
 @app.route('/proleaks/<wave>/<patch>')
-@cache.cached(timeout=timeout)
 def proleaks(wave, patch):
     for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
         if datajson.startswith(f"{patch}"):
