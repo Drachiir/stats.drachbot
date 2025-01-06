@@ -344,7 +344,7 @@ def wave_distribution(patch, elo):
                 wave_data = json.load(f)
                 games = datajson.split("_")[2]
                 avg_elo = datajson.split("_")[3].split(".")[0]
-                break
+            break
     else:
         return render_template("no_data.html", text=f"No data.")
     return render_template("wave-distribution.html", wave_data=wave_data, patch=patch, elo= elo, games= games,
@@ -354,6 +354,7 @@ def wave_distribution(patch, elo):
 @app.route('/proleaks/', defaults= {"wave": 1, "patch": defaults[0]})
 @app.route('/proleaks/<wave>', defaults= {"patch": defaults[0]})
 @app.route('/proleaks/<wave>/<patch>')
+@cache.cached(timeout=timeout)
 def proleaks(wave, patch):
     for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
         if datajson.startswith(f"{patch}"):
@@ -363,10 +364,10 @@ def proleaks(wave, patch):
             except Exception:
                 return render_template("no_data.html", text="No Data")
             avg_elo = datajson.split("_")[3].replace(".json", "")
+            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/proleaks/{datajson}")).timestamp())
             with open(f"{shared_folder}/data/proleaks/{datajson}", "r") as f:
-                mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/proleaks/{datajson}")).timestamp())
                 data = json.load(f)
-                break
+            break
     else:
         return render_template("no_data.html", text=f"No data.")
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
