@@ -111,9 +111,9 @@ tier_dict_specific = {
 }
 
 tier_dict_all = {
-    "mmstats": 0.7, "openstats": 1,
-    "spellstats": 0.5, "unitstats": 0.3,
-    "rollstats": 0.4, "megamindstats": 0
+    "mmstats": 0.5, "openstats": 0.7,
+    "spellstats": 0.4, "unitstats": 0.2,
+    "rollstats": 0.3, "megamindstats": 0
 }
 
 elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.1}
