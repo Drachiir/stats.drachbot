@@ -207,7 +207,7 @@
     }
 
     .scroll-top {
-        overflow-x: auto;
+        overflow-x: hidden;
         height: 10px;
         position: relative;
         z-index: 2;
@@ -227,27 +227,29 @@
     }
 </style>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const scrollTop = document.querySelector('.scroll-top');
-    const table = document.querySelector('#myTable');
+    window.addEventListener("load", function () {
+        setTimeout(() => {
+            const scrollTop = document.querySelector('.scroll-top');
+            const table = document.querySelector('#myTable');
+            scrollTop.style.overflowX = 'auto';
+            const fakeScroll = document.createElement('div');
+            fakeScroll.style.height = '1px';
+            fakeScroll.style.width = table.scrollWidth + 'px';
+            scrollTop.appendChild(fakeScroll);
 
-    const fakeScroll = document.createElement('div');
-    fakeScroll.style.width = table.scrollWidth + 'px';
-    fakeScroll.style.height = '1px';
-    scrollTop.appendChild(fakeScroll);
+            scrollTop.addEventListener('scroll', () => {
+                table.scrollLeft = scrollTop.scrollLeft;
+            });
 
-    scrollTop.addEventListener('scroll', () => {
-        table.scrollLeft = scrollTop.scrollLeft;
+            table.addEventListener('scroll', () => {
+                scrollTop.scrollLeft = table.scrollLeft;
+            });
+
+            window.addEventListener('resize', () => {
+                fakeScroll.style.width = table.scrollWidth + 'px';
+            });
+        }, 200);
     });
-
-    table.addEventListener('scroll', () => {
-        scrollTop.scrollLeft = table.scrollLeft;
-    });
-
-    window.addEventListener('resize', () => {
-        fakeScroll.style.width = table.scrollWidth + 'px';
-    });
-});
 </script>
 {% if patch_selector %}
 <script src="/static/profile_patches2.js"></script>
