@@ -112,91 +112,143 @@
                 </div>
             </div>
         </div>
-        <table style="margin-top:  10px; display: inline-block;" class="table"
-               id="myTable">
-            {# HEADER 1 #}
-            <thead>
-            <tr>
-                <th></th>
-                {% for key in data %}
-                <th style="text-align: center">
-                    {{ loop.index }}
-                </th>
-                {% endfor %}
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <th style="width: 7%;">
-                    <r>{{ header_title }}</r>
-                </th>
-                {% for key in data %}
-                    <td style="width: 7%;"><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
-                    {% if stats == "megamindstats" and key != "Megamind" %}
-                        <img loading="lazy" style="top:-90%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
-                    {% endif %}
-                    </a>
-                    </div>
-                    </td>
-
-                {% endfor %}
-            </tr>
-            {# HEADER 1 KEYS #}
-            {% for k in header_keys %}
+        <div class="scroll-container">
+            <div class="scroll-top"></div>
+            <table style="margin-top: 0; display: inline-block;" class="table"
+                   id="myTable">
+                {# HEADER 1 #}
+                <thead>
                 <tr>
-                    <th>
-                        <r style="white-space: nowrap;">{{ k }}</r>
-                        {% if k in ["Pickrate", "W on 4", "W on 10", "Pickrate*", "Usage Rate", "Tier"] %}
-                            <i data-title="{{ get_tooltip(k) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
-                        {% endif %}
-                    </th>
+                    <th></th>
                     {% for key in data %}
-                        {% set data = get_key_value(data, key, k, games, stats, elo, playerprofile=playerprofile) %}
-                        {% if k == "Tier" %}
-                            <td id="tierCell" data="{{ data }}"></td>
-                        {% else %}
-                            <td>{{ data }}</td>
-                        {% endif %}
+                    <th style="text-align: center">
+                        {{ loop.index }}
+                    </th>
                     {% endfor %}
                 </tr>
-            {% endfor %}
-            {# SUB HEADERS #}
-            {% for sub in sub_headers %}
+                </thead>
+                <tbody>
                 <tr>
-                    <th>
-                        <r style="white-space: nowrap;">{{ sub[0] }}</r>
-                        <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
+                    <th style="width: 7%;">
+                        <r>{{ header_title }}</r>
                     </th>
                     {% for key in data %}
-                        {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
-                        {% if sub_value in mm_list %}
-                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
-                                    src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
-                        {% else %}
-                            <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img loading="lazy"
-                                    src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
+                        <td style="width: 7%;"><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
+                        {% if stats == "megamindstats" and key != "Megamind" %}
+                            <img loading="lazy" style="top:-90%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                         {% endif %}
+                        </a>
+                        </div>
+                        </td>
+
                     {% endfor %}
-                    {# SUB HEADER KEYS #}
-                    {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
-                        <tr>
-                            <th>
-                                <r style="white-space: nowrap;">{{ sub_key }}</r>
-                            </th>
-                            {% for key in data %}
-                                {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
-                                {% if stats == "wavestats" and not playername2 %}
-                                    <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']*4)}}</td>
-                                {% else %}
-                                    <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count'])}}</td>
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                    {% endfor %}
-            {% endfor %}
-            </tbody>
-        </table>
+                </tr>
+                {# HEADER 1 KEYS #}
+                {% for k in header_keys %}
+                    <tr>
+                        <th>
+                            <r style="white-space: nowrap;">{{ k }}</r>
+                            {% if k in ["Pickrate", "W on 4", "W on 10", "Pickrate*", "Usage Rate", "Tier"] %}
+                                <i data-title="{{ get_tooltip(k) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
+                            {% endif %}
+                        </th>
+                        {% for key in data %}
+                            {% set data = get_key_value(data, key, k, games, stats, elo, playerprofile=playerprofile) %}
+                            {% if k == "Tier" %}
+                                <td id="tierCell" data="{{ data }}"></td>
+                            {% else %}
+                                <td>{{ data }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                {# SUB HEADERS #}
+                {% for sub in sub_headers %}
+                    <tr>
+                        <th>
+                            <r style="white-space: nowrap;">{{ sub[0] }}</r>
+                            <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
+                        </th>
+                        {% for key in data %}
+                            {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
+                            {% if sub_value in mm_list %}
+                                <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value }}"><img loading="lazy"
+                                        src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
+                            {% else %}
+                                <td><a xtitle="{{ get_tooltip(sub_value) }}" href="{{ playerurl }}/{{ sub[2] }}/{{ patch }}/{{ elo }}/{{ sub_value|lower }}"><img loading="lazy"
+                                        src="{{ get_cdn_image(sub_value, sub[0]) }}"></a></td>
+                            {% endif %}
+                        {% endfor %}
+                        {# SUB HEADER KEYS #}
+                        {% for sub_key in ['Games', 'Winrate', 'Playrate'] %}
+                            <tr>
+                                <th>
+                                    <r style="white-space: nowrap;">{{ sub_key }}</r>
+                                </th>
+                                {% for key in data %}
+                                    {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
+                                    {% if stats == "wavestats" and not playername2 %}
+                                        <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']*4)}}</td>
+                                    {% else %}
+                                        <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count'])}}</td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
+<style>
+    .scroll-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .scroll-top {
+        overflow-x: auto;
+        height: 10px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .scroll-top::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .scroll-top::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 4px;
+    }
+
+    .scroll-top::-webkit-scrollbar-thumb:hover {
+        background: #888;
+    }
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const scrollTop = document.querySelector('.scroll-top');
+    const table = document.querySelector('#myTable');
+
+    const fakeScroll = document.createElement('div');
+    fakeScroll.style.width = table.scrollWidth + 'px';
+    fakeScroll.style.height = '1px';
+    scrollTop.appendChild(fakeScroll);
+
+    scrollTop.addEventListener('scroll', () => {
+        table.scrollLeft = scrollTop.scrollLeft;
+    });
+
+    table.addEventListener('scroll', () => {
+        scrollTop.scrollLeft = table.scrollLeft;
+    });
+
+    window.addEventListener('resize', () => {
+        fakeScroll.style.width = table.scrollWidth + 'px';
+    });
+});
+</script>
 {% if patch_selector %}
 <script src="/static/profile_patches2.js"></script>
 {% endif %}
