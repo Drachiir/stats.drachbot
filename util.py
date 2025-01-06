@@ -111,9 +111,9 @@ tier_dict_specific = {
 }
 
 tier_dict_all = {
-    "mmstats": 0.5, "openstats": 0.2,
-    "spellstats": 0.4, "unitstats": 0.2,
-    "rollstats": 0.3, "megamindstats": 0
+    "mmstats": 0.7, "openstats": 1,
+    "spellstats": 0.5, "unitstats": 0.3,
+    "rollstats": 0.4, "megamindstats": 0
 }
 
 elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.1}
@@ -126,7 +126,7 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
 
     if stats != "megamindstats":
         tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
-        if not specific_tier and pickrate < 5 or (winrate > 80 and pickrate < 1):
+        if not specific_tier and pickrate < 1:
             tier_score /= 2
     else:
         tier_score = winrate
