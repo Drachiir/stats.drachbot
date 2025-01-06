@@ -3,10 +3,13 @@ document.addEventListener("DOMContentLoaded", function () {
     function getSelectedPatchesFromUrl() {
         const urlPath = window.location.pathname;
         const pathSegments = urlPath.split("/");
-        console.log(pathSegments)
-        // Assuming the patches are always the second-to-last segment in the URL
-        if (pathSegments.length >= 3) {
+
+        if (pathSegments.length === 7) {
             const patchSegment = pathSegments[pathSegments.length - 3];
+            return patchSegment.includes(",") ? patchSegment.split(",") : [patchSegment];
+        }
+        if (pathSegments.length === 8) {
+            const patchSegment = pathSegments[pathSegments.length - 4];
             return patchSegment.includes(",") ? patchSegment.split(",") : [patchSegment];
         }
         return [];
@@ -58,11 +61,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Construct the new URL
         const urlPath = window.location.pathname.split("/");
-        urlPath[urlPath.length - 3] = patches; // Replace the patch segment
-        const newUrl = window.location.origin + urlPath.join("/");
-
+        console.log(urlPath[urlPath.length - 4])
+        if (urlPath.length === 7) {
+            urlPath[urlPath.length - 3] = patches; // Replace the patch segment
+        }
+        if (urlPath.length === 8) {
+            urlPath[urlPath.length - 4] = patches; // Replace the patch segment
+        }
         // Redirect to the new URL
-        window.location.href = newUrl;
+        window.location.href = window.location.origin + urlPath.join("/");
     });
 
     // Prevent the dropdown from closing when clicking inside the dropdown content
