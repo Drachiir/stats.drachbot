@@ -113,7 +113,9 @@
             </div>
         </div>
         <div class="scroll-container">
-            <div class="scroll-top"></div>
+            <div class="scroll-top">
+                <div class="fakeContent"></div>
+            </div>
             <div style="display: flex; justify-content: center;">
                 <table style="margin-top: 0; display: inline-block; width: max-content" class="table"
                        id="myTable">
@@ -206,37 +208,23 @@
     .scroll-container {
         position: relative;
         width: 100%;
+        overflow: hidden;
     }
 
     .scroll-top {
-        overflow-x: hidden;
-        height: 10px;
-        position: relative;
-        z-index: 2;
-    }
-
-    .scroll-top::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .scroll-top::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 4px;
-    }
-
-    .scroll-top::-webkit-scrollbar-thumb:hover {
-        background: #888;
+        overflow-x: auto;
+        height: 20px;
+        z-index: 999;
     }
 </style>
+
 <script>
-    window.addEventListener("load", function () {
+    document.addEventListener("DOMContentLoaded", function () {
         const scrollTop = document.querySelector('.scroll-top');
+        const fakeContent = document.querySelector('.fakeContent');
         const table = document.querySelector('#myTable');
-        scrollTop.style.overflowX = 'auto';
-        const fakeScroll = document.createElement('div');
-        fakeScroll.style.height = '1px';
-        fakeScroll.style.width = table.scrollWidth + 'px';
-        scrollTop.appendChild(fakeScroll);
+
+        fakeContent.style.width = table.scrollWidth + 'px';
 
         scrollTop.addEventListener('scroll', () => {
             table.scrollLeft = scrollTop.scrollLeft;
@@ -245,13 +233,6 @@
         table.addEventListener('scroll', () => {
             scrollTop.scrollLeft = table.scrollLeft;
         });
-
-        window.addEventListener('resize', () => {
-            fakeScroll.style.width = table.scrollWidth + 'px';
-        });
-        setTimeout(() => {
-            fakeScroll.style.width = table.scrollWidth + 'px';
-        }, 500)
     });
 </script>
 {% if patch_selector %}
