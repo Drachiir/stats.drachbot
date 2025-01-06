@@ -325,8 +325,11 @@ def rank_distribution(snapshot):
         min_winrate = int(request.args.get('min_winrate', 0))
     except Exception:
         min_winrate = 0
-    with open(f"{shared_folder}/leaderboard/leaderboard_parsed_{snapshot}.json", "r") as f:
-        leaderboard_data = json.load(f)
+    try:
+        with open(f"{shared_folder}/leaderboard/leaderboard_parsed_{snapshot}.json", "r") as f:
+            leaderboard_data = json.load(f)
+    except FileNotFoundError:
+        return render_template("no_data.html", text=f"No data.")
     snapshots_list = []
     for ss in os.listdir(f"{shared_folder}/leaderboard"):
         snapshots_list.append(ss.split("_")[2].replace(".json", ""))
@@ -369,6 +372,8 @@ def proleaks(wave, patch):
                 data = json.load(f)
             break
     else:
+        return render_template("no_data.html", text=f"No data.")
+    if f"Wave{wave}" not in data:
         return render_template("no_data.html", text=f"No data.")
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                            const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
