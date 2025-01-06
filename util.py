@@ -1,6 +1,7 @@
 import json
 import re
 import time
+import traceback
 from datetime import datetime
 from re import findall
 
@@ -305,7 +306,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return 0
         case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*" | "Rollrate":
             try:
-                if stats != "spellstats" or (specific_tier == True and stats == "spellstats"):
+                if stats != "spellstats" or (specific_tier == True and stats == "spellstats") or key == "taxed allowance":
                     return f"{custom_winrate([data[key]['Count'], games])}%"
                 else:
                     return f"{custom_winrate([data[key]['Count'], data[key]['Offered']])}%"
@@ -323,7 +324,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
             except Exception:
                 winrate = 0
             try:
-                if stats != "spellstats" or (specific_tier == True and stats == "spellstats"):
+                if stats != "spellstats" or (specific_tier == True and stats == "spellstats") or key == "taxed allowance":
                     pickrate = custom_winrate([data[key]['Count'], games])
                 else:
                     pickrate = custom_winrate([data[key]['Count'], data[key]['Offered']])
