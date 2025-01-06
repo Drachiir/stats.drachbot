@@ -150,12 +150,12 @@ a[data-title]:hover::after, a[data-title]:active::after{
     border-radius: 4px;
     border: gray 1px solid;
     width: max-content;
-    opacity: 0;
+    display: none;
     z-index: 9;
 }
 
 [xtitle]:hover:after {
-    opacity: 1;
+    display: block;
     z-index: 9;
 }
 div#loading {
