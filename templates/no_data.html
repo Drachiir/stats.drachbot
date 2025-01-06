@@ -10,9 +10,16 @@
             <r style="font-size: 4vw;">Go Back</r>
             <span class="badge badge-primary"></span>
         </button>
+        <button style="width: 21vw; height: 7vw;" class="btn btn-primary" onclick="goHome()">
+            <r style="font-size: 4vw;">Home</r>
+            <span class="badge badge-primary"></span>
+        </button>
         <script>
             function goBack() {
                 window.history.back();
+            }
+            function goHome() {
+                window.location.href = "/";
             }
         </script>
     </div>

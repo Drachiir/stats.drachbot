@@ -204,6 +204,10 @@ def sitemap():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'sitemap.xml')
 
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('no_data.html', text="Page not found"), 404
+
 if platform.system() == "Linux":
     shared_folder_live = "/shared/livegames"
     shared_folder = "/shared2/"
