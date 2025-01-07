@@ -701,7 +701,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 api_profile["guildTag"] = player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1]
             except Exception:
                 api_profile["guildTag"] = ""
-            for stat_key, version in [("rankedWinsThisSeason", 8), ("rankedLossesThisSeason", 8), ("overallElo", 11), ("overallPeakEloThisSeason", 11)]:
+            for stat_key, version in [("rankedWinsThisSeason", 9), ("rankedLossesThisSeason", 9), ("overallElo", 12), ("overallPeakEloThisSeason", 12)]:
                 try:
                     api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
                 except Exception:
