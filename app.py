@@ -316,7 +316,7 @@ def leaderboard(playername):
     if not leaderboard_data:
         return render_template("no_data.html", text=f"Error loading leaderboard, try again later.")
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
-                           winrate = util.custom_winrate, api_profile=api_profile)
+                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True)
 
 @app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': defaults_json["RankDistributionDate"]})
 @app.route("/rank-distribution/<snapshot>", methods=['GET'])
@@ -893,7 +893,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
-            winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}/", values=values,
+            winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count)
@@ -1113,7 +1113,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                    human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                                    specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
                                    stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
-                                   get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}/", playername2=playername2, patch_selector=True,
+                                   get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}", playername2=playername2, patch_selector=True,
                                    title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"])
         if specific_key == "All":
             html_file = "stats.html"
@@ -1133,7 +1133,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                                sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                data_keys=raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                               playerurl = f"/profile/{playername}/", playername2=f"{playername2} ", patch_selector=True, playerprofile = True, player_avatar_url = api_profile["avatarUrl"])
+                               playerurl = f"/profile/{playername}", playername2=f"{playername2} ", patch_selector=True, playerprofile = True, player_avatar_url = api_profile["avatarUrl"])
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
