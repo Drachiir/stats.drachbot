@@ -49,7 +49,7 @@ def leaderboard_task():
         "CustomId": "LTD2Website",
         "CreateAccount": False,
         "StartPosition": 0,
-        "StatisticName": "overallEloThisSeasonAtLeastOneGamePlayed",
+        "StatisticName": "overallElo",
         "MaxResultsCount": 100,
         "ProfileConstraints": {
             "ShowDisplayName": True,
