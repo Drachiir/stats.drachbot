@@ -294,13 +294,18 @@
         applyBackground(savedBackground);
         document.getElementById('selector').value = savedBackground;
     }
+    else {
+        const selectedValue = "/static/sovereign.webp";
+        localStorage.setItem('backgroundImage', selectedValue);
+        applyBackground(selectedValue);
+        document.getElementById('selector').value = selectedValue;
+    }
 
     document.getElementById('selector').addEventListener('change', function() {
         if (this.value === "pass"){
             return
         }
         const selectedValue = this.value;
-        console.log(selectedValue)
         applyBackground(selectedValue);
         localStorage.setItem('backgroundImage', selectedValue);
     });
