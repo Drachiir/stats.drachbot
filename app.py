@@ -224,9 +224,10 @@ defaults2 = defaults_json["Defaults2"]
 mm_list = defaults_json["MMs"]
 elos = defaults_json["Elos"]
 patches = defaults_json["Patches"]
-patches2 = defaults_json["Patches2"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
+
+defaults2[0] = ",".join(patches[:5])
 
 @app.route("/api/defaults")
 def api_defaults():
@@ -895,13 +896,12 @@ def profile(playername, stats, patch, elo, specific_key):
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
             winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
-            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches2,
+            patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count)
     else:
         for szn in ["12", "11"]:
             if szn in patch.split(","):
                 patch = szn
-        patches = patches2
         try:
             elo = int(elo)
         except Exception:
