@@ -13,14 +13,24 @@
     background-attachment: fixed;
     height:100vh; /* use 100% of the height of the viewport */
     display:grid;
-    place-items: center;
-    background-image:
-        radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
-        url('/static/sovereign.webp');">
+    place-items: center;">
     <div>
         <div style="padding-left: 80px"><div id="loading"></div></div>
         <div style="color: white; padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
     </div>
+    <script>
+        function applyBackground(url) {
+            document.body.style.backgroundImage = `
+                radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
+                url("${url}")
+              `;
+        }
+
+        const savedBackground = localStorage.getItem('backgroundImage');
+        if (savedBackground) {
+            applyBackground(savedBackground);
+        }
+    </script>
     <script> window.location.replace("{{ url|safe }}"); </script>
     <script src="/static/script.js"></script>
 </body>

@@ -1,6 +1,7 @@
 import os
 import platform
 import json
+import traceback
 from datetime import datetime, timezone, timedelta
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify
@@ -35,9 +36,9 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all
 
 scheduler = APScheduler()
 
-def leaderboard_task():
+def leaderboard_task(count=1):
     PlayFabSettings.TitleId = "9092"
-    
+    offset = 0
     login_request = {
         "TitleId": "9092",
         "CustomId": "LTD2Website",
@@ -48,7 +49,7 @@ def leaderboard_task():
         "TitleId": "9092",
         "CustomId": "LTD2Website",
         "CreateAccount": False,
-        "StartPosition": 0,
+        "StartPosition": offset,
         "StatisticName": "overallElo",
         "MaxResultsCount": 100,
         "ProfileConstraints": {
@@ -60,18 +61,23 @@ def leaderboard_task():
         }
     }
     
-    def callback(success, failure):
+    def callback(success: dict, failure):
         if success:
             if len(success) < 1:
                 print("leaderboard fetch error")
                 return
-            with open("leaderboard.json", "w") as f:
-                json.dump(success, f)
+            if success.get("Leaderboard", None):
+                with open(f"leaderboard.json", "w") as f:
+                    json.dump(success, f)
         else:
             if failure:
                 print(failure.GenerateErrorReport())
     PlayFabClientAPI.LoginWithCustomID(login_request, callback)
-    PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
+
+    for i in range(count):
+        leaderboard_request["StartPosition"] = 100*i
+        offset = 100*i
+        PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
 
 def get_playfab_stats(playfabid, result_count = 1):
     PlayFabSettings.TitleId = "9092"

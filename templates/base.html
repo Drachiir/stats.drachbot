@@ -109,11 +109,7 @@
     background-color: #171717;
     background-size: cover;
     background-position: center;
-    background-attachment: fixed;
-    background-image:
-        radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
-        url('/static/sovereign.webp');
-">
+    background-attachment: fixed;">
 <nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-75 border-bottom" style="text-wrap: nowrap">
     <a style="margin-left: 1vw;" href="/" class="navbar-brand">
         <img src="/static/drachia_still.png" alt="Logo" width="30" height="30" class="d-inline-block align-text-top"><r style="font-weight: 400;">Drachbot</r></a>
@@ -228,10 +224,20 @@
                 </div>
             </li>
             <li>
-                <div class="input-group" style="flex-wrap: nowrap">
+                <div class="input-group" style="flex-wrap: nowrap; padding-right: 10px;">
                     <input type="text" id="gameInput" class="form-control" placeholder="Search Game ID" aria-label="Game ID" onkeydown="if(event.key === 'Enter'){ redirectToGame(); }">
                     <button class="btn btn-secondary" type="button" onclick="redirectToGame()">Go</button>
                 </div>
+            </li>
+            <li>
+                <select class="form-select" id="selector">
+                    <option value="pass">Select a background</option>
+                    <option value="/static/Gray.jpg">Dark</option>
+                    <option value="/static/earthking.jpg">Earth King</option>
+                    <option value="/static/skyking.webp">Sky King</option>
+                    <option value="/static/sovereign.webp">Sovereign</option>
+                    <option value="/static/oasis.webp">Oasis</option>
+                </select>
             </li>
         </ul>
     </div>
@@ -275,5 +281,29 @@
     addToRecentlyVisited({"avatar_url": "{{ api_profile["avatarUrl"] }}", "player_name": "{{ api_profile["playerName"] }}"})
 </script>
 {% endif %}
+<script>
+    function applyBackground(url) {
+        document.body.style.backgroundImage = `
+            radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
+            url("${url}")
+          `;
+    }
+
+    const savedBackground = localStorage.getItem('backgroundImage');
+    if (savedBackground) {
+        applyBackground(savedBackground);
+        document.getElementById('selector').value = savedBackground;
+    }
+
+    document.getElementById('selector').addEventListener('change', function() {
+        if (this.value === "pass"){
+            return
+        }
+        const selectedValue = this.value;
+        console.log(selectedValue)
+        applyBackground(selectedValue);
+        localStorage.setItem('backgroundImage', selectedValue);
+    });
+</script>
 </body>
 </html>
