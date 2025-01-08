@@ -242,6 +242,35 @@
         </ul>
     </div>
 </nav>
+<script>
+    function applyBackground(url) {
+        document.body.style.backgroundImage = `
+            radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
+            url("${url}")
+          `;
+    }
+
+    const savedBackground = localStorage.getItem('backgroundImage');
+    if (savedBackground) {
+        applyBackground(savedBackground);
+        document.getElementById('selector').value = savedBackground;
+    }
+    else {
+        const selectedValue = "/static/sovereign.webp";
+        localStorage.setItem('backgroundImage', selectedValue);
+        applyBackground(selectedValue);
+        document.getElementById('selector').value = selectedValue;
+    }
+
+    document.getElementById('selector').addEventListener('change', function() {
+        if (this.value === "pass"){
+            return
+        }
+        const selectedValue = this.value;
+        applyBackground(selectedValue);
+        localStorage.setItem('backgroundImage', selectedValue);
+    });
+</script>
 <div class="container" style="width: 100%">
     {% block content %} {% endblock %}
 </div>
@@ -281,34 +310,5 @@
     addToRecentlyVisited({"avatar_url": "{{ api_profile["avatarUrl"] }}", "player_name": "{{ api_profile["playerName"] }}"})
 </script>
 {% endif %}
-<script>
-    function applyBackground(url) {
-        document.body.style.backgroundImage = `
-            radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
-            url("${url}")
-          `;
-    }
-
-    const savedBackground = localStorage.getItem('backgroundImage');
-    if (savedBackground) {
-        applyBackground(savedBackground);
-        document.getElementById('selector').value = savedBackground;
-    }
-    else {
-        const selectedValue = "/static/sovereign.webp";
-        localStorage.setItem('backgroundImage', selectedValue);
-        applyBackground(selectedValue);
-        document.getElementById('selector').value = selectedValue;
-    }
-
-    document.getElementById('selector').addEventListener('change', function() {
-        if (this.value === "pass"){
-            return
-        }
-        const selectedValue = this.value;
-        applyBackground(selectedValue);
-        localStorage.setItem('backgroundImage', selectedValue);
-    });
-</script>
 </body>
 </html>
