@@ -90,10 +90,11 @@
             <img width="24" height="24" src="{{ get_cdn(spell|replace("powerup_id", "")|replace("spell_damage", ""), "Spell") }}">
         {% endfor %}
     </div>
-    <div><r>Date: {{ game_data['date'] }}</r></div>
-    <div><r>Version: {{ game_data['version'] }}</r></div>
-    <div><r>Game elo: {{ game_data['game_elo'] }}</r></div>
-    <div><r>Game length: {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
+    <div><r><b>Queue:</b> {{ game_data['queue'] }}</r></div>
+    <div><r><b>Date:</b> {{ game_data['date'] }}</r></div>
+    <div><r><b>Version:</b> {{ game_data['version'] }}</r></div>
+    <div><r><b>Game elo:</b> {{ game_data['game_elo'] }}</r></div>
+    <div><r><b>Game length:</b> {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
 </div>
 <style>
     :root{
@@ -115,7 +116,7 @@
         margin-left: 10px;
         margin-right: 10px;
         display: flex;
-        justify-content: space-between;
+        justify-content: {{ "space-between" if (game_data['players_data']|length > 2) else "space-evenly" }};
     }
     .king_hp_bar_outside{
         display: flex;
@@ -171,6 +172,7 @@
     .players-container {
         display: flex;
         flex-wrap: nowrap;
+        justify-content: space-evenly;
         {% if game_data['players_data']|length == 8 %}
             overflow-x: scroll;
         {% endif %}
