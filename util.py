@@ -125,13 +125,11 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     tier_dict = tier_dict_specific if dict_type else tier_dict_all
     elo = elo_dict.get(str(elo), 0.04)
 
-    pickrate_scaling = min(1, pickrate / (1 + pickrate))
-
-    if stats != "megamindstats":
-        tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
-        tier_score *= pickrate_scaling
-    else:
+    if stats == "megamindstats" and not specific_tier:
         tier_score = winrate
+    else:
+        tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
+        tier_score *= min(1, pickrate / (1 + pickrate))
 
     return tier_score
 
