@@ -1,4 +1,5 @@
 import json
+import math
 import re
 import time
 import traceback
@@ -124,10 +125,11 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     tier_dict = tier_dict_specific if dict_type else tier_dict_all
     elo = elo_dict.get(str(elo), 0.04)
 
+    pickrate_scaling = min(1, pickrate / (1 + pickrate))
+
     if stats != "megamindstats":
         tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
-        if pickrate < 1 and winrate > 55:
-            tier_score *= 0.8
+        tier_score *= pickrate_scaling
     else:
         tier_score = winrate
 
