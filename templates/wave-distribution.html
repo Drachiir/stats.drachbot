@@ -34,7 +34,7 @@
     <!-- Canvas for the bar chart -->
     <canvas id="waveDistributionChart" style="background-color: rgba(19,19,19,0.8);" height="160"></canvas>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
     const waveData = {{ wave_data | tojson }};  // Assuming wave_data is passed in Jinja context
     const totalGames = {{ games }};  // Total number of games provided by server
