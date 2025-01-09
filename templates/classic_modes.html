@@ -41,11 +41,9 @@
         </div>
     </div>
 <script>
-    // Function to convert UTC times to local timezone
     document.addEventListener('DOMContentLoaded', function() {
         const schedules = document.querySelectorAll('.schedule');
 
-        // Set user's timezone in the header
         const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         document.getElementById('user-timezone').innerText = userTimezone;
 
@@ -53,25 +51,21 @@
             const startUTC = schedule.getAttribute('data-start');
             const endUTC = schedule.getAttribute('data-end');
 
-            // Create Date objects from ISO-formatted UTC strings
             const startDate = new Date(startUTC);
             const endDate = new Date(endUTC);
 
-            // Convert to local time using the user's browser timezone
             const startLocal = startDate.toLocaleString('default', {
                 day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-            }).replace(',', ''); // Remove comma
+            }).replace(',', '');
 
             const endLocal = endDate.toLocaleString('default', {
                 day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
-            }).replace(',', ''); // Remove comma
+            }).replace(',', '');
 
-            // Update the content in the HTML with the converted time
             schedule.innerHTML = `${startLocal} → ${endLocal}`;
 
-            // Calculate the time remaining until the mode starts
             const now = new Date();
-            const timeDiff = startDate - now; // Time difference in milliseconds
+            const timeDiff = startDate - now;
             let timeRemaining;
 
             if (timeDiff > 0) {
@@ -80,10 +74,8 @@
                 const hours = Math.floor(minutes / 60);
                 const days = Math.floor(hours / 24);
 
-                // Prepare the time remaining text
-                const remainingMinutes = minutes % 60; // Get remaining minutes after days and hours
+                const remainingMinutes = minutes % 60;
 
-                // Build the time remaining string
                 let timeRemainingParts = [];
                 if (days > 0) {
                     timeRemainingParts.push(`${days} day${days > 1 ? 's' : ''}`);
@@ -100,11 +92,9 @@
                 timeRemaining = `Now`;
             }
 
-            // Update the time remaining text
             const timeRemainingElement = schedule.parentNode.querySelector('.time-remaining');
             timeRemainingElement.innerHTML = timeRemaining;
 
-            // Emphasize the first row's "Now" text
             if (index === 0 && timeRemaining === 'Now') {
                 timeRemainingElement.style.fontWeight = 'bold';
                 timeRemainingElement.style.color = 'red';
