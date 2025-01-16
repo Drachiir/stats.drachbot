@@ -149,7 +149,11 @@ a[data-title]:hover::after, a[data-title]:active::after{
     text-align: center;
     border-radius: 4px;
     border: gray 1px solid;
-    width: max-content;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    padding: 2px;
     display: none;
     z-index: 9;
 }

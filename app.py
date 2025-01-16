@@ -32,7 +32,7 @@ cache = Cache()
 app = Flask(__name__)
 app.secret_key = 'python>js'
 
-CORS(app, resources={r"/api/*": {"origins": "*"}})  # Enable CORS for all
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 scheduler = APScheduler()
 
@@ -151,9 +151,8 @@ def get_profile_from_playfab(playername:str):
     result_event.wait()
     return result
 
-
 def get_player_profile(playername):
-    playerid = playername if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername) else None
+    playerid = playername if re.fullmatch(r'[0-9A-Z]{13,16}', playername) else None
     api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
     if api_profile in [0, 1]:
         playfab_profile = get_profile_from_playfab(playername)
@@ -171,7 +170,6 @@ def get_player_profile(playername):
     api_profile["guildTag"] = ""
     return {"playerid": playerid, "api_profile": api_profile}
 
-
 if platform.system() == "Linux":
     timeout = 600
     timeout2 = 300
@@ -179,10 +177,9 @@ else:
     timeout = 1
     timeout2 = 1
     
-app.config['CACHE_TYPE'] = 'simple' # Set the cache type
-app.config['CACHE_DEFAULT_TIMEOUT'] = timeout # Set the default cache timeout in seconds
-app.config['CACHE_KEY_PREFIX'] = 'myapp_' # Set the cache key prefix
-
+app.config['CACHE_TYPE'] = 'simple'
+app.config['CACHE_DEFAULT_TIMEOUT'] = timeout
+app.config['CACHE_KEY_PREFIX'] = 'myapp_'
 cache.init_app(app)
 
 @app.route('/favicon.ico')
@@ -233,7 +230,7 @@ patches = defaults_json["Patches"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
 
-defaults2[0] = ",".join(patches[:5])
+defaults2[0] = ",".join(patches[:3])
 
 @app.route("/api/defaults")
 def api_defaults():
@@ -254,7 +251,10 @@ def home():
         for file in os.listdir(shared_folder+f"data/{folder}/"):
             if file.startswith(f"{defaults[0]}_{defaults[1]}"):
                 games = file.split("_")[2]
-                games = int(games)
+                try:
+                    games = int(games)
+                except Exception:
+                    games = 0
                 avg_elo = file.split("_")[3].replace(".json", "")
                 with open(shared_folder+f"data/{folder}/"+file, "r") as f:
                     json_data = json.load(f)
@@ -325,7 +325,7 @@ def leaderboard(playername):
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
                            winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True)
 
-@app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': defaults_json["RankDistributionDate"]})
+@app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': None})
 @app.route("/rank-distribution/<snapshot>", methods=['GET'])
 def rank_distribution(snapshot):
     try:
@@ -336,15 +336,16 @@ def rank_distribution(snapshot):
         min_winrate = int(request.args.get('min_winrate', 0))
     except Exception:
         min_winrate = 0
+    snapshots_list = []
+    for ss in os.listdir(f"{shared_folder}/leaderboard"):
+        snapshots_list.append(ss.split("_")[2].replace(".json", ""))
+    snapshots_list = sorted(snapshots_list, key=lambda x: int(x.split("-")[2]+x.split("-")[1]+x.split("-")[0]), reverse=True)
+    snapshot = snapshot if snapshot else snapshots_list[0]
     try:
         with open(f"{shared_folder}/leaderboard/leaderboard_parsed_{snapshot}.json", "r") as f:
             leaderboard_data = json.load(f)
     except FileNotFoundError:
         return render_template("no_data.html", text=f"No data.")
-    snapshots_list = []
-    for ss in os.listdir(f"{shared_folder}/leaderboard"):
-        snapshots_list.append(ss.split("_")[2].replace(".json", ""))
-    snapshots_list = sorted(snapshots_list, key=lambda x: int(x.split("-")[1]+x.split("-")[0]), reverse=True)
     return render_template("rank-distribution.html", min_games=min_games, leaderboard_data=leaderboard_data, min_winrate=min_winrate,
                            snapshots_list=snapshots_list, snapshot=snapshot)
 
@@ -813,6 +814,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
                     enemy2 = game["players_data"][player_map[player["player_slot"]][2]]
+                    p: dict
                     for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
                         if p[0]["player_id"] in player_dict[p[1]]:
                             player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
