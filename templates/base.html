@@ -10,6 +10,9 @@
         function gtag() {
             dataLayer.push(arguments);
         }
+
+        gtag('js', new Date());
+
         // Check for stored consent
         const consentStatus = localStorage.getItem('analytics_consent');
 
@@ -17,6 +20,7 @@
             gtag('consent', 'default', {
                 'analytics_storage': 'granted'
             });
+            gtag('config', 'G-KB760J9ZQL');
         } else if (consentStatus === 'denied') {
             gtag('consent', 'default', {
                 'analytics_storage': 'denied'
@@ -26,9 +30,6 @@
                 'analytics_storage': 'denied'
             });
         }
-        gtag('js', new Date());
-
-        gtag('config', 'G-KB760J9ZQL');
     </script>
     {% block html_head %} {% endblock %}
     {% if leaderboard_page %}
@@ -310,6 +311,7 @@
         gtag('consent', 'update', {
             'analytics_storage': 'granted'
         });
+        gtag('config', 'G-KB760J9ZQL');
         document.getElementById('consent-banner').style.display = 'none';
     });
 
