@@ -5,9 +5,11 @@
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/style.css">
-    <meta property="og:title" content="{{ og_data["api_profile"]["playerName"] }}'s Drachbot Profile" />
-    <meta property="og:description" content="Description of your page" />
-    <meta property="og:image" content="https://cdn.legiontd2.com/{{ og_data["api_profile"]["avatarUrl"] }}" />
+    {% if og_data %}
+        <meta property="og:title" content="{{ og_data["api_profile"]["playerName"] }}'s Drachbot Profile" />
+        <meta property="og:description" content="{{ ("Rank #" + og_data["api_profile"]["rank"]|string + " Elo: " + og_data["api_profile"]["elo"]|string) if og_data["api_profile"]["rank"] else "" }}"/>
+        <meta property="og:image" content="https://cdn.legiontd2.com/{{ og_data["api_profile"]["avatarUrl"] }}" />
+    {% endif %}
 </head>
 <body style="
     background-color: #171717;

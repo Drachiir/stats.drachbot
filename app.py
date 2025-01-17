@@ -569,6 +569,7 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = drachbot_profile["playerid"]
             api_profile = drachbot_profile["api_profile"]
             country = drachbot_profile["country"]
+            player_rank = api_profile["rank"]
         else:
             result = get_player_profile(playername)
             if not result:
@@ -576,6 +577,7 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = result["playerid"]
             api_profile = result["api_profile"]
             country = ""
+            player_rank = 0
         # Get player stats
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
@@ -606,10 +608,9 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
 
             country = player["Profile"]["Locations"][0]["CountryCode"]
-            player_rank = f"Rank #{player["Position"]+1}"
+            player_rank = player["Position"] + 1
         else:
             api_stats = legion_api.getstats(playerid)
-            player_rank = ""
         try:
             _ = api_stats["rankedWinsThisSeason"]
             _ = api_stats["rankedLossesThisSeason"]
@@ -618,6 +619,7 @@ def profile(playername, stats, patch, elo, specific_key):
         except KeyError:
             return render_template("no_data.html", text=f"{playername} not found.")
 
+        api_stats["playerRank"] = player_rank
         api_stats["flag"] = country
         if country:
             countries = util.COUNTRIES_CACHE

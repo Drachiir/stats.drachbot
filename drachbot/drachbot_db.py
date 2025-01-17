@@ -31,7 +31,7 @@ def get_player_profile(playername):
         try:
             profile_data_query = (PlayerProfile
                                   .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
-                                          PlayerProfile.guild_tag, PlayerProfile.avatar_url)
+                                          PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo)
                                   .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
                                   .dicts())
             rows = list(profile_data_query)
@@ -39,7 +39,9 @@ def get_player_profile(playername):
                 playerid = rows[0]["player_id"]
                 api_profile = {"playerName": rows[0]["player_name"],
                                "avatarUrl": rows[0]["avatar_url"],
-                               "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else ""}
+                               "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else "",
+                               "rank": rows[0]["rank"] if rows[0]["rank"] else 0,
+                               "elo": rows[0]["elo"] if rows[0]["elo"] else 0}
                 return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"]}
             else:
                 return None
@@ -187,6 +189,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         avatar_url=playerprofile["avatarUrl"],
                         country=playerstats["flag"],
                         guild_tag=playerprofile["guildTag"],
+                        elo = playerstats["overallElo"],
+                        rank = playerstats["playerRank"],
                         total_games_played=games_played,
                         ranked_wins_current_season=wins,
                         ranked_losses_current_season=losses,
@@ -218,6 +222,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     avatar_url=playerprofile["avatarUrl"],
                     country=playerstats["flag"] if playerstats["flag"] else data.country,
                     guild_tag=playerprofile["guildTag"] if playerprofile["guildTag"] else data.guild_tag,
+                    elo=playerstats["overallElo"],
+                    rank=playerstats["playerRank"],
                     ladder_points = ladder_points,
                     ranked_wins_current_season=wins,
                     ranked_losses_current_season=losses,

@@ -164,7 +164,9 @@
                     <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
                     <div style="position: absolute; bottom: 5px; left: 70px">
-                        <r2 style="color: gold;">{{ player_rank }}</r2>
+                        {% if player_rank %}
+                            <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
+                        {% endif %}
                         {% if api_stats["flag"] %}
                             <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
                         {% endif %}
