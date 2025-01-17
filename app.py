@@ -528,15 +528,16 @@ def get_player_matchhistory(playername, playerid, patch, page):
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def load(playername, stats, patch, elo, specific_key):
     session['visited_profile'] = True
+    og_data = drachbot_db.get_player_profile(playername)
     if not stats:
         new_patch = request.args.get('patch')
         if new_patch:
             new_patch = f"?patch={new_patch}"
         else:
             new_patch = ""
-        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{new_patch}")
+        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{new_patch}", og_data=og_data)
     else:
-        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/")
+        return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/", og_data=og_data)
 
 @app.route('/profile/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})

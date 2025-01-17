@@ -70,9 +70,9 @@
         <meta property="og:description" content="Ended on Wave {{ game_data["ending_wave"] }} | Avg Game Elo: {{ game_data["game_elo"] }} | {{ game_data["version"] }} {% for player in game_data["players_data"] %} | {{ player["player_name"] }} {% endfor %}"/>
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% elif livegames %}
-            <title>Legion TD 2 Livegames</title>
+        <title>Legion TD 2 Livegames</title>
         <meta property="og:title" content="Legion TD 2 Livegames" />
-        <meta name="description" content="The 10 highest Elo ongoing games">
+        <meta name="description" content="All the ongoing 2v2 games">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% elif data %}
         {% if specific_key == "All" or specific_key == "Megamind" %}

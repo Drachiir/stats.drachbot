@@ -5,6 +5,9 @@
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/static/style.css">
+    <meta property="og:title" content="{{ og_data["api_profile"]["playerName"] }}'s Drachbot Profile" />
+    <meta property="og:description" content="Description of your page" />
+    <meta property="og:image" content="https://cdn.legiontd2.com/{{ og_data["api_profile"]["avatarUrl"] }}" />
 </head>
 <body style="
     background-color: #171717;
@@ -16,7 +19,7 @@
     place-items: center;">
     <div>
         <div style="padding-left: 80px"><div id="loading"></div></div>
-        <div style="color: white; padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
+        <div style="color: white; padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading {{ playername }}'s Data... This may take up to a minute{% endif %}</r></div>
     </div>
     <script>
         function applyBackground(url) {
