@@ -328,12 +328,12 @@ def drachbot_overlay_api(playername):
             return {"Error": "Player not found"}
         playerid = api_profile["_id"]
     req_columns = [
-        [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-         PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.player_elo, PlayerData.game_result, PlayerData.elo_change,
-         PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
-        ["game_id", "date", "version", "ending_wave", "game_elo"],
-        ["player_id", "player_name", "player_slot", "player_elo", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
-    history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
+        [GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
+         PlayerData.player_id, PlayerData.game_result, PlayerData.elo_change, PlayerData.legion,
+         PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
+        ["date", "version", "ending_wave", "game_elo"],
+        ["player_id", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
+    history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
     if not history:
         history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, get_new_games=True)
     winlose = {"Wins": 0, "Losses": 0}
@@ -683,7 +683,7 @@ def profile(playername, stats, patch, elo, specific_key):
         openers = {}
         spells = {}
         player_map = {1: [1,2,3], 2: [0,2,3], 5: [3,0,1], 6: [2,0,1]}
-        player_dict = {"Teammates": {}, "Enemies": {}}
+        player_dict = {"Teammates": {}, "Enemies": {}} # todo mm matchups
         games = len(history)
         short_history = 20
         for game in history:

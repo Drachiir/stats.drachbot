@@ -42,7 +42,7 @@ class BaseModel(Model):
 class PlayerProfile(BaseModel):
     id = AutoField()
     player_id = TextField(unique=True)
-    player_name = TextField()
+    player_name = TextField(index=True)
     avatar_url = TextField(null=True)
     country = TextField(null=True)
     guild_tag = TextField(null=True)

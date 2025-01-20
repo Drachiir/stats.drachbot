@@ -112,7 +112,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
-                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False):
+                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True):
     if req_columns is None:
         req_columns = []
     patch_list = []
@@ -124,41 +124,42 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         sort_arg = GameData.date
     else:
         sort_arg = GameData.game_elo
-    if patch != '0' and "-" not in patch and "+" not in patch:
-        patch_list = patch.replace(" ", "").split(',')
-    elif patch != "0" and "+" in patch and "-" not in patch:
-        patch_new = patch.replace(" ", "").replace("+", "")
-        if len(patch_new) == 5:
-            patch_new = patch_new.split('.')
-            for x in range(13 - int(patch_new[1])):
-                if int(patch_new[1]) + x < 10:
-                    prefix = "0"
-                else:
-                    prefix = ""
-                patch_list.append(patch_new[0] + "." + prefix + str(int(patch_new[1]) + x))
-        else:
-            return []
-    elif patch != "0" and "-" in patch:
-        patch_new = patch.split("-")
-        if len(patch_new) == 2:
-            start_major, start_minor = map(int, patch_new[0].split('.'))
-            end_major, end_minor = map(int, patch_new[1].split('.'))
+    if patch != "0":
+        if "-" not in patch and "+" not in patch:
+            patch_list = patch.replace(" ", "").split(',')
+        elif "+" in patch and "-" not in patch:
+            patch_new = patch.replace(" ", "").replace("+", "")
+            if len(patch_new) == 5:
+                patch_new = patch_new.split('.')
+                for x in range(13 - int(patch_new[1])):
+                    if int(patch_new[1]) + x < 10:
+                        prefix = "0"
+                    else:
+                        prefix = ""
+                    patch_list.append(patch_new[0] + "." + prefix + str(int(patch_new[1]) + x))
+            else:
+                return []
+        elif "-" in patch:
+            patch_new = patch.split("-")
+            if len(patch_new) == 2:
+                start_major, start_minor = map(int, patch_new[0].split('.'))
+                end_major, end_minor = map(int, patch_new[1].split('.'))
 
-            for major in range(start_major, end_major + 1):
-                if major == start_major:
-                    for minor in range(start_minor, 12):
-                        prefix = "0" if minor < 10 else ""
-                        patch_list.append(f"{major}.{prefix}{minor}")
-                elif major == end_major:
-                    for minor in range(0, end_minor + 1):
-                        prefix = "0" if minor < 10 else ""
-                        patch_list.append(f"{major}.{prefix}{minor}")
-                else:
-                    for minor in range(0, 12):
-                        prefix = "0" if minor < 10 else ""
-                        patch_list.append(f"{major}.{prefix}{minor}")
-        else:
-            return []
+                for major in range(start_major, end_major + 1):
+                    if major == start_major:
+                        for minor in range(start_minor, 12):
+                            prefix = "0" if minor < 10 else ""
+                            patch_list.append(f"{major}.{prefix}{minor}")
+                    elif major == end_major:
+                        for minor in range(0, end_minor + 1):
+                            prefix = "0" if minor < 10 else ""
+                            patch_list.append(f"{major}.{prefix}{minor}")
+                    else:
+                        for minor in range(0, 12):
+                            prefix = "0" if minor < 10 else ""
+                            patch_list.append(f"{major}.{prefix}{minor}")
+            else:
+                return []
     games_count = 0
     if playerid != 'all':
         if not skip_stats:
@@ -285,7 +286,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 if i % 4 == 3:
                     try:
                         if len(temp_data["players_data"]) == 4:
-                            temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
+                            if sort_players:
+                                temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
                             raw_data.append(temp_data)
                             temp_data = {}
                     except KeyError:
