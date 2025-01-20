@@ -178,10 +178,10 @@
                     {% endif %}
                     {% if known_names|length > 1 %}
                         {% set names_tooltip = ('Aka. ' + known_names|join(", ")) %}
+                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     {% else %}
-                        {% set names_tooltip = "" %}
+                        <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     {% endif %}
-                    <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
                     <div style="position: absolute; bottom: 5px; left: 70px">
                         {% if player_rank %}
