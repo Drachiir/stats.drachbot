@@ -156,12 +156,21 @@ const RECENT_PROFILES_KEY = 'recentVisitedProfiles';
 
 function getRecentlyVisitedProfiles() {
     const profiles = localStorage.getItem(RECENT_PROFILES_KEY);
-    return profiles ? JSON.parse(profiles) : [];
+    if (!profiles) return [];
+
+    const parsedProfiles = JSON.parse(profiles);
+    const validProfiles = parsedProfiles.filter(profile => profile.player_id);
+
+    if (parsedProfiles.length !== validProfiles.length) {
+        localStorage.setItem(RECENT_PROFILES_KEY, JSON.stringify(validProfiles));
+    }
+
+    return validProfiles;
 }
 
 function addToRecentlyVisited(profile) {
     const profiles = getRecentlyVisitedProfiles();
-    const existingIndex = profiles.findIndex(p => p.player_name === profile.player_name);
+    const existingIndex = profiles.findIndex(p => p.player_id === profile.player_id);
 
     if (existingIndex > -1) {
         profiles.splice(existingIndex, 1);
@@ -197,7 +206,7 @@ function renderSuggestions(suggestions, suggestionsBoxElement, inputElement) {
             playerLink.style.display = 'flex';
             playerLink.style.alignItems = 'center';
             playerLink.style.width = '100%';
-            playerLink.href = `/profile/${player.player_name}`;
+            playerLink.href = `/load/${player.player_id}`;
 
             playerLink.innerHTML = `
                 <img width="40" height="40" src="${avatarUrl}" alt="${player.player_name}'s avatar" style="margin-right: 10px;">

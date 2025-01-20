@@ -440,12 +440,13 @@ def check_refresh_status(playerid):
 @app.route('/api/get_search_results/<search_term>', methods=['GET'])
 def get_search_results(search_term):
     query = (PlayerProfile
-             .select(PlayerProfile.player_name, PlayerProfile.avatar_url)
+             .select(PlayerProfile.player_name, PlayerProfile.avatar_url, PlayerProfile.player_id)
              .where(fn.LOWER(PlayerProfile.player_name).contains(search_term.lower()))
              .limit(5))
 
     players = [{'player_name': player.player_name,
-                'avatar_url': player.avatar_url}
+                'avatar_url': player.avatar_url,
+                "player_id": player.player_id}
                for player in query]
     return jsonify(players), 200
 
@@ -686,9 +687,10 @@ def profile(playername, stats, patch, elo, specific_key):
         openers = {}
         spells = {}
         player_map = {1: [1,2,3], 2: [0,2,3], 5: [3,0,1], 6: [2,0,1]}
-        player_dict = {"Teammates": {}, "Enemies": {}} # todo mm matchups
+        player_dict = {"Teammates": {}, "Enemies": {}}
         games = len(history)
         short_history = 20
+        known_names = set()
         for game in history:
             if type(game["date"]) == str:
                 game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
@@ -700,6 +702,7 @@ def profile(playername, stats, patch, elo, specific_key):
             for player in game["players_data"]:
                 temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"]])
                 if player["player_id"] == playerid:
+                    known_names.add(player["player_name"])
                     # Players
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
@@ -710,7 +713,7 @@ def profile(playername, stats, patch, elo, specific_key):
                             player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
                             player_dict[p[1]][p[0]["player_id"]]["EloChange"] += player["elo_change"]
                         else:
-                            player_dict[p[1]][p[0]["player_id"]] = {"Count": 1, "Wins": 0, "Playername": p[0]["player_name"], "EloChange": player["elo_change"]}
+                            player_dict[p[1]][p[0]["player_id"]] = {"Count": 1, "Wins": 0, "Playername": p[0]["player_name"], "Playerid": p[0]["player_id"], "EloChange": player["elo_change"]}
                         if player["game_result"] == "won":
                             player_dict[p[1]][p[0]["player_id"]]["Wins"] += 1
                     #Match history details
@@ -795,7 +798,9 @@ def profile(playername, stats, patch, elo, specific_key):
             winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
-            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count)
+            player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count,
+            known_names=known_names
+        )
     else:
         for szn in ["12", "11"]:
             if szn in patch.split(","):

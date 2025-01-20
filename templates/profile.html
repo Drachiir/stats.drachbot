@@ -71,13 +71,28 @@
     .player-row:hover{
         cursor: pointer;
     }
-    i[data-title]:hover::after, i[data-title]:active::after{
+    [data-title]:hover::after, [data-title]:active::after{
         content: attr(data-title);
         background-color: black;
         font-family: "Roboto", sans-serif;
         text-align: center;
         border-radius: 10px;
         padding: 5px;
+        border: gray 1px solid;
+        position: absolute;
+        z-index: 1;
+    }
+    [names-tooltip]:hover::after, [names-tooltip]:active::after{
+        content: attr(names-tooltip);
+        background-color: black;
+        font-size: 0.8rem;
+        font-family: "Roboto", sans-serif;
+        text-align: center;
+        border-radius: 10px;
+        max-width: 80%;
+        text-wrap: wrap;
+        padding: 1px;
+        left: 0;
         border: gray 1px solid;
         position: absolute;
         z-index: 1;
@@ -156,12 +171,17 @@
     <div class="profile-main" style="position: relative">
         <div style="padding: 8px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
             <div style="text-align: center; width: max-content;">
-                <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left">
+                <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left;">
                     <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                     {% if api_stats["avatarBorder"] %}
                         <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
                     {% endif %}
-                    <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
+                    {% if known_names|length > 1 %}
+                        {% set names_tooltip = ('Aka. ' + known_names|join(", ")) %}
+                    {% else %}
+                        {% set names_tooltip = "" %}
+                    {% endif %}
+                    <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
                     <div style="position: absolute; bottom: 5px; left: 70px">
                         {% if player_rank %}
@@ -338,9 +358,9 @@
                             </tr>
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
-                                <tr class="player-row" data-href="/profile/{{ mate_dict["Playername"] }}">
+                                <tr class="player-row" data-href="/load/{{ mate_dict["Playerid"] }}">
                                     <td style="text-align: left">
-                                        <a style="text-decoration: none; color: white" href="/profile/{{ mate_dict["Playername"] }}" class="open-in-new-tab">
+                                        <a style="text-decoration: none; color: white" href="/load/{{ mate_dict["Playerid"] }}" class="open-in-new-tab">
                                             <r3>{{ mate_dict["Playername"][:14] }}</r3>
                                         </a>
                                     </td>
@@ -410,7 +430,7 @@
                                 {% else %}
                                     {% set url_key = key|lower %}
                                 {% endif %}
-                                <a style="color: white; text-decoration: none" href="/profile/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ url_key }}">
+                                <a style="color: white; text-decoration: none" href="/load/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ url_key }}">
                                     <img style="width: var(--waveimgsize)" src="{{ get_cdn(key, fav_category[1]) }}">
                                     <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</r2>
                                 </a>
@@ -477,7 +497,7 @@
                                 {% else %}
                                     {% set color = "white" %}
                                 {% endif %}
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/{{ player[3] }}">
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/{{ player[3] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
                                     <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
                                     {% if player[2] > 1 %}
@@ -579,7 +599,7 @@
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td style="text-align: left; color: white;">
-                    <a href="/profile/${player.Playername}" style="text-decoration: none; color: white;">${player.Playername}</a>
+                    <a href="/load/${player.Playerid}" style="text-decoration: none; color: white;">${player.Playername}</a>
                 </td>
                 <td>${player.Count}</td>
                 <td>${player.Wins} - ${losses}</td>
@@ -774,7 +794,7 @@
                     ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
                         <div style="width: 50%">
                             ${group.map(player => `
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/${player[3]}">
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
                                     <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${player[0]}</r2>
                                     ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
