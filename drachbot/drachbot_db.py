@@ -26,13 +26,17 @@ def get_playerid(playername):
             print(f"Database error: {e}")
             return None
 
-def get_player_profile(playername):
+def get_player_profile(playername, by_id = False):
     with db.atomic():
         try:
+            if by_id:
+                expr = fn.LOWER(PlayerProfile.player_id) == fn.LOWER(playername)
+            else:
+                expr = fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername)
             profile_data_query = (PlayerProfile
                                   .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
                                           PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo)
-                                  .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
+                                  .where(expr)
                                   .dicts())
             rows = list(profile_data_query)
             if len(rows) == 1:

@@ -36,7 +36,7 @@ CORS(app, resources={r"/api/*": {"origins": "*"}})
 scheduler = APScheduler()
 
 def get_player_profile(playername):
-    playerid = playername if re.fullmatch(r'[0-9A-Z]{13,16}', playername) else None
+    playerid = playername if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername) else None
     api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
     if api_profile in [0, 1]:
         playfab_profile = get_profile_from_playfab(playername)
@@ -528,7 +528,10 @@ def get_player_matchhistory(playername, playerid, patch, page):
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def load(playername, stats, patch, elo, specific_key):
     session['visited_profile'] = True
-    og_data = drachbot_db.get_player_profile(playername)
+    by_id = True if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername) else False
+    og_data = drachbot_db.get_player_profile(playername, by_id=by_id)
+    if og_data:
+        playername = og_data["api_profile"]["playerName"]
     if not stats:
         new_patch = request.args.get('patch')
         if new_patch:
