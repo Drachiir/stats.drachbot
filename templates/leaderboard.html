@@ -73,7 +73,7 @@
                     <tr class="player-row" data-games="{{ wins + losses }}">
                         <td><r>{{ player["Position"] + 1 }}</r></td>
                         <td>
-                            <a href="/profile/{{ player["DisplayName"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
+                            <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
                                 <div style="text-align: left;">
                                     <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
                                     <r class="player-name"> {{ player["DisplayName"] }}</r>

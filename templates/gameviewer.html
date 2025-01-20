@@ -35,7 +35,7 @@
                 {% endif %}
                 <div style="display: flex; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 5px; width: 65%">
-                        <a href="/profile/{{ player['player_name'] }}" style="text-decoration: none; flex-grow: 1; width: 100%;">
+                        <a href="/load/{{ player['player_id'] }}" style="text-decoration: none; flex-grow: 1; width: 100%;">
                             <img width="32" height="32" src="{{ get_cdn(player['legion'], 'MM') }}">
                             {% if player["megamind"] %}
                                 <img style="position: absolute; top:0;left: 0; z-index: 1;" width="14" height="14" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
