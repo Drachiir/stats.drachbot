@@ -495,7 +495,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
                      "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "",
                      "Worker": "", "Megamind": False, "MVP": False}
         for player in game["players_data"]:
-            temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"]])
+            temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"]])
             if player["player_id"] == playerid:
                 teammate = game["players_data"][player_map[player["player_slot"]][0]]
                 if player["mvp_score"] > teammate["mvp_score"]:
@@ -695,7 +695,7 @@ def profile(playername, stats, patch, elo, specific_key):
                          "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "",
                          "Spell": "", "Worker": "", "Megamind": False, "MVP": False}
             for player in game["players_data"]:
-                temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"]])
+                temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"]])
                 if player["player_id"] == playerid:
                     # Players
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]

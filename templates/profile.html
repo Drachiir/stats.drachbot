@@ -472,12 +472,12 @@
                     {% for x in [game["players_data"][:2], game["players_data"][2:]] %}
                         <div style="width: 50%">
                             {% for player in x %}
-                                {% if player[0] == api_profile["playerName"] %}
+                                {% if player[3] == playerid %}
                                     {% set color = "#34a9db" %}
                                 {% else %}
                                     {% set color = "white" %}
                                 {% endif %}
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/{{ player[0] }}">
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/{{ player[3] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
                                     <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
                                     {% if player[2] > 1 %}
@@ -774,9 +774,9 @@
                     ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
                         <div style="width: 50%">
                             ${group.map(player => `
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/${player[0]}">
+                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/profile/${player[3]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
-                                    <r2 style="font-size: var(--textsize); color: ${player[0] === playerName ? '#34a9db' : 'white'}">${player[0]}</r2>
+                                    <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${player[0]}</r2>
                                     ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
                                 </a><br>
                             `).join('')}
