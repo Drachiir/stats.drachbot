@@ -226,13 +226,31 @@
 
         fakeContent.style.width = table.scrollWidth + 'px';
 
+        let isSyncingScrollTop = false;
+        let isSyncingTable = false;
+
         scrollTop.addEventListener('scroll', () => {
-            table.scrollLeft = scrollTop.scrollLeft;
+            if (!isSyncingScrollTop) {
+                isSyncingTable = true;
+                table.scrollLeft = scrollTop.scrollLeft;
+                isSyncingTable = false;
+            }
         });
 
         table.addEventListener('scroll', () => {
-            scrollTop.scrollLeft = table.scrollLeft;
+            if (!isSyncingTable) {
+                isSyncingScrollTop = true;
+                scrollTop.scrollLeft = table.scrollLeft;
+                isSyncingScrollTop = false;
+            }
         });
+
+        function updateFakeContentWidth() {
+            fakeContent.style.width = table.scrollWidth + 'px';
+        }
+
+        window.addEventListener('resize', updateFakeContentWidth);
+
         setTimeout(() => {
             fakeContent.style.width = table.scrollWidth + 'px';
         }, 3000)
