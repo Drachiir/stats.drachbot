@@ -92,7 +92,8 @@
         max-width: 80%;
         text-wrap: wrap;
         padding: 1px;
-        left: 0;
+        left: 20px;
+        bottom: -15px;
         border: gray 1px solid;
         position: absolute;
         z-index: 1;
@@ -171,7 +172,7 @@
     <div class="profile-main" style="position: relative">
         <div style="padding: 8px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
             <div style="text-align: center; width: max-content;">
-                <div style="overflow: hidden; padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left;">
+                <div style="padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left;">
                     <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                     {% if api_stats["avatarBorder"] %}
                         <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
