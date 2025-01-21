@@ -702,8 +702,7 @@ def profile(playername, stats, patch, elo, specific_key):
             for player in game["players_data"]:
                 temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"]])
                 if player["player_id"] == playerid:
-                    if player["player_name"] != api_profile["playerName"]:
-                        known_names.add(player["player_name"])
+                    known_names.add(player["player_name"])
                     # Players
                     teammate = game["players_data"][player_map[player["player_slot"]][0]]
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
