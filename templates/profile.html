@@ -85,15 +85,15 @@
     [names-tooltip]:hover::after, [names-tooltip]:active::after{
         content: attr(names-tooltip);
         background-color: black;
-        font-size: 0.8rem;
+        font-size: 1rem;
         font-family: "Roboto", sans-serif;
         text-align: center;
         border-radius: 10px;
         max-width: 80%;
         text-wrap: wrap;
         padding: 1px;
-        left: 20px;
-        bottom: -15px;
+        left: 64px;
+        bottom: 0px;
         border: gray 1px solid;
         position: absolute;
         z-index: 1;
@@ -179,7 +179,7 @@
                     {% endif %}
                     {% if known_names|length > 0 %}
                         {% set names_tooltip = ('Aka. ' + known_names|join(", ")) %}
-                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
+                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: dodgerblue">*</span></b></r2>
                     {% else %}
                         <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     {% endif %}
