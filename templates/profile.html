@@ -91,10 +91,10 @@
         border-radius: 10px;
         max-width: 80%;
         text-wrap: wrap;
-        padding: 1px;
+        padding: 3px;
         left: 64px;
-        top: 100%;
-        border: gray 1px solid;
+        top: 90%;
+        border: var(--blueAccent) 1px solid;
         position: absolute;
         z-index: 1;
     }
@@ -178,8 +178,8 @@
                         <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
                     {% endif %}
                     {% if known_names|length > 0 %}
-                        {% set names_tooltip = ('Aka. ' + known_names|join(", ")) %}
-                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: dodgerblue">*</span></b></r2>
+                        {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
+                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
                     {% else %}
                         <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     {% endif %}
