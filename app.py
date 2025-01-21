@@ -795,7 +795,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
             stats_list=stats_list, image_list=image_list, playername=playername, history=history_parsed, short_history = short_history,
-            winlose=winlose, elochange=elochange, playerurl = f"/profile/{playername}", values=values,
+            winlose=winlose, elochange=elochange, playerurl = f"/load/{playerid}", values=values,
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count,
