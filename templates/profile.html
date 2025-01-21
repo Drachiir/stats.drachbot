@@ -177,7 +177,7 @@
                     {% if api_stats["avatarBorder"] %}
                         <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
                     {% endif %}
-                    {% if known_names|length > 1 %}
+                    {% if known_names|length > 0 %}
                         {% set names_tooltip = ('Aka. ' + known_names|join(", ")) %}
                         <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
                     {% else %}
