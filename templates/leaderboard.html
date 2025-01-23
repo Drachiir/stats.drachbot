@@ -86,7 +86,7 @@
                         </td>
                         <td>
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
-                            <div class="Country" data-country="{{ country_code }}"></div>
+                            <div title="" class="Country" data-country="{{ country_code }}"></div>
                         </td>
                         <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
                         <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
@@ -158,14 +158,24 @@
         }
     }
     let countryMapping = {};
-    // Fetch the en.json country mapping when the page loads
-    fetch('/static/countries.json')  // Adjust the path to where your en.json file is located
+    fetch('/static/countries.json')
         .then(response => response.json())
         .then(data => {
-            countryMapping = data.countries;// Store the country mapping
-            updatePercentageColors();          // Ensure colors are updated after loading data
+            countryMapping = data.countries;
+            updatePercentageColors();
+            updateCountryTitles();
         })
         .catch(error => console.error('Error fetching country data:', error));
+
+    function updateCountryTitles(){
+        const rows = document.querySelectorAll('.player-row')
+        rows.forEach(row => {
+            const countryDiv = row.querySelector('.Country')
+            const countryCode = countryDiv.getAttribute('data-country').toUpperCase()
+            const countryName = countryMapping[countryCode]
+            countryDiv.setAttribute("title", countryName)
+        });
+    }
 
     // Function to update colors for all percentage spans
     function updatePercentageColors() {
