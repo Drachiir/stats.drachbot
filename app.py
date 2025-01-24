@@ -522,9 +522,9 @@ def get_player_matchhistory(playername, playerid, patch, page):
         return "No data found", 404
     return history_parsed
 
-@app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
-@app.route('/load/<playername>/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
-@app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults[1], "specific_key": "All"})
+@app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults[0], "specific_key": "All"})
+@app.route('/load/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults[0], "specific_key": "All"})
+@app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def load(playername, stats, patch, elo, specific_key):
