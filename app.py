@@ -300,6 +300,26 @@ def livegames_api(playername):
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)
     return games
 
+@app.route("/api/get_player_profile/<playername>")
+def get_player_profile_api(playername):
+    drachbot_profile = drachbot_db.get_player_profile(playername)
+    if drachbot_profile:
+        playerid = drachbot_profile["playerid"]
+        api_profile = drachbot_profile["api_profile"]
+        country = drachbot_profile["country"]
+        player_rank = api_profile["rank"]
+    else:
+        result = get_player_profile(playername)
+        if not result:
+            return jsonify({"error": "Not Found"}), 400
+        playerid = result["playerid"]
+        api_profile = result["api_profile"]
+        country = ""
+        player_rank = 0
+        api_profile["elo"] = ""
+        api_profile["rank"] = ""
+    return {"playerid": playerid, "api_profile": api_profile, "country": country, "rank": player_rank}
+
 @app.route("/api/drachbot_reroll_overlay/<rank>/<roll>")
 @cross_origin()
 def drachbot_reroll_overlay_api(rank, roll):
