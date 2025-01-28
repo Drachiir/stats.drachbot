@@ -7,13 +7,6 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- /profile/ -->
-  <url>
-    <loc>https://stats.drachbot.site/profile/</loc>
-    <changefreq>hourly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
   <!-- /mmstats/ -->
   <url>
     <loc>https://stats.drachbot.site/mmstats/</loc>
