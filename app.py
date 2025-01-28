@@ -4,7 +4,7 @@ import json
 import traceback
 from datetime import datetime, timezone, timedelta
 from flask_caching import Cache
-from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify
+from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify, abort
 import re
 import drachbot.legion_api as legion_api
 import drachbot.drachbot_db as drachbot_db
@@ -25,6 +25,8 @@ from threading import Thread
 from drachbot.peewee_pg import PlayerProfile
 from peewee import fn
 import msgpack
+from flask_limiter.util import get_remote_address
+from flask_limiter import Limiter
 
 cache = Cache()
 
@@ -65,6 +67,14 @@ app.config['CACHE_TYPE'] = 'simple'
 app.config['CACHE_DEFAULT_TIMEOUT'] = timeout
 app.config['CACHE_KEY_PREFIX'] = 'myapp_'
 cache.init_app(app)
+limiter = Limiter(get_remote_address, app=app)
+
+@app.before_request
+def block_bad_bots():
+    bad_bots = ["BadBot", "Scrapy", "Python-urllib", "curl"]
+    user_agent = request.headers.get('User-Agent', '').lower()
+    if any(bot.lower() in user_agent for bot in bad_bots):
+        abort(403)  # Forbidden
 
 @app.route('/favicon.ico')
 def favicon():
@@ -542,6 +552,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
         return "No data found", 404
     return history_parsed
 
+@limiter.limit("10 per minute")
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
@@ -563,6 +574,7 @@ def load(playername, stats, patch, elo, specific_key):
     else:
         return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/", og_data=og_data)
 
+@limiter.limit("10 per minute")
 @app.route('/profile/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
@@ -687,9 +699,9 @@ def profile(playername, stats, patch, elo, specific_key):
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
-            skip_game_refresh = True if api_stats["overallElo"] > 1800 else False
+            #skip_game_refresh = True if api_stats["overallElo"] > 1800 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh)
+                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=True)
             try:
                 os.remove(path)
             except Exception:
