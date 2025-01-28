@@ -1,6 +1,8 @@
 User-agent: *
 
 Disallow: /api/*
+Disallow: /profile/*
+Disallow: /load/*
 Disallow: /mmstats/*
 Allow: /mmstats/$
 
