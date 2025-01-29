@@ -25,8 +25,6 @@ from threading import Thread
 from drachbot.peewee_pg import PlayerProfile
 from peewee import fn
 import msgpack
-from flask_limiter.util import get_remote_address
-from flask_limiter import Limiter
 
 cache = Cache()
 
@@ -67,7 +65,6 @@ app.config['CACHE_TYPE'] = 'simple'
 app.config['CACHE_DEFAULT_TIMEOUT'] = timeout
 app.config['CACHE_KEY_PREFIX'] = 'myapp_'
 cache.init_app(app)
-limiter = Limiter(get_remote_address, app=app)
 
 @app.before_request
 def block_bad_bots():
@@ -552,7 +549,6 @@ def get_player_matchhistory(playername, playerid, patch, page):
         return "No data found", 404
     return history_parsed
 
-@limiter.limit("10 per minute")
 @app.route('/load/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
@@ -574,7 +570,6 @@ def load(playername, stats, patch, elo, specific_key):
     else:
         return render_template('loading.html', playername=playername, url=f"/profile/{playername}/{stats}/{patch}/{elo}/{specific_key}/", og_data=og_data)
 
-@limiter.limit("10 per minute")
 @app.route('/profile/<playername>/', defaults={"stats": None,"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/', defaults={"elo": defaults2[1], "patch": defaults2[0], "specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/', defaults={"elo": defaults2[1], "specific_key": "All"})
