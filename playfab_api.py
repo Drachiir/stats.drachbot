@@ -16,7 +16,7 @@ def leaderboard_task(count=1):
         "CustomId": "LTD2Website",
         "CreateAccount": False,
         "StartPosition": offset,
-        "StatisticName": "overallElo",
+        "StatisticName": "overallEloThisSeasonAtLeastOneGamePlayed",
         "MaxResultsCount": 100,
         "ProfileConstraints": {
             "ShowDisplayName": True,
@@ -56,7 +56,7 @@ def get_playfab_stats(playfabid, result_count=1):
     }
     stats_request = {
         "PlayFabId": playfabid,
-        "StatisticName": "overallElo",
+        "StatisticName": "overallEloThisSeasonAtLeastOneGamePlayed",
         "MaxResultsCount": result_count,
         "ProfileConstraints": {
             "ShowDisplayName": True,
