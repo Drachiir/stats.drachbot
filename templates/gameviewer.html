@@ -422,7 +422,8 @@ function changeWave(wave) {
         });
         const buildWaveStr = playerData[index]['build_per_wave'][currentWave];
         const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
-        let buildJson = {"Towers":[], "Rolls": [], "LegionSpell": "", "LegionSpellPositionX": -1.0,
+        let buildJson = {"Towers":[], "Rolls": playerData[index]['roll'].split(",").map(s => s.trim()),
+            "LegionSpell": "", "LegionSpellPositionX": -1.0,
             "LegionSpellPositionZ": -1.0, "Gold": 0, "Mythium": 0, "Wave": wave+1,
             "HasChampion": false, "ChampionX": -1.0, "ChampionZ": -1.0};
         if (playerData[index]["spell_location"] !== "-1|-1" && wave > 9){
