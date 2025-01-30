@@ -224,21 +224,18 @@
             </li>
             {% if mod_date %}
                 <li class="nav-item active">
-                    <a data-title="Data is updated once every 6h" class="nav-link">Last Update: {{ mod_date }}</a>
+                    <a data-title="Data is updated once every 6h" class="nav-link">Updated: {{ mod_date }}</a>
                 </li>
             {% endif %}
             <li class="nav-item active">
                 <a class="nav-link">Creator Code: <span style="color: goldenrod">Drachir</span></a>
-            </li>
-            <li class="nav-item active">
-                <a href="https://ko-fi.com/drachbot" class="nav-link">Ko-Fi</a>
             </li>
             <li>
                 <div class="search-container" style="position: relative;">
                     <div class="input-group profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
                         <input type="text" id="profileInput1" class="form-control" placeholder="Search Player"
                                aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions1'))">
-                        <button class="btn btn-secondary" type="button" onclick="redirectToProfile(document.getElementById('profileInput1'))">Go</button>
+                        <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToProfile(document.getElementById('profileInput1'))">></button>
                     </div>
                     <div id="suggestions1" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
                 </div>
@@ -246,12 +243,12 @@
             <li>
                 <div class="input-group" style="flex-wrap: nowrap; padding-right: 10px;">
                     <input type="text" id="gameInput" class="form-control" placeholder="Search Game ID" aria-label="Game ID" onkeydown="if(event.key === 'Enter'){ redirectToGame(); }">
-                    <button class="btn btn-secondary" type="button" onclick="redirectToGame()">Go</button>
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToGame()">></button>
                 </div>
             </li>
             <li>
-                <select class="form-select" id="selector">
-                    <option value="pass">Select a background</option>
+                <select class="form-select" id="selector" style="max-width: 150px">
+                    <option value="pass">Select background</option>
                     <option value="/static/Gray.jpg">Dark</option>
                     <option value="/static/earthking.jpg">Earth King</option>
                     <option value="/static/skyking.webp">Sky King</option>
