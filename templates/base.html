@@ -2,40 +2,6 @@
 <html lang="en" data-bs-theme="dark" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-KB760J9ZQL"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-
-        gtag('js', new Date());
-
-        gtag('consent', 'default', {
-          'ad_storage': 'denied',
-          'ad_user_data': 'denied',
-          'ad_personalization': 'denied'
-        });
-        // Check for stored consent
-        const consentStatus = localStorage.getItem('analytics_consent');
-
-        if (consentStatus === 'granted') {
-            gtag('consent', 'default', {
-                'analytics_storage': 'granted'
-            });
-            gtag('config', 'G-KB760J9ZQL');
-        } else if (consentStatus === 'denied') {
-            gtag('consent', 'default', {
-                'analytics_storage': 'denied'
-            });
-        } else {
-            gtag('consent', 'default', {
-                'analytics_storage': 'denied'
-            });
-        }
-    </script>
     {% block html_head %} {% endblock %}
     {% if leaderboard_page %}
         <title>Legion TD 2 Rank Distribution</title>
@@ -291,49 +257,6 @@
 <div class="container" style="width: 100%">
     {% block content %} {% endblock %}
 </div>
-<div id="consent-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #232323; border-top: 1px solid #ddd; padding: 10px; text-align: center; z-index: 1000; display: none;">
-    <p style="margin: 0; font-size: 14px;">
-        Cookies are used to enhance your experience on this site and to analyze traffic. By clicking 'Accept,' you consent to our use of cookies for analytics.
-        <button id="accept-consent" style="margin-left: 10px; padding: 5px 10px; background-color: #28a745; color: white; border: none; cursor: pointer;">Accept</button>
-        <button id="reject-consent" style="margin-left: 10px; padding: 5px 10px; background-color: #dc3545; color: white; border: none; cursor: pointer;">Reject</button>
-    </p>
-</div>
-<script>
-    // Check if the consent banner should be shown
-    const storedConsent = localStorage.getItem('analytics_consent');
-    console.log("Cookies " + storedConsent)
-    if (!storedConsent) {
-        document.getElementById('consent-banner').style.display = 'block';
-    }
-
-    // Handle Accept button click
-    document.getElementById('accept-consent').addEventListener('click', function () {
-        localStorage.setItem('analytics_consent', 'granted');
-        gtag('consent', 'update', {
-            'analytics_storage': 'granted'
-        });
-        gtag('config', 'G-KB760J9ZQL');
-        document.getElementById('consent-banner').style.display = 'none';
-    });
-
-    // Handle Reject button click
-    document.getElementById('reject-consent').addEventListener('click', function () {
-        localStorage.setItem('analytics_consent', 'denied');
-        gtag('consent', 'update', {
-            'analytics_storage': 'denied'
-        });
-        document.getElementById('consent-banner').style.display = 'none';
-    });
-</script>
-<style>
-    #consent-banner button {
-        border-radius: 3px;
-        font-size: 14px;
-    }
-    #consent-banner button:hover {
-        opacity: 0.9;
-    }
-</style>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
