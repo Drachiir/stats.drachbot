@@ -272,6 +272,7 @@
             </div>
             <div class="profile-div">
                 <r2 style=""><b>Season 2025 Stats</b></r2><br>
+                <r2>Games: {{ api_stats["rankedWinsThisSeason"] + api_stats["rankedLossesThisSeason"] }}</r2><br>
                 <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L<br>({{ winrate([api_stats["rankedWinsThisSeason"],
                 (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }} WR%)</r2><br>
                 <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
@@ -323,7 +324,7 @@
                 const winlose = {{ winlose | tojson }};
                 const elochange = {{ elochange | tojson }};
                 const mvpCount = {{ mvp_count | tojson }};
-                const winrate = (wins, total) => (total > 0 ? ((wins / total) * 100).toFixed(2) : 0);
+                const winrate = (wins, total) => (total > 0 ? ((wins / total) * 100).toFixed(1) : 0);
 
                 function formatElo(elo) {
                     return elo > 0 ? `+${elo}` : elo;
