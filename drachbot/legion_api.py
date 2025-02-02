@@ -38,11 +38,31 @@ def getprofile(playername, by_id = False):
         return 0
     else:
         profile = json.loads(api_response.text)
-        PlayerProfile.update(
-            player_name=profile["playerName"],
-            avatar_url=profile["avatarUrl"],
-            last_updated=datetime.now()
-        ).where(PlayerProfile.player_id == profile["_id"]).execute()
+        try:
+            if PlayerProfile.get_or_none(PlayerProfile.player_id == profile["_id"]) is None:
+                PlayerProfile(
+                    player_id=profile["_id"],
+                    player_name=profile["playerName"],
+                    avatar_url=profile["avatarUrl"],
+                    country=None,
+                    guild_tag=None,
+                    elo=None,
+                    rank=None,
+                    total_games_played=0,
+                    ranked_wins_current_season=0,
+                    ranked_losses_current_season=0,
+                    ladder_points=0,
+                    offset=0,
+                    last_updated=datetime.now(tz=timezone.utc)
+                ).save()
+            else:
+                PlayerProfile.update(
+                    player_name=profile["playerName"],
+                    avatar_url=profile["avatarUrl"],
+                    last_updated=datetime.now()
+                ).where(PlayerProfile.player_id == profile["_id"]).execute()
+        except peewee.IntegrityError:
+            pass
         return profile
 
 def getstats(playerid):
