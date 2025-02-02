@@ -355,10 +355,10 @@ def drachbot_overlay_api(playername):
             return {"Error": "Player not found"}
         playerid = api_profile["_id"]
     req_columns = [
-        [GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
+        [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
          PlayerData.player_id, PlayerData.game_result, PlayerData.elo_change, PlayerData.legion,
          PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
-        ["date", "version", "ending_wave", "game_elo"],
+        ["date", "ending_wave", "game_elo"],
         ["player_id", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
     history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
     # if not history:

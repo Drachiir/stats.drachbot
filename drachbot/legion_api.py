@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import drachbot.peewee_pg as peewee_pg
 import peewee
-from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData
+from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData, db
 import requests
 
 with open('Files/json/Secrets.json', 'r') as f:
@@ -22,6 +22,7 @@ def get_leaderboard(num):
     api_response = requests.get(url, headers=header)
     return json.loads(api_response.text)
 
+@db.atomic()
 def getprofile(playername, by_id = False):
     if by_id:
         request_type = 'players/byId/'
@@ -37,6 +38,11 @@ def getprofile(playername, by_id = False):
         return 0
     else:
         profile = json.loads(api_response.text)
+        PlayerProfile.update(
+            player_name=profile["playerName"],
+            avatar_url=profile["avatarUrl"],
+            last_updated=datetime.now()
+        ).where(PlayerProfile.player_id == profile["_id"]).execute()
         return profile
 
 def getstats(playerid):
