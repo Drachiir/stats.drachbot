@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    }
+
+    .card {
+        display: block;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        text-decoration: none;
+        transition: background 0.2s ease-in-out;
+    }
+
+    .card:hover {
+        background: #f0f0f0;
+    }
+
+    .unit-grid {
+        display: grid;
+        grid-auto-flow: column;
+        gap: 2px;
+    }
+
+    .unit-image {
+        width: 64px;
+        height: 64px;
+    }
+
+    .count-text {
+        margin-top: 8px;
+        font-size: 18px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="grid-container">
+    {% for key, value in openers_data.items() %}
+        <a href="/openers/{{ patch_name }}/{{ key }}" class="card">
+            <div class="unit-grid" style="grid-template-columns: repeat({{ key.split(',')|length }}, 64px);">
+                {% for unit in key.split(',') %}
+                    <img src="https://cdn.legiontd2.com/icons/{{ unit|trim }}.png" alt="{{ unit|trim }}" class="unit-image">
+                {% endfor %}
+            </div>
+            <div class="count-text">{{ value["Count"] }}</div>
+        </a>
+    {% endfor %}
+</div>
+{% endblock %}

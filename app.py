@@ -269,8 +269,8 @@ def proleaks(wave, patch):
                 return render_template("no_data.html", text="No Data")
             avg_elo = datajson.split("_")[3].replace(".json", "")
             mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/proleaks/{datajson}")).timestamp())
-            with open(f"{shared_folder}/data/proleaks/{datajson}", "r") as f:
-                data = json.load(f)
+            with open(f"{shared_folder}/data/proleaks/{datajson}", "rb") as f:
+                data = msgpack.unpackb(f.read(), raw=False)
             break
     else:
         return render_template("no_data.html", text=f"No data.")
@@ -279,6 +279,36 @@ def proleaks(wave, patch):
     return render_template("proleaks.html", proleak_data = data[f"Wave{wave}"], wave=wave, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                            const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
                            clean_unit_name = util.clean_unit_name, patch_list = patches, wave_string = f"Wave{wave}", mod_date=mod_date)
+
+@app.route('/openers/', defaults= {"opener": None, "patch": defaults[0]})
+@app.route('/openers/<patch>', defaults= {"opener": None})
+@app.route('/openers/<patch>/<opener>')
+@cache.cached(timeout=timeout)
+def openers(patch, opener):
+    for datajson in os.listdir(f"{shared_folder}/data/openers/"):
+        if datajson.startswith(f"{patch}"):
+            games = datajson.split("_")[2]
+            try:
+                games = int(games)
+            except Exception:
+                return render_template("no_data.html", text="No Data")
+            avg_elo = datajson.split("_")[3].replace(".json", "")
+            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/openers/{datajson}")).timestamp())
+            with open(f"{shared_folder}/data/openers/{datajson}", "rb") as f:
+                data = msgpack.unpackb(f.read(), raw=False)
+            break
+    else:
+        return render_template("no_data.html", text=f"No data.")
+    if not opener:
+        return render_template("openers_overview.html", openers_data=data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                               const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,
+                               clean_unit_name=util.clean_unit_name, patch_list=patches, mod_date=mod_date)
+    else:
+        if opener not in data:
+            return render_template("no_data.html", text=f"Opener not found.")
+        return render_template("openers.html", openers_data = data[opener]["Data"], get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                               const_file = util.const_file, plus_prefix = util.plus_prefix, games=data[opener]["Count"], avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
+                               clean_unit_name = util.clean_unit_name, patch_list = patches, mod_date=mod_date, opener_name = opener)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})

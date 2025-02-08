@@ -1,0 +1,602 @@
+{% extends 'base.html' %}
+{% block html_head %}
+    {% if api_profile %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+{% endblock %}
+{% block content %}
+<style>
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(9, 28px);
+        grid-template-rows: repeat(14, 28px);
+        gap: 2px;
+        position: relative;
+    }
+    .grid-square {
+        background-color: #474747;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .grid-square img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+    .sends-leaks{
+        padding-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        overflow: hidden;
+        height: 58px;
+    }
+    .player-build {
+        width: 300px;
+        min-width: 300px;
+        padding: 15px;
+        margin: 10px;
+        background-color: #1c1c1c;
+        border: 1px solid #444;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    .dropdown-item:hover{
+        cursor: pointer;
+    }
+</style>
+<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px">
+    <div>
+        <img style="height: 64px; margin-right: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
+        <r style="font-size: 1rem;">
+            <b>{{ opener_name }} Openers | {{ human_format(games) }}</b> Games |
+            <b>v{{ patch_name }}</b>
+        </r>
+    </div>
+    <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px; flex-wrap: wrap; justify-content: space-evenly">
+        <div id="pagination" class="pagination-container" style="white-space: nowrap">
+            <!-- Pagination buttons will be dynamically added here -->
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Units
+            </button>
+            <div id="statsDropdown" class="dropdown-content">
+                <ul class="dropdown-menu dropdown-scrollbar" id="unitDropdown">
+                    <input type="text" class="form-control border-0 border-bottom shadow-none mb-2"
+                           placeholder="Search..." id="statsInput" onkeyup="unitDropdownFilter()">
+                    <li onclick="setUnitFilter('RESET')"><a class="dropdown-item">Reset Units</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Send
+            </button>
+            <ul class="dropdown-menu" id="sendDropdown">
+                <li><a class="dropdown-item" onclick="setSnailFilter('')">Any Send</a></li>
+                <li><a class="dropdown-item" onclick="setSnailFilter('Nosend')">No send</a></li>
+            </ul>
+        </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Elo
+            </button>
+            <ul class="dropdown-menu">
+                {% for elo_bracket in [2800, 2600, 2400, 2200, 0] %}
+                    <li style="white-space: nowrap"><a class="dropdown-item" onclick="setEloFilter({{ elo_bracket }})">
+                    <img style="width: 24px; height: auto" src="{{ get_rank_url(elo_bracket) }}">{{ elo_bracket }}+</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Patch
+            </button>
+            <ul class="dropdown-menu">
+                {% for patch in patch_list %}
+                    <li><a class="dropdown-item" href="/openers/{{ patch }}">v{{ patch }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div>
+            <button class="btn btn-warning" onclick="resetFilters()">Reset Filters</button>
+        </div>
+    </div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-evenly">
+    {% for i in range(4) %}
+        <div class="player-build" data-player="{{ loop.index0 }}">
+            <img class="player-legion-image" width="32" height="32" src="">
+            <a class="player-profile-link" href="" style="text-decoration: none">
+                    <r class="player-name" style="font-weight: 400"></r></a>
+                <div class="player-elo" style="float: right"></div><br>
+            <div style="display: flex; justify-content: space-evenly; width: 100%">
+                <div>
+                    <img width="20" height="auto" src="https://cdn.legiontd2.com/Icons/Value32.png"><r class="fighter-value"></r>
+                </div>
+                <a style="text-decoration: none" class="game-link" href=""><r>Game Link↗️</r></a>
+            </div>
+            <div class="grid" data-build="0">
+                {% for row in range(14) %}
+                    {% for col in range(9) %}
+                        <div class="grid-square" style="grid-column: {{ col + 1 }}; grid-row: {{ row + 1 }};"></div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="sends-leaks" id="sends{{ loop.index0 }}"></div>
+            <div class="sends-leaks" id="leaks{{ loop.index0 }}"></div>
+            <div class="copy-build" id="build{{ loop.index0 }}"></div>
+        </div>
+    {% endfor %}
+</div>
+<script type="application/json" id="openers-data">
+    {{ openers_data|tojson|safe }}
+</script>
+<script>
+const openers_data = JSON.parse(document.getElementById('openers-data').textContent);
+const constantStats = {{ const_file|tojson }};
+let selectedUnits = [];
+let currentPage = 1;
+let sendFilter = '';
+let eloFilter = 0;
+
+function countMythium(send) {
+    if (!Array.isArray(send)) {
+        if (send === "") {
+            send = [];
+        } else {
+            send = send.split("!");
+        }
+    }
+    let sendAmount = 0;
+    send.forEach(x => {
+        if (x.includes("Upgrade")) {
+            return;
+        }
+        if (x in constantStats['incmercs']) {
+            sendAmount += constantStats['incmercs'][x];
+        } else {
+            sendAmount += constantStats['powermercs'][x];
+        }
+    });
+    return sendAmount;
+}
+
+function calcLeak(leak, wave, returnGold = false) {
+    if (!Array.isArray(leak)) {
+        if (leak === "") {
+            leak = [];
+        } else {
+            leak = leak.split("!");
+        }
+    }
+    let leakAmount = 0;
+    let waveTotal = constantStats['wave_values'][wave-1];
+
+    leak.forEach(x => {
+        if (x in constantStats['creep_values']) {
+            leakAmount += constantStats['creep_values'][x][1];
+        } else if (x in constantStats['incmercs']) {
+            leakAmount += (constantStats['incmercs'][x] / 20) * 4;
+        } else if (x in constantStats['powermercs']) {
+            if (x === "Imp") {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 3;
+            } else {
+                leakAmount += (constantStats['powermercs'][x] / 20) * 6;
+            }
+        }
+    });
+
+    if (returnGold) {
+        return leakAmount;
+    } else {
+        return Math.round((leakAmount / waveTotal) * 100);
+    }
+}
+
+function getCdnImage(name) {
+    let newString = "";
+    var splitChar;
+    if (name.includes("_")) {
+        if (name.includes("_unit_id")) {
+            name = name.split("_unit_id")[0];
+            if (name[0] === " ") {
+                name = name.slice(1);
+            }
+        }
+        splitChar = "_";
+    } else {
+        splitChar = " ";
+    }
+    name.split(splitChar).forEach((word) => {
+        newString += word.charAt(0).toUpperCase() + word.slice(1);
+    });
+    if (newString === "HellRaiserBuffed") {
+        newString = "HellRaiser";
+    } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
+        newString = "PackRat(Footprints)";
+    } else if (newString === "Aps") {
+        newString = "APS";
+    } else if (newString === "Mps") {
+        newString = "MPS";
+    }
+    return `https://cdn.legiontd2.com/icons/${newString}.png`;
+}
+
+function removeCopyButton(id) {
+    const copyDiv = document.getElementById(id);
+    if (copyDiv) {
+        const existingButton = copyDiv.querySelector(".btn");
+        if (existingButton) {
+            copyDiv.removeChild(existingButton);
+        }
+    }
+}
+
+function addCopyButton(id, textToCopy) {
+    removeCopyButton(id);
+    const copyDiv = document.getElementById(id);
+    if (!copyDiv) return;
+
+    const copyButton = document.createElement("button");
+    copyButton.textContent = "Copy Build";
+    copyButton.classList.add("btn", "btn-primary", "btn-sm");
+
+    copyButton.addEventListener("click", () => {
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => {
+                alert("Build copied to clipboard!");
+            })
+            .catch(err => {
+                console.error("Failed to copy text: ", err);
+            });
+    });
+    copyDiv.appendChild(copyButton);
+}
+
+function getRankUrl(elo) {
+    if (typeof elo !== 'number') {
+        elo = parseInt(elo, 10);
+        if (isNaN(elo)) return null;
+    }
+
+    if (elo >= 2800) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png';
+    } else if (elo >= 2600) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/GrandMaster.png';
+    } else if (elo >= 2400) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/SeniorMaster.png';
+    } else if (elo >= 2200) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Master.png';
+    } else if (elo >= 2000) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png';
+    } else if (elo >= 1800) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Diamond.png';
+    } else if (elo >= 1600) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Platinum.png';
+    } else if (elo >= 1400) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Gold.png';
+    } else if (elo >= 1200) {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Silver.png';
+    } else {
+        return 'https://cdn.legiontd2.com/icons/Ranks/Simple/Bronze.png';
+    }
+}
+
+function setSnailFilter(value) {
+    sendFilter = value;
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
+}
+
+function setEloFilter(value) {
+    eloFilter = value;
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
+}
+
+function loadPage() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const unitParam = urlParams.get('unit');
+    selectedUnits = unitParam ? unitParam.split(',') : [];
+    currentPage = parseInt(urlParams.get('page')) || 1;
+    sendFilter = urlParams.get('send') || '';
+    eloFilter = urlParams.get('elo') || 0;
+    renderFilteredBuilds(true);
+}
+
+function setUnitFilter(unit) {
+    currentPage = 1;
+    if (unit === "RESET"){
+        selectedUnits = []
+    }
+    else if (selectedUnits.includes(unit)) {
+        selectedUnits = selectedUnits.filter(u => u !== unit);
+    } else {
+        selectedUnits.push(unit);
+    }
+    const input = document.getElementById("statsInput");
+    input.value = "";
+    updateURL();
+    renderFilteredBuilds();
+}
+
+function resetFilters() {
+    selectedUnits = [];
+    sendFilter = '';
+    eloFilter = 0;
+    currentPage = 1;
+    updateURL();
+    renderFilteredBuilds();
+}
+
+
+
+function updateURL() {
+    const newURL = new URL(window.location);
+    newURL.searchParams.set('unit', selectedUnits.join(','));
+    newURL.searchParams.set('page', currentPage);
+    newURL.searchParams.set('send', sendFilter);
+    newURL.searchParams.set('elo', eloFilter);
+    window.history.pushState({}, '', newURL);
+}
+
+function populateSendDropdown(data) {
+    const sendsSet = new Set();
+    data.forEach(build => {
+        if (build.send) {
+            sendsSet.add(build.send);
+        }
+    });
+    const dropdownMenu = document.getElementById('sendDropdown');
+    dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
+    sendsSet.forEach(send => {
+        const sendItem = document.createElement('li');
+        sendItem.innerHTML = `<a class="dropdown-item" onclick="setSnailFilter('${send}')">${send.replace(/!/g, ', ')}</a>`;
+        dropdownMenu.appendChild(sendItem);
+    });
+}
+
+document.getElementById('unitDropdown').addEventListener('click', function(event) {
+    event.stopPropagation();
+});
+
+
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function populateUnitDropdown(data) {
+    const unitSet = new Set();
+    data.forEach(build => {
+        if (build.build) {
+            build.build.split('!').forEach(unit => {
+                if (unit) {
+                    unitSet.add(unit.split(":")[0]);
+                }
+            });
+        }
+    });
+
+    const units = Array.from(unitSet);
+    units.sort((a, b) => {
+        const isSelectedA = selectedUnits.includes(a);
+        const isSelectedB = selectedUnits.includes(b);
+        if (isSelectedA && !isSelectedB) return -1;
+        if (!isSelectedA && isSelectedB) return 1;
+        return a.localeCompare(b);
+    });
+
+    const dropdownMenu = document.getElementById('unitDropdown');
+    dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
+    units.forEach(unit => {
+        const isChecked = selectedUnits.includes(unit) ? "checked" : "";
+        const unitItem = document.createElement('li');
+        unitItem.innerHTML = `
+            <label class="dropdown-item" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" style="margin: 0;" ${isChecked} onclick="setUnitFilter('${unit}')">
+                <img style="width: 24px;" src="${getCdnImage(unit)}">
+                ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}
+            </label>`;
+        dropdownMenu.appendChild(unitItem);
+    });
+}
+
+
+function renderFilteredBuilds(first_load = false) {
+    let filteredData;
+    if (!selectedUnits.length && !sendFilter && !eloFilter) {
+        filteredData = openers_data;
+    } else {
+        filteredData = openers_data.filter(game => {
+            let unitMatch = selectedUnits.every(unit =>
+                game['build'].split('!').some(build => build.includes(unit))
+            );
+            let snailMatch = (sendFilter === '') ||
+                             (sendFilter === 'Nosend' && game['send'] === '') ||
+                             (sendFilter !== '' && sendFilter !== 'Nosend' && game['send'] === sendFilter);
+            let eloMatch = eloFilter === '' || game['elo'] >= parseInt(eloFilter, 10);
+
+            return unitMatch && snailMatch && eloMatch;
+        });
+    }
+    populateSendDropdown(filteredData);
+    populateUnitDropdown(filteredData);
+    const startIndex = (currentPage - 1) * 4;
+    const paginatedData = filteredData.slice(startIndex, startIndex + 4);
+    renderBuild(paginatedData);
+    updatePagination(filteredData.length);
+}
+
+function updatePagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / 4);
+    const paginationContainer = document.getElementById('pagination');
+    paginationContainer.innerHTML = '';
+    paginationContainer.innerHTML += `
+        <button class="btn btn-primary" onclick="goToPage(currentPage === 1 ? ${totalPages} : currentPage - 1)">←</button>
+    `;
+    paginationContainer.innerHTML += `
+        <span style="margin: 0 10px;">Page ${currentPage}/${totalPages}</span>
+    `;
+    paginationContainer.innerHTML += `
+        <button class="btn btn-primary" onclick="goToPage(currentPage === ${totalPages} ? 1 : currentPage + 1)">→</button>
+    `;
+}
+
+
+function goToPage(page) {
+    currentPage = page;
+    updateURL();
+    renderFilteredBuilds();
+}
+
+function unitDropdownFilter() {
+    const input = document.getElementById("statsInput");
+    const filter = input.value.toUpperCase();
+    const dropdown = document.getElementById("statsDropdown");
+    const ul = dropdown.getElementsByTagName("ul")[0];
+    const li = ul.getElementsByTagName("li");
+
+    let hasVisibleItems = false;
+
+    for (let i = 0; i < li.length; i++) {
+        if (li[i].getAttribute("onclick") === "setUnitFilter('RESET')") {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+            continue;
+        }
+        const a = li[i].getElementsByTagName("a")[0] || li[i].querySelector(".dropdown-item");
+        const checkbox = li[i].querySelector("input[type='checkbox']");
+        const txtValue = a ? (a.textContent || a.innerText) : "";
+        if (checkbox && checkbox.checked) {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+        }
+        else if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            li[i].style.display = "";
+            hasVisibleItems = true;
+        } else {
+            li[i].style.display = "none";
+        }
+    }
+    if (!hasVisibleItems) {
+        console.log("No visible items after filtering.");
+    }
+}
+
+function renderBuild(data) {
+    document.querySelectorAll('.player-build').forEach((lane, index) => {
+        const buildData = data[index];
+        if (!buildData) {
+            lane.style.display = 'none';
+            return;
+        } else {
+            lane.style.display = 'block';
+        }
+
+        lane.querySelector('.fighter-value').innerText = buildData['value'];
+        lane.querySelector('.player-name').innerText = buildData['playername'];
+        lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
+        lane.querySelector('.player-legion-image').src = `https://cdn.legiontd2.com/icons/Items/${buildData['mastermind']}.png`;
+        lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/1';
+        lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
+
+        const grid = lane.querySelector('.grid');
+        grid.querySelectorAll('.grid-square').forEach(square => {
+            square.innerHTML = '';
+        });
+
+        const buildWaveStr = buildData['build'];
+        const buildWave = buildWaveStr ? buildWaveStr.split('!') : [];
+        let buildJson = {
+            "Towers": [],
+            "Rolls": [],
+            "LegionSpell": "",
+            "LegionSpellPositionX": -1.0,
+            "LegionSpellPositionZ": -1.0,
+            "Gold": 0,
+            "Mythium": 0,
+            "Wave": 1,
+            "HasChampion": false,
+            "ChampionX": -1.0,
+            "ChampionZ": -1.0
+        };
+
+        if (buildData["champ"]) {
+            buildJson["HasChampion"] = true;
+            buildJson["ChampionX"] = parseFloat(buildData["champ"].split("|")[0]) - 4.5;
+            buildJson["ChampionZ"] = parseFloat(buildData["champ"].split("|")[1]) - 7;
+        }
+
+        if (Array.isArray(buildWave)) {
+            buildWave.forEach(build => {
+                const unit = build.split(':')[0];
+                const coord = build.split(':')[1];
+                const stacks = build.split(':')[2];
+                let [x, y] = coord.split('|').map(parseFloat);
+                buildJson["Towers"].push({"T": unit, "X": x - 4.5, "Z": y - 7, "S": parseFloat(stacks)});
+                const gridColumn = Math.floor(x - 0.5) + 1;
+                const gridRow = 14 - Math.floor(y);
+                let leftStacks = "";
+                x = x - 0.5;
+                y = y - 0.5;
+                let xOffset = (x % 1) * 100;
+                const yOffset = (y % 1) * 100;
+                const gridSquare = grid.querySelector(`.grid-square[style*="grid-column: ${gridColumn};"][style*="grid-row: ${gridRow};"]`);
+                if (gridSquare) {
+                    const unitName = unit.split('_unit_id')[0];
+                    const unitImage = getCdnImage(unitName);
+                    let topString = "0";
+                    let topStringStacks = "50%";
+                    let xOffsetChamp = xOffset;
+                    if (yOffset !== 0) {
+                        topString = "8px";
+                        topStringStacks = "65%";
+                    }
+                    if (xOffset !== 0) {
+                        xOffsetChamp += 64;
+                        xOffset += 2;
+                    } else {
+                        leftStacks = "left: 0;";
+                    }
+                    gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
+                    if (stacks !== "0") {
+                        gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
+                    }
+                    if (coord === buildData["champ"]) {
+                        gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
+                    }
+                }
+            });
+        } else {
+            console.error('buildWave is not an array:', buildWave);
+        }
+
+        // Update sends and leaks
+        const mercsReceived = buildData["send"];
+        let sendTotal = countMythium(mercsReceived);
+        buildJson["Mythium"] = sendTotal;
+        addCopyButton("build" + index, JSON.stringify(buildJson));
+
+        const sendsDiv = document.getElementById("sends" + index);
+        sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
+
+        mercsReceived.split("!").forEach(merc => {
+            if (merc) {
+                const unitImage = getCdnImage(merc);
+                sendsDiv.innerHTML += `<img width="24" height="24" loading="lazy" src="${unitImage}">`;
+            }
+        });
+    });
+}
+window.onload = loadPage;
+</script>
+{% endblock %}
