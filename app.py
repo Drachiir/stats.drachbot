@@ -22,8 +22,6 @@ from playfab_api import *
 from flask_cors import CORS, cross_origin
 import threading
 from threading import Thread
-from drachbot.peewee_pg import PlayerProfile
-from peewee import fn
 import msgpack
 
 cache = Cache()
@@ -431,7 +429,7 @@ def get_remaining_cooldown(playerid):
 def request_games_api(playername, limit):
     limit = int(limit)
     limit = 5 if limit > 5 else limit
-    if len(playername) > 13 and re.fullmatch(r'[0-9A-F]+', playername):
+    if len(playername) > 13 and re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername):
         playerid = playername
     else:
         api_profile = legion_api.getprofile(playername)
@@ -466,16 +464,7 @@ def check_refresh_status(playerid):
 @app.route('/api/get_search_results/', methods=['GET'], defaults={"search_term": ""})
 @app.route('/api/get_search_results/<search_term>', methods=['GET'])
 def get_search_results(search_term):
-    query = (PlayerProfile
-             .select(PlayerProfile.player_name, PlayerProfile.avatar_url, PlayerProfile.player_id)
-             .where(fn.LOWER(PlayerProfile.player_name).contains(search_term.lower()))
-             .limit(5))
-
-    players = [{'player_name': player.player_name,
-                'avatar_url': player.avatar_url,
-                "player_id": player.player_id}
-               for player in query]
-    return jsonify(players), 200
+    return jsonify(drachbot_db.get_search_results(search_term)), 200
 
 @app.route('/api/get_player_stats/<playername>', methods=['GET'])
 def get_player_stats(playername):

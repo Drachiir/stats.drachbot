@@ -10,49 +10,50 @@ import requests
 from peewee import InterfaceError, OperationalError
 from psycopg2 import OperationalError as Psycopg2OperationalError
 
+@db.atomic()
 def get_playerid(playername):
-    with db.atomic():
-        try:
-            profile_data_query = (PlayerProfile
-                                  .select(PlayerProfile.player_id)
-                                  .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
-                                  .dicts())
-            rows = list(profile_data_query)
-            if len(rows) == 1:
-                return rows[0]["player_id"]
-            else:
-                return None
-        except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
-            print(f"Database error: {e}")
+    try:
+        profile_data_query = (PlayerProfile
+                              .select(PlayerProfile.player_id)
+                              .where(fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername))
+                              .dicts())
+        rows = list(profile_data_query)
+        if len(rows) == 1:
+            return rows[0]["player_id"]
+        else:
             return None
+    except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
+        print(f"Database error: {e}")
+        return None
 
+@db.atomic()
 def get_player_profile(playername, by_id = False):
-    with db.atomic():
-        try:
-            if by_id:
-                expr = fn.LOWER(PlayerProfile.player_id) == fn.LOWER(playername)
-            else:
-                expr = fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername)
-            profile_data_query = (PlayerProfile
-                                  .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
-                                          PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo)
-                                  .where(expr)
-                                  .dicts())
-            rows = list(profile_data_query)
-            if len(rows) == 1:
-                playerid = rows[0]["player_id"]
-                api_profile = {"playerName": rows[0]["player_name"],
-                               "avatarUrl": rows[0]["avatar_url"],
-                               "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else "",
-                               "rank": rows[0]["rank"] if rows[0]["rank"] else 0,
-                               "elo": rows[0]["elo"] if rows[0]["elo"] else 0}
-                return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"]}
-            else:
-                return None
-        except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
-            print(f"Database error: {e}")
+    try:
+        if by_id:
+            expr = fn.LOWER(PlayerProfile.player_id) == fn.LOWER(playername)
+        else:
+            expr = fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername)
+        profile_data_query = (PlayerProfile
+                              .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
+                                      PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo)
+                              .where(expr)
+                              .dicts())
+        rows = list(profile_data_query)
+        if len(rows) == 1:
+            playerid = rows[0]["player_id"]
+            api_profile = {"playerName": rows[0]["player_name"],
+                           "avatarUrl": rows[0]["avatar_url"],
+                           "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else "",
+                           "rank": rows[0]["rank"] if rows[0]["rank"] else 0,
+                           "elo": rows[0]["elo"] if rows[0]["elo"] else 0}
+            return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"]}
+        else:
             return None
+    except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
+        print(f"Database error: {e}")
+        return None
 
+@db.atomic()
 def get_game_by_id(gameid):
     if GameData.get_or_none(GameData.game_id == gameid) is None:
         success = legion_api.save_game_by_id(gameid)
@@ -114,6 +115,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
+@db.atomic()
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
                     skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True):
@@ -349,4 +351,16 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             return data
         else:
             return games_diff
-        
+
+@db.atomic()
+def get_search_results(search_term):
+    query = (PlayerProfile
+             .select(PlayerProfile.player_name, PlayerProfile.avatar_url, PlayerProfile.player_id)
+             .where(fn.LOWER(PlayerProfile.player_name).contains(search_term.lower()))
+             .limit(5))
+
+    players = [{'player_name': player.player_name,
+                'avatar_url': player.avatar_url,
+                "player_id": player.player_id}
+               for player in query]
+    return players
