@@ -132,6 +132,13 @@
     const batchSize = 130;
     let filteredData = [...sortedData]; // Default to full dataset
 
+    function formatNumber(num) {
+        if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + "M";
+        if (num >= 1_000) return (num / 1_000).toFixed(1).replace(/\.0$/, '') + "K";
+        return num;
+    }
+
+
     function createCard(key, value) {
         const units = key.split(',').reverse().slice(0, 4); // Reverse order and limit to 4
         const unitCount = units.length;
@@ -153,7 +160,7 @@
 
         const countText = document.createElement('div');
         countText.className = 'count-text';
-        countText.textContent = `${value.Count} Games`;
+        countText.textContent = `${formatNumber(value.Count)} Games`;
 
         card.appendChild(unitGrid);
         card.appendChild(countText);
