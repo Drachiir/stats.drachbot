@@ -306,7 +306,7 @@ def openers(patch, opener):
     if not opener:
         return render_template("openers_overview.html", openers_data=data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,
-                               clean_unit_name=util.clean_unit_name, patch_list=new_patches, mod_date=mod_date)
+                               clean_unit_name=util.clean_unit_name, patch_list=new_patches, mod_date=mod_date, opener_name = opener)
     else:
         if opener not in data:
             return render_template("no_data.html", text=f"Opener not found.")
