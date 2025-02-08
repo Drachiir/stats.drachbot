@@ -3,54 +3,208 @@
 {% block content %}
 <style>
     .grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        justify-content: space-between; /* Aligns items to the left */
     }
 
-    .card {
-        display: block;
-        padding: 8px;
-        border: 1px solid #ddd;
+    .openerCard {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 12px;
+        border: 1px solid #6c6c6c;
         border-radius: 8px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 2px 2px 5px rgb(34, 34, 34);
+        background: #1c1c1c;
         text-align: center;
         text-decoration: none;
+        color: #e4e4e4;
         transition: background 0.2s ease-in-out;
+        width: max-content; /* Ensures cards are only as wide as needed */
     }
 
-    .card:hover {
-        background: #f0f0f0;
+    .openerCard:hover {
+        background: #303030;
     }
 
     .unit-grid {
         display: grid;
-        grid-auto-flow: column;
+        width: 64px;
+        height: 64px;
         gap: 2px;
     }
 
     .unit-image {
+        object-fit: cover;
+    }
+
+    .count-text {
+        font-family: "Roboto", sans-serif;
+        font-weight: 500;
+        font-style: normal;
+        margin-top: 8px;
+        font-size: 12px;
+    }
+
+    /* Dynamic grid based on the number of units, keeping images square */
+    .unit-grid-1 {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr;
+    }
+    .unit-grid-1 img {
         width: 64px;
         height: 64px;
     }
 
-    .count-text {
-        margin-top: 8px;
-        font-size: 18px;
-        font-weight: bold;
+    .unit-grid-2 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr;
+    }
+    .unit-grid-2 img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .unit-grid-3 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+    .unit-grid-3 img:first-child {
+        width: 32px;
+        height: 32px;
+        grid-column: span 2; /* First image spans full width */
+    }
+    .unit-grid-3 img:nth-child(2),
+    .unit-grid-3 img:nth-child(3) {
+        width: 32px;
+        height: 32px;
+    }
+
+    .unit-grid-4 {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 1fr 1fr;
+    }
+    .unit-grid-4 img {
+        width: 32px;
+        height: 32px;
     }
 </style>
-
-<div class="grid-container">
-    {% for key, value in openers_data.items() %}
-        <a href="/openers/{{ patch_name }}/{{ key }}" class="card">
-            <div class="unit-grid" style="grid-template-columns: repeat({{ key.split(',')|length }}, 64px);">
-                {% for unit in key.split(',') %}
-                    <img src="https://cdn.legiontd2.com/icons/{{ unit|trim }}.png" alt="{{ unit|trim }}" class="unit-image">
-                {% endfor %}
+<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px; padding-bottom: 12px">
+    <div>
+        <img style="height: 64px; margin-right: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
+        <r style="font-size: 1rem;">
+            <b>{{ opener_name }} Openers Database | {{ human_format(games) }}</b> Games |
+            Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b>| <b>v{{ patch_name }}</b>
+        </r>
+    </div>
+    <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px; flex-wrap: wrap; justify-content: space-evenly">
+        <div>
+            <div style="margin-bottom: 16px;">
+                <input type="text" id="searchInput" class="form-control mb-2" placeholder="Search openers..."
+                    style="width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
-            <div class="count-text">{{ value["Count"] }}</div>
-        </a>
-    {% endfor %}
+        </div>
+        <div>
+            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    Patch
+            </button>
+            <ul class="dropdown-menu">
+                {% for patch in patch_list %}
+                    <li><a class="dropdown-item" href="/openers/{{ patch }}">v{{ patch }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </div>
+
+<div class="grid-container" id="grid-container"></div>
+
+<script>
+    let openersData = {{ openers_data | tojson }};
+
+    // Convert to array and sort by "Count" in descending order
+    let sortedData = Object.entries(openersData)
+        .sort((a, b) => b[1].Count - a[1].Count);
+
+    let currentIndex = 0;
+    const batchSize = 130;
+    let filteredData = [...sortedData]; // Default to full dataset
+
+    function createCard(key, value) {
+        const units = key.split(',').reverse().slice(0, 4); // Reverse order and limit to 4
+        const unitCount = units.length;
+
+        const card = document.createElement('a');
+        card.href = `/openers/{{ patch_name }}/` + key;
+        card.className = 'openerCard';
+
+        const unitGrid = document.createElement('div');
+        unitGrid.className = `unit-grid unit-grid-${unitCount}`;
+
+        units.forEach(unit => {
+            const img = document.createElement('img');
+            img.src = `https://cdn.legiontd2.com/icons/${unit.trim()}.png`;
+            img.alt = unit.trim();
+            img.className = 'unit-image';
+            unitGrid.appendChild(img);
+        });
+
+        const countText = document.createElement('div');
+        countText.className = 'count-text';
+        countText.textContent = `${value.Count} Games`;
+
+        card.appendChild(unitGrid);
+        card.appendChild(countText);
+
+        return card;
+    }
+
+    function loadMoreCards(reset = false) {
+        const container = document.getElementById('grid-container');
+
+        if (reset) {
+            container.innerHTML = ''; // Clear previous results when searching
+            currentIndex = 0;
+        }
+
+        for (let i = currentIndex; i < currentIndex + batchSize && i < filteredData.length; i++) {
+            const [key, value] = filteredData[i];
+            const card = createCard(key, value);
+            container.appendChild(card);
+        }
+
+        currentIndex += batchSize;
+    }
+
+    function handleSearch(event) {
+        const query = event.target.value.toLowerCase();
+
+        // Filter data based on unit names or count
+        filteredData = sortedData.filter(([key, value]) =>
+            key.toLowerCase().includes(query) || String(value.Count).includes(query)
+        );
+
+        loadMoreCards(true); // Reset and load filtered data
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        // Load initial batch when the page loads
+        loadMoreCards();
+
+        // Attach search event listener
+        document.getElementById("searchInput").addEventListener("input", handleSearch);
+    });
+
+    // Infinite scrolling
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+            loadMoreCards();
+        }
+    });
+</script>
+
+
 {% endblock %}

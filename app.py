@@ -292,23 +292,27 @@ def openers(patch, opener):
                 games = int(games)
             except Exception:
                 return render_template("no_data.html", text="No Data")
-            avg_elo = datajson.split("_")[3].replace(".json", "")
+            avg_elo = datajson.split("_")[3].replace(".msgpack", "")
             mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/openers/{datajson}")).timestamp())
             with open(f"{shared_folder}/data/openers/{datajson}", "rb") as f:
                 data = msgpack.unpackb(f.read(), raw=False)
             break
     else:
         return render_template("no_data.html", text=f"No data.")
+    new_patches = patches[:]
+    for p in patches[:]:
+        if p.startswith("11"):
+            new_patches.remove(p)
     if not opener:
         return render_template("openers_overview.html", openers_data=data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,
-                               clean_unit_name=util.clean_unit_name, patch_list=patches, mod_date=mod_date)
+                               clean_unit_name=util.clean_unit_name, patch_list=new_patches, mod_date=mod_date)
     else:
         if opener not in data:
             return render_template("no_data.html", text=f"Opener not found.")
         return render_template("openers.html", openers_data = data[opener]["Data"], get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file = util.const_file, plus_prefix = util.plus_prefix, games=data[opener]["Count"], avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
-                               clean_unit_name = util.clean_unit_name, patch_list = patches, mod_date=mod_date, opener_name = opener)
+                               clean_unit_name = util.clean_unit_name, patch_list = new_patches, mod_date=mod_date, opener_name = opener)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})

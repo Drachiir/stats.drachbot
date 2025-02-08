@@ -45,11 +45,11 @@
         cursor: pointer;
     }
 </style>
-<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px">
+<div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px;">
     <div>
         <img style="height: 64px; margin-right: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
         <r style="font-size: 1rem;">
-            <b>{{ opener_name }} Openers | {{ human_format(games) }}</b> Games |
+            <b>{{ opener_name[:18] }} Openers | {{ human_format(games) }}</b> Games |
             <b>v{{ patch_name }}</b>
         </r>
     </div>
@@ -99,7 +99,7 @@
             </button>
             <ul class="dropdown-menu">
                 {% for patch in patch_list %}
-                    <li><a class="dropdown-item" href="/openers/{{ patch }}">v{{ patch }}</a></li>
+                    <li><a class="dropdown-item" href="/openers/{{ patch }}/{{ opener_name }}">v{{ patch }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -165,38 +165,6 @@ function countMythium(send) {
         }
     });
     return sendAmount;
-}
-
-function calcLeak(leak, wave, returnGold = false) {
-    if (!Array.isArray(leak)) {
-        if (leak === "") {
-            leak = [];
-        } else {
-            leak = leak.split("!");
-        }
-    }
-    let leakAmount = 0;
-    let waveTotal = constantStats['wave_values'][wave-1];
-
-    leak.forEach(x => {
-        if (x in constantStats['creep_values']) {
-            leakAmount += constantStats['creep_values'][x][1];
-        } else if (x in constantStats['incmercs']) {
-            leakAmount += (constantStats['incmercs'][x] / 20) * 4;
-        } else if (x in constantStats['powermercs']) {
-            if (x === "Imp") {
-                leakAmount += (constantStats['powermercs'][x] / 20) * 3;
-            } else {
-                leakAmount += (constantStats['powermercs'][x] / 20) * 6;
-            }
-        }
-    });
-
-    if (returnGold) {
-        return leakAmount;
-    } else {
-        return Math.round((leakAmount / waveTotal) * 100);
-    }
 }
 
 function getCdnImage(name) {
