@@ -194,12 +194,14 @@
     }
 
     function handleSearch(event) {
-        const query = event.target.value.toLowerCase();
+        const query = event.target.value.toLowerCase().trim();
+        const queryWords = query.split(/\s+/); // Split query into words
 
-        // Filter data based on unit names or count
-        filteredData = sortedData.filter(([key, value]) =>
-            key.toLowerCase().includes(query) || String(value.Count).includes(query)
-        );
+        // Filter data based on unit names containing all words
+        filteredData = sortedData.filter(([key, value]) => {
+            const keyLower = key.toLowerCase();
+            return queryWords.every(word => keyLower.includes(word)); // Ensure all words exist
+        });
 
         loadMoreCards(true); // Reset and load filtered data
     }
