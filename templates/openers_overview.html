@@ -90,13 +90,21 @@
         width: 32px;
         height: 32px;
     }
+    .noWrapStats{
+        white-space: nowrap;
+    }
+    @media (max-width: 600px) {
+        .noWrapStats {
+            white-space: wrap;
+        }
+    }
 </style>
 <div style="display: flex; justify-content: space-between; gap: 20px; padding-top: 12px; padding-bottom: 12px">
-    <div>
-        <img style="height: 64px; margin-right: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
-        <r style="font-size: 1rem;">
-            <b>Openers Database | High Elo Openers | Patch: v{{ patch_name }}</b>
-        </r>
+    <div class="noWrapStats">
+        <img style="height: 64px; margin-right: 10px; float:left; padding-right: 20px; padding-left: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
+        <r style="font-size: 1.5rem;" href="#">High Elo Openers</r><br>
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> |
+        <b>v{{ patch_name }}</b></r>
     </div>
     <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px; flex-wrap: wrap; justify-content: space-evenly">
         <div>
