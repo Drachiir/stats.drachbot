@@ -136,6 +136,8 @@ def home():
                  ,"https://cdn.legiontd2.com/icons/Value10000.png","https://cdn.legiontd2.com/icons/LegionKing.png"]
     data_list = []
     keys = []
+    with open("leaderboard.json", "r") as f:
+        leaderboard_data = json.load(f)
     for i, folder in enumerate(folder_list):
         for file in os.listdir(shared_folder+f"data/{folder}/"):
             if file.startswith(f"{defaults[0]}_{defaults[1]}"):
@@ -168,7 +170,8 @@ def home():
             break
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
-                           total_games=total_games, get_tooltip = util.get_tooltip, home=True)
+                           total_games=total_games, get_tooltip = util.get_tooltip, home=True, leaderboard_data_home = leaderboard_data,
+                           get_value=util.get_value_playfab, winrate = util.custom_winrate, get_rank_url=util.get_rank_url)
 
 @app.route('/classicmodes')
 @cache.cached(timeout=10)
