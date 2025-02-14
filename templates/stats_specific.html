@@ -10,6 +10,23 @@
                 white-space: wrap;
             }
         }
+        [xtitle]:after {
+            content: attr(xtitle);
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            background-color: black;
+            font-family: "Roboto", sans-serif;
+            font-size: 12px;
+            text-align: center;
+            border-radius: 4px;
+            border: gray 1px solid;
+            max-width: max-content;
+            white-space: nowrap;
+            padding: 2px;
+            display: none;
+            z-index: 9;
+        }
     </style>
     <div style="padding-top: 15px;">
         <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
