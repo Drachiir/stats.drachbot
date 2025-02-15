@@ -460,7 +460,7 @@
     {% for game in history[:short_history] %}
         <div class="clickableDiv" style="position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
-                <div style="padding-left: 10px; width: 40%">
+                <div style="width: 40%">
                     <div>
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="{{ game["EndWave"] }}">
                         {% if game["Result_String"][0] %}
@@ -764,7 +764,7 @@
 
         gameDiv.innerHTML = `
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
-                <div style="padding-left: 10px; width: 40%">
+                <div style="width: 40%">
                     <div>
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="${game.EndWave}">
                         ${game.Result_String[0]
