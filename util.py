@@ -106,8 +106,8 @@ def get_avatar_border(stacks):
 
 
 tier_dict_specific = {
-    "mmstats": 0.7, "openstats": 1,
-    "spellstats": 1, "unitstats": 2,
+    "mmstats": 1, "openstats": 1,
+    "spellstats": 1, "unitstats": 1,
     "rollstats": 1, "megamindstats": 0
 }
 
@@ -117,11 +117,9 @@ tier_dict_all = {
     "rollstats": 0.3, "megamindstats": 0
 }
 
-elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.1}
+elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.15}
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
-    if specific_tier and pickrate < 15:
-        pickrate *= 1.5
     tier_dict = tier_dict_specific if dict_type else tier_dict_all
     elo = elo_dict.get(str(elo), 0.04)
 
