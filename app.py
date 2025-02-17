@@ -509,11 +509,30 @@ def get_player_stats(playername):
     if not playerid:
         api_profile = legion_api.getprofile(playername)
         if api_profile in [0, 1]:
-            return jsonify({"Statsus": "Not Found"}), 400
+            return jsonify({"Status": "Not Found"}), 400
         else:
             playerid = api_profile["_id"]
     api_stats = legion_api.getstats(playerid)
     return api_stats
+
+@app.route('/api/get_simple_history/<playername>', methods=['GET'])
+def get_simple_history(playername):
+    playerid = drachbot_db.get_playerid(playername)
+    if not playerid:
+        api_profile = legion_api.getprofile(playername)
+        if api_profile in [0, 1]:
+            return jsonify({"Status": "Not Found"}), 400
+        else:
+            playerid = api_profile["_id"]
+    req_columns = [
+        [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
+         PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
+         PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
+         PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
+        ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
+        ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion"]]
+    history = drachbot_db.get_matchistory(playerid, 10, 0, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, skip_game_refresh=True)
+    return history
 
 @app.route('/api/get_player_matchhistory/<playername>/<playerid>/<patch>/<page>', methods=['GET'])
 def get_player_matchhistory(playername, playerid, patch, page):
