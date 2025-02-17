@@ -107,7 +107,7 @@ def get_avatar_border(stacks):
 
 tier_dict_specific = {
     "mmstats": 0.7, "openstats": 1,
-    "spellstats": 3, "unitstats": 2,
+    "spellstats": 1, "unitstats": 2,
     "rollstats": 1, "megamindstats": 0
 }
 
