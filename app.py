@@ -1226,18 +1226,69 @@ def stats(stats, elo, patch, specific_key):
             title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
             header_title = "Game"
             folder = "gamestats"
-    for file in os.listdir(shared_folder+f"data/{folder}/"):
-        if file.startswith(f"{patch}_{elo}"):
-            games = file.split("_")[2]
-            try:
-                games = int(games)
-            except Exception:
-                return render_template("no_data.html", text="No Data")
-            avg_elo = file.split("_")[3].replace(".json", "")
-            with open(shared_folder+f"data/{folder}/"+file, "r") as f:
-                mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())
-                raw_data = json.load(f)
-                f.close()
+    mod_date = None
+    # ALLOWING CUSTOM PATCH
+    if patch.startswith("v"):
+        path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
+        history_raw = None
+        if os.path.isfile(path):
+            mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+            date_diff = datetime.now(tz=timezone.utc) - mod_date2
+            minutes_diff = date_diff.total_seconds() / 60
+            if minutes_diff > 60:
+                os.remove(path)
+            else:
+                with open(path, "rb") as f:
+                    history_raw = msgpack.unpackb(f.read(), raw=False)
+        if not history_raw:
+            req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
+                            PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
+                            PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                           ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
+                           ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
+                            "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
+                            "income_per_wave"]]
+            history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            with open(path, "wb") as f:
+                f.write(msgpack.packb(history_raw, default=str))
+        if stats != "gamestats":
+            match stats:
+                case "megamindstats":
+                    raw_data = drachbot.mmstats.mmstats("all",0, int(elo), patch[1:],"Megamind", data_only=True, history_raw=history_raw)
+                case "mmstats":
+                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                case "openstats":
+                    raw_data = drachbot.openstats.openstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                case "spellstats":
+                    raw_data = drachbot.openstats.openstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                case "unitstats":
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                case "rollstats":
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo), patch[1:], data_only=True, rollstats=True, history_raw=history_raw)
+                case "wavestats":
+                    raw_data = drachbot.wavestats.wavestats("all", 0, int(elo), patch[1:], history_raw=history_raw)
+            games = raw_data[1]
+            avg_elo = raw_data[2]
+            raw_data = raw_data[0]
+        else:
+            raw_data = drachbot.gamestats.gamestats("all", history_raw)
+            games = raw_data[3]
+            avg_elo = raw_data[4]
+            raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
+    else:
+        for file in os.listdir(shared_folder+f"data/{folder}/"):
+            if file.startswith(f"{patch}_{elo}"):
+                games = file.split("_")[2]
+                try:
+                    games = int(games)
+                except Exception:
+                    return render_template("no_data.html", text="No Data")
+                avg_elo = file.split("_")[3].replace(".json", "")
+                with open(shared_folder+f"data/{folder}/"+file, "r") as f:
+                    mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())
+                    raw_data = json.load(f)
+                    f.close()
     if raw_data:
         if stats != "mmstats" and stats != "gamestats":
             new_dict = {}
