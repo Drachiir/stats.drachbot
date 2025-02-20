@@ -56,7 +56,7 @@
                 {% else %}
                     <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Ranked Games | Winrate:
                     <b>{{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}%</b> |
-                    <b>v{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b></r>
+                    <b>{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b></r>
                 {% endif %}
             </div>
             <div>
@@ -83,7 +83,22 @@
                             <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a></li>
                         {% endif %}
                     {% endfor %}
+                    <li>
+                        <form onsubmit="redirectToCustomPatch(event)" class="d-flex align-items-center" style="padding-left: 5px">
+                            <input type="text" id="customPatch" class="form-control form-control-sm me-2" placeholder="Patch" style="width: 100px;">
+                            <button type="submit" class="btn btn-secondary btn-sm">Go</button>
+                        </form>
+                    </li>
                 </ul>
+                <script>
+                    function redirectToCustomPatch(event) {
+                        event.preventDefault();
+                        let customPatch = document.getElementById("customPatch").value;
+                        if (customPatch) {
+                            window.location.href = "{{ playerurl }}/{{ stats }}/v" + encodeURIComponent(customPatch) + "/{{ elo }}";
+                        }
+                    }
+                </script>
                 {% else %}
                     <div class="dropdown" style="float: right; padding-left: 5px">
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">

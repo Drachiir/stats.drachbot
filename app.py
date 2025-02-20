@@ -1235,7 +1235,7 @@ def stats(stats, elo, patch, specific_key):
             mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
             date_diff = datetime.now(tz=timezone.utc) - mod_date2
             minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 60:
+            if minutes_diff > 120:
                 os.remove(path)
             else:
                 with open(path, "rb") as f:
@@ -1250,6 +1250,8 @@ def stats(stats, elo, patch, specific_key):
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
             history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            if len(history_raw) == 0:
+                return render_template("no_data.html", text=f"No Data for {patch}")
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))
         if stats != "gamestats":
@@ -1276,6 +1278,8 @@ def stats(stats, elo, patch, specific_key):
             games = raw_data[3]
             avg_elo = raw_data[4]
             raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
+        if type(raw_data) == str:
+            return render_template("no_data.html", text=f"No Data for {patch}")
     else:
         for file in os.listdir(shared_folder+f"data/{folder}/"):
             if file.startswith(f"{patch}_{elo}"):
