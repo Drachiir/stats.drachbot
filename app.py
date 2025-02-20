@@ -245,15 +245,46 @@ def rank_distribution(snapshot):
 @app.route('/wave-distribution/<patch>/', defaults={"elo": defaults[1]})
 @app.route('/wave-distribution/<patch>/<elo>/')
 def wave_distribution(patch, elo):
-    for datajson in os.listdir(f"{shared_folder}/data/wavestats/"):
-        if datajson.startswith(f"{patch}_{elo}"):
-            with open(f"{shared_folder}/data/wavestats/{datajson}", "r") as f:
-                wave_data = json.load(f)
-                games = datajson.split("_")[2]
-                avg_elo = datajson.split("_")[3].split(".")[0]
-            break
+    if patch.startswith("v"):
+        path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
+        history_raw = None
+        if os.path.isfile(path):
+            mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+            date_diff = datetime.now(tz=timezone.utc) - mod_date2
+            minutes_diff = date_diff.total_seconds() / 60
+            if minutes_diff > 120:
+                os.remove(path)
+            else:
+                with open(path, "rb") as f:
+                    history_raw = msgpack.unpackb(f.read(), raw=False)
+        if not history_raw:
+            req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
+                            PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
+                            PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                           ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
+                           ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
+                            "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
+                            "income_per_wave"]]
+            history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            if len(history_raw) == 0:
+                return render_template("no_data.html", text=f"No Data for {patch}")
+            with open(path, "wb") as f:
+                f.write(msgpack.packb(history_raw, default=str))
+        raw_data = drachbot.wavestats.wavestats("all", 0, int(elo), patch[1:], history_raw=history_raw)
+        games = raw_data[1]
+        avg_elo = raw_data[2]
+        wave_data = raw_data[0]
     else:
-        return render_template("no_data.html", text=f"No data.")
+        for datajson in os.listdir(f"{shared_folder}/data/wavestats/"):
+            if datajson.startswith(f"{patch}_{elo}"):
+                with open(f"{shared_folder}/data/wavestats/{datajson}", "r") as f:
+                    wave_data = json.load(f)
+                    games = datajson.split("_")[2]
+                    avg_elo = datajson.split("_")[3].split(".")[0]
+                break
+        else:
+            return render_template("no_data.html", text=f"No data.")
     return render_template("wave-distribution.html", wave_data=wave_data, patch=patch, elo= elo, games= games,
                            avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
                            human_format=util.human_format)
