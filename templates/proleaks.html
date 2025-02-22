@@ -423,7 +423,7 @@ function populateUnitDropdown(data) {
             <label class="dropdown-item" style="display: flex; align-items: center; gap: 10px;">
                 <input type="checkbox" style="margin: 0;" ${isChecked} onclick="setUnitFilter('${unit}')">
                 <img style="width: 24px;" src="${getCdnImage(unit)}">
-                ${capitalize(unit.replace("_unit_id", "").replace("_", " "))}
+                ${capitalize(unit.replace("_unit_id", "").replaceAll("_", " "))}
             </label>`;
         dropdownMenu.appendChild(unitItem);
     });
