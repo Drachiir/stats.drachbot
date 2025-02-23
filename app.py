@@ -263,7 +263,7 @@ def rank_distribution(snapshot):
 @app.route('/wave-distribution/<patch>/<elo>/')
 def wave_distribution(patch, elo):
     elo = str(elo)
-    elo1 = None
+    elo1 = elo
     elo2 = None
     if "-" in elo:
         elo1 = elo.split("-")[0]
@@ -294,7 +294,7 @@ def wave_distribution(patch, elo):
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
-            history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for {patch}")
             with open(path, "wb") as f:
@@ -1197,7 +1197,7 @@ def stats(stats, elo, patch, specific_key):
     elo = str(elo)
     games = 0
     avg_elo = elo
-    elo1 = None
+    elo1 = elo
     elo2 = None
     if "-" in elo:
         elo1 = elo.split("-")[0]
@@ -1337,10 +1337,7 @@ def stats(stats, elo, patch, specific_key):
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
-            if elo1 and elo2:
-                history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns, max_elo=int(elo2))
-            else:
-                history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for {patch}")
             with open(path, "wb") as f:
@@ -1348,19 +1345,19 @@ def stats(stats, elo, patch, specific_key):
         if stats != "gamestats":
             match stats:
                 case "megamindstats":
-                    raw_data = drachbot.mmstats.mmstats("all",0, int(elo), patch[1:],"Megamind", data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats("all",0, int(elo1), patch[1:],"Megamind", data_only=True, history_raw=history_raw)
                 case "mmstats":
-                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "openstats":
-                    raw_data = drachbot.openstats.openstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "spellstats":
-                    raw_data = drachbot.openstats.openstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "unitstats":
-                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "rollstats":
-                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo), patch[1:], data_only=True, rollstats=True, history_raw=history_raw)
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, rollstats=True, history_raw=history_raw)
                 case "wavestats":
-                    raw_data = drachbot.wavestats.wavestats("all", 0, int(elo), patch[1:], history_raw=history_raw)
+                    raw_data = drachbot.wavestats.wavestats("all", 0, int(elo1), patch[1:], history_raw=history_raw)
             games = raw_data[1]
             avg_elo = raw_data[2]
             raw_data = raw_data[0]
