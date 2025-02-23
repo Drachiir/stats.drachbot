@@ -168,6 +168,9 @@ def home():
             if folder == "wavestats":
                 sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['EndCount'], reverse=True)
                 temp_data = {k: temp_data[k] for k in sorted_keys}
+            else:
+                sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['Count'], reverse=True)
+                temp_data = {k: temp_data[k] for k in sorted_keys}
 
             temp_keys = list(temp_data.keys())
             keys.append([folder, temp_keys])
@@ -1391,6 +1394,10 @@ def stats(stats, elo, patch, specific_key):
                         temp_data = msgpack.unpackb(f.read(), raw=False)
                         raw_data = util.merge_dicts(raw_data, temp_data)
             avg_elo = f"{elo}+"
+            if stats != "gamestats":
+                sort_key = "Count" if stats != "wavestats" else "EndCount"
+                new_index = sorted(raw_data, key=lambda x: raw_data[x][sort_key], reverse=True)
+                raw_data = {k: raw_data[k] for k in new_index}
     if raw_data:
         if stats != "mmstats" and stats != "gamestats":
             new_dict = {}
