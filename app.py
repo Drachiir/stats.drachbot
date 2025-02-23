@@ -165,12 +165,12 @@ def home():
                     temp_data = util.merge_dicts(temp_data, raw_data)
 
         if temp_data:
-            if folder == "wavestats":
-                sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['EndCount'], reverse=True)
-                temp_data = {k: temp_data[k] for k in sorted_keys}
-            else:
-                sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['Count'], reverse=True)
-                temp_data = {k: temp_data[k] for k in sorted_keys}
+            # if folder == "wavestats":
+            #     sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['EndCount'], reverse=True)
+            #     temp_data = {k: temp_data[k] for k in sorted_keys}
+            # else:
+            #     sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['Count'], reverse=True)
+            #     temp_data = {k: temp_data[k] for k in sorted_keys}
 
             temp_keys = list(temp_data.keys())
             keys.append([folder, temp_keys])
