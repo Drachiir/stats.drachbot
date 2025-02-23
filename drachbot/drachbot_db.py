@@ -320,7 +320,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         game_data_query = (PlayerData
                            .select(*req_columns[0])
                            .join(GameData)
-                           .where((GameData.queue == "Normal") & expr & (max_elo >= GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave))
+                           .where((GameData.queue == "Normal") & expr & ((GameData.game_elo >= min_elo) & (GameData.game_elo <= max_elo)) & (GameData.ending_wave >= earliest_wave))
                            .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                            .limit(games * 4)).dicts()
         temp_data = {}
