@@ -1370,7 +1370,6 @@ def stats(stats, elo, patch, specific_key):
                         return render_template("no_data.html", text="No Data")
                     avg_elo = file.split("_")[3].replace(".msgpack", "")
                     with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                        mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
                         raw_data = msgpack.unpackb(f.read(), raw=False)
         else:
             for file in os.listdir(shared_folder + f"data/{folder}/"):
