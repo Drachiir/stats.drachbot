@@ -286,8 +286,8 @@ def wave_distribution(patch, elo):
     else:
         for datajson in os.listdir(f"{shared_folder}/data/wavestats/"):
             if datajson.startswith(f"{patch}_{elo}"):
-                with open(f"{shared_folder}/data/wavestats/{datajson}", "r") as f:
-                    wave_data = json.load(f)
+                with open(f"{shared_folder}/data/wavestats/{datajson}", "rb") as f:
+                    wave_data = msgpack.unpackb(f.read(), raw=False)
                     games = datajson.split("_")[2]
                     avg_elo = datajson.split("_")[3].split(".")[0]
                 break
