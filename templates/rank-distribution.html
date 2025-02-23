@@ -5,7 +5,8 @@
     <!-- Form to allow the user to set the minimum number of games -->
     <div style="display: flex; justify-content: center; white-space: nowrap; flex-wrap: wrap">
         <div>
-            <h1 style="font-size: 22px">Rank Distribution 2024</h1>
+            {% set parts = snapshot.split("-") %}
+            <h1 style="font-size: 22px">Rank Distribution 20{{ parts[2] }}</h1>
             <r2 style="font-size: 0.9rem">Snapshot taken {{ snapshot }}</r2><br>
             <r2>Total players: <span id="totalPlayersCount"></span></r2>  <!-- Updated this line -->
         </div>
