@@ -602,5 +602,8 @@ def merge_dicts(target, source):
         else:
             if key == "Cost":
                 continue
-            target[key] = target.get(key, 0) + value
+            try:
+                target[key] = target.get(key, 0) + value
+            except Exception:
+                continue
     return target
