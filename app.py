@@ -266,7 +266,13 @@ def wave_distribution(patch, elo):
     folder = "wavestats"
     wave_data = {}
     if patch.startswith("v"):
-        if (patch[1:] in ["10", "11", "12"]) or ("-" in patch) or ("+" in patch) or patch.replace(" ", "") == "v":
+        patch = patch.replace(" ", "")
+        try:
+            patch = int(patch[1:])
+            return render_template("no_data.html", text=f"Unsupported query")
+        except Exception:
+            pass
+        if ("-" in patch) or ("+" in patch) or (patch == "v") or (len(patch.split(".")) != 3):
             return render_template("no_data.html", text=f"Unsupported query")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
@@ -1309,7 +1315,13 @@ def stats(stats, elo, patch, specific_key):
     mod_date = None
     # ALLOWING CUSTOM PATCH
     if patch.startswith("v"):
-        if (patch[1:] in ["10", "11", "12"]) or ("-" in patch) or ("+" in patch) or patch.replace(" ", "") == "v":
+        patch = patch.replace(" ", "")
+        try:
+            patch = int(patch[1:])
+            return render_template("no_data.html", text=f"Unsupported query")
+        except Exception:
+            pass
+        if ("-" in patch) or ("+" in patch) or (patch == "v") or (len(patch.split(".")) != 3):
             return render_template("no_data.html", text=f"Unsupported query")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
