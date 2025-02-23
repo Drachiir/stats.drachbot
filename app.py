@@ -52,6 +52,12 @@ def get_player_profile(playername):
     api_profile["guildTag"] = ""
     return {"playerid": playerid, "api_profile": api_profile}
 
+def validate_custom_patch(patch:str):
+    patch = patch.strip()
+    if not re.fullmatch(r'v\d+\.\d+\.\d+', patch):
+        return False
+    return True
+
 if platform.system() == "Linux":
     timeout = 600
     timeout2 = 300
@@ -266,13 +272,7 @@ def wave_distribution(patch, elo):
     folder = "wavestats"
     wave_data = {}
     if patch.startswith("v"):
-        patch = patch.replace(" ", "")
-        try:
-            patch = int(patch[1:])
-            return render_template("no_data.html", text=f"Unsupported query")
-        except Exception:
-            pass
-        if ("-" in patch) or ("+" in patch) or (patch == "v") or (len(patch.split(".")) != 3):
+        if not validate_custom_patch(patch):
             return render_template("no_data.html", text=f"Unsupported query")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
@@ -1315,13 +1315,7 @@ def stats(stats, elo, patch, specific_key):
     mod_date = None
     # ALLOWING CUSTOM PATCH
     if patch.startswith("v"):
-        patch = patch.replace(" ", "")
-        try:
-            patch = int(patch[1:])
-            return render_template("no_data.html", text=f"Unsupported query")
-        except Exception:
-            pass
-        if ("-" in patch) or ("+" in patch) or (patch == "v") or (len(patch.split(".")) != 3):
+        if not validate_custom_patch(patch):
             return render_template("no_data.html", text=f"Unsupported query")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
