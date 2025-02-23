@@ -41,7 +41,13 @@
                 <ul class="dropdown-menu">
                     {% for i in elos %}
                         <li><a class="dropdown-item" href="/wave-distribution/{{ patch }}/{{ i }}">
-                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
+                            {% set elo_suffix = "+" %}
+                            {% if i is string %}
+                                {% if "-" in i %}
+                                    {% set elo_suffix = "" %}
+                                {% endif %}
+                            {% endif %}
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i) }}">{{ i }}{{ elo_suffix }}</a></li>
                     {% endfor %}
             </ul>
         </div>
