@@ -115,6 +115,7 @@ defaults = defaults_json["Defaults"]
 defaults2 = defaults_json["Defaults2"]
 mm_list = defaults_json["MMs"]
 elos = defaults_json["Elos"]
+elos2 = defaults_json["Elos2"]
 patches = defaults_json["Patches"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
@@ -128,7 +129,7 @@ def api_defaults():
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
-    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
+    folder_list = ["mmstats"]
     header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
     title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats", "Wave Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
@@ -136,32 +137,42 @@ def home():
                  ,"https://cdn.legiontd2.com/icons/Value10000.png","https://cdn.legiontd2.com/icons/LegionKing.png"]
     data_list = []
     keys = []
+    avg_elo = None
     with open("leaderboard.json", "r") as f:
         leaderboard_data = json.load(f)
     for i, folder in enumerate(folder_list):
-        for file in os.listdir(shared_folder+f"data/{folder}/"):
-            if file.startswith(f"{defaults[0]}_{defaults[1]}"):
-                games = file.split("_")[2]
-                try:
-                    games = int(games)
-                except Exception:
-                    games = 0
-                avg_elo = file.split("_")[3].replace(".json", "")
-                with open(shared_folder+f"data/{folder}/"+file, "r") as f:
-                    json_data = json.load(f)
-                    new_dict = {}
-                    for key in json_data:
-                        if json_data[key]["Count"] != 0:
-                            new_dict[key] = json_data[key]
-                    json_data = new_dict
-                    if folder == "wavestats":
-                        newIndex = sorted(json_data, key=lambda x: json_data[x]['EndCount'], reverse=True)
-                        json_data = {k: json_data[k] for k in newIndex}
-                    temp_keys = list(json_data.keys())
-                    keys.append([folder, temp_keys])
-                    data_list.append([folder, games, avg_elo, json_data, header_list[i], title_list[i], temp_keys[:2]])
-                    f.close()
-                break
+        temp_data = {}
+        total_games = 0
+        for file in os.listdir(shared_folder + f"data/{folder}/"):
+            file_name_split = file.split("_")
+            file_patch = file_name_split[0]
+
+            try:
+                file_elo = int(file_name_split[1])
+                file_games = int(file_name_split[2])
+            except ValueError:
+                continue
+
+            file_avg_elo = file_name_split[3].replace(".msgpack", "")
+
+            if file_patch == defaults[0] and file_elo >= defaults[1]:
+                total_games += file_games
+                avg_elo = file_avg_elo
+
+                with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                    json_data = msgpack.unpackb(f.read(), raw=False)
+                    json_data = {key: value for key, value in json_data.items() if value["Count"] != 0}
+                    temp_data = util.merge_dicts(temp_data, json_data)
+
+        if temp_data:
+            if folder == "wavestats":
+                sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['EndCount'], reverse=True)
+                temp_data = {k: temp_data[k] for k in sorted_keys}
+
+            temp_keys = list(temp_data.keys())
+            keys.append([folder, temp_keys])
+            data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], temp_keys[:2]])
+
     total_games = "0"
     for file in os.listdir(shared_folder+f"data/mmstats"):
         temp_string = file.split("_")
@@ -1147,10 +1158,18 @@ def profile(playername, stats, patch, elo, specific_key):
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
 @cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
+    elo = str(elo)
+    games = 0
+    avg_elo = elo
+    elo1 = None
+    elo2 = None
+    if "-" in elo:
+        elo1 = elo.split("-")[0]
+        elo2 = elo.split("-")[1]
     playername2=""
     if stats not in website_stats:
         return render_template("no_data.html", text="Page not found.")
-    raw_data = None
+    raw_data = {}
     match stats:
         case "megamindstats":
             header_title = "MM"
@@ -1282,7 +1301,10 @@ def stats(stats, elo, patch, specific_key):
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
-            history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            if elo1 and elo2:
+                history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns, max_elo=int(elo2))
+            else:
+                history_raw = drachbot_db.get_matchistory("all", 0, int(elo), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for {patch}")
             with open(path, "wb") as f:
@@ -1314,18 +1336,36 @@ def stats(stats, elo, patch, specific_key):
         if type(raw_data) == str:
             return render_template("no_data.html", text=f"No Data for {patch}")
     else:
-        for file in os.listdir(shared_folder+f"data/{folder}/"):
-            if file.startswith(f"{patch}_{elo}"):
-                games = file.split("_")[2]
+        if elo1 and elo2:
+            for file in os.listdir(shared_folder + f"data/{folder}/"):
+                if file.startswith(f"{patch}_{elo1}"):
+                    games = file.split("_")[2]
+                    try:
+                        games = int(games)
+                    except Exception:
+                        return render_template("no_data.html", text="No Data")
+                    avg_elo = file.split("_")[3].replace(".msgpack", "")
+                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                        mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
+                        raw_data = msgpack.unpackb(f.read(), raw=False)
+        else:
+            for file in os.listdir(shared_folder + f"data/{folder}/"):
+                file_name_split = file.split("_")
+                file_patch = file_name_split[0]
                 try:
-                    games = int(games)
-                except Exception:
-                    return render_template("no_data.html", text="No Data")
-                avg_elo = file.split("_")[3].replace(".json", "")
-                with open(shared_folder+f"data/{folder}/"+file, "r") as f:
-                    mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder+f"data/{folder}/"+file)).timestamp())
-                    raw_data = json.load(f)
-                    f.close()
+                    file_elo = int(file_name_split[1])
+                    file_games = int(file_name_split[2])
+                except ValueError:
+                    continue
+
+                file_avg_elo = file_name_split[3].replace(".msgpack", "")
+
+                if file_patch == patch and file_elo >= int(elo):
+                    games += file_games
+                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                        temp_data = msgpack.unpackb(f.read(), raw=False)
+                        raw_data = util.merge_dicts(raw_data, temp_data)
+            avg_elo = f"{elo}+"
     if raw_data:
         if stats != "mmstats" and stats != "gamestats":
             new_dict = {}
@@ -1341,7 +1381,7 @@ def stats(stats, elo, patch, specific_key):
         if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
             return render_template("no_data.html", text="No Data")
     if stats == "gamestats":
-        return render_template("gamestats.html", data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
+        return render_template("gamestats.html", data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
                                games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
                                human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                                specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values =util.get_gamestats_values,
@@ -1359,7 +1399,7 @@ def stats(stats, elo, patch, specific_key):
         specific_tier = True
     else:
         specific_tier = False
-    return render_template(html_file, data=raw_data, elo_brackets=elos, custom_winrate=util.custom_winrate,
+    return render_template(html_file, data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
                            games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                            specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,

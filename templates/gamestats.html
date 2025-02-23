@@ -63,7 +63,13 @@
                 <ul class="dropdown-menu">
                     {% for i in elo_brackets %}
                         <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
-                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
+                            {% set elo_suffix = "+" %}
+                            {% if i is string %}
+                                {% if "-" in i %}
+                                    {% set elo_suffix = "" %}
+                                {% endif %}
+                            {% endif %}
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i) }}">{{ i }}{{ elo_suffix }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -126,7 +132,7 @@
         {% else %}
             {% set gamestats_values = get_gamestats_values(data, games*4) %}
         {% endif %}
-        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b> | <b>{{ patch }}</b> |
+        <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> | <b>{{ patch }}</b> |
         Avg Game Length: <b>{{ (data["GameLength"] / 60 / games)|round(1) }} mins</b></r>
         <div style="padding-top: 10px">
             <canvas id="myChart2" width="400" height="500"></canvas>

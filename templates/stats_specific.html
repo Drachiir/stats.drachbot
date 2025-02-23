@@ -52,11 +52,11 @@
                 {% if stats == "wavestats" %}
                     <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Endrate:
                     <b>{{ custom_winrate([data[specific_key]['EndCount'], games]) }}%</b> |
-                    <b>v{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b></r>
+                    <b>v{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b></r>
                 {% else %}
                     <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Ranked Games | Winrate:
                     <b>{{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}%</b> |
-                    <b>{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo|int) }}">{{ avg_elo }} </b></r>
+                    <b>{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b></r>
                 {% endif %}
             </div>
             <div>
@@ -67,7 +67,13 @@
                 <ul class="dropdown-menu">
                     {% for i in elo_brackets %}
                         <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}/{{ specific_key }}">
-                            <img loading="lazy" style="width: 24px; height: auto" src="{{ get_rank_url(i|int) }}">{{ i }}+</a></li>
+                            {% set elo_suffix = "+" %}
+                            {% if i is string %}
+                                {% if "-" in i %}
+                                    {% set elo_suffix = "" %}
+                                {% endif %}
+                            {% endif %}
+                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i) }}">{{ i }}{{ elo_suffix }}</a></li>
                     {% endfor %}
                 </ul>
                 {% if not patch_selector %}

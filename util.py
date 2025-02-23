@@ -483,11 +483,19 @@ def time_ago(time=False):
     return str(round(day_diff/365)) + " years ago"
 
 def get_rank_url(elo):
-    if type(elo) != int:
+    try:
+        elo = int(elo)
+    except Exception:
         try:
-            elo = int(elo)
+            if type(elo) == str:
+                if "-" in elo:
+                    elo = int(elo.split("-")[0])
+                else:
+                    elo = int(elo.replace("+", ""))
+            else:
+                elo = int(elo)
         except Exception:
-            return None
+            elo = 0
     if elo >= 2800:
         rank_url = 'https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'
     elif elo >= 2600:
@@ -585,3 +593,12 @@ def timing_decorator(func):
         print(f"{func.__name__} took {end_time - start_time:.4f} seconds")
         return result
     return wrapper
+
+def merge_dicts(target, source):
+    """Recursively merge two dictionaries, summing up values for matching keys."""
+    for key, value in source.items():
+        if isinstance(value, dict):
+            target[key] = merge_dicts(target.get(key, {}), value)
+        else:
+            target[key] = target.get(key, 0) + value
+    return target
