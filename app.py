@@ -129,7 +129,7 @@ def api_defaults():
 @app.route("/")
 @cache.cached(timeout=timeout)
 def home():
-    folder_list = ["mmstats"]
+    folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
     header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
     title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats", "Wave Stats"]
     image_list =["https://cdn.legiontd2.com/icons/Mastermind.png", "https://cdn.legiontd2.com/icons/Mastery/5.png"
@@ -160,9 +160,9 @@ def home():
                 avg_elo = file_avg_elo
 
                 with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                    json_data = msgpack.unpackb(f.read(), raw=False)
-                    json_data = {key: value for key, value in json_data.items() if value["Count"] != 0}
-                    temp_data = util.merge_dicts(temp_data, json_data)
+                    raw_data = msgpack.unpackb(f.read(), raw=False)
+                    raw_data = {key: value for key, value in raw_data.items() if value["Count"] != 0}
+                    temp_data = util.merge_dicts(temp_data, raw_data)
 
         if temp_data:
             if folder == "wavestats":
@@ -172,13 +172,10 @@ def home():
             temp_keys = list(temp_data.keys())
             keys.append([folder, temp_keys])
             data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], temp_keys[:2]])
-
-    total_games = "0"
-    for file in os.listdir(shared_folder+f"data/mmstats"):
-        temp_string = file.split("_")
-        if temp_string[0] == defaults[0] and temp_string[1] == str(defaults[1]):
-            total_games = util.human_format(int(temp_string[2]))
-            break
+    try:
+        total_games = util.human_format(int(data_list[0][1]))
+    except IndexError:
+        total_games = "0"
     return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True, leaderboard_data_home = leaderboard_data,
@@ -345,9 +342,6 @@ def openers(patch, opener):
     else:
         return render_template("no_data.html", text=f"No data.")
     new_patches = patches[:]
-    for p in patches[:]:
-        if p.startswith("11"):
-            new_patches.remove(p)
     if not opener:
         return render_template("openers_overview.html", openers_data=data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,

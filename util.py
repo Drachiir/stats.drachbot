@@ -600,5 +600,7 @@ def merge_dicts(target, source):
         if isinstance(value, dict):
             target[key] = merge_dicts(target.get(key, {}), value)
         else:
+            if key == "Cost":
+                continue
             target[key] = target.get(key, 0) + value
     return target
