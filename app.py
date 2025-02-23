@@ -256,6 +256,7 @@ def rank_distribution(snapshot):
 @app.route('/wave-distribution/<patch>/', defaults={"elo": defaults[1]})
 @app.route('/wave-distribution/<patch>/<elo>/')
 def wave_distribution(patch, elo):
+    elo = str(elo)
     elo1 = None
     elo2 = None
     if "-" in elo:
