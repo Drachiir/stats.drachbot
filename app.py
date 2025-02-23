@@ -253,6 +253,14 @@ def rank_distribution(snapshot):
 @app.route('/wave-distribution/<patch>/', defaults={"elo": defaults[1]})
 @app.route('/wave-distribution/<patch>/<elo>/')
 def wave_distribution(patch, elo):
+    elo1 = None
+    elo2 = None
+    if "-" in elo:
+        elo1 = elo.split("-")[0]
+        elo2 = elo.split("-")[1]
+    games = 0
+    folder = "wavestats"
+    wave_data = {}
     if patch.startswith("v"):
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
@@ -284,17 +292,39 @@ def wave_distribution(patch, elo):
         avg_elo = raw_data[2]
         wave_data = raw_data[0]
     else:
-        for datajson in os.listdir(f"{shared_folder}/data/wavestats/"):
-            if datajson.startswith(f"{patch}_{elo}"):
-                with open(f"{shared_folder}/data/wavestats/{datajson}", "rb") as f:
-                    wave_data = msgpack.unpackb(f.read(), raw=False)
-                    games = datajson.split("_")[2]
-                    avg_elo = datajson.split("_")[3].split(".")[0]
-                break
+        if elo1 and elo2:
+            for file in os.listdir(shared_folder + f"data/{folder}/"):
+                if file.startswith(f"{patch}_{elo1}"):
+                    games = file.split("_")[2]
+                    try:
+                        games = int(games)
+                    except Exception:
+                        return render_template("no_data.html", text="No Data")
+                    avg_elo = file.split("_")[3].replace(".msgpack", "")
+                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                        wave_data = msgpack.unpackb(f.read(), raw=False)
         else:
-            return render_template("no_data.html", text=f"No data.")
+            for file in os.listdir(shared_folder + f"data/{folder}/"):
+                file_name_split = file.split("_")
+                file_patch = file_name_split[0]
+                try:
+                    file_elo = int(file_name_split[1])
+                    file_games = int(file_name_split[2])
+                except ValueError:
+                    continue
+
+                file_avg_elo = file_name_split[3].replace(".msgpack", "")
+
+                if file_patch == patch and file_elo >= int(elo):
+                    games += file_games
+                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                        temp_data = msgpack.unpackb(f.read(), raw=False)
+                        wave_data = util.merge_dicts(wave_data, temp_data)
+            avg_elo = f"{elo}+"
+    if not wave_data:
+        return render_template("no_data.html", text=f"No data.")
     return render_template("wave-distribution.html", wave_data=wave_data, patch=patch, elo= elo, games= games,
-                           avg_elo=avg_elo, patch_list=patches, elos=elos, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
+                           avg_elo=avg_elo, patch_list=patches, elos=elos2, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
                            human_format=util.human_format)
 
 @app.route('/proleaks/', defaults= {"wave": 1, "patch": defaults[0]})
