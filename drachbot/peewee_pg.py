@@ -25,14 +25,14 @@ with open("Files/json/Secrets.json", "r") as f:
 
 db = PooledPostgresqlExtDatabase(
     "postgres",
-    max_connections=32,
-    stale_timeout=300,
-    timeout=5,
+    max_connections=None,
+    stale_timeout=None,
     server_side_cursors=True,
     user=secret_file["pg_user"],
     password=secret_file["pg_password"],
     host=secret_file["pg_host"],
-    port="5432"
+    port="5432",
+    thread_safe=True
 )
 
 def get_db():
