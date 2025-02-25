@@ -15,7 +15,7 @@ import drachbot.unitstats
 import drachbot.wavestats
 import drachbot.gamestats
 import util
-from drachbot.peewee_pg import GameData, PlayerData
+from drachbot.peewee_pg import GameData, PlayerData, close_db, get_db
 from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values, human_format, clean_unit_name
 from flask_apscheduler import APScheduler
 from playfab_api import *
@@ -32,6 +32,11 @@ app.secret_key = 'python>js'
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 scheduler = APScheduler()
+
+@app.teardown_request
+def teardown_request(exception):
+    """Ensure the database connection is closed if used."""
+    close_db(exception)
 
 def get_player_profile(playername):
     playerid = playername if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername) else None
@@ -67,6 +72,7 @@ else:
     
 app.config['CACHE_TYPE'] = 'simple'
 app.config['CACHE_DEFAULT_TIMEOUT'] = timeout
+app.config['CACHE_THRESHOLD'] = 5000
 app.config['CACHE_KEY_PREFIX'] = 'myapp_'
 cache.init_app(app)
 
@@ -223,6 +229,7 @@ def leaderboard(playername):
         with open("leaderboard.json", "r") as f:
             leaderboard_data = json.load(f)
     else:
+        get_db()
         stats = get_player_profile(playername)
         if not stats:
             return render_template("no_data.html", text=f"Player { playername } not found.")
@@ -422,6 +429,7 @@ def livegames_api(playername):
 
 @app.route("/api/get_player_profile/<playername>")
 def get_player_profile_api(playername):
+    get_db()
     drachbot_profile = drachbot_db.get_player_profile(playername)
     if drachbot_profile:
         playerid = drachbot_profile["playerid"]
@@ -458,6 +466,7 @@ def drachbot_reroll_overlay_api(rank, roll):
 @app.route("/api/drachbot_overlay/<playername>")
 @cross_origin()
 def drachbot_overlay_api(playername):
+    get_db()
     # if playername == "TestData123":
     #     with open("exampledata.json", "r") as f:
     #         return json.load(f)
@@ -547,6 +556,7 @@ def request_games_api(playername, limit):
     if len(playername) > 13 and re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername):
         playerid = playername
     else:
+        get_db()
         api_profile = legion_api.getprofile(playername)
         if api_profile in [0, 1]:
             return {"error": "Player not found"}
@@ -579,10 +589,12 @@ def check_refresh_status(playerid):
 @app.route('/api/get_search_results/', methods=['GET'], defaults={"search_term": ""})
 @app.route('/api/get_search_results/<search_term>', methods=['GET'])
 def get_search_results(search_term):
+    get_db()
     return jsonify(drachbot_db.get_search_results(search_term)), 200
 
 @app.route('/api/get_player_stats/<playername>', methods=['GET'])
 def get_player_stats(playername):
+    get_db()
     playerid = drachbot_db.get_playerid(playername)
     if not playerid:
         api_profile = legion_api.getprofile(playername)
@@ -595,6 +607,7 @@ def get_player_stats(playername):
 
 @app.route('/api/get_simple_history/<playername>', methods=['GET'])
 def get_simple_history(playername):
+    get_db()
     playerid = drachbot_db.get_playerid(playername)
     if not playerid:
         api_profile = legion_api.getprofile(playername)
@@ -619,6 +632,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
         with open(path, "rb") as f:
             history = msgpack.unpackb(f.read(), raw=False)
     except FileNotFoundError:
+        get_db()
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
@@ -678,6 +692,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/load/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def load(playername, stats, patch, elo, specific_key):
+    get_db()
     session['visited_profile'] = True
     by_id = True if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername) else False
     og_data = drachbot_db.get_player_profile(playername, by_id=by_id)
@@ -718,6 +733,7 @@ def profile(playername, stats, patch, elo, specific_key):
             return redirect(f"/load/{playername}/{new_patch}")
         #get player profile
         api_stats = {"avatarBorder": "", "flag": "", "Country": ""}
+        get_db()
         drachbot_profile = drachbot_db.get_player_profile(playername)
         if drachbot_profile:
             playerid = drachbot_profile["playerid"]
@@ -971,6 +987,7 @@ def profile(playername, stats, patch, elo, specific_key):
             return render_template("no_data.html", text="Page not found.")
         raw_data = None
         # get player profile
+        get_db()
         drachbot_profile = drachbot_db.get_player_profile(playername)
         if drachbot_profile:
             playerid = drachbot_profile["playerid"]
@@ -1329,6 +1346,7 @@ def stats(stats, elo, patch, specific_key):
                 with open(path, "rb") as f:
                     history_raw = msgpack.unpackb(f.read(), raw=False)
         if not history_raw:
+            get_db()
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,

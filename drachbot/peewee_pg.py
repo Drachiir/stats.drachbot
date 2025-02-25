@@ -11,6 +11,7 @@ from playhouse.pool import PooledPostgresqlExtDatabase
 import requests
 import time
 from playhouse.migrate import *
+from flask import g
 
 if platform.system().lower() == "windows":
     games_folder = "Games/"
@@ -25,14 +26,26 @@ with open("Files/json/Secrets.json", "r") as f:
 db = PooledPostgresqlExtDatabase(
     "postgres",
     max_connections=None,
-    stale_timeout=3600,
+    stale_timeout=None,
     server_side_cursors=True,
     user=secret_file["pg_user"],
     password=secret_file["pg_password"],
     host=secret_file["pg_host"],
-    port="5432"
+    port="5432",
+    thread_safe=True
 )
 
+def get_db():
+    """Get or open a database connection only when needed."""
+    if 'db_conn' not in g:
+        g.db_conn = db.connection()
+    return g.db_conn
+
+def close_db(exception=None):
+    """Close the database connection if it was used."""
+    db_conn = g.pop('db_conn', None)
+    if db_conn:
+        db.close()
 
 class BaseModel(Model):
     class Meta:
