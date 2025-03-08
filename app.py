@@ -860,7 +860,7 @@ def profile(playername, stats, patch, elo, specific_key):
         known_names = set()
         for game in history:
             if type(game["date"]) == str:
-                game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
+                game["date"] = datetime.strptime(game["date"], "%Y-%m-%d %H:%M:%S")
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
                          ,"Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
