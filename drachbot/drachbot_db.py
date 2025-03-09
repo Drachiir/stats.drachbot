@@ -118,12 +118,12 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 @db.atomic()
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
-                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True):
+                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True, include_wave_one_finishes = False):
     if req_columns is None:
         req_columns = []
     patch_list = []
     if earlier_than_wave10:
-        earliest_wave = 1
+        earliest_wave = 1 if include_wave_one_finishes else 2
     else:
         earliest_wave = 11
     if sort_by == "date":

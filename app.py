@@ -642,7 +642,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
              "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
-        history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True)
+        history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True)
         try:
             os.remove(path)
         except Exception:
@@ -832,7 +832,7 @@ def profile(playername, stats, patch, elo, specific_key):
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
             skip_game_refresh = True if api_stats["overallElo"] > 1700 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh)
+                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True)
             try:
                 os.remove(path)
             except Exception:
