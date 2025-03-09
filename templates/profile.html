@@ -463,10 +463,12 @@
                 <div style="width: 40%">
                     <div>
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="{{ game["EndWave"] }}">
-                        {% if game["Result_String"][0] %}
+                        {% if game["Result_String"][0] == "won" %}
                             <r2 style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
-                        {% else %}
+                        {% elif game["Result_String"][0] == "lost" %}
                             <r2 style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
+                        {% else %}
+                            <r2 style="color: #aeaeae; font-size: var(--textsize)">{{ game["Result_String"][1] }} ({{ game["EloChange"] }} Elo)</r2>
                         {% endif %}
                         {% if game["MVP"] %}
                             <r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>
@@ -762,14 +764,27 @@
         gameDiv.className = 'clickableDiv';
         gameDiv.style.cssText = "position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;";
 
+        let color;
+        console.log(game.Result_String[0])
+        if (game.Result_String[0] === "won") {
+            color = "#6af945"; // Green
+        } else if (game.Result_String[0] === "lost") {
+            color = "#d64444"; // Red
+        } else {
+            color = "#aeaeae"; // Gray (default case)
+        }
+
+        const resultHTML = `<r2 style="color: ${color}; font-size: var(--textsize)">
+            ${game.Result_String[1]} (${game.EloChange} Elo)
+        </r2>`;
+
+
         gameDiv.innerHTML = `
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="width: 40%">
                     <div>
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="${game.EndWave}">
-                        ${game.Result_String[0]
-                            ? `<r2 style="color: #6af945; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`
-                            : `<r2 style="color: #d64444; font-size: var(--textsize)">${game.Result_String[1]} (${game.EloChange} Elo)</r2>`}
+                        ${resultHTML}
                         ${game.MVP
                             ? `<r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>`
                             : ""}

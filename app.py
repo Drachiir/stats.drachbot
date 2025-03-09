@@ -677,11 +677,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
                     temp_dict["Megamind"] = True
                 temp_dict["Worker"] = round(player["workers_per_wave"][-1], 1)
                 temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
-                if player["game_result"] == "won":
-                    won = True
-                else:
-                    won = False
-                temp_dict["Result_String"] = [won, f"Wave {game["ending_wave"]}"]
+                temp_dict["Result_String"] = [player["game_result"], f"Wave {game["ending_wave"]}"]
         history_parsed.append(temp_dict)
     if not history_parsed:
         return "No data found", 404
@@ -934,14 +930,12 @@ def profile(playername, stats, patch, elo, specific_key):
                         mvp_count["Overall"] += 1
                         mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
                     if player["game_result"] == "won":
-                        won = True
                         winlose["Overall"][0] += 1
                         winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][0] += 1
-                    else:
-                        won = False
+                    elif player["game_result"] == "lost":
                         winlose["Overall"][1] += 1
                         winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][1] += 1
-                    temp_dict["Result_String"] = [won, f"Wave {game["ending_wave"]}"]
+                    temp_dict["Result_String"] = [player["game_result"], f"Wave {game["ending_wave"]}"]
             history_parsed.append(temp_dict)
         newIndex = sorted(mms, key=lambda x: mms[x], reverse=True)
         mms = {k: mms[k] for k in newIndex[:5]}
