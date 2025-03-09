@@ -14,7 +14,6 @@ td img:hover{
                 box-shadow: 0 0 5px 5px rgba(0, 0, 0, 0.5);" src="/static/drachia.webp" width="150" height="150"></div>
     <h1 id="mask" style="font-size: 3.5rem; font-family: Roboto,serif; padding-bottom: 20px; font-weight: 100;"><b>Drachbot</b></h1>
     <p class="strokeText2" style="font-size: 1.2rem; font-family: Roboto,serif; margin: 0">Legion TD 2 Stats for Ranked 2v2 | <b>{{ total_games }}</b> Ranked Games analyzed for Patch <b>v{{ patch }}</b></p>
-    <br><img style="width: 32px" src="https://cdn.legiontd2.com/icons/Gateguard.png"><a href="/openers" style="font-size: 20px; color: white">Check out the new Openers page!</a>
     <div style="display: flex; justify-content: space-evenly; padding-top: 35px">
         <div class="search-container" style="position: relative; width: 45%">
             <div class="input-group input-group-lg profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
@@ -81,11 +80,11 @@ td img:hover{
                             {% endif %}
                             {% set percentage = winrate([wins, (wins+losses)]) %}
                             <tr class="player-row" data-games="{{ wins + losses }}">
-                                <th><r>{{ player["Position"] + 1 }}</r></th>
-                                <td>
+                                <th style="padding: 6px"><r>{{ player["Position"] + 1 }}</r></th>
+                                <td style="padding: 6px">
                                     <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
                                         <div style="text-align: left;">
-                                            <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
+                                            <img width="26" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
                                             <r class="player-name"> {{ player["DisplayName"] }}</r>
                                             <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
                                                 {% if player["Profile"]["ContactEmailAddresses"] %}
@@ -94,15 +93,15 @@ td img:hover{
                                         </div>
                                     </a>
                                 </td>
-                                <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
-                                <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
+                                <td style="padding: 6px"><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
+                                <td style="padding: 6px"><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
-        <div style="display: flex; width: 500px; flex-wrap: wrap; margin-top: 2%; justify-content: center">
+        <div style="display: flex; width: 500px; flex-wrap: wrap; margin-top: 2%; justify-content: center; height: 490px; overflow-y: scroll">
             {% for data in data_list %}
                 <div style="display: inline-block; padding: 0.5vw;">
                     <a style="display: flex; gap: 5px; justify-content: center; padding-bottom: 20px" href="/{{ data[0] }}"><img style="width: 32px;" src="{{ image_list[loop.index0] }}">
