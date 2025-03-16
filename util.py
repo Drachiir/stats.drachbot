@@ -76,8 +76,6 @@ wave_values = const_file.get("wave_values")
 rank_emotes = const_file.get("rank_emotes")
 wave_emotes = const_file.get("wave_emotes")
 mm_emotes = const_file.get("mm_emotes")
-current_season = const_file.get("current_patches")
-current_minelo = const_file.get("current_minelo")
 
 aura_spells = ["hero", "magician", "vampire"]
 buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain"]
