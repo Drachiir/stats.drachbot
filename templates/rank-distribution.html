@@ -32,7 +32,7 @@
                 </button>
                 <ul class="dropdown-menu">
                     {% for ss in snapshots_list %}
-                        <li><a class="dropdown-item" href="/rank-distribution/{{ ss }}">{{ ss }}</a></li>
+                        <li><a class="dropdown-item snapshot-link" data-snapshot="{{ ss }}">{{ ss }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -42,6 +42,21 @@
     <canvas id="rankDistributionChart" style="background-color: rgba(19,19,19,0.8);"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const queryString = currentParams.toString();
+
+        document.querySelectorAll('.snapshot-link').forEach(link => {
+            const snapshot = link.getAttribute('data-snapshot');
+            let url = `/rank-distribution/${snapshot}`;
+            if (queryString) {
+                url += `?${queryString}`;
+            }
+            link.setAttribute('href', url);
+        });
+    });
+</script>
 <script>
     const leaderboardData = {{ leaderboard_data | tojson }};
     const minGames = {{ min_games }};

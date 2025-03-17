@@ -94,23 +94,24 @@
         </div>
         <div>
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    Wave
+                    aria-expanded="false">
+                Wave
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/proleaks/1/{{ patch_name }}">Wave1</a></li>
-                <li><a class="dropdown-item" href="/proleaks/2/{{ patch_name }}">Wave2</a></li>
-                <li><a class="dropdown-item" href="/proleaks/3/{{ patch_name }}">Wave3</a></li>
+                <li><a class="dropdown-item wave-link" data-wave="1" data-patch="{{ patch_name }}">Wave1</a></li>
+                <li><a class="dropdown-item wave-link" data-wave="2" data-patch="{{ patch_name }}">Wave2</a></li>
+                <li><a class="dropdown-item wave-link" data-wave="3" data-patch="{{ patch_name }}">Wave3</a></li>
             </ul>
         </div>
+
         <div>
             <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    Patch
+                    aria-expanded="false">
+                Patch
             </button>
             <ul class="dropdown-menu">
                 {% for patch in patch_list %}
-                    <li><a class="dropdown-item" href="/proleaks/{{ wave }}/{{ patch }}">v{{ patch }}</a></li>
+                    <li><a class="dropdown-item patch-link" data-wave="{{ wave }}" data-patch="{{ patch }}">v{{ patch }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -145,6 +146,46 @@
         </div>
     {% endfor %}
 </div>
+<script>
+    // Function to build URL with current params
+    const buildUrl = (base, params) => {
+        return params ? `${base}?${params}` : base;
+    };
+
+    // Function to update the links with current parameters
+    const updateLinks = () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const queryString = currentParams.toString();
+
+        document.querySelectorAll('.wave-link').forEach(link => {
+            const wave = link.getAttribute('data-wave');
+            const patch = link.getAttribute('data-patch');
+            const url = buildUrl(`/proleaks/${wave}/${patch}`, queryString);
+            link.setAttribute('href', url);
+        });
+
+        document.querySelectorAll('.patch-link').forEach(link => {
+            const wave = link.getAttribute('data-wave');
+            const patch = link.getAttribute('data-patch');
+            const url = buildUrl(`/proleaks/${wave}/${patch}`, queryString);
+            link.setAttribute('href', url);
+        });
+    };
+
+    // Detect initial load and history changes
+    document.addEventListener('DOMContentLoaded', updateLinks);
+    window.addEventListener('popstate', updateLinks);
+
+    // Optional: If using pushState elsewhere in the app, override it to detect URL changes
+    (function(history) {
+        const pushState = history.pushState;
+        history.pushState = function(state, title, url) {
+            const result = pushState.apply(history, arguments);
+            updateLinks();  // Update links whenever pushState is called
+            return result;
+        };
+    })(window.history);
+</script>
 <script type="application/json" id="proleak-data">
     {{ proleak_data|tojson|safe }}
 </script>
