@@ -86,11 +86,12 @@ def main_leaderboard_task():
             ["date", "ending_wave", "game_elo"],
             ["player_id", "game_result", "legion", "megamind", "opener"]
         ]
-        history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
+        history: list = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
         mms = {}
         openers_data = {}
         win_streak = 0
         lose_streak = 0
+        history.reverse()
         for game in history:
             for player2 in game["players_data"]:
                 if player2["player_id"] != playerid:
