@@ -33,11 +33,11 @@ def leaderboard_task(count=1):
                 print("leaderboard fetch error")
                 return
             if success.get("Leaderboard", None):
-                with open(f"leaderboard.json", "w") as f:
+                with open(f"leaderboard_temp.json", "w") as f:
                     json.dump(success, f)
         else:
             if failure:
-                print(failure.GenerateErrorReport())
+                print(f"Something went wrong with the Leaderboard request for offset {offset}")
 
     PlayFabClientAPI.LoginWithCustomID(login_request, callback)
 

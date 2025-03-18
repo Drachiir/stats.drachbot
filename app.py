@@ -63,6 +63,69 @@ def validate_custom_patch(patch:str):
         return False
     return True
 
+
+import json
+
+
+def main_leaderboard_task():
+    leaderboard_task(1)
+
+    with open("leaderboard_temp.json", "r") as f:
+        temp_data = json.load(f)
+
+    for player in temp_data["Leaderboard"]:
+        playerid = drachbot_db.get_playerid(player["PlayFabId"])
+        if not playerid:
+            api_profile = legion_api.getprofile(player["PlayFabId"], by_id=True)
+            if api_profile in [0, 1]:
+                return {"Error": "Player not found"}
+            playerid = api_profile["_id"]
+        req_columns = [
+            [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
+             PlayerData.player_id, PlayerData.game_result, PlayerData.legion, PlayerData.megamind, PlayerData.opener],
+            ["date", "ending_wave", "game_elo"],
+            ["player_id", "game_result", "legion", "megamind", "opener"]
+        ]
+        history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
+        mms = {}
+        openers_data = {}
+        win_streak = 0
+        lose_streak = 0
+        for game in history:
+            for player2 in game["players_data"]:
+                if player2["player_id"] != playerid:
+                    continue
+                if player2["megamind"]:
+                    player2["legion"] = "Megamind"
+                # Count Masterminds
+                mms[player2["legion"]] = mms.get(player2["legion"], 0) + 1
+                # Count Openers
+                for opener_unit in set(player2["opener"].split(",")):
+                    openers_data[opener_unit] = openers_data.get(opener_unit, 0) + 1
+                # Win/Lose streak tracking
+                if player2["game_result"] == "won":
+                    win_streak += 1
+                    lose_streak = 0
+                else:
+                    lose_streak += 1
+                    win_streak = 0
+        top_mms = dict(sorted(mms.items(), key=lambda x: x[1], reverse=True)[:3])
+        top_openers = dict(sorted(openers_data.items(), key=lambda x: x[1], reverse=True)[:3])
+        drachbot_data = {
+            "Masterminds": top_mms,
+            "WinStreak": win_streak,
+            "LoseStreak": lose_streak,
+            "Openers": top_openers
+        }
+        player["DrachbotData"] = drachbot_data
+    with open("leaderboard.json", "w") as f:
+        json.dump(temp_data, f)
+    print("[LEADERBOARD]: Update done")
+
+def run_leaderboard_task_in_thread():
+    thread = threading.Thread(target=main_leaderboard_task, daemon=True)
+    thread.start()
+
 if platform.system() == "Linux":
     timeout = 600
     timeout2 = 300
@@ -239,7 +302,7 @@ def leaderboard(playername):
     if not leaderboard_data:
         return render_template("no_data.html", text=f"Error loading leaderboard, try again later.")
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
-                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True)
+                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True, get_cdn = util.get_cdn_image)
 
 @app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': None})
 @app.route("/rank-distribution/<snapshot>", methods=['GET'])
@@ -619,8 +682,7 @@ def get_simple_history(playername):
     req_columns = [
         [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
          PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
-         PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
-         PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
+         PlayerData.legion],
         ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
         ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion"]]
     history = drachbot_db.get_matchistory(playerid, 10, 0, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, skip_game_refresh=True)
@@ -1460,14 +1522,16 @@ def stats(stats, elo, patch, specific_key):
                            playerurl = "", playername2=playername2, patch_selector = False)
 
 
-if platform.system() == "Windows":
-    for file in os.listdir("Files/player_cache"):
-        os.remove(f"Files/player_cache/{file}")
-    app.run(host="0.0.0.0", debug=True)
-else:
-    from waitress import serve
-    scheduler.add_job(id = 'Scheduled Task', func=leaderboard_task, trigger="interval", seconds=180)
-    scheduler.start()
-    for file in os.listdir("Files/player_cache"):
-        os.remove(f"Files/player_cache/{file}")
-    serve(app, host="0.0.0.0", port=54937, threads=50)
+if __name__ == "__main__":
+    if platform.system() == "Windows":
+        run_leaderboard_task_in_thread()
+        for file in os.listdir("Files/player_cache"):
+            os.remove(f"Files/player_cache/{file}")
+        app.run(host="0.0.0.0", debug=True, use_reloader=False)
+    else:
+        from waitress import serve
+        scheduler.add_job(id = 'Scheduled Task', func=run_leaderboard_task_in_thread, trigger="interval", seconds=180)
+        scheduler.start()
+        for file in os.listdir("Files/player_cache"):
+            os.remove(f"Files/player_cache/{file}")
+        serve(app, host="0.0.0.0", port=54937, threads=50)

@@ -18,6 +18,7 @@
     th {
         cursor: pointer;
         position: relative;
+        white-space: nowrap;
     }
     th .sort-arrow {
         font-size: 0.8em;
@@ -26,13 +27,18 @@
         transition: transform 0.2s ease;
     }
     th.sorted-asc .sort-arrow {
-        transform: rotate(180deg); /* Rotate arrow up */
+        transform: rotate(180deg);
     }
     th.sorted-desc .sort-arrow {
-        transform: rotate(0deg); /* Arrow points down */
+        transform: rotate(0deg);
+    }
+    .icon-img {
+        width: 32px;
+        height: 32px;
+        margin: 2px;
     }
 </style>
-<div style="text-align: center; padding-top: 10px">
+<div style="text-align: center; padding-top: 10px; white-space: nowrap">
     <div style="display: flex; justify-content: center">
         <div style="margin-bottom: 10px; display: block;">
             <div class="input-group" style="flex-wrap: nowrap; width: 300px">
@@ -45,18 +51,23 @@
         </div>
     </div>
 </div>
-<div style="text-align: center; padding-top: 10px">
+<div style="text-align: center; padding-top: 10px; white-space: nowrap">
     <div style="display: inline-block; position: relative">
         <div id="result-count" style="margin-bottom: 10px; position: absolute; left: 0; top: -25px"></div>
         <table id="LeaderboardTable" class="table table-hover table-bordered">
             <thead>
                 <tr>
-                    <th class="sorted-desc" onclick="sortTable(0, 'numeric')"><r>Rank <span class="sort-arrow">▼</span></r></th>
-                    <th><r>Player</r></th>
-                    <th><r>Country</r></th>
+                    <th class="sorted-desc" onclick="sortTable(0, 'numeric')">Rank <span class="sort-arrow">▼</span></th>
+                    <th>Player</th>
+                    <th>Country</th>
                     <th class="sorted-desc" onclick="sortTable(3, 'numeric')">Elo <span class="sort-arrow">▼</span></th>
                     <th class="sorted-desc" onclick="sortTable(4, 'numeric')">Winrate <span class="sort-arrow">▼</span></th>
                     <th class="sorted-desc" onclick="sortTable(5, 'games')">Win/Lose <span class="sort-arrow">▼</span></th>
+                    {% if leaderboard["Leaderboard"] and leaderboard["Leaderboard"][0]["DrachbotData"] is defined %}
+                        <th>Streak</th>
+                        <th>Fav. MMs</th>
+                        <th>Fav. Opens</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
@@ -71,7 +82,7 @@
                     {% endif %}
                     {% set percentage = winrate([wins, (wins+losses)]) %}
                     <tr class="player-row" data-games="{{ wins + losses }}">
-                        <td><r>{{ player["Position"] + 1 }}</r></td>
+                        <td>{{ player["Position"] + 1 }}</td>
                         <td>
                             <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
                                 <div style="text-align: left;">
@@ -88,9 +99,26 @@
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
                             <div title="" class="Country" data-country="{{ country_code }}"></div>
                         </td>
-                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
-                        <td><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
-                        <td><r>{{ wins }} - {{ losses }} ({{ wins+losses }})</r></td>
+                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}">{{ player["StatValue"] }}</td>
+                        <td><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></td>
+                        <td>{{ wins }} - {{ losses }} ({{ wins+losses }})</td>
+                        {% if player["DrachbotData"] is defined %}
+                            {% set streak_icon = "🔥" if player["DrachbotData"]["WinStreak"] > 0 else "❄️" %}
+                            {% set streak_value = player["DrachbotData"]["WinStreak"] if player["DrachbotData"]["WinStreak"] > 0 else player["DrachbotData"]["LoseStreak"] %}
+                            <td>{{ streak_value }} {{ streak_icon }}</td>
+                            <td>
+                                {% set fav_mms = player["DrachbotData"]["Masterminds"]|dictsort(false, 'value')|list %}
+                                {% for mm in fav_mms %}
+                                    <img class="icon-img" src="{{ get_cdn(mm[0], "MM") }}">
+                                {% endfor %}
+                            </td>
+                            <td>
+                                {% set fav_opens = player["DrachbotData"]["Openers"]|dictsort(false, 'value')|list %}
+                                {% for open in fav_opens %}
+                                    <img class="icon-img" src="{{ get_cdn(open[0], "Unit") }}">
+                                {% endfor %}
+                            </td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </tbody>
