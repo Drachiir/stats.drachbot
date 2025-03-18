@@ -120,7 +120,6 @@ def main_leaderboard_task():
         player["DrachbotData"] = drachbot_data
     with open("leaderboard.json", "w") as f:
         json.dump(temp_data, f)
-    print("[LEADERBOARD]: Update done")
 
 def run_leaderboard_task_in_thread():
     thread = threading.Thread(target=main_leaderboard_task, daemon=True)
@@ -1524,7 +1523,7 @@ def stats(stats, elo, patch, specific_key):
 
 if __name__ == "__main__":
     if platform.system() == "Windows":
-        run_leaderboard_task_in_thread()
+        #run_leaderboard_task_in_thread()
         for file in os.listdir("Files/player_cache"):
             os.remove(f"Files/player_cache/{file}")
         app.run(host="0.0.0.0", debug=True, use_reloader=False)
