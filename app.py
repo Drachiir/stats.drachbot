@@ -74,12 +74,7 @@ def main_leaderboard_task():
         temp_data = json.load(f)
 
     for player in temp_data["Leaderboard"]:
-        playerid = drachbot_db.get_playerid(player["PlayFabId"])
-        if not playerid:
-            api_profile = legion_api.getprofile(player["PlayFabId"], by_id=True)
-            if api_profile in [0, 1]:
-                return {"Error": "Player not found"}
-            playerid = api_profile["_id"]
+        playerid = player["PlayFabId"]
         req_columns = [
             [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
              PlayerData.player_id, PlayerData.game_result, PlayerData.legion, PlayerData.megamind, PlayerData.opener],
