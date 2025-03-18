@@ -63,13 +63,8 @@ def validate_custom_patch(patch:str):
         return False
     return True
 
-
-import json
-
-
 def main_leaderboard_task():
     leaderboard_task(1)
-
     with open("leaderboard_temp.json", "r") as f:
         temp_data = json.load(f)
 
