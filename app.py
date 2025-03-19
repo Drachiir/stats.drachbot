@@ -68,47 +68,47 @@ def main_leaderboard_task():
     with open("leaderboard_temp.json", "r") as f:
         temp_data = json.load(f)
 
-    for player in temp_data["Leaderboard"]:
-        playerid = player["PlayFabId"]
-        req_columns = [
-            [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
-             PlayerData.player_id, PlayerData.game_result, PlayerData.legion, PlayerData.megamind, PlayerData.opener],
-            ["date", "ending_wave", "game_elo"],
-            ["player_id", "game_result", "legion", "megamind", "opener"]
-        ]
-        history: list = drachbot_db.get_matchistory(playerid, 50, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
-        mms = {}
-        openers_data = {}
-        win_streak = 0
-        lose_streak = 0
-        history.reverse()
-        for game in history:
-            for player2 in game["players_data"]:
-                if player2["player_id"] != playerid:
-                    continue
-                if player2["megamind"]:
-                    player2["legion"] = "Megamind"
-                # Count Masterminds
-                mms[player2["legion"]] = mms.get(player2["legion"], 0) + 1
-                # Count Openers
-                for opener_unit in set(player2["opener"].split(",")):
-                    openers_data[opener_unit] = openers_data.get(opener_unit, 0) + 1
-                # Win/Lose streak tracking
-                if player2["game_result"] == "won":
-                    win_streak += 1
-                    lose_streak = 0
-                else:
-                    lose_streak += 1
-                    win_streak = 0
-        top_mms = dict(sorted(mms.items(), key=lambda x: x[1], reverse=True)[:3])
-        top_openers = dict(sorted(openers_data.items(), key=lambda x: x[1], reverse=True)[:3])
-        drachbot_data = {
-            "Masterminds": top_mms,
-            "WinStreak": win_streak,
-            "LoseStreak": lose_streak,
-            "Openers": top_openers
-        }
-        player["DrachbotData"] = drachbot_data
+    # for player in temp_data["Leaderboard"]:
+    #     playerid = player["PlayFabId"]
+    #     req_columns = [
+    #         [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
+    #          PlayerData.player_id, PlayerData.game_result, PlayerData.legion, PlayerData.megamind, PlayerData.opener],
+    #         ["date", "ending_wave", "game_elo"],
+    #         ["player_id", "game_result", "legion", "megamind", "opener"]
+    #     ]
+    #     history: list = drachbot_db.get_matchistory(playerid, 50, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
+    #     mms = {}
+    #     openers_data = {}
+    #     win_streak = 0
+    #     lose_streak = 0
+    #     history.reverse()
+    #     for game in history:
+    #         for player2 in game["players_data"]:
+    #             if player2["player_id"] != playerid:
+    #                 continue
+    #             if player2["megamind"]:
+    #                 player2["legion"] = "Megamind"
+    #             # Count Masterminds
+    #             mms[player2["legion"]] = mms.get(player2["legion"], 0) + 1
+    #             # Count Openers
+    #             for opener_unit in set(player2["opener"].split(",")):
+    #                 openers_data[opener_unit] = openers_data.get(opener_unit, 0) + 1
+    #             # Win/Lose streak tracking
+    #             if player2["game_result"] == "won":
+    #                 win_streak += 1
+    #                 lose_streak = 0
+    #             else:
+    #                 lose_streak += 1
+    #                 win_streak = 0
+    #     top_mms = dict(sorted(mms.items(), key=lambda x: x[1], reverse=True)[:3])
+    #     top_openers = dict(sorted(openers_data.items(), key=lambda x: x[1], reverse=True)[:3])
+    #     drachbot_data = {
+    #         "Masterminds": top_mms,
+    #         "WinStreak": win_streak,
+    #         "LoseStreak": lose_streak,
+    #         "Openers": top_openers
+    #     }
+    #     player["DrachbotData"] = drachbot_data
     with open("leaderboard.json", "w") as f:
         json.dump(temp_data, f)
 
