@@ -1481,8 +1481,11 @@ def stats(stats, elo, patch, specific_key):
     if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
         return render_template("no_data.html", text="No Data")
     if stats == "mmstats" and specific_key != "Megamind":
-        if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
-            return render_template("no_data.html", text="No Data")
+        try:
+            if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
+                return render_template("no_data.html", text="No Data")
+        except IndexError:
+            return render_template("no_data.html", text=f"{specific_key} not found")
     if stats == "gamestats":
         return render_template("gamestats.html", data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
                                games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
