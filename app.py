@@ -1484,7 +1484,7 @@ def stats(stats, elo, patch, specific_key):
         try:
             if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
                 return render_template("no_data.html", text="No Data")
-        except IndexError:
+        except KeyError:
             return render_template("no_data.html", text=f"{specific_key} not found")
     if stats == "gamestats":
         return render_template("gamestats.html", data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
