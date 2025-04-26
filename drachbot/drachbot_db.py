@@ -250,7 +250,10 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if patch in ["12", "11", "10"]:
                 expr = GameData.version.startswith("v"+patch)
             elif patch != "0":
-                expr = fn.Substr(GameData.version, 2, 5).in_(patch_list)
+                if len(patch_list) == 1:
+                    expr = fn.Substr(GameData.version, 2, len(patch_list[0])).in_(patch_list)
+                else:
+                    expr = fn.Substr(GameData.version, 2, 5).in_(patch_list)
             else:
                 expr = True
             game_data_query = (PlayerData
@@ -262,18 +265,6 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
 
             if games != 0:
                 game_data_query = game_data_query.limit(games*4)
-
-            # def explain_query(query):
-            #     sql, params = query.sql()
-            #     explain_sql = "EXPLAIN ANALYZE " + sql
-            #     with db.connection_context():
-            #         result = db.execute_sql(explain_sql, params)
-            #         return result.fetchall()
-            #
-            # explain_result = explain_query(game_data_query)
-            #
-            # for row in explain_result:
-            #     print(row[0])
 
             for i, row in enumerate(game_data_query.iterator()):
                 p_data = {}
@@ -315,8 +306,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if games == 0:
                 games = GameData.select().where((GameData.queue == "Normal") & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave)).count()
             expr = True
-        if games > 150000:
-            games = 150000
+        if games > 200000:
+            games = 200000
         game_data_query = (PlayerData
                            .select(*req_columns[0])
                            .join(GameData)
