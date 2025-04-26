@@ -185,8 +185,6 @@ patches = defaults_json["Patches"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
 
-defaults2[0] = ",".join(patches[:3])
-
 @app.route("/api/defaults")
 def api_defaults():
     return defaults_json
