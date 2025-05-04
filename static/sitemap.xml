@@ -2,63 +2,63 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
-    <loc>https://stats.drachbot.site/</loc>
+    <loc>https://drach.bot/</loc>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <!-- /mmstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/mmstats/</loc>
+    <loc>https://drach.bot/mmstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /openstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/openstats/</loc>
+    <loc>https://drach.bot/openstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /megamindstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/megamindstats/</loc>
+    <loc>https://drach.bot/megamindstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /spellstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/spellstats/</loc>
+    <loc>https://drach.bot/spellstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /rollstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/rollstats/</loc>
+    <loc>https://drach.bot/rollstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /unitstats/ -->
   <url>
-    <loc>https://stats.drachbot.site/unitstats/</loc>
+    <loc>https://drach.bot/unitstats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /wavestats/ -->
   <url>
-    <loc>https://stats.drachbot.site/wavestats/</loc>
+    <loc>https://drach.bot/wavestats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <!-- /gamestats/ -->
   <url>
-    <loc>https://stats.drachbot.site/gamestats/</loc>
+    <loc>https://drach.bot/gamestats/</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
   </url>
