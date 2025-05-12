@@ -1,8 +1,10 @@
 import os
 import platform
 import json
+import sqlite3
 import traceback
 from datetime import datetime, timezone, timedelta
+import requests
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify, abort
 import re
@@ -23,14 +25,17 @@ from flask_cors import CORS, cross_origin
 import threading
 from threading import Thread
 import msgpack
+import sitedb
 
+with open('Files/json/Secrets.json', 'r') as f:
+    secret_file = json.load(f)
+    f.close()
+
+sitedb.init_db()
 cache = Cache()
-
 app = Flask(__name__)
-app.secret_key = 'python>js'
-
+app.secret_key = secret_file["flask_secret_key"]
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-
 scheduler = APScheduler()
 
 @app.teardown_request
@@ -176,6 +181,15 @@ with open("defaults.json", "r") as f:
     defaults_json = json.load(f)
     f.close()
 
+DISCORD_CLIENT_ID = secret_file["discord_id"]
+DISCORD_CLIENT_SECRET = secret_file["discord_secret"]
+DISCORD_REDIRECT_URI = secret_file["discord_uri"]
+
+DISCORD_API_BASE = "https://discord.com/api"
+OAUTH_AUTHORIZE_URL = f"{DISCORD_API_BASE}/oauth2/authorize"
+OAUTH_TOKEN_URL = f"{DISCORD_API_BASE}/oauth2/token"
+USER_API_URL = f"{DISCORD_API_BASE}/users/@me"
+
 defaults = defaults_json["Defaults"]
 defaults2 = defaults_json["Defaults2"]
 mm_list = defaults_json["MMs"]
@@ -184,6 +198,64 @@ elos2 = defaults_json["Elos2"]
 patches = defaults_json["Patches"]
 buff_spells = defaults_json["BuffSpells"]
 website_stats = defaults_json["StatCategories"]
+
+@app.route("/login/")
+def login():
+    next_url = request.args.get("next") or url_for("home")
+    session["next_url"] = next_url
+    return redirect(
+        f"{OAUTH_AUTHORIZE_URL}?client_id={DISCORD_CLIENT_ID}"
+        f"&redirect_uri={DISCORD_REDIRECT_URI}"
+        f"&response_type=code&scope=identify"
+    )
+
+@app.route("/callback")
+def callback():
+    code = request.args.get("code")
+    data = {
+        "client_id": DISCORD_CLIENT_ID,
+        "client_secret": DISCORD_CLIENT_SECRET,
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": DISCORD_REDIRECT_URI,
+        "scope": "identify"
+    }
+
+    headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    token_response = requests.post(OAUTH_TOKEN_URL, data=data, headers=headers)
+    token_response.raise_for_status()
+    access_token = token_response.json().get("access_token")
+
+    user_response = requests.get(USER_API_URL, headers={"Authorization": f"Bearer {access_token}"})
+    user_response.raise_for_status()
+    user_data = user_response.json()
+
+    # Fetch player_id from external API
+    player_id = sitedb.get_player_id(user_data["id"])
+
+    # Store in your local DB
+    sitedb.save_user_to_db(user_data, player_id)
+
+    # Save only what's needed in session
+    session["user"] = {
+        "id": user_data["id"],
+        "username": user_data["username"],
+        "discriminator": user_data["discriminator"],
+        "avatar": user_data["avatar"],
+        "player_id": player_id
+    }
+    session.permanent = True
+    next_url = session.pop("next_url", url_for("home"))
+    return redirect(next_url)
+
+@app.route("/logout/")
+def logout():
+    session.clear()
+    return redirect(request.referrer or url_for("home"))
+
+@app.context_processor
+def inject_user():
+    return dict(user=session.get("user"), discord_login=False)
 
 @app.route("/api/defaults")
 def api_defaults():
@@ -1518,7 +1590,7 @@ if __name__ == "__main__":
         #run_leaderboard_task_in_thread()
         for file in os.listdir("Files/player_cache"):
             os.remove(f"Files/player_cache/{file}")
-        app.run(host="0.0.0.0", debug=True, use_reloader=False)
+        app.run(host="0.0.0.0", debug=True)
     else:
         from waitress import serve
         scheduler.add_job(id = 'Scheduled Task', func=run_leaderboard_task_in_thread, trigger="interval", seconds=180)

@@ -85,9 +85,10 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% if not leaderboard and not classic_schedule and not profile and stats != "gamestats" %}
+    {% if not leaderboard and not classic_schedule and not profile and stats != "gamestats" and not duofinder %}
         <link rel="stylesheet" href="/static/style.css">
     {% endif %}
+    <link rel="stylesheet" href="/static/discordlogin.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
           rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
@@ -160,6 +161,10 @@
                             <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a>
                     </li>
                     <li class="dropdown-item">
+                        <a class="nav-link" href="/duo-finder">
+                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='/static/party.png'>Duo Finder</a>
+                    </li>
+                    <li class="dropdown-item">
                         <a class="nav-link" href="/openers">
                             <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Gateguard.png'>Openers</a>
                     </li>
@@ -226,7 +231,7 @@
                 </div>
             </li>
             <li>
-                <select class="form-select" id="selector" style="max-width: 150px">
+                <select class="form-select" id="selector" style="max-width: 150px; margin-right: 10px;">
                     <option value="pass">Select background</option>
                     <option value="/static/Gray.jpg">Dark</option>
                     <option value="/static/earthking.jpg">Earth King</option>
@@ -235,6 +240,35 @@
                     <option value="/static/oasis.webp">Oasis</option>
                 </select>
             </li>
+            {% if user and discord_login %}
+            <li class="nav-item dropdown">
+                <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
+                    <img class="user-avatar" src="https://cdn.discordapp.com/{{ ("avatars/" + user.id + "/" + user.avatar) if user.avatar else 'embed/avatars/0' }}.png" alt="Avatar">
+                    <span>{{ user.username }}</span>
+                </a>
+                <ul class="dropdown-menu bg-black">
+                    <li class="dropdown-item">
+                        {% if user.player_id %}
+                            <a class="nav-link" href="/profile/{{ user.player_id }}">Profile</a>
+                        {% else %}
+                            <a href="https://imgur.com/cJumMnM.png" class="nav-link">Link LegionTD2 Account</a>
+                        {% endif %}
+                    </li>
+                    <li class="dropdown-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </li>
+            {% elif discord_login %}
+            <li>
+                <a href="{{ url_for('login', next=request.path) }}" class="login-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"></path>
+                    </svg>
+                    Login w/ Discord
+                </a>
+            </li>
+            {% endif %}
         </ul>
     </div>
 </nav>

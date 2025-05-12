@@ -1,0 +1,65 @@
+.discord-login {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.discord-login img.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #5865F2;
+}
+
+.discord-name {
+    font-weight: 500;
+    color: #fff;
+    background-color: #5865F2;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.logout-button {
+    margin-left: 10px;
+    padding: 4px 8px;
+    background-color: #ff4f4f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.logout-button:hover {
+    background-color: #e03e3e;
+}
+
+.login-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #5865F2;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    max-width: max-content;
+}
+
+.login-button:hover {
+    background-color: #4752c4;
+}
+
+.login-button img {
+    width: 20px;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #5865F2;
+}
