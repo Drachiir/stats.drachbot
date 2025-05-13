@@ -2,6 +2,25 @@ import json
 import drachbot.legion_api as legion_api
 import util
 
+def get_roll(unit_dict, unit_name):
+    if unit_name == "kingpin":
+        unit_name = "angler"
+    elif unit_name == "sakura":
+        unit_name = "seedling"
+    elif unit_name == "iron maiden":
+        unit_name = "cursed casket"
+    elif unit_name == "hell raiser":
+        unit_name = "masked spirit"
+    elif unit_name == "hydra":
+        unit_name = "eggsack"
+    elif unit_name == "oathbreaker final form":
+        unit_name = "chained fist"
+    elif unit_name == "nucleus":
+        unit_name = "proton"
+    elif unit_dict[unit_name]["upgradesFrom"]:
+        unit_name = unit_dict[unit_name]["upgradesFrom"]
+    return unit_name
+
 def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", data_only = False, transparent = False, history_raw = {}):
     if mastermind == 'All':
         mmnames_list = util.mm_list
@@ -107,20 +126,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
                             unit_name = unit.split(":")[0].replace("_", " ").replace(" unit id", "")
                             if unit_name == "" or unit_name not in unit_dict:
                                 continue
-                            if unit_name == "kingpin":
-                                unit_name = "angler"
-                            elif unit_name == "sakura":
-                                unit_name = "seedling"
-                            elif unit_name == "iron maiden":
-                                unit_name = "cursed casket"
-                            elif unit_name == "hell raiser":
-                                unit_name = "masked spirit"
-                            elif unit_name == "hydra":
-                                unit_name = "eggsack"
-                            elif unit_name == "oathbreaker final form":
-                                unit_name = "chained fist"
-                            elif unit_dict[unit_name]["upgradesFrom"]:
-                                unit_name = unit_dict[unit_name]["upgradesFrom"]
+                            unit_name = get_roll(unit_dict, unit_name)
                             if unit_loc == champ_loc:
                                 if unit_name in masterminds_dict["Champion"]["Targets"]:
                                     masterminds_dict["Champion"]["Targets"][unit_name]["Count"] += 1
@@ -133,20 +139,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
                             unit_name2 = unit2.split(":")[0].replace("_", " ").replace(" unit id", "")
                             if unit_name2 == "" or unit_name2 not in unit_dict:
                                 continue
-                            if unit_name2 == "kingpin":
-                                unit_name2 = "angler"
-                            elif unit_name2 == "sakura":
-                                unit_name2 = "seedling"
-                            elif unit_name2 == "iron maiden":
-                                unit_name2 = "cursed casket"
-                            elif unit_name2 == "hell raiser":
-                                unit_name2 = "masked spirit"
-                            elif unit_name2 == "hydra":
-                                unit_name2 = "eggsack"
-                            elif unit_name2 == "oathbreaker final form":
-                                unit_name2 = "chained fist"
-                            elif unit_dict[unit_name2]["upgradesFrom"]:
-                                unit_name2 = unit_dict[unit_name2]["upgradesFrom"]
+                            unit_name2 = get_roll(unit_dict, unit_name2)
                             fighter_set.add(unit_name2)
                         for fighter in fighter_set:
                             if fighter in masterminds_dict[mastermind_current]["Rolls"]:
@@ -206,20 +199,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
                             unit_name = unit.split(":")[0].replace("_", " ").replace(" unit id", "")
                             if unit_name == "" or unit_name not in unit_dict:
                                 continue
-                            if unit_name == "kingpin":
-                                unit_name = "angler"
-                            elif unit_name == "sakura":
-                                unit_name = "seedling"
-                            elif unit_name == "iron maiden":
-                                unit_name = "cursed casket"
-                            elif unit_name == "hell raiser":
-                                unit_name = "masked spirit"
-                            elif unit_name == "hydra":
-                                unit_name = "eggsack"
-                            elif unit_name == "oathbreaker final form":
-                                unit_name = "chained fist"
-                            elif unit_dict[unit_name]["upgradesFrom"]:
-                                unit_name = unit_dict[unit_name]["upgradesFrom"]
+                            unit_name = get_roll(unit_dict, unit_name)
                             if unit_loc == champ_loc:
                                 if unit_name in masterminds_dict["Champion"]["Targets"]:
                                     masterminds_dict["Champion"]["Targets"][unit_name]["Count"] += 1
@@ -232,20 +212,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
                             unit_name2 = unit2.split(":")[0].replace("_", " ").replace(" unit id", "")
                             if unit_name2 == "" or unit_name2 not in unit_dict:
                                 continue
-                            if unit_name2 == "kingpin":
-                                unit_name2 = "angler"
-                            elif unit_name2 == "sakura":
-                                unit_name2 = "seedling"
-                            elif unit_name2 == "iron maiden":
-                                unit_name2 = "cursed casket"
-                            elif unit_name2 == "hell raiser":
-                                unit_name2 = "masked spirit"
-                            elif unit_name2 == "hydra":
-                                unit_name2 = "eggsack"
-                            elif unit_name2 == "oathbreaker final form":
-                                unit_name2 = "chained fist"
-                            elif unit_dict[unit_name2]["upgradesFrom"]:
-                                unit_name2 = unit_dict[unit_name2]["upgradesFrom"]
+                            unit_name2 = get_roll(unit_dict, unit_name2)
                             fighter_set.add(unit_name2)
                         for fighter in fighter_set:
                             if fighter in masterminds_dict[mastermind_current]["Rolls"]:
