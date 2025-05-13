@@ -150,8 +150,14 @@
             return isAsc ? aValue - bValue : bValue - aValue;
         });
 
-        rows.forEach(row => table.querySelector("tbody").appendChild(row));
+        // Re-append rows and update the first column to reflect new order
+        const tbody = table.querySelector("tbody");
+        rows.forEach((row, index) => {
+            row.cells[0].textContent = index + 1; // Reset first column to row number
+            tbody.appendChild(row);
+        });
 
+        // Update sort direction classes
         header.classList.toggle("sorted-asc", !isAsc);
         header.classList.toggle("sorted-desc", isAsc);
     }
