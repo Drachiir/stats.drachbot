@@ -1486,7 +1486,7 @@ def stats(stats, elo, patch, specific_key):
                 case "openstats":
                     raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "spellstats":
-                    raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.spellstats.spellstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "unitstats":
                     raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "rollstats":
