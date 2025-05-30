@@ -377,6 +377,8 @@ def rank_distribution(snapshot):
         min_winrate = 0
     snapshots_list = []
     for ss in os.listdir(f"{shared_folder}/leaderboard"):
+        if not ss.endswith(".json"):
+            continue
         snapshots_list.append(ss.split("_")[2].replace(".json", ""))
     snapshots_list = sorted(snapshots_list, key=lambda x: int(x.split("-")[2]+x.split("-")[1]+x.split("-")[0]), reverse=True)
     snapshot = snapshot if snapshot else snapshots_list[0]
