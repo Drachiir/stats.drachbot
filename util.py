@@ -300,6 +300,11 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return f"{custom_winrate([data[key]['Wins'], data[key]['Count']])}%"
             except Exception:
                 return 0
+        case "Delta":
+            try:
+                return custom_winrate([data[key]['Wins'], data[key]['Count']])
+            except Exception:
+                return 0
         case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*" | "Rollrate":
             try:
                 if stats != "spellstats" or (specific_tier == True and stats == "spellstats") or key == "taxed allowance":

@@ -1161,7 +1161,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Playrate"]
                     sub_headers = [["Champions", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 if specific_key != "All" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
@@ -1174,10 +1174,10 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
                 elif specific_key == "Champion":
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Champions", "Targets", "rollstats"], ["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
                 if specific_key == "Megamind":
                     raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, "All", data_only=True, history_raw=history_raw)
@@ -1200,7 +1200,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
                     sub_headers = [["Best Add", "OpenWith", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
                 raw_data = drachbot.openstats.openstats(playerid, 0, elo, patch, data_only=True, history_raw=history_raw)
                 games = raw_data[1]
@@ -1216,10 +1216,10 @@ def profile(playername, stats, patch, elo, specific_key):
                     sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
                 else:
                     if specific_key in buff_spells:
-                        header_keys = ["Games", "Winrate", "Playrate"]
+                        header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                         sub_headers = [["Targets", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
                     else:
-                        header_keys = ["Games", "Winrate", "Playrate"]
+                        header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                         sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
                 raw_data = drachbot.spellstats.spellstats(playerid, 0, elo, patch, spellname=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
@@ -1234,7 +1234,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Usage Rate", "Player Elo"]
                     sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
                 raw_data = drachbot.unitstats.unitstats(playerid, 0, elo, patch, unit=specific_key.lower(), data_only=True, history_raw=history_raw)
                 games = raw_data[1]
@@ -1249,7 +1249,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Usage Rate", "Player Elo"]
                     sub_headers = [["Best Combo", "ComboUnit", "rollstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate"]
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
                 raw_data = drachbot.unitstats.unitstats(playerid, 0, elo, patch, unit=specific_key.lower(), data_only=True, rollstats=True, history_raw=history_raw)
                 games = raw_data[1]
@@ -1304,7 +1304,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                    specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
                                    stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                    get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}", playername2=playername2, patch_selector=True,
-                                   title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"])
+                                   title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"], plus_prefix=util.plus_prefix)
         if specific_key == "All":
             html_file = "stats.html"
         else:
@@ -1323,7 +1323,8 @@ def profile(playername, stats, patch, elo, specific_key):
                                stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                                sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                data_keys=raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                               playerurl = f"/profile/{playername}", playername2=f"{playername2} ", patch_selector=True, playerprofile = True, player_avatar_url = api_profile["avatarUrl"])
+                               playerurl = f"/profile/{playername}", playername2=f"{playername2} ", patch_selector=True, playerprofile = True, player_avatar_url = api_profile["avatarUrl"],
+                               plus_prefix=util.plus_prefix)
 
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
@@ -1355,10 +1356,10 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Playrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Champions", "Targets", "unitstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             if specific_key != "All" and specific_key not in mm_list:
                 return render_template("no_data.html", text="No Data")
@@ -1371,10 +1372,10 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
             elif specific_key == "Champion":
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Champions", "Targets", "rollstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
             folder = "mmstats"
             if specific_key != "All" and specific_key not in mm_list:
@@ -1388,7 +1389,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 4"]
                 sub_headers = [["Best Add", "OpenWith", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Adds", "OpenWith", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "openstats"
         case "spellstats":
@@ -1401,10 +1402,10 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Best Opener", "Opener", "openstats"], ["Best MMs", "MMs", "mmstats"]]
             else:
                 if specific_key in buff_spells:
-                    header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                    header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Targets", "Targets", "unitstats"], ["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
                 else:
-                    header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                    header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                     sub_headers = [["Openers", "Opener", "openstats"], ["MMs", "MMs", "mmstats"]]
             folder = "spellstats"
         case "unitstats":
@@ -1416,7 +1417,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Usage Rate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "unitstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Combos", "ComboUnit", "unitstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "unitstats"
         case "rollstats":
@@ -1428,7 +1429,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Tier", "Games", "Winrate", "Usage Rate", "Player Elo"]
                 sub_headers = [["Best Combo", "ComboUnit", "rollstats"], ["Best MMs", "MMs", "mmstats"], ["Best Spell", "Spells", "spellstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate"]
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
                 sub_headers = [["Combos", "ComboUnit", "rollstats"], ["MMs", "MMs", "mmstats"], ["Spells", "Spells", "spellstats"]]
             folder = "rollstats"
         case "wavestats":
@@ -1565,7 +1566,7 @@ def stats(stats, elo, patch, specific_key):
                                specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values =util.get_gamestats_values,
                                stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list,
                                mod_date=mod_date, get_tooltip=util.get_tooltip, get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,
-                               playerurl="", playername2=playername2, patch_selector=False, title=title, title_image=title_image, header_title=header_title)
+                               playerurl="", playername2=playername2, patch_selector=False, title=title, title_image=title_image, header_title=header_title, plus_prefix=util.plus_prefix)
     elif specific_key == "All":
         html_file = "stats.html"
     else:
@@ -1584,7 +1585,7 @@ def stats(stats, elo, patch, specific_key):
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,
                            sub_headers=sub_headers, get_cdn_image=util.get_cdn_image, mm_list=mm_list, mod_date=mod_date, get_tooltip=util.get_tooltip,
                            data_keys = raw_data.keys(), get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave, specific_tier=specific_tier,
-                           playerurl = "", playername2=playername2, patch_selector = False)
+                           playerurl = "", playername2=playername2, patch_selector = False, plus_prefix=util.plus_prefix)
 
 
 if __name__ == "__main__":
