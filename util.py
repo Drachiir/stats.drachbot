@@ -119,9 +119,11 @@ elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     tier_dict = tier_dict_specific if dict_type else tier_dict_all
-
-    if "-" in elo:
-        elo = elo.split("-")[0]
+    try:
+        if "-" in elo:
+            elo = elo.split("-")[0]
+    except TypeError:
+        pass
     elo = elo_dict.get(str(elo), 0.04)
 
     if stats == "megamindstats" and not specific_tier:
