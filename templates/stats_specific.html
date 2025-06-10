@@ -37,6 +37,9 @@
                         {% set header_title = "Megamind" %}
                         <img style="position: absolute; top:0;left: 0; z-index: 1;" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                     {% endif %}
+                    {% if stats == "matchupstats" %}
+                        {% set header_title = "Match Up" %}
+                    {% endif %}
                 </div>
                 {% if player_avatar_url %}
                     <a class="linkTextNoDeco" href="{{ playerurl }}">

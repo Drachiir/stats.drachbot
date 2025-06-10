@@ -106,13 +106,15 @@ def get_avatar_border(stacks):
 tier_dict_specific = {
     "mmstats": 1, "openstats": 1,
     "spellstats": 1, "unitstats": 1,
-    "rollstats": 1, "megamindstats": 0
+    "rollstats": 1, "megamindstats": 0,
+    "matchupstats": 1
 }
 
 tier_dict_all = {
     "mmstats": 0.5, "openstats": 0.7,
     "spellstats": 0.4, "unitstats": 0.2,
-    "rollstats": 0.3, "megamindstats": 0
+    "rollstats": 0.3, "megamindstats": 0,
+    "matchupstats": 1
 }
 
 elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.15}
@@ -127,6 +129,8 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     elo = elo_dict.get(str(elo), 0.04)
 
     if stats == "megamindstats" and not specific_tier:
+        tier_score = winrate
+    elif stats == "matchupstats":
         tier_score = winrate
     else:
         tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
@@ -246,7 +250,8 @@ def get_cdn_image(string, header, profile = False):
             if not string and profile:
                 return f"https://cdn.legiontd2.com/icons/Worker.png"
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
-        case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats":
+        case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats" | "Best With" | "Best Against" | "Teammate"\
+            | "Enemies" | "Sending To" | "Receiving From" | "Match Up":
             if (string not in mm_list) and (string != "Hybrid"):
                 return f"https://cdn.legiontd2.com/icons/{string}.png"
             else:
@@ -266,6 +271,10 @@ def get_tooltip(header:str):
             return f"Best Send based on Win% and Send% on this wave"
         elif header == "Best Unit":
             return f"Best Unit based on Win% and Play% on this wave"
+        elif header == "Best With":
+            return f"Best Mastermind for Teammate"
+        elif header == "Best Against":
+            return f"Best against this Mastermind on Enemy team"
         return f"Best {header.split(" ")[1]} based on Win% and Play%"
     match header:
         case "Tier":
@@ -380,6 +389,16 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
         case "Best Unit":
             try:
                 return get_perf_list(data[key], 'Units', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+            except IndexError:
+                return None
+        case "Best With":
+            try:
+                return get_perf_list(data[key], 'Teammates', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+            except IndexError:
+                return None
+        case "Best Against":
+            try:
+                return get_perf_list(data[key], 'Enemies', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Endrate":

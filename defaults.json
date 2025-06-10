@@ -7,5 +7,5 @@
   "MMs": ["All", "LockIn", "Greed", "Redraw", "Yolo", "Fiesta", "CashOut", "Castle", "Cartel",
     "Chaos", "Champion", "DoubleLockIn", "Kingsguard", "Saboteur", "Stash", "Megamind"],
   "BuffSpells": ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain", "executioner"],
-  "StatCategories": ["mmstats", "megamindstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"]
+  "StatCategories": ["mmstats", "megamindstats", "openstats", "matchupstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"]
 }

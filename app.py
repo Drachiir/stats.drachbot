@@ -16,6 +16,7 @@ import drachbot.spellstats
 import drachbot.unitstats
 import drachbot.wavestats
 import drachbot.gamestats
+import drachbot.matchupstats
 import util
 from drachbot.peewee_pg import GameData, PlayerData, close_db, get_db
 from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values, human_format, clean_unit_name
@@ -928,6 +929,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Items/Megamind.png",
             "https://cdn.legiontd2.com/icons/Mastery/5.png",
+            "https://cdn.legiontd2.com/icons/ChallengerElite.png",
             "https://cdn.legiontd2.com/icons/LegionSpell.png",
             "https://cdn.legiontd2.com/icons/Reroll.png",
             "https://cdn.legiontd2.com/icons/Value10000.png",
@@ -1206,6 +1208,22 @@ def profile(playername, stats, patch, elo, specific_key):
                 games = raw_data[1]
                 avg_elo = raw_data[2]
                 raw_data = raw_data[0]
+            case "matchupstats":
+                title = f"{playername2}'s Match Up"
+                title_image = "https://cdn.legiontd2.com/icons/ChallengerElite.png"
+                header_title = "MM"
+                header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+                if specific_key == "All":
+                    header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
+                    sub_headers = [["Best With", "Teammates", "matchupstats"], ["Best Against", "Enemies", "matchupstats"]]
+                else:
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
+                    sub_headers = [["Teammate", "Teammates", "matchupstats"], ["Enemies", "Enemies", "matchupstats"],
+                                   ["Sending To", "Enemies1", "matchupstats"], ["Receiving From", "Enemies2", "matchupstats"]]
+                raw_data = drachbot.matchupstats.matchupstats(playerid, 0, patch, min_elo=elo, history_raw=history_raw)
+                games = raw_data[1]
+                avg_elo = raw_data[2]
+                raw_data = raw_data[0]
             case "spellstats":
                 title = f"{playername2}'s Spell"
                 title_image = "https://cdn.legiontd2.com/icons/LegionSpell.png"
@@ -1444,6 +1462,19 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Playrate"]
                 sub_headers = [["Sends", "Mercs", "mercstats"], ["Units", "Units", "unitstats"]]
             folder = "wavestats"
+        case "matchupstats":
+            title = "Match Up"
+            title_image = "https://cdn.legiontd2.com/icons/ChallengerElite.png"
+            header_title = "MM"
+            header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+            if specific_key == "All":
+                header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
+                sub_headers = [["Best With", "Teammates", "matchupstats"], ["Best Against", "Enemies", "matchupstats"]]
+            else:
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
+                sub_headers = [["Teammate", "Teammates", "matchupstats"], ["Enemies", "Enemies", "matchupstats"],
+                               ["Sending To", "Enemies1", "matchupstats"], ["Receiving From", "Enemies2", "matchupstats"]]
+            folder = "matchupstats"
         case "gamestats":
             title = "Game"
             title_image = "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
@@ -1494,6 +1525,8 @@ def stats(stats, elo, patch, specific_key):
                     raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "rollstats":
                     raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, rollstats=True, history_raw=history_raw)
+                case "matchupstats":
+                    raw_data = drachbot.matchupstats.matchupstats("all", 0, patch[1:], min_elo=int(elo1), history_raw=history_raw)
                 case "wavestats":
                     raw_data = drachbot.wavestats.wavestats("all", 0, int(elo1), patch[1:], history_raw=history_raw)
             games = raw_data[1]
