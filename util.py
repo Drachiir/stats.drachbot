@@ -196,7 +196,10 @@ def get_synergy_counter_effect(unit, dict1, key, unit2, synergy):
 def get_synergy_counter_effect_list(unit, dict1, key, synergy):
     new_dict = {}
     for xy in dict1[unit][key]:
-        tier_score = get_synergy_counter_effect(unit, dict1, key, xy, synergy)
+        try:
+            tier_score = get_synergy_counter_effect(unit, dict1, key, xy, synergy)
+        except Exception:
+            continue
         new_dict[xy] = tier_score
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
@@ -352,9 +355,15 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
             except Exception:
                 return 0
         case "Synergy":
-            return f"{get_synergy_counter_effect(main_key, data_dict, "Teammates", specific_key, True)}%"
+            try:
+                return f"{get_synergy_counter_effect(main_key, data_dict, "Teammates", specific_key, True)}%"
+            except Exception:
+                return 0
         case "Counter":
-            return f"{get_synergy_counter_effect(main_key, data_dict, "Enemies", specific_key, False)}%"
+            try:
+                return f"{get_synergy_counter_effect(main_key, data_dict, "Enemies", specific_key, False)}%"
+            except Exception:
+                return 0
         case "Player Elo":
             return int(custom_divide([data[key]['Elo'], data[key]['Count']]))
         case "W on 10":
@@ -422,12 +431,12 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
         case "Best With":
             try:
                 return get_synergy_counter_effect_list(key, data, 'Teammates', True)[0]
-            except IndexError:
+            except Exception:
                 return None
         case "Best Against":
             try:
                 return get_synergy_counter_effect_list(key, data, 'Enemies', False)[0]
-            except IndexError:
+            except Exception:
                 return None
         case "Endrate":
             return f"{custom_winrate([data[key]['EndCount'], games])}%"
