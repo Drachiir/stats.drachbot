@@ -1471,7 +1471,7 @@ def stats(stats, elo, patch, specific_key):
                 header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
                 sub_headers = [["Best With", "Teammates", "matchupstats"], ["Best Against", "Enemies", "matchupstats"]]
             else:
-                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
+                header_keys = ["Tier", "Games", "Winrate", "Synergy", "Delta"]
                 sub_headers = [["Teammate", "Teammates", "matchupstats"], ["Enemies", "Enemies", "matchupstats"],
                                ["Sending To", "Enemies1", "matchupstats"], ["Receiving From", "Enemies2", "matchupstats"]]
             folder = "matchupstats"

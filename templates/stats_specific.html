@@ -166,14 +166,26 @@
                     {% endfor %}
                 </tr>
                 {# HEADER 1 KEYS #}
+                {% if stats == "matchupstats" %}
+                    {% if header[0] == "Teammate" %}
+                        {% set header_keys = ["Games", "Winrate", "Delta", "Synergy"] %}
+                    {% else %}
+                        {% set header_keys = ["Games", "Winrate", "Delta", "Counter"] %}
+                    {% endif %}
+                {% endif %}
                 {% for k in header_keys %}
                     <tr>
                         <th>
                             <r>{{ k }}</r>
+                            {% if k in ["Synergy", "Counter", "Delta"] %}
+                                <i data-title="{{ get_tooltip(k) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
+                            {% endif %}
                         </th>
                         {% for key in header_dict %}
                             {% if stats == "wavestats" and not playerprofile %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count']*4, stats, specific_tier = specific_tier, dict_type = header[2], elo=elo) %}
+                            {% elif stats == "matchupstats" %}
+                                {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2], elo=elo, data_dict = data, specific_key = key, main_key = specific_key) %}
                             {% else %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2], elo=elo) %}
                             {% endif %}

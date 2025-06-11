@@ -181,6 +181,26 @@ def get_perf_list(dict2, key, dict_type, specific_tier, elo, stats, profile=Fals
     newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
     return newIndex
 
+def get_synergy_counter_effect(unit, dict1, key, unit2, synergy):
+    overall_winrate = dict1[unit][key][unit2]["Wins"] / dict1[unit][key][unit2]["Count"]
+    winrate_a = dict1[unit]["Wins"] / dict1[unit]["Count"]
+    winrate_b = dict1[unit2]["Wins"] / dict1[unit2]["Count"]
+
+    if synergy:
+        value = winrate_a * winrate_b / (winrate_a * winrate_b + (1 - winrate_a) * (1 - winrate_b))
+    else:
+        value = winrate_a * (1 - winrate_b) / (winrate_a * (1 - winrate_b) + (1 - winrate_a) * winrate_b)
+
+    return round((overall_winrate - value) * 100, 1)
+
+def get_synergy_counter_effect_list(unit, dict1, key, synergy):
+    new_dict = {}
+    for xy in dict1[unit][key]:
+        tier_score = get_synergy_counter_effect(unit, dict1, key, xy, synergy)
+        new_dict[xy] = tier_score
+    newIndex = sorted(new_dict, key=lambda k: new_dict[k], reverse=True)
+    return newIndex
+
 def get_dict_value(dict, value):
     try:
         return dict[value]
@@ -297,10 +317,16 @@ def get_tooltip(header:str):
             return "Units built on Wave 1"
         case "Targets":
             return "Units affected by this buff"
+        case "Synergy":
+            return "Synergy Effect, higher = better"
+        case "Counter":
+            return "Counter Effect, higher = better"
+        case "Delta":
+            return "Winrate delta"
         case _:
             return header.capitalize()
   
-def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False):
+def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False, data_dict = {}, specific_key = "", main_key = ""):
     match k:
         case "Games":
             try:
@@ -325,6 +351,10 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                     return f"{custom_winrate([data[key]['Count'], data[key]['Offered']])}%"
             except Exception:
                 return 0
+        case "Synergy":
+            return f"{get_synergy_counter_effect(main_key, data_dict, "Teammates", specific_key, True)}%"
+        case "Counter":
+            return f"{get_synergy_counter_effect(main_key, data_dict, "Enemies", specific_key, False)}%"
         case "Player Elo":
             return int(custom_divide([data[key]['Elo'], data[key]['Count']]))
         case "W on 10":
@@ -391,12 +421,12 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return None
         case "Best With":
             try:
-                return get_perf_list(data[key], 'Teammates', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+                return get_synergy_counter_effect_list(key, data, 'Teammates', True)[0]
             except IndexError:
                 return None
         case "Best Against":
             try:
-                return get_perf_list(data[key], 'Enemies', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+                return get_synergy_counter_effect_list(key, data, 'Enemies', False)[0]
             except IndexError:
                 return None
         case "Endrate":
