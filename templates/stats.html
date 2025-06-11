@@ -207,10 +207,14 @@
                             {% if stats != "matchupstats" %}
                                 {% set sub_keys = ['Games', 'Winrate', 'Playrate'] %}
                             {% else %}
-                                {% if sub[0] == "Best With" %}
-                                    {% set sub_keys = ['Games', 'Winrate', 'Synergy'] %}
+                                {% if not playerprofile %}
+                                    {% if sub[0] == "Best With" %}
+                                        {% set sub_keys = ['Games', 'Winrate', 'Synergy'] %}
+                                    {% else %}
+                                        {% set sub_keys = ['Games', 'Winrate', 'Counter'] %}
+                                    {% endif %}
                                 {% else %}
-                                    {% set sub_keys = ['Games', 'Winrate', 'Counter'] %}
+                                    {% set sub_keys = ['Games', 'Winrate', 'Playrate'] %}
                                 {% endif %}
                             {% endif %}
                             {% for sub_key in sub_keys %}

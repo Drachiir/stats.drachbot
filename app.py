@@ -1217,7 +1217,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     header_keys = ["Games", "Winrate", "Pickrate", "Player Elo"]
                     sub_headers = [["Best With", "Teammates", "matchupstats"], ["Best Against", "Enemies", "matchupstats"]]
                 else:
-                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
+                    header_keys = ["Tier", "Games", "Winrate", "Delta"]
                     sub_headers = [["Teammate", "Teammates", "matchupstats"], ["Enemies", "Enemies", "matchupstats"],
                                    ["Sending To", "Enemies1", "matchupstats"], ["Receiving From", "Enemies2", "matchupstats"]]
                 raw_data = drachbot.matchupstats.matchupstats(playerid, 0, patch, min_elo=elo, history_raw=history_raw)

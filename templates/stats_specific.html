@@ -166,7 +166,7 @@
                     {% endfor %}
                 </tr>
                 {# HEADER 1 KEYS #}
-                {% if stats == "matchupstats" %}
+                {% if stats == "matchupstats" and not playerprofile %}
                     {% if header[0] == "Teammate" %}
                         {% set header_keys = ["Games", "Winrate", "Delta", "Synergy"] %}
                     {% else %}

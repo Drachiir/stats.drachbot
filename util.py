@@ -430,12 +430,18 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return None
         case "Best With":
             try:
-                return get_synergy_counter_effect_list(key, data, 'Teammates', True)[0]
+                if playerprofile:
+                    return get_perf_list(data[key], 'Teammates', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+                else:
+                    return get_synergy_counter_effect_list(key, data, 'Teammates', True)[0]
             except Exception:
                 return None
         case "Best Against":
             try:
-                return get_synergy_counter_effect_list(key, data, 'Enemies', False)[0]
+                if playerprofile:
+                    return get_perf_list(data[key], 'Enemies', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+                else:
+                    return get_synergy_counter_effect_list(key, data, 'Enemies', False)[0]
             except Exception:
                 return None
         case "Endrate":
