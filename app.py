@@ -1310,7 +1310,7 @@ def profile(playername, stats, patch, elo, specific_key):
             if stats == "mmstats" or stats == "megamindstats":
                 new_dict = {}
                 for key in raw_data:
-                    if raw_data[key]["Count"] == 0 and key == "DoubleLockIn":
+                    if raw_data[key]["Count"] == 0 and (key == "DoubleLockIn" or key == "Scrapper"):
                         continue
                     new_dict[key] = raw_data[key]
                 raw_data = new_dict
@@ -1592,7 +1592,7 @@ def stats(stats, elo, patch, specific_key):
         if stats == "mmstats" or stats == "megamindstats":
             new_dict = {}
             for key in raw_data:
-                if raw_data[key]["Count"] == 0 and key == "DoubleLockIn":
+                if raw_data[key]["Count"] == 0 and (key == "DoubleLockIn" or key == "Scrapper"):
                     continue
                 new_dict[key] = raw_data[key]
             raw_data = new_dict
