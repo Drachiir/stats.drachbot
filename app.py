@@ -1301,12 +1301,12 @@ def profile(playername, stats, patch, elo, specific_key):
         if type(raw_data) == str:
             return render_template("no_data.html", text="No Data")
         if raw_data:
-            new_dict = {}
-            for key in raw_data:
-                if (stats != "mmstats" and stats != "megamindstats" and stats != "gamestats") or key == "DoubleLockIn":
+            if stats != "mmstats" and stats != "megamindstats" and stats != "gamestats":
+                new_dict = {}
+                for key in raw_data:
                     if raw_data[key]["Count"] != 0:
                         new_dict[key] = raw_data[key]
-            raw_data = new_dict
+                raw_data = new_dict
         if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
             return render_template("no_data.html", text="No Data")
         if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
@@ -1576,12 +1576,12 @@ def stats(stats, elo, patch, specific_key):
                 new_index = sorted(raw_data, key=lambda x: raw_data[x][sort_key], reverse=True)
                 raw_data = {k: raw_data[k] for k in new_index}
     if raw_data:
-        new_dict = {}
-        for key in raw_data:
-            if (stats != "mmstats" and stats != "megamindstats" and stats != "gamestats") or key == "DoubleLockIn":
+        if stats != "mmstats" and stats != "gamestats":
+            new_dict = {}
+            for key in raw_data:
                 if raw_data[key]["Count"] != 0:
                     new_dict[key] = raw_data[key]
-        raw_data = new_dict
+            raw_data = new_dict
     if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html", text="No Data")
     if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
