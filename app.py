@@ -1307,6 +1307,13 @@ def profile(playername, stats, patch, elo, specific_key):
                     if raw_data[key]["Count"] != 0:
                         new_dict[key] = raw_data[key]
                 raw_data = new_dict
+            if stats == "mmstats" or stats == "megamindstats":
+                new_dict = {}
+                for key in raw_data:
+                    if raw_data[key]["Count"] == 0 and key == "DoubleLockIn":
+                        continue
+                    new_dict[key] = raw_data[key]
+                raw_data = new_dict
         if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
             return render_template("no_data.html", text="No Data")
         if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
@@ -1581,6 +1588,13 @@ def stats(stats, elo, patch, specific_key):
             for key in raw_data:
                 if raw_data[key]["Count"] != 0:
                     new_dict[key] = raw_data[key]
+            raw_data = new_dict
+        if stats == "mmstats" or stats == "megamindstats":
+            new_dict = {}
+            for key in raw_data:
+                if raw_data[key]["Count"] == 0 and key == "DoubleLockIn":
+                    continue
+                new_dict[key] = raw_data[key]
             raw_data = new_dict
     if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html", text="No Data")
