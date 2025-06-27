@@ -81,62 +81,10 @@
                     {% endfor %}
                 </ul>
                 {% if not patch_selector %}
-                <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    {{ patch }}
-                </button>
-                <ul class="dropdown-menu">
-                    {% for p in patch_list %}
-                        {% if title == 'Megamind' %}
-                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/Megamind">v{{ p }}</a></li>
-                        {% else %}
-                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}/{{ specific_key }}">v{{ p }}</a></li>
-                        {% endif %}
-                    {% endfor %}
-                    <li>
-                        <form onsubmit="redirectToCustomPatch(event)" class="d-flex align-items-center" style="padding-left: 5px">
-                            <input type="text" id="customPatch" class="form-control form-control-sm me-2" placeholder="Patch" style="width: 100px;">
-                            <button type="submit" class="btn btn-dark btn-outline-light btn-sm">Go</button>
-                        </form>
-                    </li>
-                </ul>
-                <script>
-                    function redirectToCustomPatch(event) {
-                        event.preventDefault();
-                        let customPatch = document.getElementById("customPatch").value;
-                        if (customPatch) {
-                            window.location.href = "{{ playerurl }}/{{ stats }}/v" + encodeURIComponent(customPatch) + "/{{ elo }}";
-                        }
-                    }
-                </script>
+                    {% include '_patch_dropdown.html' %}
                 {% else %}
                     <div class="dropdown" style="float: right; padding-left: 5px">
-                        <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Select Patches
-                        </button>
-                        <ul class="dropdown-menu bg-black" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
-                            <form id="patchForm">
-                                <li class="dropdown-item" id="patch-checkbox">
-                                    <input type="checkbox" class="patch-checkbox" value="12">
-                                     <label>v12.**</label>
-                                </li>
-                                {% for p in patch_list %}
-                                    {% if p == "11.11" %}
-                                        <li class="dropdown-item" id="patch-checkbox">
-                                            <input type="checkbox" class="patch-checkbox" value="11">
-                                             <label>v11.**</label>
-                                        </li>
-                                    {% endif %}
-                                    <li class="dropdown-item" id="patch-checkbox">
-                                        <input type="checkbox" class="patch-checkbox" value="{{ p }}">
-                                         <label>v{{ p }}</label>
-                                    </li>
-                                {% endfor %}
-                            </form>
-                            <li class="dropdown-item text-center" style="position: sticky; bottom: 0; background-color: #000000">
-                                <button class="btn btn-primary w-100" id="redirectButton">Go</button>
-                            </li>
-                        </ul>
+                        {% include '_player_patch_dropdown.html' %}
                     </div>
                 {% endif %}
             </div>

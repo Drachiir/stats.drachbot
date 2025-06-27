@@ -1,0 +1,26 @@
+<button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Select Patches
+</button>
+<ul class="dropdown-menu bg-black" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
+    <form id="patchForm">
+        <li class="dropdown-item" id="patch-checkbox">
+            <input type="checkbox" class="patch-checkbox" value="12">
+            <label>v12.**</label>
+        </li>
+        {% for p in patch_list %}
+            {% if p == "11.11" %}
+                <li class="dropdown-item" id="patch-checkbox">
+                    <input type="checkbox" class="patch-checkbox" value="11">
+                    <label>v11.**</label>
+                </li>
+            {% endif %}
+            <li class="dropdown-item" id="patch-checkbox">
+                <input type="checkbox" class="patch-checkbox" value="{{ p }}">
+                <label>v{{ p }}</label>
+            </li>
+        {% endfor %}
+    </form>
+    <li class="dropdown-item text-center" style="position: sticky; bottom: 0; background-color: #000000">
+        <button class="btn btn-primary w-100" id="redirectButton">Go</button>
+    </li>
+</ul>

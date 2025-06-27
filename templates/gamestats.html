@@ -79,54 +79,11 @@
             </div>
             {% if not patch_selector %}
                 <div>
-                    <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                        {{ patch }}
-                    </button>
-                    <ul class="dropdown-menu">
-                        {% for p in patch_list %}
-                            <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ p }}/{{ elo }}">v{{ p }}</a></li>
-                        {% endfor %}
-                        <li>
-                            <form onsubmit="redirectToCustomPatch(event)" class="d-flex align-items-center" style="padding-left: 5px">
-                                <input type="text" id="customPatch" class="form-control form-control-sm me-2" placeholder="Patch" style="width: 100px;">
-                                <button type="submit" class="btn btn-dark btn-outline-light btn-sm">Go</button>
-                            </form>
-                        </li>
-                    </ul>
-                    <script>
-                        function redirectToCustomPatch(event) {
-                            event.preventDefault();
-                            let customPatch = document.getElementById("customPatch").value;
-                            if (customPatch) {
-                                window.location.href = "{{ playerurl }}/{{ stats }}/v" + encodeURIComponent(customPatch) + "/{{ elo }}";
-                            }
-                        }
-                    </script>
+                    {% include '_patch_dropdown.html' %}
                 </div>
             {% else %}
                 <div class="dropdown" style="float: right; padding-left: 5px">
-                    <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Select Patches
-                    </button>
-                    <ul class="dropdown-menu" style="padding: 5px;" id="patchDropdown">
-                        <form id="patchForm">
-                            <li class="dropdown-item">
-                                <label>
-                                    <input type="checkbox" id="selectAll"> Select/Unselect All
-                                </label>
-                            </li>
-                            {% for p in patch_list %}
-                                <li class="dropdown-item" id="patch-checkbox">
-                                    <input type="checkbox" class="patch-checkbox" value="{{ p }}">
-                                     v{{ p }}
-                                </li>
-                            {% endfor %}
-                        </form>
-                        <li class="dropdown-item text-center">
-                            <button class="btn btn-primary w-100" id="redirectButton">Go</button>
-                        </li>
-                    </ul>
+                    {% include '_player_patch_dropdown.html' %}
                 </div>
             {% endif %}
         </div>
@@ -497,5 +454,8 @@ new Chart(ctx, {
     // Preselect checkboxes when the page loads
     window.onload = preselectPatches;
 </script>
+{% endif %}
+{% if patch_selector %}
+<script src="/static/profile_patches2.js"></script>
 {% endif %}
 {% endblock %}

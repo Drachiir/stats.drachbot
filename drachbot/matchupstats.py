@@ -19,6 +19,8 @@ def matchupstats(playerid, games, patch, min_elo = 0, max_elo = 9001, history_ra
         for player in game["players_data"]:
             if playerid != "all" and playerid != player["player_id"]:
                 continue
+            if player["legion"] not in masterminds_dict:
+                continue
 
             teammate = game["players_data"][player_map[player["player_slot"]][0]]
             enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
@@ -68,5 +70,8 @@ def matchupstats(playerid, games, patch, min_elo = 0, max_elo = 9001, history_ra
                 merged_enemies[legion]["Count"] += data["Count"]
 
         masterminds_dict[mmname]["Enemies"] = merged_enemies
-
+    
+    newIndex = sorted(masterminds_dict, key=lambda x: masterminds_dict[x]['Count'], reverse=True)
+    masterminds_dict = {k: masterminds_dict[k] for k in newIndex}
+    
     return [masterminds_dict, games, avg_gameelo]
