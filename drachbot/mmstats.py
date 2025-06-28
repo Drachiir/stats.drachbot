@@ -79,6 +79,8 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
                             if mastermind == "Megamind":
                                 continue
                             mastermind_current = player["legion"]
+                        if mastermind_current not in masterminds_dict:
+                            continue
                         masterminds_dict[mastermind_current]["Count"] += 1
                         if player["game_result"] == 'won':
                             masterminds_dict[mastermind_current]["Wins"] += 1
