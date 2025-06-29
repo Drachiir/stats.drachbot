@@ -56,6 +56,11 @@
                     <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Endrate:
                     <b>{{ custom_winrate([data[specific_key]['EndCount'], games]) }}%</b> |
                     <b>v{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b></r>
+                {% elif stats == "sendstats" %}
+                    {% set winrate = custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) %}
+                    <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Sends | Winrate:
+                    <b>{{ custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) }}%</b> |
+                    <b>{{ patch }}</b> | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b></r>
                 {% else %}
                     {% set winrate = custom_winrate([data[specific_key]['Wins'], data[specific_key]['Count']]) %}
                     <r style="font-size: 1rem;"><b>{{ human_format(data[specific_key]['Count']) }}</b> Ranked Games | Winrate:

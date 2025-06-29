@@ -130,8 +130,12 @@
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">Opener Stats</a>
                     </li>
                     <li class="dropdown-item">
+                    <a class="nav-link" href="{{ playerurl }}/sendstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Brute.png">Send Stats <span style="color: lawngreen">New!</span></a>
+                    </li>
+                    <li class="dropdown-item">
                     <a class="nav-link" href="{{ playerurl }}/matchupstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/ChallengerElite.png">Match Up Stats <span style="color: lawngreen">New!</span></a>
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/ChallengerElite.png">Match Up Stats</a>
                     </li>
                     <li class="dropdown-item">
                     <a class="nav-link" href="{{ playerurl }}/spellstats/{{ (patch + "/") if patch else "" }}{{ elo }}">

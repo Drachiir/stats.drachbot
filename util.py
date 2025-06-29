@@ -107,14 +107,14 @@ tier_dict_specific = {
     "mmstats": 1, "openstats": 1,
     "spellstats": 1, "unitstats": 1,
     "rollstats": 1, "megamindstats": 0,
-    "matchupstats": 1
+    "matchupstats": 1, "sendstats": 1
 }
 
 tier_dict_all = {
     "mmstats": 0.5, "openstats": 0.7,
     "spellstats": 0.4, "unitstats": 0.2,
     "rollstats": 0.3, "megamindstats": 0,
-    "matchupstats": 1
+    "matchupstats": 1, "sendstats": 1
 }
 
 elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.15}
@@ -265,7 +265,8 @@ def get_cdn_image(string, header, profile = False):
     match header:
         case "Opener" | "Openers" | "Best Opener" | "Adds" | "Best Add" | "Unit"\
              | "Best Combo" | "Combos" | "Targets" | "unitstats" | "Units"\
-             | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Send" | "Best Roll" | "Sends" | "Best Unit" | "Champions":
+             | "openstats" | "Roll" | "Rolls" | "rollstats" | "Best Send" | "Best Roll" |\
+             "Sends" | "Best Unit" | "Champions" | "Send" | "Best Into" | "Best With*" | "Combo":
             if string == "Save":
                 return "/static/save.png"
             if not string and profile:
@@ -279,7 +280,7 @@ def get_cdn_image(string, header, profile = False):
                 return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
-        case "Wave" | "wavestats":
+        case "Wave" | "wavestats" | "Best Wave" | "Waves":
             wave_num = findall(r'\d+', string)
             return f"https://cdn.legiontd2.com/icons/{wave_names[int(wave_num[0])-1]}.png"
 
@@ -331,7 +332,7 @@ def get_tooltip(header:str):
   
 def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False, data_dict = {}, specific_key = "", main_key = ""):
     match k:
-        case "Games":
+        case "Games" | "Sends":
             try:
                 return data[key]['Count']
             except Exception:
@@ -346,10 +347,13 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return custom_winrate([data[key]['Wins'], data[key]['Count']])
             except Exception:
                 return 0
-        case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*" | "Rollrate":
+        case "Pickrate" | "Playrate" | "Usage Rate" | "Pickrate*" | "Rollrate" | "Sendrate*":
             try:
                 if stats != "spellstats" or (specific_tier == True and stats == "spellstats") or key == "taxed allowance":
-                    return f"{custom_winrate([data[key]['Count'], games])}%"
+                    if stats == "sendstats" and not specific_key:
+                        return f"{custom_winrate([data[key]['Count'], data[key]['WaveCount']])}%"
+                    else:
+                        return f"{custom_winrate([data[key]['Count'], games])}%"
                 else:
                     return f"{custom_winrate([data[key]['Count'], data[key]['Offered']])}%"
             except Exception:
@@ -411,6 +415,21 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
         case "Best Combo":
             try:
                 return get_perf_list(data[key], 'ComboUnit', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+            except IndexError:
+                return None
+        case "Best Wave":
+            try:
+                return get_perf_list(data[key], 'Waves', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+            except IndexError:
+                return None
+        case "Best Into":
+            try:
+                return get_perf_list(data[key], 'Units', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
+            except IndexError:
+                return None
+        case "Best With*":
+            try:
+                return get_perf_list(data[key], 'MercsCombo', dict_type, specific_tier, elo, stats, profile=playerprofile)[0]
             except IndexError:
                 return None
         case "Best MMs":
