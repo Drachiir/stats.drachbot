@@ -480,7 +480,7 @@ def wave_distribution(patch, elo):
 @cache.cached(timeout=timeout)
 def proleaks(wave, patch):
     for datajson in os.listdir(f"{shared_folder}/data/proleaks/"):
-        if datajson.startswith(f"{patch}"):
+        if datajson.split("_")[0] == patch:
             games = datajson.split("_")[2]
             try:
                 games = int(games)
