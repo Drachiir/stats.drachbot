@@ -168,6 +168,22 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+    .matchhistoryPlayerName {
+      display: inline-block;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      color: #1e90ff; /* Dodger Blue */
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .matchhistoryPlayerName:hover {
+      border-color: #1e90ff;
+      box-shadow: 0 0 2px rgba(30, 144, 255, 0.6);
+      transform: translateY(-1px);
+      background-color: rgba(30, 144, 255, 0.1);
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -502,7 +518,7 @@
                                 {% else %}
                                     {% set color = "white" %}
                                 {% endif %}
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/{{ player[3] }}">
+                                <a class="matchhistoryPlayerName" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/{{ player[3] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
                                     <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
                                     {% if player[2] > 1 %}
@@ -812,7 +828,7 @@
                     ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
                         <div style="width: 50%">
                             ${group.map(player => `
-                                <a style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
+                                <a class="matchhistoryPlayerName" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
                                     <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${player[0]}</r2>
                                     ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
