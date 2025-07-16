@@ -45,12 +45,13 @@ def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", 
         return history_raw
     if len(history_raw) == 0:
         return 'No games found.'
-    games = len(history_raw)
+    games = 0
     patches = []
     gameelo_list = []
     for game in history_raw:
         if game["ending_wave"] < 11:
             continue
+        games += 1
         patches.append(game["version"])
         gameelo_list.append(game["game_elo"])
         for player in game["players_data"]:
