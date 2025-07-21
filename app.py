@@ -342,7 +342,7 @@ def classic_modes():
             'end': (current_increment_start + (i + 1) * increment_delta).isoformat(),
             'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{util.images[util.modes[(increments_since_start + i) % len(util.modes)]]}.png"
         }
-        for i in range(16)
+        for i in range(22)
     ]
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
 
