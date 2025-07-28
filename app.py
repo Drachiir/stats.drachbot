@@ -397,7 +397,7 @@ def event_leaderboard(playername):
     if not leaderboard_data:
         return render_template("no_data.html", text=f"Error loading event leaderboard, try again later.")
     return render_template("event_leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
-                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True, get_cdn = util.get_cdn_image)
+                           winrate = util.custom_winrate, api_profile=api_profile, event_leaderboard_page = True, get_cdn = util.get_cdn_image)
 
 @app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': None})
 @app.route("/rank-distribution/<snapshot>", methods=['GET'])
