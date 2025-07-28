@@ -118,6 +118,16 @@ def main_leaderboard_task():
     #     player["DrachbotData"] = drachbot_data
     with open("leaderboard.json", "w") as f:
         json.dump(temp_data, f)
+    
+    # Also fetch event leaderboard
+    event_leaderboard_task(1)
+    try:
+        with open("event_leaderboard_temp.json", "r") as f:
+            event_temp_data = json.load(f)
+        with open("event_leaderboard.json", "w") as f:
+            json.dump(event_temp_data, f)
+    except FileNotFoundError:
+        print("Event leaderboard temp file not found")
 
 def run_leaderboard_task_in_thread():
     thread = threading.Thread(target=main_leaderboard_task, daemon=True)
@@ -364,6 +374,29 @@ def leaderboard(playername):
     if not leaderboard_data:
         return render_template("no_data.html", text=f"Error loading leaderboard, try again later.")
     return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
+                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True, get_cdn = util.get_cdn_image)
+
+@app.route("/event-leaderboard", defaults={"playername": None})
+@app.route("/event-leaderboard/<playername>")
+def event_leaderboard(playername):
+    if not playername:
+        api_profile = None
+        try:
+            with open("event_leaderboard.json", "r") as f:
+                leaderboard_data = json.load(f)
+        except FileNotFoundError:
+            return render_template("no_data.html", text=f"Event leaderboard not available yet, try again later.")
+    else:
+        get_db()
+        stats = get_player_profile(playername)
+        if not stats:
+            return render_template("no_data.html", text=f"Player { playername } not found.")
+        player_id = stats["playerid"]
+        api_profile = stats["api_profile"]
+        leaderboard_data = get_playfab_event_stats(player_id, 100)
+    if not leaderboard_data:
+        return render_template("no_data.html", text=f"Error loading event leaderboard, try again later.")
+    return render_template("event_leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
                            winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True, get_cdn = util.get_cdn_image)
 
 @app.route("/rank-distribution/", methods=['GET'], defaults={'snapshot': None})
