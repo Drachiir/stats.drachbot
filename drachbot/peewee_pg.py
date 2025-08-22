@@ -58,6 +58,7 @@ class PlayerProfile(BaseModel):
     player_name = TextField(index=True)
     avatar_url = TextField(null=True)
     country = TextField(null=True)
+    city = TextField(null=True)
     guild_tag = TextField(null=True)
     elo = IntegerField(null=True)
     rank = IntegerField(null=True)

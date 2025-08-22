@@ -35,7 +35,7 @@ def get_player_profile(playername, by_id = False):
             expr = fn.LOWER(PlayerProfile.player_name) == fn.LOWER(playername)
         profile_data_query = (PlayerProfile
                               .select(PlayerProfile.player_id, PlayerProfile.player_name, PlayerProfile.country,
-                                      PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo)
+                                      PlayerProfile.guild_tag, PlayerProfile.avatar_url, PlayerProfile.rank, PlayerProfile.elo, PlayerProfile.city)
                               .where(expr)
                               .dicts())
         rows = list(profile_data_query)
@@ -46,7 +46,7 @@ def get_player_profile(playername, by_id = False):
                            "guildTag": rows[0]["guild_tag"] if rows[0]["guild_tag"] else "",
                            "rank": rows[0]["rank"] if rows[0]["rank"] else 0,
                            "elo": rows[0]["elo"] if rows[0]["elo"] else 0}
-            return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"]}
+            return {"playerid": playerid, "api_profile": api_profile, "country": rows[0]["country"], "city": rows[0]["city"]}
         else:
             return None
     except (InterfaceError, OperationalError, Psycopg2OperationalError) as e:
@@ -195,6 +195,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         player_name=playerprofile["playerName"],
                         avatar_url=playerprofile["avatarUrl"],
                         country=playerstats["flag"],
+                        city=playerstats["city"],
                         guild_tag=playerprofile["guildTag"],
                         elo = playerstats["overallElo"],
                         rank = playerstats["playerRank"],
@@ -228,6 +229,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     player_name=playerprofile["playerName"],
                     avatar_url=playerprofile["avatarUrl"],
                     country=playerstats["flag"] if playerstats["flag"] else data.country,
+                    city=playerstats["city"] if playerstats["city"] else data.city,
                     guild_tag=playerprofile["guildTag"] if playerprofile["guildTag"] else data.guild_tag,
                     elo=playerstats["overallElo"],
                     rank=playerstats["playerRank"],

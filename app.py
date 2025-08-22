@@ -895,6 +895,7 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = drachbot_profile["playerid"]
             api_profile = drachbot_profile["api_profile"]
             country = drachbot_profile["country"]
+            city = drachbot_profile["city"]
             player_rank = api_profile["rank"]
         else:
             result = get_player_profile(playername)
@@ -903,6 +904,7 @@ def profile(playername, stats, patch, elo, specific_key):
             playerid = result["playerid"]
             api_profile = result["api_profile"]
             country = ""
+            city = ""
             player_rank = 0
         # Get player stats
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
@@ -934,6 +936,7 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
 
             country = player["Profile"]["Locations"][0]["CountryCode"]
+            city = player["Profile"]["Locations"][0]["City"]
             player_rank = player["Position"] + 1
         else:
             api_stats = legion_api.getstats(playerid)
@@ -947,6 +950,7 @@ def profile(playername, stats, patch, elo, specific_key):
 
         api_stats["playerRank"] = player_rank
         api_stats["flag"] = country
+        api_stats["city"] = city
         if country:
             countries = util.COUNTRIES_CACHE
             if type(countries["countries"][country]) == list:
