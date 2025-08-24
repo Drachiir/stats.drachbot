@@ -77,7 +77,7 @@
                                id="statsInput"
                                onkeyup="statsFilter()">
                             {% for d in data_keys %}
-                                <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ d }}">
+                                <li><a class="dropdown-item" href="#" onclick="highlightAndScrollTo('{{ d }}'); return false;">
                                     <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
                             {% endfor %}
                         </ul>
@@ -205,6 +205,11 @@
         height: 20px;
         z-index: 999;
     }
+    
+    /* Add smooth scrolling transitions */
+    #myTable, .scroll-top {
+        transition: scroll-left 0.3s ease-out;
+    }
 </style>
 
 <script>
@@ -299,4 +304,138 @@
 
     assignTiers();
 </script>
+
+<script>
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchBar = document.getElementById('statsInput');
+        
+        // Add event listeners
+        searchBar.addEventListener('input', performSearch);
+        searchBar.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const firstResult = document.querySelector('.search-highlight');
+                if (firstResult) {
+                    scrollToElement(firstResult);
+                }
+            }
+        });
+    });
+    
+    function highlightAndScrollTo(searchTerm) {
+        // Clear previous highlights
+        document.querySelectorAll('.search-highlight').forEach(el => {
+            el.classList.remove('search-highlight');
+        });
+        
+        // Find all elements with xtitle attributes that match
+        const elementsWithXtitle = document.querySelectorAll('[xtitle]');
+        const matches = [];
+        
+        elementsWithXtitle.forEach(element => {
+            const xtitle = element.getAttribute('xtitle');
+            if (xtitle && xtitle.toLowerCase().includes(searchTerm.toLowerCase())) {
+                // Highlight the image inside the td/cell
+                const img = element.querySelector('img');
+                if (img) {
+                    img.classList.add('search-highlight');
+                }
+                
+                matches.push(element);
+            }
+        });
+        
+        // Scroll to first result if any found
+        if (matches.length > 0) {
+            scrollToElement(matches[0]);
+        }
+    }
+    
+    function scrollToElement(element) {
+        const parentCell = element.closest('td');
+        
+        if (parentCell) {
+            const table = document.getElementById('myTable');
+            
+            // Calculate the scroll position to center the cell
+            const scrollLeft = parentCell.offsetLeft - (table.offsetWidth / 2) + (parentCell.offsetWidth / 2);
+            const targetScrollLeft = Math.max(0, scrollLeft);
+            
+            // Custom smooth scrolling animation
+            const startScrollLeft = table.scrollLeft;
+            const distance = targetScrollLeft - startScrollLeft;
+            const duration = 500; // 500ms animation
+            const startTime = performance.now();
+            
+            function animateScroll(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                
+                const currentScrollLeft = startScrollLeft + (distance * easeOutQuart);
+                table.scrollLeft = currentScrollLeft;
+                
+                // Also sync the scroll-top element
+                const scrollTop = document.querySelector('.scroll-top');
+                if (scrollTop) {
+                    scrollTop.scrollLeft = currentScrollLeft;
+                }
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animateScroll);
+                }
+            }
+            
+            requestAnimationFrame(animateScroll);
+        }
+    }
+    
+    function performSearch() {
+        const searchTerm = document.getElementById('statsInput').value.toLowerCase().trim();
+        
+        // Remove previous highlights
+        document.querySelectorAll('.search-highlight').forEach(el => {
+            el.classList.remove('search-highlight');
+        });
+        
+        if (!searchTerm) {
+            return;
+        }
+        
+        // Find all elements with xtitle attributes
+        const elementsWithXtitle = document.querySelectorAll('[xtitle]');
+        const matches = [];
+        
+        elementsWithXtitle.forEach(element => {
+            const xtitle = element.getAttribute('xtitle');
+            if (xtitle && xtitle.toLowerCase().includes(searchTerm)) {
+                matches.push(element);
+            }
+        });
+     }
+</script>
+
+<style>
+    /* Add invisible border to all images to prevent layout shift */
+    #myTable img {
+        border: 2px solid transparent;
+        border-radius: 4px;
+    }
+    
+    .search-highlight {
+        border: 2px solid rgba(255, 235, 59, 0.8) !important;
+        box-shadow: 0 0 8px rgba(255, 235, 59, 0.6) !important;
+        border-radius: 4px;
+        position: relative;
+        z-index: 5;
+    }
+    
+    #statsInput:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
 {% endblock %}
