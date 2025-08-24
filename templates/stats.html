@@ -336,13 +336,16 @@
         elementsWithXtitle.forEach(element => {
             const xtitle = element.getAttribute('xtitle');
             if (xtitle && xtitle.toLowerCase().includes(searchTerm.toLowerCase())) {
-                // Highlight the image inside the td/cell
-                const img = element.querySelector('img');
-                if (img) {
-                    img.classList.add('search-highlight');
+                // Only highlight if the element is in the second row (the row with unit images)
+                const row = element.closest('tr');
+                if (row && row.rowIndex === 1) { // rowIndex 1 is the second row (0-indexed)
+                    // Highlight the image inside the td/cell
+                    const img = element.querySelector('img');
+                    if (img) {
+                        img.classList.add('search-highlight');
+                    }
+                    matches.push(element);
                 }
-                
-                matches.push(element);
             }
         });
         
