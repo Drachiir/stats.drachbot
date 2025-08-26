@@ -192,6 +192,7 @@ def get_synergy_counter_effect(unit, dict1, key, unit2, synergy):
     overall_winrate = dict1[unit][key][unit2]["Wins"] / dict1[unit][key][unit2]["Count"]
     winrate_a = dict1[unit]["Wins"] / dict1[unit]["Count"]
     winrate_b = dict1[unit2]["Wins"] / dict1[unit2]["Count"]
+    #print(unit, key, unit2, overall_winrate, winrate_a, winrate_b)
 
     if synergy:
         value = winrate_a * winrate_b / (winrate_a * winrate_b + (1 - winrate_a) * (1 - winrate_b))
@@ -337,7 +338,7 @@ def get_tooltip(header:str):
         case _:
             return header.capitalize()
   
-def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False, data_dict = {}, specific_key = "", main_key = ""):
+def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False, data_dict = {}, specific_key = "", main_key = "", dict_header = None):
     match k:
         case "Games" | "Sends":
             try:
@@ -372,7 +373,7 @@ def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False,
                 return 0
         case "Counter":
             try:
-                return f"{get_synergy_counter_effect(main_key, data_dict, "Enemies", specific_key, False)}%"
+                return f"{get_synergy_counter_effect(main_key, data_dict, dict_header, specific_key, False)}%"
             except Exception:
                 return 0
         case "Player Elo":

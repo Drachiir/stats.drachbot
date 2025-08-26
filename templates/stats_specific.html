@@ -138,7 +138,7 @@
                             {% if stats == "wavestats" and not playerprofile %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count']*4, stats, specific_tier = specific_tier, dict_type = header[2], elo=elo) %}
                             {% elif stats == "matchupstats" %}
-                                {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2], elo=elo, data_dict = data, specific_key = key, main_key = specific_key) %}
+                                {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2], elo=elo, data_dict = data, specific_key = key, main_key = specific_key, dict_header = header[1]) %}
                             {% else %}
                                 {% set data = get_key_value(header_dict, key, k, data[specific_key]['Count'], stats, specific_tier = specific_tier, dict_type = header[2], elo=elo) %}
                             {% endif %}
