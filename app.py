@@ -936,7 +936,10 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
 
             country = player["Profile"]["Locations"][0]["CountryCode"]
-            city = player["Profile"]["Locations"][0]["City"]
+            try:
+                city = player["Profile"]["Locations"][0]["City"]
+            except Exception:
+                city = ""
             player_rank = player["Position"] + 1
         else:
             api_stats = legion_api.getstats(playerid)
