@@ -20,7 +20,9 @@ def init_db():
             hide_country_flag INTEGER DEFAULT 0,
             ltd2_playername TEXT,
             ltd2_avatar_url TEXT,
-            private_profile INTEGER DEFAULT 0
+            private_profile INTEGER DEFAULT 0,
+            twitch_username TEXT,
+            youtube_username TEXT
         );
     """)
     
@@ -39,6 +41,14 @@ def init_db():
     if 'private_profile' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN private_profile INTEGER DEFAULT 0")
         print("Added private_profile column to users table")
+    
+    if 'twitch_username' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN twitch_username TEXT")
+        print("Added twitch_username column to users table")
+    
+    if 'youtube_username' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN youtube_username TEXT")
+        print("Added youtube_username column to users table")
     
     conn.commit()
     conn.close()
@@ -91,21 +101,28 @@ def get_user_preferences(discord_id):
     conn = sqlite3.connect("site.db")
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT hide_country_flag, private_profile FROM users WHERE discord_id = ?
+        SELECT hide_country_flag, private_profile, twitch_username, youtube_username FROM users WHERE discord_id = ?
     """, (discord_id,))
     result = cursor.fetchone()
     conn.close()
     if result:
-        return {"hide_country_flag": bool(result[0]), "private_profile": bool(result[1])}
-    return {"hide_country_flag": False, "private_profile": False}
+        return {
+            "hide_country_flag": bool(result[0]), 
+            "private_profile": bool(result[1]),
+            "twitch_username": result[2],
+            "youtube_username": result[3]
+        }
+    return {"hide_country_flag": False, "private_profile": False, "twitch_username": None, "youtube_username": None}
 
 def update_user_preferences(discord_id, preferences):
     conn = sqlite3.connect("site.db")
     cursor = conn.cursor()
     cursor.execute("""
-        UPDATE users SET hide_country_flag = ?, private_profile = ? WHERE discord_id = ?
+        UPDATE users SET hide_country_flag = ?, private_profile = ?, twitch_username = ?, youtube_username = ? WHERE discord_id = ?
     """, (int(preferences.get("hide_country_flag", False)), 
           int(preferences.get("private_profile", False)), 
+          preferences.get("twitch_username"),
+          preferences.get("youtube_username"),
           discord_id))
     conn.commit()
     conn.close()
@@ -129,3 +146,23 @@ def is_profile_private(player_id):
     result = cursor.fetchone()
     conn.close()
     return bool(result[0]) if result else False
+
+def get_twitch_username(player_id):
+    conn = sqlite3.connect("site.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT twitch_username FROM users WHERE player_id = ?
+    """, (player_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result and result[0] else None
+
+def get_youtube_username(player_id):
+    conn = sqlite3.connect("site.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT youtube_username FROM users WHERE player_id = ?
+    """, (player_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return result[0] if result and result[0] else None

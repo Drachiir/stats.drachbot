@@ -316,6 +316,34 @@ def update_user_preferences_api():
     if not data:
         return jsonify({"error": "No data provided"}), 400
     
+    # Validate and sanitize Twitch username
+    if "twitch_username" in data:
+        twitch_username = data["twitch_username"]
+        if twitch_username:
+            # Remove any whitespace and convert to lowercase
+            twitch_username = twitch_username.strip().lower()
+            # Validate Twitch username format (alphanumeric, underscores, hyphens only)
+            if not re.match(r'^[a-z0-9_]+$', twitch_username):
+                return jsonify({"error": "Invalid Twitch username format"}), 400
+            # Limit length (Twitch usernames are max 25 characters)
+            if len(twitch_username) > 25:
+                return jsonify({"error": "Twitch username too long"}), 400
+            data["twitch_username"] = twitch_username
+    
+    # Validate and sanitize YouTube username
+    if "youtube_username" in data:
+        youtube_username = data["youtube_username"]
+        if youtube_username:
+            # Remove any whitespace and convert to lowercase
+            youtube_username = youtube_username.strip().lower()
+            # Validate YouTube username format (alphanumeric, underscores only)
+            if not re.match(r'^[a-z0-9_]+$', youtube_username):
+                return jsonify({"error": "Invalid YouTube username format"}), 400
+            # Limit length (YouTube usernames are max 30 characters)
+            if len(youtube_username) > 30:
+                return jsonify({"error": "YouTube username too long"}), 400
+            data["youtube_username"] = youtube_username
+    
     sitedb.update_user_preferences(user["id"], data)
     return jsonify({"message": "Preferences updated successfully"})
 
@@ -1255,6 +1283,10 @@ def profile(playername, stats, patch, elo, specific_key):
             profile_owner_discord_id, hide_flag = result
             hide_flag_on_profile = bool(hide_flag)
         
+        # Get twitch and youtube usernames for this profile
+        twitch_username = sitedb.get_twitch_username(playerid)
+        youtube_username = sitedb.get_youtube_username(playerid)
+        
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
@@ -1263,7 +1295,8 @@ def profile(playername, stats, patch, elo, specific_key):
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count,
-            known_names=known_names, hide_flag_on_profile=hide_flag_on_profile, is_own_profile=(user and user.get("player_id") == playerid)
+            known_names=known_names, hide_flag_on_profile=hide_flag_on_profile, is_own_profile=(user and user.get("player_id") == playerid),
+            twitch_username=twitch_username, youtube_username=youtube_username
         )
     else:
         for szn in ["12", "11"]:

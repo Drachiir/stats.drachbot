@@ -387,8 +387,42 @@ document.addEventListener('DOMContentLoaded', function() {
         saveSettingsBtn.addEventListener('click', function() {
             const hideCountryFlagCheckbox = document.getElementById('hideCountryFlagModal');
             const privateProfileCheckbox = document.getElementById('privateProfileModal');
+            const twitchUsernameInput = document.getElementById('twitchUsernameModal');
+            const youtubeUsernameInput = document.getElementById('youtubeUsernameModal');
             const hideFlag = hideCountryFlagCheckbox.checked;
             const privateProfile = privateProfileCheckbox.checked;
+            let twitchUsername = twitchUsernameInput.value.trim();
+            let youtubeUsername = youtubeUsernameInput.value.trim();
+            
+            // Client-side validation for Twitch username
+            if (twitchUsername) {
+                twitchUsername = twitchUsername.toLowerCase();
+                // Validate Twitch username format
+                if (!/^[a-z0-9_]+$/.test(twitchUsername)) {
+                    alert('Invalid Twitch username format. Only letters, numbers, and underscores are allowed.');
+                    return;
+                }
+                // Check length
+                if (twitchUsername.length > 25) {
+                    alert('Twitch username is too long. Maximum 25 characters allowed.');
+                    return;
+                }
+            }
+            
+            // Client-side validation for YouTube username
+            if (youtubeUsername) {
+                youtubeUsername = youtubeUsername.toLowerCase();
+                // Validate YouTube username format
+                if (!/^[a-z0-9_]+$/.test(youtubeUsername)) {
+                    alert('Invalid YouTube username format. Only letters, numbers, and underscores are allowed.');
+                    return;
+                }
+                // Check length
+                if (youtubeUsername.length > 30) {
+                    alert('YouTube username is too long. Maximum 30 characters allowed.');
+                    return;
+                }
+            }
             
             // Update the preference via API
             fetch('/api/user/preferences', {
@@ -398,7 +432,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     hide_country_flag: hideFlag,
-                    private_profile: privateProfile
+                    private_profile: privateProfile,
+                    twitch_username: twitchUsername,
+                    youtube_username: youtubeUsername
                 })
             })
             .then(response => response.json())
@@ -450,7 +486,35 @@ document.addEventListener('DOMContentLoaded', function() {
                         🔐 Make my profile private
                     </label>
                 </div>
-                <small class="text-muted">When enabled, only you can view your profile. Other users will see "User profile is private".</small>
+                <small class="text-muted mb-3 d-block">When enabled, only you can view your profile. Other users will see "User profile is private".</small>
+                
+                <div class="mb-3">
+                    <label for="twitchUsernameModal" class="form-label">
+                        <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" alt="Twitch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                        Twitch Username
+                    </label>
+                    <input type="text" class="form-control" id="twitchUsernameModal" 
+                           placeholder="Enter your Twitch username" 
+                           value="{{ user_preferences.twitch_username or '' }}"
+                           maxlength="25"
+                           pattern="[a-zA-Z0-9_]+"
+                           title="Only letters, numbers, and underscores are allowed. Maximum 25 characters.">
+                    <small class="text-muted">Your Twitch channel will be linked on your profile (e.g., twitch.tv/username)</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="youtubeUsernameModal" class="form-label">
+                        <img src="https://www.youtube.com/favicon.ico" alt="YouTube" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                        YouTube Username
+                    </label>
+                    <input type="text" class="form-control" id="youtubeUsernameModal" 
+                           placeholder="Enter your YouTube username" 
+                           value="{{ user_preferences.youtube_username or '' }}"
+                           maxlength="30"
+                           pattern="[a-zA-Z0-9_]+"
+                           title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
+                    <small class="text-muted">Your YouTube channel will be linked on your profile (e.g., youtube.com/@username)</small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
