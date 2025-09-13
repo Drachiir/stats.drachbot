@@ -217,7 +217,7 @@
             <li class="nav-item dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
                     <img class="user-avatar" src="https://cdn.discordapp.com/{{ ("avatars/" + user.id + "/" + user.avatar) if user.avatar else 'embed/avatars/0' }}.png" alt="Avatar">
-                    <span>{{ user.username }}</span>
+                    <span>{{ user.displayname if user.username else user.username  }}</span>
                 </a>
                 <ul class="dropdown-menu bg-black">
                     {% if user.player_id %}

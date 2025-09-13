@@ -22,7 +22,8 @@ def init_db():
             ltd2_avatar_url TEXT,
             private_profile INTEGER DEFAULT 0,
             twitch_username TEXT,
-            youtube_username TEXT
+            youtube_username TEXT,
+            discord_displayname TEXT
         );
     """)
     
@@ -49,6 +50,10 @@ def init_db():
     if 'youtube_username' not in columns:
         cursor.execute("ALTER TABLE users ADD COLUMN youtube_username TEXT")
         print("Added youtube_username column to users table")
+
+    if 'discord_displayname' not in columns:
+        cursor.execute("ALTER TABLE users ADD COLUMN discord_displayname TEXT")
+        print("Added discord_displayname column to users table")
     
     conn.commit()
     conn.close()
@@ -56,9 +61,10 @@ def init_db():
 def save_user_to_db(user_data, player_id, ltd2_playername=None, ltd2_avatar_url=None):
     conn = sqlite3.connect("site.db")
     cursor = conn.cursor()
+
     cursor.execute("""
-        INSERT INTO users (discord_id, username, discriminator, avatar, player_id, last_login, ltd2_playername, ltd2_avatar_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (discord_id, username, discriminator, avatar, player_id, last_login, ltd2_playername, ltd2_avatar_url, discord_displayname)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(discord_id) DO UPDATE SET
             username = excluded.username,
             discriminator = excluded.discriminator,
@@ -66,7 +72,8 @@ def save_user_to_db(user_data, player_id, ltd2_playername=None, ltd2_avatar_url=
             player_id = excluded.player_id,
             last_login = excluded.last_login,
             ltd2_playername = excluded.ltd2_playername,
-            ltd2_avatar_url = excluded.ltd2_avatar_url;
+            ltd2_avatar_url = excluded.ltd2_avatar_url,
+            discord_displayname = excluded.discord_displayname;
     """, (
         user_data["id"],
         user_data["username"],
@@ -75,10 +82,12 @@ def save_user_to_db(user_data, player_id, ltd2_playername=None, ltd2_avatar_url=
         player_id,
         datetime.now(tz=timezone.utc),
         ltd2_playername,
-        ltd2_avatar_url
+        ltd2_avatar_url,
+        user_data["global_name"]
     ))
     conn.commit()
     conn.close()
+    print(f"{user_data["username"]} logged in with discord!")
 
 def get_player_id(discord_id):
     try:

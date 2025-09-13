@@ -269,7 +269,8 @@ def callback():
         "avatar": user_data["avatar"],
         "player_id": player_id,
         "ltd2_playername": ltd2_playername,
-        "ltd2_avatar_url": ltd2_avatar_url
+        "ltd2_avatar_url": ltd2_avatar_url,
+        "displayname": user_data["global_name"]
     }
     session.permanent = True
     next_url = session.pop("next_url", url_for("home"))
