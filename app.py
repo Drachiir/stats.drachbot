@@ -456,12 +456,6 @@ def home():
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True, leaderboard_data_home = leaderboard_data,
                            get_value=util.get_value_playfab, winrate = util.custom_winrate, get_rank_url=util.get_rank_url)
-    
-    # Add cache-control headers to prevent Cloudflare from caching user-specific content
-    response.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
-    
     return response
 
 @app.route('/classicmodes')
