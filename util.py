@@ -1,5 +1,6 @@
 import json
 import math
+import random
 import re
 import time
 import traceback
@@ -67,6 +68,10 @@ with open("Files/json/slang.json", "r") as f:
     
 with open("Files/json/const.json", "r") as f:
     const_file = json.load(f)
+    f.close()
+
+with open("Files/json/clankers.json", "r") as f:
+    clankers = json.load(f)
     f.close()
 
 with open("static/countries.json", "r") as f:
@@ -704,3 +709,105 @@ def merge_dicts(target, source):
             except Exception:
                 continue
     return target
+
+
+def generate_values(playerid, original_values):
+    if playerid not in clankers["clankers"]:
+        return original_values
+    random.seed(hash(playerid))
+    if len(original_values) < 2:
+        return original_values
+    
+    fake_values = [original_values[0]]
+    target_value = original_values[-1]
+    start_value = original_values[0]
+    
+    for i in range(1, len(original_values) - 1):
+        prev_value = fake_values[-1]
+        remaining_steps = len(original_values) - i - 1
+        
+        change = random.randint(12, 22)
+        if random.random() < 0.5:
+            change = -change
+        
+        new_value = prev_value + change
+        
+        min_allowed = start_value - 200
+        max_allowed = start_value + 200
+        
+        if new_value < min_allowed:
+            new_value = min_allowed
+        elif new_value > max_allowed:
+            new_value = max_allowed
+        
+        if remaining_steps > 0:
+            distance_to_target = abs(target_value - new_value)
+            max_possible_change = remaining_steps * 22
+            
+            if distance_to_target > max_possible_change:
+                if new_value > target_value:
+                    new_value = target_value + max_possible_change
+                else:
+                    new_value = target_value - max_possible_change
+        
+        fake_values.append(new_value)
+    
+    fake_values.append(original_values[-1])
+    return fake_values
+
+def generate_stats(playerid, winlose, elochange, api_stats=None):
+    if playerid not in clankers["clankers"]:
+        return winlose, elochange, api_stats
+    
+    random.seed(hash(playerid) + 12345)
+    
+    total_games = winlose["Overall"][0] + winlose["Overall"][1]
+    if total_games > 0:
+        wins = random.randint(int(total_games * 0.45), int(total_games * 0.55))
+        losses = total_games - wins
+        
+        solo_games = winlose["SoloQ"][0] + winlose["SoloQ"][1]
+        duo_games = winlose["DuoQ"][0] + winlose["DuoQ"][1]
+        
+        if solo_games > 0 and duo_games > 0:
+            solo_wins = int(wins * (solo_games / total_games))
+            duo_wins = wins - solo_wins
+            solo_losses = solo_games - solo_wins
+            duo_losses = duo_games - duo_wins
+        elif solo_games > 0:
+            solo_wins = wins
+            solo_losses = solo_games - solo_wins
+            duo_wins = 0
+            duo_losses = 0
+        else:
+            duo_wins = wins
+            duo_losses = duo_games - duo_wins
+            solo_wins = 0
+            solo_losses = 0
+        
+        winlose = {
+            "Overall": [wins, losses],
+            "SoloQ": [solo_wins, solo_losses],
+            "DuoQ": [duo_wins, duo_losses]
+        }
+    
+    elochange = {
+        "Overall": random.randint(-200, 200),
+        "SoloQ": random.randint(-200, 200),
+        "DuoQ": random.randint(-200, 200)
+    }
+    
+    if api_stats:
+        season_wins = api_stats.get("rankedWinsThisSeason", 0)
+        season_losses = api_stats.get("rankedLossesThisSeason", 0)
+        season_total = season_wins + season_losses
+        
+        if season_total > 0:
+            season_wins = random.randint(int(season_total * 0.45), int(season_total * 0.55))
+            season_losses = season_total - season_wins
+            
+            api_stats = api_stats.copy()
+            api_stats["rankedWinsThisSeason"] = season_wins
+            api_stats["rankedLossesThisSeason"] = season_losses
+    
+    return winlose, elochange, api_stats

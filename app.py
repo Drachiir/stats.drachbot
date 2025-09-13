@@ -1311,6 +1311,9 @@ def profile(playername, stats, patch, elo, specific_key):
         # Get twitch and youtube usernames for this profile
         twitch_username = sitedb.get_twitch_username(playerid)
         youtube_username = sitedb.get_youtube_username(playerid)
+
+        values = util.generate_values(playerid, values)
+        winlose, elochange, api_stats = util.generate_stats(playerid, winlose, elochange, api_stats)
         
         return render_template(
             "profile.html",
