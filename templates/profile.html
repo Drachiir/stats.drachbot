@@ -207,7 +207,7 @@
                             <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
                         {% endif %}
                         {% if api_stats["flag"] and not hide_flag_on_profile %}
-                            <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
+                            <img title="{{ api_stats["Country"] }}, {{ api_stats["city"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
                         {% endif %}
                         {% if twitch_username %}
                             <a href="https://twitch.tv/{{ twitch_username|e }}" target="_blank" rel="noopener noreferrer" style="color: #9146ff; text-decoration: none; height: 48px">

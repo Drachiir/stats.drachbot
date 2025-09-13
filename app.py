@@ -355,8 +355,6 @@ def refresh_ltd2_account_api():
     
     # Get fresh player_id from external API
     player_id = sitedb.get_player_id(user["id"])
-
-    print(player_id)
     
     # Update the user's data in the database
     conn = sqlite3.connect("site.db")

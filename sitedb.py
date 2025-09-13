@@ -84,7 +84,6 @@ def get_player_id(discord_id):
     try:
         response = requests.get("https://verify.drachbot.site/player-id", params={"discord_id": discord_id}, timeout=5)
 
-        print(response)
         # Handle 404 - user not found (no linked account)
         if response.status_code == 404:
             print(f"No linked LTD2 account found for discord_id {discord_id}")
