@@ -401,7 +401,6 @@ def refresh_ltd2_account_api():
     return jsonify({"message": message, "player_id": player_id})
 
 @app.route("/")
-@cache.cached(timeout=timeout)
 def home():
     folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
     header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
@@ -453,10 +452,17 @@ def home():
         total_games = util.human_format(int(data_list[0][1]))
     except IndexError:
         total_games = "0"
-    return render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
+    response = render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
                            elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
                            total_games=total_games, get_tooltip = util.get_tooltip, home=True, leaderboard_data_home = leaderboard_data,
                            get_value=util.get_value_playfab, winrate = util.custom_winrate, get_rank_url=util.get_rank_url)
+    
+    # Add cache-control headers to prevent Cloudflare from caching user-specific content
+    response.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    
+    return response
 
 @app.route('/classicmodes')
 @cache.cached(timeout=10)
