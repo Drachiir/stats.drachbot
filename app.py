@@ -400,8 +400,9 @@ def refresh_ltd2_account_api():
     
     return jsonify({"message": message, "player_id": player_id})
 
-@app.route("/")
-def home():
+@cache.cached(timeout=timeout, key_prefix='home_data')
+def get_home_data():
+    """Cache the expensive data processing for the home page"""
     folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
     header_list = ["MM", "Open", "Spell", "Roll", "Unit", "Wave"]
     title_list = ["MM Stats", "Opener Stats", "Spell Stats", "Roll Stats", "Unit Stats", "Wave Stats"]
@@ -452,11 +453,36 @@ def home():
         total_games = util.human_format(int(data_list[0][1]))
     except IndexError:
         total_games = "0"
-    response = render_template("home.html", data_list=data_list, image_list=image_list, keys=keys,
-                           elo=defaults[1], patch=defaults[0], get_cdn_image = util.get_cdn_image, get_key_value=util.get_key_value,
-                           total_games=total_games, get_tooltip = util.get_tooltip, home=True, leaderboard_data_home = leaderboard_data,
-                           get_value=util.get_value_playfab, winrate = util.custom_winrate, get_rank_url=util.get_rank_url)
-    return response
+    
+    return {
+        'data_list': data_list,
+        'image_list': image_list,
+        'keys': keys,
+        'total_games': total_games,
+        'leaderboard_data': leaderboard_data
+    }
+
+@app.route("/")
+def home():
+    # Get cached data (expensive processing)
+    cached_data = get_home_data()
+    
+    # Render template with fresh user context (not cached)
+    return render_template("home.html", 
+                         data_list=cached_data['data_list'], 
+                         image_list=cached_data['image_list'], 
+                         keys=cached_data['keys'],
+                         elo=defaults[1], 
+                         patch=defaults[0], 
+                         get_cdn_image=util.get_cdn_image, 
+                         get_key_value=util.get_key_value,
+                         total_games=cached_data['total_games'], 
+                         get_tooltip=util.get_tooltip, 
+                         home=True, 
+                         leaderboard_data_home=cached_data['leaderboard_data'],
+                         get_value=util.get_value_playfab, 
+                         winrate=util.custom_winrate, 
+                         get_rank_url=util.get_rank_url)
 
 @app.route('/classicmodes')
 @cache.cached(timeout=10)
