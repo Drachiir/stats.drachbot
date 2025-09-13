@@ -362,10 +362,7 @@ div#loading {
     }
 }
 
-.dropdown-menu {
-  max-height: 400px;
-  overflow-y: auto;
-}
+/* Remove global dropdown-menu height restriction - it was causing user dropdown to be scrollable */
 
 #statsDropdown {
     max-height: 300px;

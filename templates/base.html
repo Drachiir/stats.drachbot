@@ -122,46 +122,26 @@
                 Stats Pages
                 </a>
                 <ul class="dropdown-menu bg-black">
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/mmstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastermind.png">MM Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/megamindstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">Megamind Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/openstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">Opener Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/sendstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Brute.png">Send Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/matchupstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/ChallengerElite.png">Match Up Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/spellstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionSpell.png">Spell Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/rollstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Reroll.png">Roll Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/unitstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Value10000.png">Unit Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/wavestats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionKing.png">Wave Stats</a>
-                    </li>
-                    <li class="dropdown-item">
-                    <a class="nav-link" href="{{ playerurl }}/gamestats/{{ (patch + "/") if patch else "" }}{{ elo }}">
-                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">Game Stats</a>
-                    </li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/mmstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastermind.png">MM Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/megamindstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">Megamind Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/openstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">Opener Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/sendstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Brute.png">Send Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/matchupstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/ChallengerElite.png">Match Up Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/spellstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionSpell.png">Spell Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/rollstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Reroll.png">Roll Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/unitstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Value10000.png">Unit Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/wavestats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/LegionKing.png">Wave Stats</a></li>
+                    <li><a class="dropdown-item" href="{{ playerurl }}/gamestats/{{ (patch + "/") if patch else "" }}{{ elo }}">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/DefaultAvatar.png">Game Stats</a></li>
                 </ul>
             </li>
             <li class="nav-item dropdown">
@@ -169,38 +149,22 @@
                 Misc Pages
                 </a>
                 <ul class="dropdown-menu bg-black">
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/livegames">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/event-leaderboard">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/EventPoints.png'>Event Leaderboard</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/openers">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Gateguard.png'>Openers</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/proleaks">
-                            <img loading="lazy" style="width: 64px; padding-right: 3px;" src='https://overlay.drachbot.site/emotes/proleak.png'>Pro Leaks</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/classicmodes">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/ClassicModes/0.png'>Classic Schedule</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/rank-distribution">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png'>Rank Distribution</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="/wave-distribution">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/LegionKing.png'>Wave Distribution</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="https://github.com/Drachiir/DrachbotOverlay">
-                            <img loading="lazy" style="width: 32px; padding-right: 3px;" src='/static/drachia_still.png'>Drachbot Overlay</a>
-                    </li>
+                    <li><a class="dropdown-item" href="/livegames">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a></li>
+                    <li><a class="dropdown-item" href="/event-leaderboard">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/EventPoints.png'>Event Leaderboard</a></li>
+                    <li><a class="dropdown-item" href="/openers">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Gateguard.png'>Openers</a></li>
+                    <li><a class="dropdown-item" href="/proleaks">
+                        <img loading="lazy" style="width: 64px; padding-right: 3px;" src='https://overlay.drachbot.site/emotes/proleak.png'>Pro Leaks</a></li>
+                    <li><a class="dropdown-item" href="/classicmodes">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/ClassicModes/0.png'>Classic Schedule</a></li>
+                    <li><a class="dropdown-item" href="/rank-distribution">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Expert.png'>Rank Distribution</a></li>
+                    <li><a class="dropdown-item" href="/wave-distribution">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/LegionKing.png'>Wave Distribution</a></li>
+                    <li><a class="dropdown-item" href="https://github.com/Drachiir/DrachbotOverlay">
+                        <img loading="lazy" style="width: 32px; padding-right: 3px;" src='/static/drachia_still.png'>Drachbot Overlay</a></li>
                 </ul>
             </li>
             <li class="nav-item active">
@@ -211,12 +175,8 @@
                 Discord
                 </a>
                 <ul class="dropdown-menu bg-black">
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="https://discord.com/oauth2/authorize?client_id=1152235985053171793&permissions=274878253120&scope=bot">Discord Bot Invite</a>
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="https://discord.gg/GBHyFtgnrs">Drachbot Discord Server</a>
-                    </li>
+                    <li><a class="dropdown-item" href="https://discord.com/oauth2/authorize?client_id=1152235985053171793&permissions=274878253120&scope=bot">Discord Bot Invite</a></li>
+                    <li><a class="dropdown-item" href="https://discord.gg/GBHyFtgnrs">Drachbot Discord Server</a></li>
                 </ul>
             </li>
             {% if mod_date %}
@@ -260,16 +220,29 @@
                     <span>{{ user.username }}</span>
                 </a>
                 <ul class="dropdown-menu bg-black">
-                    <li class="dropdown-item">
-                        {% if user.player_id %}
-                            <a class="nav-link" href="/profile/{{ user.player_id }}">Profile</a>
-                        {% else %}
-                            <a href="https://imgur.com/cJumMnM.png" class="nav-link">Link LegionTD2 Account</a>
-                        {% endif %}
-                    </li>
-                    <li class="dropdown-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
+                    {% if user.player_id %}
+                        <li><a class="dropdown-item" href="/profile/{{ user.player_id }}">
+                            {% if user.ltd2_avatar_url %}
+                                <img src="https://cdn.legiontd2.com/{{ user.ltd2_avatar_url }}" 
+                                     alt="LTD2 Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 2px;">
+                            {% endif %}
+                            {{ user.ltd2_playername or 'Profile' }}
+                        </a></li>
+                    {% else %}
+                        <li><a class="dropdown-item" href="https://imgur.com/cJumMnM.png">Link LegionTD2 Account</a></li>
+                    {% endif %}
+                    
+                    <li><a class="dropdown-item" href="#" id="refreshLTD2Account">
+                        🔄 Refresh LTD2 Account
+                    </a></li>
+                    
+                    {% if user.player_id %}
+                    <li><a class="dropdown-item" href="#" id="settingsButton">
+                        ⚙️ Settings
+                    </a></li>
+                    {% endif %}
+                    
+                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">↩️ Logout</a></li>
                 </ul>
             </li>
             {% elif discord_login %}
@@ -352,6 +325,141 @@
 <script>
     addToRecentlyVisited({"avatar_url": "{{ api_profile["avatarUrl"] }}", "player_name": "{{ api_profile["playerName"]|safe }}", "player_id": "{{ playerid|safe }}"})
 </script>
+
 {% endif %}
+
+<script>
+// Handle user dropdown functionality (available on all pages)
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle LTD2 account refresh
+    const refreshLTD2Account = document.getElementById('refreshLTD2Account');
+    if (refreshLTD2Account) {
+        refreshLTD2Account.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Refresh LTD2 Account clicked');
+            
+            // Make API call
+            fetch('/api/user/refresh-ltd2-account', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert(data.message);
+                    // Reload the page to update the UI
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error refreshing LTD2 account');
+            });
+        });
+    }
+    
+    // Handle settings button
+    const settingsButton = document.getElementById('settingsButton');
+    if (settingsButton) {
+        settingsButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Open the settings modal
+            const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+            modal.show();
+        });
+    }
+    
+    // Handle settings modal save
+    const saveSettingsBtn = document.getElementById('saveSettings');
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', function() {
+            const hideCountryFlagCheckbox = document.getElementById('hideCountryFlagModal');
+            const privateProfileCheckbox = document.getElementById('privateProfileModal');
+            const hideFlag = hideCountryFlagCheckbox.checked;
+            const privateProfile = privateProfileCheckbox.checked;
+            
+            // Update the preference via API
+            fetch('/api/user/preferences', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    hide_country_flag: hideFlag,
+                    private_profile: privateProfile
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error updating preferences:', data.error);
+                    alert('Error saving settings: ' + data.error);
+                } else {
+                    // Close modal and reload page to update the display
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+                    modal.hide();
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error saving settings');
+            });
+        });
+    }
+});
+</script>
+
+{% if user %}
+<!-- Settings Modal -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: #1c1c1c; color: white;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="settingsModalLabel">
+                    <i class="fas fa-cog"></i> Settings
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="hideCountryFlagModal" 
+                           {% if user_preferences.hide_country_flag %}checked{% endif %}>
+                    <label class="form-check-label" for="hideCountryFlagModal">
+                        🔒 Hide country flag on my profile
+                    </label>
+                </div>
+                <small class="text-muted mb-3 d-block">When enabled, your country flag will be hidden for everyone viewing your profile.</small>
+                
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="privateProfileModal" 
+                           {% if user_preferences.private_profile %}checked{% endif %}>
+                    <label class="form-check-label" for="privateProfileModal">
+                        🔐 Make my profile private
+                    </label>
+                </div>
+                <small class="text-muted">When enabled, only you can view your profile. Other users will see "User profile is private".</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveSettings">Save Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 </body>
 </html>

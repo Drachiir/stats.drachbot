@@ -244,9 +244,22 @@ def callback():
 
     # Fetch player_id from external API
     player_id = sitedb.get_player_id(user_data["id"])
+    
+    # Fetch LTD2 profile data if player_id exists
+    ltd2_playername = None
+    ltd2_avatar_url = None
+    if player_id:
+        try:
+            get_db()
+            ltd2_profile = drachbot_db.get_player_profile(player_id, by_id=True)
+            if ltd2_profile:
+                ltd2_playername = ltd2_profile["api_profile"]["playerName"]
+                ltd2_avatar_url = ltd2_profile["api_profile"]["avatarUrl"]
+        except Exception as e:
+            print(f"Error fetching LTD2 profile: {e}")
 
     # Store in your local DB
-    sitedb.save_user_to_db(user_data, player_id)
+    sitedb.save_user_to_db(user_data, player_id, ltd2_playername, ltd2_avatar_url)
 
     # Save only what's needed in session
     session["user"] = {
@@ -254,7 +267,9 @@ def callback():
         "username": user_data["username"],
         "discriminator": user_data["discriminator"],
         "avatar": user_data["avatar"],
-        "player_id": player_id
+        "player_id": player_id,
+        "ltd2_playername": ltd2_playername,
+        "ltd2_avatar_url": ltd2_avatar_url
     }
     session.permanent = True
     next_url = session.pop("next_url", url_for("home"))
@@ -267,11 +282,97 @@ def logout():
 
 @app.context_processor
 def inject_user():
-    return dict(user=session.get("user"), discord_login=False)
+    user = session.get("user")
+    user_preferences = {}
+    if user:
+        # Get LTD2 data from database if not in session
+        if not user.get("ltd2_playername") and user.get("player_id"):
+            ltd2_data = sitedb.get_user_ltd2_data(user["id"])
+            user.update(ltd2_data)
+        # Get user preferences for all pages
+        user_preferences = sitedb.get_user_preferences(user["id"])
+    return dict(user=user, discord_login=True, user_preferences=user_preferences)
 
 @app.route("/api/defaults")
 def api_defaults():
     return defaults_json
+
+@app.route("/api/user/preferences", methods=['GET'])
+def get_user_preferences_api():
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not authenticated"}), 401
+    
+    preferences = sitedb.get_user_preferences(user["id"])
+    return jsonify(preferences)
+
+@app.route("/api/user/preferences", methods=['POST'])
+def update_user_preferences_api():
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not authenticated"}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+    
+    sitedb.update_user_preferences(user["id"], data)
+    return jsonify({"message": "Preferences updated successfully"})
+
+@app.route("/api/user/refresh-ltd2-account", methods=['POST'])
+def refresh_ltd2_account_api():
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Not authenticated"}), 401
+    
+    # Get fresh player_id from external API
+    player_id = sitedb.get_player_id(user["id"])
+
+    print(player_id)
+    
+    # Update the user's data in the database
+    conn = sqlite3.connect("site.db")
+    cursor = conn.cursor()
+    
+    if player_id:
+        # Fetch LTD2 profile data
+        ltd2_playername = None
+        ltd2_avatar_url = None
+        try:
+            get_db()
+            ltd2_profile = drachbot_db.get_player_profile(player_id, by_id=True)
+            if ltd2_profile:
+                ltd2_playername = ltd2_profile["api_profile"]["playerName"]
+                ltd2_avatar_url = ltd2_profile["api_profile"]["avatarUrl"]
+        except Exception as e:
+            print(f"Error fetching LTD2 profile: {e}")
+        
+        # Update with linked account data
+        cursor.execute("UPDATE users SET player_id = ?, ltd2_playername = ?, ltd2_avatar_url = ? WHERE discord_id = ?", 
+                      (player_id, ltd2_playername, ltd2_avatar_url, user["id"]))
+        
+        # Update session
+        session["user"]["player_id"] = player_id
+        session["user"]["ltd2_playername"] = ltd2_playername
+        session["user"]["ltd2_avatar_url"] = ltd2_avatar_url
+        
+        message = "LTD2 account link found: " + ltd2_playername
+    else:
+        # Clear linked account data (account was unlinked)
+        cursor.execute("UPDATE users SET player_id = NULL, ltd2_playername = NULL, ltd2_avatar_url = NULL WHERE discord_id = ?", 
+                      (user["id"],))
+        
+        # Update session
+        session["user"]["player_id"] = None
+        session["user"]["ltd2_playername"] = None
+        session["user"]["ltd2_avatar_url"] = None
+        
+        message = "No LTD2 account linked"
+    
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"message": message, "player_id": player_id})
 
 @app.route("/")
 @cache.cached(timeout=timeout)
@@ -870,6 +971,25 @@ def load(playername, stats, patch, elo, specific_key):
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/profile/<playername>/<stats>/<patch>/<elo>/<specific_key>/')
 def profile(playername, stats, patch, elo, specific_key):
+    # Check if profile is private early to avoid expensive operations
+    user = session.get("user")
+    
+    # Get playerid for private check
+    if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername):
+        # playername is already a player ID
+        playerid = playername
+    else:
+        # playername is a name, get the player ID
+        get_db()
+        playerid = drachbot_db.get_playerid(playername)
+    
+    # Check if the profile is private
+    if playerid:
+        is_profile_private = sitedb.is_profile_private(playerid)
+        # If profile is private and user is not the owner, show private message
+        if is_profile_private and (not user or user.get("player_id") != playerid):
+            return render_template('no_data.html', text="User profile is private")
+    
     if not stats:
         new_patch = request.args.get('patch')
         if new_patch:
@@ -1121,6 +1241,20 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
+        # Check if the profile owner has their flag hidden
+        hide_flag_on_profile = False
+        
+        # Get the Discord ID of the profile owner
+        conn = sqlite3.connect("site.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT discord_id, hide_country_flag FROM users WHERE player_id = ?", (playerid,))
+        result = cursor.fetchone()
+        conn.close()
+        
+        if result:
+            profile_owner_discord_id, hide_flag = result
+            hide_flag_on_profile = bool(hide_flag)
+        
         return render_template(
             "profile.html",
             api_profile=api_profile, api_stats=api_stats, get_rank_url=util.get_rank_url, winrate=util.custom_winrate,
@@ -1129,7 +1263,7 @@ def profile(playername, stats, patch, elo, specific_key):
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count,
-            known_names=known_names
+            known_names=known_names, hide_flag_on_profile=hide_flag_on_profile, is_own_profile=(user and user.get("player_id") == playerid)
         )
     else:
         for szn in ["12", "11"]:
