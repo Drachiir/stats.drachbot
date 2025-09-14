@@ -327,7 +327,7 @@ def update_user_preferences_api():
             if not re.match(r'^[a-z0-9_]+$', twitch_username):
                 return jsonify({"error": "Invalid Twitch username format"}), 400
             # Limit length (Twitch usernames are max 25 characters)
-            if len(twitch_username) > 25:
+            if len(twitch_username) > 30:
                 return jsonify({"error": "Twitch username too long"}), 400
             data["twitch_username"] = twitch_username
     

@@ -403,8 +403,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 // Check length
-                if (twitchUsername.length > 25) {
-                    alert('Twitch username is too long. Maximum 25 characters allowed.');
+                if (twitchUsername.length > 30) {
+                    alert('Twitch username is too long. Maximum 30 characters allowed.');
                     return;
                 }
             }
@@ -496,9 +496,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="text" class="form-control" id="twitchUsernameModal" 
                            placeholder="Enter your Twitch username" 
                            value="{{ user_preferences.twitch_username or '' }}"
-                           maxlength="25"
+                           maxlength="30"
                            pattern="[a-zA-Z0-9_]+"
-                           title="Only letters, numbers, and underscores are allowed. Maximum 25 characters.">
+                           title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
                     <small class="text-muted">Your Twitch channel will be linked on your profile (e.g., twitch.tv/username)</small>
                 </div>
                 
