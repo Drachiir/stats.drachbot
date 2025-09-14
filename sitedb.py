@@ -145,6 +145,16 @@ def get_user_ltd2_data(discord_id):
     conn.close()
     return {"ltd2_playername": result[0], "ltd2_avatar_url": result[1]} if result else {"ltd2_playername": None, "ltd2_avatar_url": None}
 
+def is_country_flag_hidden(player_id):
+    conn = sqlite3.connect("site.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT hide_country_flag FROM users WHERE player_id = ?
+    """, (player_id,))
+    result = cursor.fetchone()
+    conn.close()
+    return bool(result[0]) if result else False
+
 def is_profile_private(player_id):
     conn = sqlite3.connect("site.db")
     cursor = conn.cursor()
@@ -174,3 +184,53 @@ def get_youtube_username(player_id):
     result = cursor.fetchone()
     conn.close()
     return result[0] if result and result[0] else None
+
+def get_user_profile_data(player_id):
+    """Get all user profile data for a given player_id"""
+    # If no player_id, skip database query and return defaults directly
+    if player_id is None:
+        return _get_default_user_data()
+    
+    conn = sqlite3.connect("site.db")
+    conn.row_factory = sqlite3.Row  # This makes rows behave like dicts
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT hide_country_flag, private_profile, twitch_username, youtube_username, 
+               ltd2_playername, ltd2_avatar_url, discord_id, username, discord_displayname
+        FROM users WHERE player_id = ?
+    """, (player_id,))
+    result = cursor.fetchone()
+    conn.close()
+    
+    if result:
+        # Convert sqlite3.Row to dict and handle boolean fields
+        data = dict(result)
+        data["hide_country_flag"] = bool(data["hide_country_flag"])
+        data["private_profile"] = bool(data["private_profile"])
+        return data
+    
+    # User not found in database, return defaults
+    return _get_default_user_data()
+
+def _get_default_user_data():
+    """Auto-generate default values from database schema"""
+    conn = sqlite3.connect("site.db")
+    cursor = conn.cursor()
+    cursor.execute("PRAGMA table_info(users)")
+    columns = cursor.fetchall()
+    conn.close()
+    
+    defaults = {}
+    for column in columns:
+        col_name = column[1]
+        col_type = column[2]
+        default_value = column[4]  # DEFAULT value
+        
+        if col_name in ["hide_country_flag", "private_profile"]:
+            defaults[col_name] = False
+        elif default_value is not None:
+            defaults[col_name] = default_value
+        else:
+            defaults[col_name] = None
+    
+    return defaults

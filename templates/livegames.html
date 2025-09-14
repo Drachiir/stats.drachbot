@@ -217,7 +217,7 @@
     async function fetchGames(page = 1) {
         try {
             const baseUrl = window.location.origin.includes('127.0.0.1')
-                ? 'https://drachbot.site'
+                ? 'https://drach.bot'
                 : '';
             const response = await fetch(`${baseUrl}/api/livegames`);
             gamesData = await response.json();

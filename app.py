@@ -1038,10 +1038,13 @@ def profile(playername, stats, patch, elo, specific_key):
     
     # Check if the profile is private
     if playerid:
-        is_profile_private = sitedb.is_profile_private(playerid)
+        user_profile_data = sitedb.get_user_profile_data(playerid)
         # If profile is private and user is not the owner, show private message
-        if is_profile_private and (not user or user.get("player_id") != playerid):
+        if user_profile_data["private_profile"] and (not user or user.get("player_id") != playerid):
             return render_template('no_data.html', text="User profile is private")
+    else:
+        # No playerid means new profile not in database yet, use default values
+        user_profile_data = sitedb.get_user_profile_data(None)
     
     if not stats:
         new_patch = request.args.get('patch')
@@ -1294,23 +1297,8 @@ def profile(playername, stats, patch, elo, specific_key):
                 wave1_percents.append(round(wave1[val]/games*100))
             except Exception:
                 wave1_percents.append(0)
-        # Check if the profile owner has their flag hidden
-        hide_flag_on_profile = False
-        
-        # Get the Discord ID of the profile owner
-        conn = sqlite3.connect("site.db")
-        cursor = conn.cursor()
-        cursor.execute("SELECT discord_id, hide_country_flag FROM users WHERE player_id = ?", (playerid,))
-        result = cursor.fetchone()
-        conn.close()
-        
-        if result:
-            profile_owner_discord_id, hide_flag = result
-            hide_flag_on_profile = bool(hide_flag)
-        
-        # Get twitch and youtube usernames for this profile
-        twitch_username = sitedb.get_twitch_username(playerid)
-        youtube_username = sitedb.get_youtube_username(playerid)
+
+        # user profile data already fetched above for private profile check
 
         values = util.generate_values(playerid, values)
         winlose, elochange, api_stats = util.generate_stats(playerid, winlose, elochange, api_stats)
@@ -1323,8 +1311,9 @@ def profile(playername, stats, patch, elo, specific_key):
             labels=labels, games=games, wave1 = wave1_percents, mms = mms, openers = openers, get_cdn = util.get_cdn_image, elo=elo,
             patch = patch, spells = spells, player_dict=player_dict, profile=True, plus_prefix=util.plus_prefix, patch_list = patches,
             player_rank=player_rank, refresh_in_progress=in_progress, cooldown_duration=cooldown_duration, playerid=playerid, mvp_count=mvp_count,
-            known_names=known_names, hide_flag_on_profile=hide_flag_on_profile, is_own_profile=(user and user.get("player_id") == playerid),
-            twitch_username=twitch_username, youtube_username=youtube_username
+            known_names=known_names, hide_flag_on_profile=user_profile_data["hide_country_flag"], is_own_profile=(user and user.get("player_id") == playerid),
+            twitch_username=user_profile_data["twitch_username"], youtube_username=user_profile_data["youtube_username"],
+            user_profile_data=user_profile_data
         )
     else:
         for szn in ["12", "11"]:
