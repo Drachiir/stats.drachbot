@@ -236,7 +236,7 @@
                         <ul class="dropdown-menu bg-black">
                             {% for stat in stats_list %}
                                 <li><a class="dropdown-item" style="color: white; text-decoration: none;" href="/load/{{ playerid }}/{{ stat }}/{{ patch }}">
-                                    <div style="padding: 5px"><img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}"><r2>{{ stat.capitalize() }}</r2></div>
+                                    <div><img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}"><r2>{{ stat.capitalize() }}</r2></div>
                                 </a></li>
                             {% endfor %}
                         </ul>
