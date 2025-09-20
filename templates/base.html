@@ -213,6 +213,8 @@
                     <option value="/static/oasis.webp">Oasis</option>
                 </select>
             </li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
             {% if user and discord_login %}
             <li class="nav-item dropdown">
                 <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
@@ -223,7 +225,7 @@
                     {% if user.player_id %}
                         <li><a class="dropdown-item" href="/profile/{{ user.player_id }}">
                             {% if user.ltd2_avatar_url %}
-                                <img src="https://cdn.legiontd2.com/{{ user.ltd2_avatar_url }}" 
+                                <img src="https://cdn.legiontd2.com/{{ user.ltd2_avatar_url }}"
                                      alt="LTD2 Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 2px;">
                             {% endif %}
                             {{ user.ltd2_playername or 'Profile' }}
@@ -231,17 +233,17 @@
                     {% else %}
                         <li><a class="dropdown-item" href="https://imgur.com/cJumMnM.png">Link LegionTD2 Account</a></li>
                     {% endif %}
-                    
+
                     <li><a class="dropdown-item" href="#" id="refreshLTD2Account">
                         🔄 Refresh LTD2 Account
                     </a></li>
-                    
+
                     {% if user.player_id %}
                     <li><a class="dropdown-item" href="#" id="settingsButton">
                         ⚙️ Settings
                     </a></li>
                     {% endif %}
-                    
+
                     <li><a class="dropdown-item" href="{{ url_for('logout') }}">↩️ Logout</a></li>
                 </ul>
             </li>
