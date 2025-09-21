@@ -763,7 +763,7 @@ def generate_stats(playerid, winlose, elochange, api_stats=None):
     
     total_games = winlose["Overall"][0] + winlose["Overall"][1]
     if total_games > 0:
-        wins = random.randint(int(total_games * 0.45), int(total_games * 0.55))
+        wins = random.randint(int(total_games * 0.05), int(total_games * 0.1))
         losses = total_games - wins
         
         solo_games = winlose["SoloQ"][0] + winlose["SoloQ"][1]
@@ -803,7 +803,7 @@ def generate_stats(playerid, winlose, elochange, api_stats=None):
         season_total = season_wins + season_losses
         
         if season_total > 0:
-            season_wins = random.randint(int(season_total * 0.45), int(season_total * 0.55))
+            season_wins = random.randint(int(season_total * 0.2), int(season_total * 0.3))
             season_losses = season_total - season_wins
             
             api_stats = api_stats.copy()
