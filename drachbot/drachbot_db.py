@@ -244,7 +244,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     if ranked_games_old < ranked_games:
                         games_count += get_games_loop(playerid, 0, games_diff)
                     if games_count > 0:
-                        PlayerProfile.update(offset=games_count+data.offset).where(PlayerProfile.player_id == playerid).execute()
+                        PlayerProfile.update(offset=min(500, games_count+data.offset)).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:
             if get_new_games:
                 get_games_loop(playerid, 0, 20)
