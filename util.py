@@ -755,59 +755,28 @@ def generate_values(playerid, original_values):
     fake_values.append(original_values[-1])
     return fake_values
 
-def generate_stats(playerid, winlose, elochange, api_stats=None):
-    if playerid not in clankers["clankers"]:
-        return winlose, elochange, api_stats
-    
-    random.seed(hash(playerid) + 12345)
-    
-    total_games = winlose["Overall"][0] + winlose["Overall"][1]
-    if total_games > 0:
-        wins = random.randint(int(total_games * 0.05), int(total_games * 0.1))
-        losses = total_games - wins
-        
-        solo_games = winlose["SoloQ"][0] + winlose["SoloQ"][1]
-        duo_games = winlose["DuoQ"][0] + winlose["DuoQ"][1]
-        
-        if solo_games > 0 and duo_games > 0:
-            solo_wins = int(wins * (solo_games / total_games))
-            duo_wins = wins - solo_wins
-            solo_losses = solo_games - solo_wins
-            duo_losses = duo_games - duo_wins
-        elif solo_games > 0:
-            solo_wins = wins
-            solo_losses = solo_games - solo_wins
-            duo_wins = 0
-            duo_losses = 0
-        else:
-            duo_wins = wins
-            duo_losses = duo_games - duo_wins
-            solo_wins = 0
-            solo_losses = 0
-        
-        winlose = {
-            "Overall": [wins, losses],
-            "SoloQ": [solo_wins, solo_losses],
-            "DuoQ": [duo_wins, duo_losses]
-        }
-    
-    elochange = {
-        "Overall": random.randint(-200, 200),
-        "SoloQ": random.randint(-200, 200),
-        "DuoQ": random.randint(-200, 200)
-    }
-    
+def generate_stats(playerid,winlose,elochange,api_stats=None):
+    if playerid not in clankers["clankers"]:return winlose,elochange,api_stats
+    rng=random.Random(hash(playerid)+12345)
+    def noisy_split(total,a,b):
+        if a+b<=0:w_a=rng.gammavariate(1.2,1.0);w_b=rng.gammavariate(1.2,1.0)
+        else:w_a=rng.gammavariate(max(0.8,a/max(1,a+b)*3),1.0);w_b=rng.gammavariate(max(0.8,b/max(1,a+b)*3),1.0)
+        s=w_a+w_b;part_a=int(round(total*(w_a/s)));part_b=total-part_a;return part_a,part_b
+    total_games_orig=winlose["Overall"][0]+winlose["Overall"][1]
+    if total_games_orig>0:
+        target_total=rng.randint(200,300) if total_games_orig>300 else total_games_orig
+        wins=rng.randint(int(target_total*0.45),int(target_total*0.55));losses=target_total-wins
+        solo_games_orig=winlose["SoloQ"][0]+winlose["SoloQ"][1];duo_games_orig=winlose["DuoQ"][0]+winlose["DuoQ"][1]
+        solo_games,duo_games=noisy_split(target_total,solo_games_orig,duo_games_orig)
+        solo_wins,duo_wins=noisy_split(wins,solo_games,duo_games)
+        solo_wins=min(solo_wins,solo_games);duo_wins=min(duo_wins,duo_games)
+        solo_losses=solo_games-solo_wins;duo_losses=duo_games-duo_wins
+        winlose={"Overall":[solo_wins+duo_wins,solo_losses+duo_losses],"SoloQ":[solo_wins,solo_losses],"DuoQ":[duo_wins,duo_losses]}
+    elochange={"Overall":rng.randint(-200,200),"SoloQ":rng.randint(-200,200),"DuoQ":rng.randint(-200,200)}
     if api_stats:
-        season_wins = api_stats.get("rankedWinsThisSeason", 0)
-        season_losses = api_stats.get("rankedLossesThisSeason", 0)
-        season_total = season_wins + season_losses
-        
-        if season_total > 0:
-            season_wins = random.randint(int(season_total * 0.2), int(season_total * 0.3))
-            season_losses = season_total - season_wins
-            
-            api_stats = api_stats.copy()
-            api_stats["rankedWinsThisSeason"] = season_wins
-            api_stats["rankedLossesThisSeason"] = season_losses
-    
-    return winlose, elochange, api_stats
+        season_wins=api_stats.get("rankedWinsThisSeason",0);season_losses=api_stats.get("rankedLossesThisSeason",0);season_total_orig=season_wins+season_losses
+        if season_total_orig>0:
+            season_total=rng.randint(200,300) if season_total_orig>300 else season_total_orig
+            season_wins=rng.randint(int(season_total*0.45),int(season_total*0.55));season_losses=season_total-season_wins
+            api_stats=api_stats.copy();api_stats["rankedWinsThisSeason"]=season_wins;api_stats["rankedLossesThisSeason"]=season_losses
+    return winlose,elochange,api_stats
