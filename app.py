@@ -1421,7 +1421,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 if specific_key != "All" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
             case "mmstats_combined":
-                title = f"{playername2}'s MM Stats (Combined)"
+                title = f"{playername2}'s MM (Combined)"
                 title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
                 header_title = "MM"
                 header_cdn = "https://cdn.legiontd2.com/icons/Items/"
@@ -1668,7 +1668,7 @@ def stats(stats, elo, patch, specific_key):
             if specific_key != "All" and specific_key not in mm_list:
                 return render_template("no_data.html", text="No Data")
         case "mmstats_combined":
-            title = "MM Stats (Combined)"
+            title = "MM (Combined)"
             title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
             header_title = "MM"
             header_cdn = "https://cdn.legiontd2.com/icons/Items/"
