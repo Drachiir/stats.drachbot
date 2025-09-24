@@ -116,14 +116,14 @@ def get_avatar_border(stacks):
 
 
 tier_dict_specific = {
-    "mmstats": 1, "openstats": 1,
+    "mmstats": 1, "mmstats_combined": 1, "openstats": 1,
     "spellstats": 1, "unitstats": 1,
     "rollstats": 1, "megamindstats": 0,
     "matchupstats": 1, "sendstats": 1
 }
 
 tier_dict_all = {
-    "mmstats": 0.5, "openstats": 0.7,
+    "mmstats": 0.5, "mmstats_combined": 0.5, "openstats": 0.7,
     "spellstats": 0.4, "unitstats": 0.2,
     "rollstats": 0.3, "megamindstats": 0,
     "matchupstats": 1, "sendstats": 1
@@ -141,6 +141,8 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     elo = elo_dict.get(str(elo), 0.04)
 
     if stats == "megamindstats" and not specific_tier:
+        tier_score = winrate
+    elif stats == "mmstats_combined" and not specific_tier:
         tier_score = winrate
     else:
         tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
@@ -285,7 +287,7 @@ def get_cdn_image(string, header, profile = False):
             if not string and profile:
                 return f"https://cdn.legiontd2.com/icons/Worker.png"
             return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
-        case "MM" | "MMs" | "Best MMs" | "mmstats" | "megamindstats" | "Best With" | "Best Against" | "Teammate"\
+        case "MM" | "MMs" | "Best MMs" | "mmstats" | "mmstats_combined" | "megamindstats" | "Best With" | "Best Against" | "Teammate"\
             | "Enemies" | "Sending To" | "Receiving From" | "Match Up":
             if (string not in mm_list) and (string != "Hybrid"):
                 return f"https://cdn.legiontd2.com/icons/{string}.png"

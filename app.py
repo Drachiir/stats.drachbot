@@ -1145,6 +1145,7 @@ def profile(playername, stats, patch, elo, specific_key):
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Items/Megamind.png",
+            "https://cdn.legiontd2.com/icons/Mastermind.png",
             "https://cdn.legiontd2.com/icons/Mastery/5.png",
             "https://cdn.legiontd2.com/icons/Brute.png",
             "https://cdn.legiontd2.com/icons/ChallengerElite.png",
@@ -1419,6 +1420,26 @@ def profile(playername, stats, patch, elo, specific_key):
                     raw_data = raw_data[0]
                 if specific_key != "All" and specific_key not in mm_list:
                     return render_template("no_data.html", text="No Data")
+            case "mmstats_combined":
+                title = f"{playername2}'s MM Stats (Combined)"
+                title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
+                header_title = "MM"
+                header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+                if specific_key == "All":
+                    header_keys = ["Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                    sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
+                elif specific_key == "Champion":
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
+                    sub_headers = [["Champions", "Targets", "rollstats"], ["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+                else:
+                    header_keys = ["Games", "Winrate", "Playrate", "Delta"]
+                    sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+                raw_data = drachbot.mmstats.mmstats(playerid, 0, elo, patch, "Combined", data_only=True, history_raw=history_raw)
+                games = raw_data[1]
+                avg_elo = raw_data[2]
+                raw_data = raw_data[0]
+                if specific_key != "All" and specific_key not in mm_list:
+                    return render_template("no_data.html", text="No Data")
             case "openstats":
                 title = f"{playername2}'s Opener"
                 title_image = "https://cdn.legiontd2.com/icons/Mastery/5.png"
@@ -1646,6 +1667,23 @@ def stats(stats, elo, patch, specific_key):
             folder = "mmstats"
             if specific_key != "All" and specific_key not in mm_list:
                 return render_template("no_data.html", text="No Data")
+        case "mmstats_combined":
+            title = "MM Stats (Combined)"
+            title_image = "https://cdn.legiontd2.com/icons/Mastermind.png"
+            header_title = "MM"
+            header_cdn = "https://cdn.legiontd2.com/icons/Items/"
+            if specific_key == "All":
+                header_keys = ["Tier", "Games", "Winrate", "Pickrate", "Player Elo", "W on 10"]
+                sub_headers = [["Best Opener", "Opener", "openstats"], ["Best Spell", "Spell", "spellstats"], ["Best Roll", "Rolls", "rollstats"]]
+            elif specific_key == "Champion":
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
+                sub_headers = [["Champions", "Targets", "rollstats"],["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+            else:
+                header_keys = ["Tier", "Games", "Winrate", "Playrate", "Delta"]
+                sub_headers = [["Openers", "Opener", "openstats"], ["Spells", "Spell", "spellstats"], ["Rolls", "Rolls", "rollstats"]]
+            folder = "mmstats_combined"
+            if specific_key != "All" and specific_key not in mm_list:
+                return render_template("no_data.html", text="No Data")
         case "openstats":
             title = "Opener"
             title_image = "https://cdn.legiontd2.com/icons/Mastery/5.png"
@@ -1777,6 +1815,8 @@ def stats(stats, elo, patch, specific_key):
                     raw_data = drachbot.mmstats.mmstats("all",0, int(elo1), patch[1:],"Megamind", data_only=True, history_raw=history_raw)
                 case "mmstats":
                     raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                case "mmstats_combined":
+                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch[1:], "Combined", data_only=True, history_raw=history_raw)
                 case "openstats":
                     raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
                 case "spellstats":
@@ -1844,18 +1884,24 @@ def stats(stats, elo, patch, specific_key):
                 if raw_data[key]["Count"] != 0:
                     new_dict[key] = raw_data[key]
             raw_data = new_dict
-        if stats == "mmstats" or stats == "megamindstats":
+        if stats == "mmstats" or stats == "megamindstats" or stats == "mmstats_combined":
             new_dict = {}
             for key in raw_data:
                 if raw_data[key]["Count"] == 0 and (key == "DoubleLockIn" or key == "Scrapper"):
                     continue
                 new_dict[key] = raw_data[key]
             raw_data = new_dict
-    if not raw_data or ((stats != "mmstats" and stats != "megamindstats") and specific_key != "All" and specific_key not in raw_data):
+    if not raw_data or ((stats != "mmstats" and stats != "megamindstats" and stats != "mmstats_combined") and specific_key != "All" and specific_key not in raw_data):
         return render_template("no_data.html", text="No Data")
     if stats == "megamindstats" and (specific_key != "All" and specific_key != "Megamind") and specific_key not in raw_data:
         return render_template("no_data.html", text="No Data")
     if stats == "mmstats" and specific_key != "Megamind":
+        try:
+            if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
+                return render_template("no_data.html", text="No Data")
+        except KeyError:
+            return render_template("no_data.html", text=f"{specific_key} not found")
+    if stats == "mmstats_combined":
         try:
             if specific_key != "All" and raw_data[specific_key]["Count"] == 0:
                 return render_template("no_data.html", text="No Data")

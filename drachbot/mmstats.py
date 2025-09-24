@@ -27,6 +27,9 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
     elif mastermind == 'Megamind':
         mmnames_list = util.mm_list[:]
         mmnames_list.remove("Megamind")
+    elif mastermind == 'Combined':
+        mmnames_list = util.mm_list[:]
+        mmnames_list.remove("Megamind")
     else:
         mmnames_list = [mastermind]
     masterminds_dict = {}
@@ -61,18 +64,22 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
         patches.add(game["version"])
         gameelo_list.append(game["game_elo"])
         match mastermind:
-            case 'All' | 'Megamind':
+            case 'All' | 'Megamind' | 'Combined':
                 for player in game["players_data"]:
                     if player["player_id"] == playerid or playerid == "all":
                         if game["version"].startswith('v10') or game["version"].startswith('v9'):
                             player["megamind"] = False
                         if player["megamind"]:
                             megamind_count += 1
-                            if mastermind != "Megamind":
-                                mastermind_current = 'Megamind'
-                            else:
+                            if mastermind == "Megamind":
                                 if player["legion"] == "Megamind": continue
                                 mastermind_current = player["legion"]
+                            elif mastermind == "Combined":
+                                # For combined stats, assign megamind games to the actual mastermind that was picked
+                                if player["legion"] == "Megamind": continue
+                                mastermind_current = player["legion"]
+                            else:
+                                mastermind_current = 'Megamind'
                         else:
                             if player["legion"] == "Mastermind":
                                 continue
@@ -236,5 +243,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
     if data_only:
         if mastermind == "Megamind":
             return [masterminds_dict, megamind_count, avg_gameelo]
+        elif mastermind == "Combined":
+            return [masterminds_dict, games, avg_gameelo]
         else:
             return [masterminds_dict, games, avg_gameelo]
