@@ -160,7 +160,7 @@ def save_game(data):
                 champ_location = "N/A"
 
             try:
-                double_down = player["doubleDown"]
+                double_down = player["doubledown"]
             except Exception:
                 double_down = False
             
