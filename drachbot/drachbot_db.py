@@ -64,11 +64,12 @@ def get_game_by_id(gameid):
                     PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                     PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
                     PlayerData.mercs_received_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_received_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
-                    PlayerData.roll, PlayerData.net_worth_per_wave, PlayerData.elo_change, PlayerData.spell_location, PlayerData.champ_location, PlayerData.mvp_score, PlayerData.party_size],
+                    PlayerData.roll, PlayerData.net_worth_per_wave, PlayerData.elo_change, PlayerData.spell_location, PlayerData.champ_location, PlayerData.mvp_score, PlayerData.party_size,
+                    PlayerData.double_down],
                    ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "left_king_hp", "right_king_hp", "player_count", "game_length"],
                    ["player_id", "player_name", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                     "champ_location", "spell_location", "fighters", "mercs_received_per_wave", "leaks_per_wave", "kingups_received_per_wave", "fighter_value_per_wave",
-                    "income_per_wave", "roll", "net_worth_per_wave", "elo_change", "spell_location", "champ_location", "mvp_score", "party_size"]]
+                    "income_per_wave", "roll", "net_worth_per_wave", "elo_change", "spell_location", "champ_location", "mvp_score", "party_size", "double_down"]]
     game_data_query = (PlayerData
                        .select(*req_columns[0])
                        .join(GameData)

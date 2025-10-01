@@ -33,6 +33,9 @@
                         <r2 mvptooltip="MVP Score: {{ player['mvp_score'] }}" style="color: #ba87fb; font-size: 0.9rem; position: absolute; top: -12px; right: 45%">[2nd]</r2>
                     {% endif %}
                 {% endif %}
+                {% if player["double_down"] %}
+                    <img style="position: absolute; top:-12px;right: -5%; z-index: 1; border-radius: 4px" width="16" height="16" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png">
+                {% endif %}
                 <div style="display: flex; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 5px; width: 65%">
                         <a href="/load/{{ player['player_id'] }}" style="text-decoration: none; flex-grow: 1; width: 100%;">
