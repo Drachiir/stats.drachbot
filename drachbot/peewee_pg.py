@@ -121,6 +121,7 @@ class PlayerData(BaseModel):
     kingups_received_per_wave = ArrayField(field_class=TextField, index=False)  # "opponentKingUpgradesPerWave"
     megamind = BooleanField()
     champ_location = TextField()  # "chosenChampionLocation"
+    double_down = BooleanField()
 
 
 def save_game(data):
@@ -157,6 +158,11 @@ def save_game(data):
             except Exception:
                 megamind = False
                 champ_location = "N/A"
+
+            try:
+                double_down = player["doubleDown"]
+            except Exception:
+                double_down = False
             
             def convert_data(keys):
                 for key in keys:
@@ -204,7 +210,8 @@ def save_game(data):
                     kingups_sent_per_wave=player["kingUpgradesPerWave"],
                     kingups_received_per_wave=player["opponentKingUpgradesPerWave"],
                     megamind=megamind,
-                    champ_location=champ_location
+                    champ_location=champ_location,
+                    double_down=double_down
                 )
                 player_data.save()
             except Exception:
