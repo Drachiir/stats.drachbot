@@ -16,7 +16,7 @@
         <div class="king_hp_bar_outside">
             <img width="32" src="https://cdn.legiontd2.com/Icons/{{ king_hp[1] }}.png">
             <div class="king_hp_bar" id="king_hp_bar{{ loop.index0 }}">
-                <div style="padding-left: 10px; height: 22px;"><r style="font-size: 1rem; font-weight: 300;" id="king_hp_text{{ loop.index0 }}"></r></div>
+                <div style="padding-left: 10px; height: 22px;"><r class="king-hp-text" style="font-size: 1rem; font-weight: 300;" id="king_hp_text{{ loop.index0 }}"></r></div>
                 <div class="king_hp_bar_upgrades" id="king_hp_bar_upgrades{{ loop.index0 }}"></div>
             </div>
         </div>
@@ -133,16 +133,28 @@
         border: 1px solid #444;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
+    .king_hp_bar_outside img{
+        flex-shrink: 0;
+    }
     .king_hp_bar{
         width: var(--kingHpBarW);
         height: 22px;
         background-color: #2a950f;
+        transition: width 0.5s ease-in-out;
+        max-width: var(--kingHpBarW);
+        flex-shrink: 0;
     }
     .king_hp_bar_upgrades{
-        display: flex;
-        flex-wrap: nowrap;
         width: var(--kingHpBarW);
         height: 10px;
+    }
+    .king_hp_bar_upgrades > div{
+        transition: width 0.4s ease-in-out, opacity 0.3s ease-in-out, transform 0.4s ease-in-out;
+        opacity: 1;
+        transform-origin: left;
+    }
+    .king-hp-text{
+        transition: all 0.3s ease-in-out;
     }
     .units-roll{
         display: flex;
@@ -543,16 +555,106 @@ function changeWave(wave) {
         });
     });
     //Update Kingups
-    let leftKingBar = document.getElementById("king_hp_bar_upgrades0")
-    leftKingBar.innerHTML = ""
-    Object.entries(leftKingUps).forEach(([key, value]) => {
-        leftKingBar.innerHTML += `<div style="width: ${value*(parseInt(hpBarWidth)/30)}px; height: 10px; background-color: var(--${key.replaceAll(" ", "")}); z-index: 999"></div>`;
-    });
-    let rightKingBar = document.getElementById("king_hp_bar_upgrades1")
-    rightKingBar.innerHTML = ""
-    Object.entries(rightKingUps).forEach(([key, value]) => {
-        rightKingBar.innerHTML += `<div style="width: ${value*(parseInt(hpBarWidth)/30)}px; height: 10px; background-color: var(--${key.replaceAll(" ", "")}); z-index: 999"></div>`;
-    });
+    function updateKingUpgrades(kingBar, kingUps, barId) {
+        // Store previous state for comparison
+        if (!window.kingUpgradeStates) {
+            window.kingUpgradeStates = {};
+        }
+        
+        const currentState = JSON.stringify(kingUps);
+        const previousState = window.kingUpgradeStates[barId];
+        
+        // Parse previous state for comparison
+        let previousUps = {};
+        if (previousState) {
+            previousUps = JSON.parse(previousState);
+        }
+        
+        // Only animate if the state actually changed
+        const shouldAnimate = previousState !== currentState;
+        
+        // Get or create the main upgrade bar
+        let upgradeBar = kingBar.querySelector('.upgrade-bar-main');
+        if (!upgradeBar) {
+            upgradeBar = document.createElement('div');
+            upgradeBar.className = 'upgrade-bar-main';
+            upgradeBar.style.height = '10px';
+            upgradeBar.style.display = 'flex';
+            upgradeBar.style.flexWrap = 'nowrap';
+            upgradeBar.style.zIndex = '999';
+            kingBar.appendChild(upgradeBar);
+        }
+        
+        // Calculate total width
+        const totalUpgrades = Object.values(kingUps).reduce((sum, value) => sum + value, 0);
+        upgradeBar.style.width = `${totalUpgrades*(parseInt(hpBarWidth)/30)}px`;
+        
+        // Define upgrade order: Attack (red), Regen (green), Spell (purple)
+        const upgradeOrder = [
+            { key: "Upgrade King Attack", color: "--UpgradeKingAttack" },
+            { key: "Upgrade King Regen", color: "--UpgradeKingRegen" },
+            { key: "Upgrade King Spell", color: "--UpgradeKingSpell" }
+        ];
+        
+        // First, remove all existing segments to rebuild in correct order
+        upgradeBar.innerHTML = '';
+        
+        // Create segments in the correct order
+        upgradeOrder.forEach(({ key, color }) => {
+            const value = kingUps[key] || 0;
+            
+            if (value > 0) {
+                const segmentId = `segment-${key.replaceAll(" ", "")}`;
+                const segment = document.createElement('div');
+                segment.setAttribute('data-segment-id', segmentId);
+                segment.style.height = '10px';
+                segment.style.backgroundColor = `var(${color})`;
+                segment.style.flexShrink = '0';
+                segment.style.transition = 'width 0.4s ease-in-out, opacity 0.3s ease-in-out, transform 0.4s ease-in-out';
+                segment.style.transformOrigin = 'left';
+                
+                const newWidth = `${value*(parseInt(hpBarWidth)/30)}px`;
+                const previousValue = previousUps[key] || 0;
+                
+                if (shouldAnimate && value > previousValue) {
+                    // Animate growth
+                    const previousWidth = `${previousValue*(parseInt(hpBarWidth)/30)}px`;
+                    segment.style.width = previousWidth;
+                    
+                    // Trigger animation
+                    setTimeout(() => {
+                        segment.style.width = newWidth;
+                    }, 10);
+                } else if (shouldAnimate && previousValue === 0 && value > 0) {
+                    // Animate new segment
+                    segment.style.width = newWidth;
+                    segment.style.opacity = '0';
+                    segment.style.transform = 'scaleX(0)';
+                    
+                    setTimeout(() => {
+                        segment.style.opacity = '1';
+                        segment.style.transform = 'scaleX(1)';
+                    }, 10);
+                } else {
+                    // No animation, just set the width
+                    segment.style.width = newWidth;
+                    segment.style.opacity = '1';
+                    segment.style.transform = 'scaleX(1)';
+                }
+                
+                upgradeBar.appendChild(segment);
+            }
+        });
+        
+        // Store current state for next comparison
+        window.kingUpgradeStates[barId] = currentState;
+    }
+    
+    let leftKingBar = document.getElementById("king_hp_bar_upgrades0");
+    let rightKingBar = document.getElementById("king_hp_bar_upgrades1");
+    
+    updateKingUpgrades(leftKingBar, leftKingUps, 'left');
+    updateKingUpgrades(rightKingBar, rightKingUps, 'right');
 }
 document.addEventListener('keydown', (e) => {
     if (e.code === "ArrowUp" || e.code === "ArrowRight") {
