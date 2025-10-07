@@ -11,6 +11,7 @@ def gamestats(playerid = "all", history_raw = {}):
         return 'No games found.'
     wave_dict = {}
     wave1_dict = {"Snail":0, "Save":0, "King": {"Upgrade King Attack": 0, "Upgrade King Spell": 0, "Upgrade King Regen": 0}}
+    dd_dict = {"Wins": 0, "Count": 0}
     games = len(history_raw)
     game_length = 0
     for i in range(1, 22):
@@ -23,6 +24,15 @@ def gamestats(playerid = "all", history_raw = {}):
         for player in game["players_data"]:
             if player["player_id"] != playerid and playerid != "all":
                 continue
+
+            try:
+                if player["double_down"]:
+                    dd_dict["Count"] += 1
+                    if player["game_result"] == "win":
+                        dd_dict["Wins"] += 1
+            except Exception:
+                pass
+
             for i in range(game["ending_wave"]):
                 wave_dict[f"wave{i + 1}"]["Count"] += 1
                 try:
@@ -56,4 +66,11 @@ def gamestats(playerid = "all", history_raw = {}):
             else:
                 wave1_dict["Save"] += 1
     avg_gameelo = round(sum(gameelo_list) / len(gameelo_list))
-    return [wave_dict, wave1_dict, game_length, games, avg_gameelo]
+
+    try:
+        dd_winrate = round(dd_dict["Wins"] / dd_dict["Count"] * 100, 1)
+    except ZeroDivisionError:
+        dd_winrate = 0
+    dd_dict["Winrate"] = dd_winrate
+
+    return [wave_dict, wave1_dict, game_length, games, avg_gameelo, dd_dict]

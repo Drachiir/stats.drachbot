@@ -110,6 +110,28 @@
                     </table>
                 </div>
             </div>
+            {% if data.get("DoubleDown") and data["DoubleDown"].get("Count") and data["DoubleDown"]["Count"] > 0 %}
+                <div style="width: max-content; text-align: center">
+                    <r3 style="font-size: 1.3rem; font-weight: 500;">
+                        <span><img style="width: 32px" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png"></span>
+                        Double Down
+                    </r3>
+                    <div style="padding-top: 10px">
+                        <table class="table table-hover table-bordered" style="white-space: nowrap;">
+                            <tr><th><r4>Games</r4></th><th><r4>Winrate</r4></th><th><r4>Play rate</r4></th></tr>
+                            <tr>
+                                <td><r3>{{ data["DoubleDown"]["Count"] }}</r3></td>
+                                <td><r3>{{ data["DoubleDown"]["Winrate"] }}%</r3></td>
+                                {% if playerprofile %}
+                                    <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games]) }}%</r3></td>
+                                {% else %}
+                                    <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games * 4]) }}%</r3></td>
+                                {% endif %}
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
             <div style="width: max-content; height: 250px;">
                 <canvas id="wave1Chart"></canvas>
             </div>

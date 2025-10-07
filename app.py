@@ -1363,11 +1363,12 @@ def profile(playername, stats, patch, elo, specific_key):
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
-                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
+                            PlayerData.double_down],
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
-                            "income_per_wave"]]
+                            "income_per_wave", "double_down"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))
@@ -1559,7 +1560,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     return render_template("no_data.html", text="No Data")
                 games = raw_data[3]
                 avg_elo = raw_data[4]
-                raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
+                raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0], "DoubleDown": raw_data[5]}
         if type(raw_data) == str:
             return render_template("no_data.html", text="No Data")
         if raw_data:
@@ -1591,7 +1592,7 @@ def profile(playername, stats, patch, elo, specific_key):
                                    specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values=util.get_gamestats_values,
                                    stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list, get_tooltip=util.get_tooltip,
                                    get_rank_url=util.get_rank_url, get_avg_end_wave=util.get_avg_end_wave,playerurl=f"/profile/{playername}", playername2=playername2, patch_selector=True,
-                                   title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"], plus_prefix=util.plus_prefix)
+                                   title=title, title_image=title_image, header_title=header_title, player_avatar_url = api_profile["avatarUrl"], plus_prefix=util.plus_prefix, playerprofile = True)
         if specific_key == "All":
             html_file = "stats.html"
         else:
