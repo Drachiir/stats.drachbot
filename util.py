@@ -528,8 +528,13 @@ def get_gamestats_values(data, games, playerprofile = False):
             return round(x / y * 100)
         except ZeroDivisionError:
             return 0
+    def divide2(x, y):
+        try:
+            return x / y
+        except ZeroDivisionError:
+            return 0
     return {"1-10": f"{round(10 * (1 - (pre10send_count / pre10_count)), 1)}/10 ({round((10 * (1 - (pre10send_count / pre10_count)))/10*100, 1)}%)",
-            "11+": f"{round((avg_end - 10) * (1 - (divide(send_count, count))), 1)}/{avg_end2} ({round((avg_end2 * (1 - (divide(send_count, count))))/avg_end2*100, 1)}%)",
+            "11+": f"{round((avg_end - 10) * (1 - (divide2(send_count, count))), 1)}/{avg_end2} ({round((avg_end2 * (1 - (divide2(send_count, count))))/avg_end2*100, 1)}%)",
             "avg_end": f"{round(avg_end, 1)}", "pre10_myth_ratio": f"{divide(pre10_ratio[0], pre10_mythium)}% / {divide(pre10_ratio[1], pre10_mythium)}%",
             "post10_myth_ratio": f"{divide(post10_ratio[0], post10_mythium)}% / {divide(post10_ratio[1], post10_mythium)}%", "pre10_myth": round(pre10_mythium / games),
             "post10_myth": round(post10_mythium / games), "workers": avg_worker_per_wave, "leaks": avg_leak_per_wave, "income": avg_income_per_wave, "value": avg_value_per_wave}
