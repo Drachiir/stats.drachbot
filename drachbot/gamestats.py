@@ -28,7 +28,7 @@ def gamestats(playerid = "all", history_raw = {}):
             try:
                 if player["double_down"]:
                     dd_dict["Count"] += 1
-                    if player["game_result"] == "win":
+                    if player["game_result"] == "won":
                         dd_dict["Wins"] += 1
             except Exception:
                 pass
