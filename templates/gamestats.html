@@ -121,7 +121,7 @@
                             <tr><th><r4>Games</r4></th><th><r4>Winrate</r4></th><th><r4>Pickrate</r4></th></tr>
                             <tr>
                                 <td><r3>{{ data["DoubleDown"]["Count"] }}</r3></td>
-                                <td><r3>{{ data["DoubleDown"]["Winrate"] }}%</r3></td>
+                                <td><r3>{{ custom_winrate([data["DoubleDown"]["Wins"], data["DoubleDown"]["Count"]]) }}%</r3></td>
                                 {% if playerprofile %}
                                     <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games]) }}%</r3></td>
                                 {% else %}
