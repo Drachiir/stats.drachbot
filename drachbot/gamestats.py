@@ -11,7 +11,7 @@ def gamestats(playerid = "all", history_raw = {}):
         return 'No games found.'
     wave_dict = {}
     wave1_dict = {"Snail":0, "Save":0, "King": {"Upgrade King Attack": 0, "Upgrade King Spell": 0, "Upgrade King Regen": 0}}
-    dd_dict = {"Wins": 0, "Count": 0}
+    dd_dict = {"Wins": 0, "Count": 0, "EloChange": 0}
     games = len(history_raw)
     game_length = 0
     for i in range(1, 22):
@@ -28,6 +28,7 @@ def gamestats(playerid = "all", history_raw = {}):
             try:
                 if player["double_down"]:
                     dd_dict["Count"] += 1
+                    dd_dict["EloChange"] += player["elo_change"]
                     if player["game_result"] == "won":
                         dd_dict["Wins"] += 1
             except Exception:

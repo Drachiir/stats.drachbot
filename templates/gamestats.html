@@ -118,12 +118,20 @@
                     </r3>
                     <div style="padding-top: 10px">
                         <table class="table table-hover table-bordered" style="white-space: nowrap;">
-                            <tr><th><r4>Games</r4></th><th><r4>Winrate</r4></th><th><r4>Pickrate</r4></th></tr>
+                            <tr>
+                                <th><r4>Games</r4></th>
+                                <th><r4>Winrate</r4></th>
+                                <th><r4>Pickrate</r4></th>
+                                {% if playerprofile %}
+                                    <th><r4>Elo Change</r4></th>
+                                {% endif %}
+                            </tr>
                             <tr>
                                 <td><r3>{{ data["DoubleDown"]["Count"] }}</r3></td>
                                 <td><r3>{{ custom_winrate([data["DoubleDown"]["Wins"], data["DoubleDown"]["Count"]]) }}%</r3></td>
                                 {% if playerprofile %}
                                     <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games]) }}%</r3></td>
+                                    <td><r3>{{ plus_prefix(data["DoubleDown"]["EloChange"]) }}</r3></td>
                                 {% else %}
                                     <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games * 4]) }}%</r3></td>
                                 {% endif %}

@@ -951,10 +951,10 @@ def get_player_matchhistory(playername, playerid, patch, page):
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
              PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
-             PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
+             PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size, PlayerData.double_down],
             ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
+             "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
         history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True)
         try:
             os.remove(path)
@@ -982,6 +982,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
                 # Match history details
                 temp_dict["Opener"] = player["opener"]
                 temp_dict["Mastermind"] = player["legion"]
+                temp_dict["DoubleDown"] = player["double_down"]
                 try:
                     temp_dict["Spell"] = player["spell"]
                 except KeyError:
@@ -1171,10 +1172,10 @@ def profile(playername, stats, patch, elo, specific_key):
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
                  PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
                  PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
-                 PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size],
+                 PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size, PlayerData.double_down],
                 ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
-                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size"]]
+                 "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
             skip_game_refresh = True if api_stats["overallElo"] > 1700 else False
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True)
@@ -1228,6 +1229,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     #Match history details
                     temp_dict["Opener"] = player["opener"]
                     temp_dict["Mastermind"] = player["legion"]
+                    temp_dict["DoubleDown"] = player["double_down"]
                     try:
                         temp_dict["Spell"] = player["spell"]
                     except KeyError:
@@ -1364,11 +1366,11 @@ def profile(playername, stats, patch, elo, specific_key):
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
                             PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
-                            PlayerData.double_down],
+                            PlayerData.double_down, PlayerData.elo_change],
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
-                            "income_per_wave", "double_down"]]
+                            "income_per_wave", "double_down", "elo_change"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))

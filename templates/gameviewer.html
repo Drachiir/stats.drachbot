@@ -24,7 +24,7 @@
 </div>
 <div class="players-container">
     {% for player in game_data['players_data'] %}
-        <div class="player-lane" data-player="{{ player['player_slot'] }}">
+        <div class="player-lane {% if player.double_down %}double-down-glow{% endif %}" data-player="{{ player['player_slot'] }}">
             <div class="player-info" style="position: relative">
                 {% if game_data['players_data']|length == 4 %}
                     {% if player["mvp_score"] >= game_data['players_data'][player_map[loop.index0]]["mvp_score"] %}
@@ -34,7 +34,7 @@
                     {% endif %}
                 {% endif %}
                 {% if player["double_down"] %}
-                    <img style="position: absolute; top:-12px;right: -5%; z-index: 1; border-radius: 4px" width="16" height="16" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png">
+                    <img style="position: absolute; top:-12px;right: -5%; z-index: 1; border-radius: 4px" width="17px" height="17px" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png">
                 {% endif %}
                 <div style="display: flex; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 5px; width: 65%">
@@ -54,7 +54,7 @@
                     {% if game_data['players_data']|length == 4 %}
                     <div>
                         <img width="24" height="24" src="{{ get_rank_url(player['player_elo']) }}">
-                        <r>{{ player['player_elo'] }}({{ plus_prefix(player["elo_change"]) }})</r>
+                        <r style="z-index: 99">{{ player['player_elo'] }}<span {% if player.double_down %}class="double-down-elo-glow" dd-tooltip="{% if player.elo_change > 0 %}Double down! 📈{% else %}Double DOWN 💀{% endif %}"{% endif %}>({{ plus_prefix(player["elo_change"]) }})</span></r>
                     </div>
                     {% endif %}
                 </div>
@@ -115,6 +115,14 @@
         --UpgradeKingRegen: #0cca2f;
         --UpgradeKingSpell: #8f09dd;
         --kingHpBarW: 268px;
+    }
+    .double-down-glow {
+        box-shadow: 0 0 6px 1px rgba(169, 100, 229, 0.8) !important;
+    }
+    .double-down-elo-glow {
+        color: #a964e5;
+        text-shadow: 0 0 5px #a964e5;
+        position: relative;
     }
     .king_hp_bars_container{
         border-radius: 10px;
@@ -220,6 +228,7 @@
         border: 1px solid #444;
         border-radius: 8px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        position: relative;
     }
     .player-info {
         white-space: nowrap;
@@ -271,6 +280,29 @@
     [mvptooltip]:hover:after {
         display: block;
         z-index: 9;
+    }
+    [dd-tooltip] {
+        position: relative;
+    }
+    [dd-tooltip]:after {
+        content: attr(dd-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        white-space: nowrap;
+        background-color: black;
+        font-family: "Roboto", sans-serif;
+        font-size: 12px;
+        text-align: center;
+        border-radius: 4px;
+        border: gray 1px solid;
+        padding: 2px 5px;
+        display: none;
+        z-index: 10;
+    }
+    [dd-tooltip]:hover:after {
+        display: block;
     }
 </style>
 <script>
