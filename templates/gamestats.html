@@ -122,18 +122,22 @@
                                 <th><r4>Games</r4></th>
                                 <th><r4>Winrate</r4></th>
                                 <th><r4>Pickrate</r4></th>
-                                {% if playerprofile %}
+                                {% if "EloChange" in data["DoubleDown"] %}
                                     <th><r4>Elo Change</r4></th>
                                 {% endif %}
                             </tr>
                             <tr>
                                 <td><r3>{{ data["DoubleDown"]["Count"] }}</r3></td>
                                 <td><r3>{{ custom_winrate([data["DoubleDown"]["Wins"], data["DoubleDown"]["Count"]]) }}%</r3></td>
+
                                 {% if playerprofile %}
                                     <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games]) }}%</r3></td>
-                                    <td><r3>{{ plus_prefix(data["DoubleDown"]["EloChange"]) }}</r3></td>
                                 {% else %}
                                     <td><r3>{{ custom_winrate([data["DoubleDown"]["Count"], games * 4]) }}%</r3></td>
+                                {% endif %}
+
+                                {% if "EloChange" in data["DoubleDown"] %}
+                                    <td><r3>{{ plus_prefix(data["DoubleDown"]["EloChange"]) }}</r3></td>
                                 {% endif %}
                             </tr>
                         </table>
