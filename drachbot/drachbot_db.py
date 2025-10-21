@@ -74,6 +74,7 @@ def get_game_by_id(gameid):
                        .select(*req_columns[0])
                        .join(GameData)
                        .where(GameData.game_id == gameid.casefold())).dicts()
+    temp_data = {}
     for i, row in enumerate(game_data_query.iterator()):
         p_data = {}
         for field in req_columns[2]:
@@ -94,6 +95,10 @@ def get_game_by_id(gameid):
                     temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
             except KeyError:
                 return {"Error": "Game not found."}
+
+    if not temp_data:
+        return {"Error": "Game not found."}
+
     return temp_data
     
 def get_games_loop(playerid, offset, expected, timeout_limit = 1):
