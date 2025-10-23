@@ -2,6 +2,7 @@ from pathlib import Path
 import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
+import util
 from drachbot.peewee_pg import PlayerProfile, GameData, PlayerData, db
 from playhouse.postgres_ext import *
 import datetime
@@ -246,11 +247,15 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 ).where(PlayerProfile.player_id == playerid).execute()
                 ranked_games = wins + losses
                 games_diff = ranked_games - ranked_games_old
+                timeout_limit = 1
                 if games_diff > 500:
                     games_diff = 500
+                    if util.is_special_player(playerid):
+                        games_diff = 25
+                        timeout_limit = 0
                 if not skip_game_refresh:
                     if ranked_games_old < ranked_games:
-                        games_count += get_games_loop(playerid, 0, games_diff)
+                        games_count += get_games_loop(playerid, 0, games_diff, timeout_limit=timeout_limit)
                     if games_count > 0:
                         PlayerProfile.update(offset=min(500, games_count+data.offset)).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:

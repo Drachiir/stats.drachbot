@@ -717,6 +717,11 @@ def merge_dicts(target, source):
                 continue
     return target
 
+def is_special_player(playerid):
+    if playerid in clankers["clankers"]:
+        return True
+    else:
+        return False
 
 def generate_values(playerid, original_values):
     if playerid not in clankers["clankers"]:
