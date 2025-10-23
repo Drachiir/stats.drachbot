@@ -797,7 +797,7 @@ def drachbot_overlay_api(playername):
          PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.megamind],
         ["date", "ending_wave", "game_elo"],
         ["player_id", "game_result", "elo_change", "legion", "mercs_sent_per_wave", "kingups_sent_per_wave", "megamind"]]
-    history = drachbot_db.get_matchistory(playerid, 10, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
+    history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, sort_players=False)
     # if not history:
     #     history = drachbot_db.get_matchistory(playerid, 20, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, get_new_games=True)
     winlose = {"Wins": 0, "Losses": 0}
