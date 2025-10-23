@@ -786,6 +786,12 @@ def drachbot_overlay_api(playername):
     #     with open("exampledata.json", "r") as f:
     #         return json.load(f)
     playerid = drachbot_db.get_playerid(playername)
+
+    user_profile_data = sitedb.get_user_profile_data(playerid)
+    # If profile is private and user is not the owner, show private message
+    if user_profile_data["private_profile"]:
+        return {"Masterminds": {}, "Wave1": {"UpgradeKingAttack": 0, "Snail": 0, "Mythium32": 0}, "WinLose": {"Wins": 0, "Losses": 0}, "EloChange": 0, "String": f"Private Profile"}
+
     if not playerid:
         api_profile = legion_api.getprofile(playername)
         if api_profile in [0, 1]:
