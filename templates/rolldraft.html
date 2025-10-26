@@ -1,0 +1,1229 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .rolldraft-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        overflow: visible;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .page-header h1 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 300;
+        color: white;
+        text-shadow: 0 0 10px rgba(66, 183, 255, 0.5);
+    }
+
+    .draft-area {
+        background: linear-gradient(135deg, rgba(35, 40, 47, 0.98) 0%, rgba(25, 28, 33, 0.98) 100%);
+        border: 3px solid rgba(80, 90, 102, 0.8);
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        overflow: visible;
+    }
+
+    .draft-area h2 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.4rem;
+        font-weight: 400;
+        color: #c5d1e0;
+        margin-bottom: 15px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .roll-slots {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
+        padding: 50px 15px 15px 15px;
+        background: linear-gradient(180deg, rgba(40, 45, 52, 0.95) 0%, rgba(28, 32, 38, 0.95) 100%);
+        border-radius: 8px;
+        border: 2px solid rgba(70, 75, 82, 0.8);
+        overflow: visible;
+    }
+
+    .roll-slot {
+        aspect-ratio: 1;
+        background: linear-gradient(135deg, rgba(50, 55, 62, 0.9) 0%, rgba(35, 40, 47, 0.9) 100%);
+        border: 2px solid rgba(60, 65, 72, 0.6);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        min-height: 70px;
+        overflow: visible;
+    }
+
+    .roll-slot.drag-over {
+        background: rgba(84, 152, 219, 0.3);
+        border-color: #5498db;
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(84, 152, 219, 0.5);
+    }
+
+    .roll-slot.filled {
+        background: linear-gradient(135deg, rgba(45, 50, 57, 1) 0%, rgba(30, 35, 42, 1) 100%);
+        border: 2px solid rgba(100, 105, 112, 0.8);
+    }
+
+    .roll-slot.selected {
+        background: linear-gradient(135deg, rgba(70, 130, 180, 0.4) 0%, rgba(50, 100, 150, 0.4) 100%);
+        border: 3px solid #4a9eff;
+        box-shadow: 0 0 15px rgba(74, 158, 255, 0.6), inset 0 0 20px rgba(74, 158, 255, 0.2);
+    }
+
+    .roll-slot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        pointer-events: none;
+        border-radius: 6px;
+    }
+
+    .roll-slot .remove-btn {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 22px;
+        height: 22px;
+        background: #dc3545;
+        border: 2px solid white;
+        border-radius: 3px;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        pointer-events: all;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .roll-slot.filled:hover .remove-btn {
+        display: flex;
+    }
+
+    .selected-indicator {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        width: 22px;
+        height: 22px;
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        border-radius: 3px;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 1;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 5;
+        pointer-events: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .roll-slot.selected .selected-indicator {
+        display: flex;
+    }
+
+    .cost-label {
+        position: absolute;
+        bottom: 3px;
+        right: 3px;
+        background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(20, 20, 20, 0.85) 100%);
+        color: #ffd700;
+        padding: 2px 7px;
+        border-radius: 3px;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: 'Roboto', sans-serif;
+        display: none;
+        pointer-events: none;
+        z-index: 5;
+        border: 1px solid rgba(255, 215, 0, 0.6);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .roll-slot.filled .cost-label {
+        display: block;
+    }
+
+    .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .btn-draft {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-clear {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-clear:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+
+    .selection-counter {
+        text-align: center;
+        margin: 10px 0 15px 0;
+        padding: 10px 20px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.1rem;
+        color: #d0d0d0;
+        background: linear-gradient(135deg, rgba(50, 55, 62, 0.9) 0%, rgba(35, 40, 47, 0.9) 100%);
+        border: 2px solid rgba(70, 75, 82, 0.8);
+        border-radius: 6px;
+    }
+
+    .selection-counter.complete {
+        color: #4CAF50;
+        font-weight: bold;
+        border-color: rgba(76, 175, 80, 0.5);
+        background: linear-gradient(135deg, rgba(50, 80, 60, 0.9) 0%, rgba(35, 60, 45, 0.9) 100%);
+    }
+
+    .btn-load-units {
+        padding: 8px 16px;
+        background: #5498db;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        margin-left: auto;
+    }
+
+    .btn-load-units:hover {
+        background: #4a87c7;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-content {
+        background: linear-gradient(135deg, rgba(40, 45, 52, 0.98) 0%, rgba(28, 32, 38, 0.98) 100%);
+        margin: 5% auto;
+        padding: 0;
+        border: 2px solid rgba(70, 75, 82, 0.8);
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(70, 75, 82, 0.8);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        color: #d0d0d0;
+        font-size: 1.2rem;
+    }
+
+    .close {
+        color: #aaa;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .close:hover {
+        color: #fff;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-body label {
+        display: block;
+        margin-bottom: 10px;
+        color: #d0d0d0;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+
+    .modal-body textarea {
+        width: 100%;
+        padding: 12px;
+        background: rgba(20, 25, 30, 0.9);
+        border: 2px solid rgba(70, 75, 82, 0.8);
+        border-radius: 6px;
+        color: #d0d0d0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        resize: vertical;
+        min-height: 120px;
+        box-sizing: border-box;
+    }
+
+    .modal-body textarea:focus {
+        outline: none;
+        border-color: #5498db;
+        box-shadow: 0 0 8px rgba(84, 152, 219, 0.3);
+    }
+
+    .modal-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn-load {
+        padding: 10px 20px;
+        background: #5498db;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s ease;
+    }
+
+    .btn-load:hover {
+        background: #4a87c7;
+        transform: translateY(-1px);
+    }
+
+    .btn-cancel {
+        padding: 10px 20px;
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s ease;
+    }
+
+    .btn-cancel:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    .roll-hints {
+        margin: 15px 0;
+        padding: 12px 15px;
+        background: linear-gradient(135deg, rgba(40, 45, 52, 0.95) 0%, rgba(28, 32, 38, 0.95) 100%);
+        border-radius: 6px;
+        border: 2px solid rgba(70, 75, 82, 0.8);
+    }
+
+    .roll-hints.nice-roll {
+        border-color: rgba(76, 175, 80, 0.6);
+        background: linear-gradient(135deg, rgba(40, 70, 50, 0.9) 0%, rgba(28, 50, 35, 0.9) 100%);
+    }
+
+    .roll-hints.has-warnings {
+        border-color: rgba(200, 80, 70, 0.6);
+        background: linear-gradient(135deg, rgba(70, 40, 40, 0.9) 0%, rgba(50, 28, 28, 0.9) 100%);
+    }
+
+    .hint-item {
+        font-family: 'Roboto', sans-serif;
+        font-size: 0.95rem;
+        color: #e0e0e0;
+        padding: 4px 8px;
+        text-align: left;
+        background: rgba(0, 0, 0, 0.3);
+        margin: 4px 0;
+        border-radius: 4px;
+        border-left: 3px solid;
+    }
+
+    .hint-item.nice {
+        color: #66ff66;
+        font-size: 1.2rem;
+        font-weight: bold;
+        text-align: center;
+        background: rgba(76, 175, 80, 0.2);
+        border-left-color: #4CAF50;
+    }
+
+    .hint-item.warning {
+        color: #ffcc66;
+        border-left-color: #ff9933;
+        background: rgba(80, 60, 20, 0.3);
+    }
+
+    .hint-item.warning.critical {
+        color: #ff6666;
+        border-left-color: #ff3333;
+        background: rgba(80, 30, 30, 0.3);
+    }
+
+    .units-area {
+        background: rgba(47, 47, 50, 0.95);
+        border: 2px solid #666;
+        border-radius: 15px;
+        padding: 30px;
+        overflow: visible;
+    }
+
+    .units-area h2 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: #bbb;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .filter-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .filter-input {
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        background: rgba(30, 30, 35, 0.8);
+        color: white;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .filter-select {
+        padding: 8px 15px;
+        border-radius: 5px;
+        border: 1px solid #555;
+        background: rgba(30, 30, 35, 0.8);
+        color: white;
+        font-family: 'Roboto', sans-serif;
+        cursor: pointer;
+    }
+
+    .units-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 10px;
+        max-height: 600px;
+        overflow-y: auto;
+        overflow-x: visible;
+        padding: 50px 10px 40px 10px;
+        background: rgba(19, 19, 19, 0.5);
+        border-radius: 10px;
+    }
+
+    .unit-item {
+        aspect-ratio: 1;
+        background: rgba(30, 30, 35, 0.9);
+        border: 2px solid #444;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: visible;
+    }
+
+    .unit-item:hover {
+        border-color: #5498db;
+        transform: scale(1.1);
+        z-index: 100;
+        overflow: visible;
+    }
+
+    .unit-item.dragging {
+        opacity: 0.5;
+        cursor: grabbing;
+    }
+
+    .unit-item.used {
+        opacity: 0.3;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .unit-item img {
+        width: 90%;
+        height: 90%;
+        object-fit: contain;
+        pointer-events: none;
+    }
+
+    .unit-tooltip {
+        position: fixed;
+        background: rgba(0, 0, 0, 0.95);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s, visibility 0s 0.2s;
+        z-index: 10000;
+        border: 1px solid #5498db;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        min-width: 150px;
+        text-align: center;
+    }
+
+    .tooltip-name {
+        font-weight: bold;
+        color: #5498db;
+        margin-bottom: 4px;
+    }
+
+    .tooltip-info {
+        font-size: 0.75rem;
+        color: #bbb;
+        line-height: 1.4;
+    }
+
+    .units-grid::-webkit-scrollbar {
+        width: 10px;
+    }
+
+    .units-grid::-webkit-scrollbar-track {
+        background: rgba(19, 19, 19, 0.5);
+        border-radius: 5px;
+    }
+
+    .units-grid::-webkit-scrollbar-thumb {
+        background: #5498db;
+        border-radius: 5px;
+    }
+
+    .units-grid::-webkit-scrollbar-thumb:hover {
+        background: #6ba8e0;
+    }
+
+    @media (max-width: 1200px) {
+        .roll-slots {
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .roll-slots {
+            grid-template-columns: repeat(5, 1fr);
+        }
+
+        .units-grid {
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="rolldraft-container">
+    <div id="globalUnitTooltip" class="unit-tooltip"></div>
+    <div class="page-header">
+        <h1>🎲 Roll Draft Simulator</h1>
+        <p style="color: #bbb; font-family: 'Roboto', sans-serif;">Click, drag or load 10 units to the roll selector, then click to pick 6 units!</p>
+    </div>
+
+    <div class="draft-area">
+        <h2>Roll Selector</h2>
+        <div class="roll-slots" id="rollSlots">
+            <!-- 10 slots will be created by JavaScript -->
+        </div>
+        
+        <div class="selection-counter" id="selectionCounter">
+            You must keep 6 fighters (You have selected <span id="selectedCount">0</span>)
+        </div>
+
+
+        <div id="rollHints" class="roll-hints" style="display: none;">
+            <!-- Hints will be populated here -->
+        </div>
+
+        <div class="controls">
+            <button class="btn-draft btn-clear" onclick="clearRoll()">🗑️ Clear Roll</button>
+            <button id="loadUnitsBtn" onclick="openUnitListModal()" class="btn-load-units">📋 Load Unit List</button>
+        </div>
+    </div>
+
+    <div class="units-area">
+        <h2>Available Units</h2>
+        
+        <div class="filter-controls">
+            <input type="text" class="filter-input" id="searchInput" placeholder="Search units..." onkeyup="filterUnits()">
+            <select class="filter-select" id="legionFilter" onchange="filterUnits()">
+                <option value="">All Legions</option>
+            </select>
+            <select class="filter-select" id="tierFilter" onchange="filterUnits()">
+                <option value="">All Tiers</option>
+            </select>
+        </div>
+
+        <div class="units-grid" id="unitsGrid">
+            <!-- Units will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Unit List Modal -->
+<div id="unitListModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 Load Unit List</h3>
+            <span class="close" onclick="closeUnitListModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <label for="unitListInput">Paste Unit IDs:</label>
+            <textarea id="unitListInput" placeholder='["looter_unit_id","seedling_unit_id",...] or pollywog_unit_id, bazooka_unit_id, aqua_spirit_unit_id, ...' rows="6"></textarea>
+            <div class="modal-buttons">
+                <button onclick="loadUnitsFromList()" class="btn-load">Load Units</button>
+                <button onclick="closeUnitListModal()" class="btn-cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const units = {{ units | tojson }};
+let rollData = Array(10).fill(null);
+let selectedIndices = new Set();
+const MAX_SELECTIONS = 6;
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    initializeRollSlots();
+    populateUnitsGrid();
+    populateFilters();
+
+    // Global tooltip logic
+    const globalTooltip = document.getElementById('globalUnitTooltip');
+
+    function showTooltip(element, unit) {
+        if (!unit) return;
+        globalTooltip.innerHTML = createTooltipHTML(unit, true);
+
+        const rect = element.getBoundingClientRect();
+        globalTooltip.style.left = `${rect.left + rect.width / 2}px`;
+        globalTooltip.style.top = `${rect.top - 10}px`;
+        globalTooltip.style.transform = 'translate(-50%, -100%)';
+
+        globalTooltip.style.opacity = '1';
+        globalTooltip.style.visibility = 'visible';
+    }
+
+    function hideTooltip() {
+        globalTooltip.style.opacity = '0';
+        globalTooltip.style.visibility = 'hidden';
+    }
+
+    // Event delegation for tooltips
+    const unitsGrid = document.getElementById('unitsGrid');
+    unitsGrid.addEventListener('mouseover', e => {
+        const unitItem = e.target.closest('.unit-item');
+        if (unitItem) {
+            const unitIndex = parseInt(unitItem.dataset.unitIndex);
+            showTooltip(unitItem, units[unitIndex]);
+        }
+    });
+    unitsGrid.addEventListener('mouseout', hideTooltip);
+
+    const rollSlotsContainer = document.getElementById('rollSlots');
+    rollSlotsContainer.addEventListener('mouseover', e => {
+        const rollSlot = e.target.closest('.roll-slot.filled');
+        if (rollSlot) {
+            const slotIndex = parseInt(rollSlot.dataset.index);
+            const unitIndex = rollData[slotIndex];
+            if (unitIndex !== null) {
+                showTooltip(rollSlot, units[unitIndex]);
+            }
+        }
+    });
+    rollSlotsContainer.addEventListener('mouseout', hideTooltip);
+});
+
+function initializeRollSlots() {
+    const rollSlots = document.getElementById('rollSlots');
+    rollSlots.innerHTML = '';
+    
+    for (let i = 0; i < 10; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'roll-slot';
+        slot.dataset.index = i;
+        slot.innerHTML = `
+            <div class="selected-indicator">✓</div>
+            <div class="cost-label"></div>
+            <div class="remove-btn" onclick="removeFromRoll(${i}, event)">✕</div>
+        `;
+        
+        // Add drag and drop listeners
+        slot.addEventListener('dragover', handleDragOver);
+        slot.addEventListener('drop', handleDrop);
+        slot.addEventListener('dragleave', handleDragLeave);
+        slot.addEventListener('click', (e) => toggleSelection(i, e));
+        
+        rollSlots.appendChild(slot);
+    }
+}
+
+function populateUnitsGrid() {
+    const grid = document.getElementById('unitsGrid');
+    grid.innerHTML = '';
+    
+    units.forEach((unit, index) => {
+        const unitDiv = document.createElement('div');
+        unitDiv.className = 'unit-item';
+        unitDiv.draggable = true;
+        unitDiv.dataset.unitIndex = index;
+        
+        const iconPath = unit.iconPath || 'Icons/DefaultUnit.png';
+        const cdnUrl = `https://cdn.legiontd2.com/${iconPath}`;
+        
+        unitDiv.innerHTML = `<img src="${cdnUrl}" alt="${unit.name}">`;
+        
+        // Add click to add functionality
+        unitDiv.addEventListener('click', () => {
+            if (!unitDiv.classList.contains('used')) {
+                addUnitToFirstEmptySlot(index);
+            }
+        });
+        
+        unitDiv.addEventListener('dragstart', handleDragStart);
+        unitDiv.addEventListener('dragend', handleDragEnd);
+        
+        grid.appendChild(unitDiv);
+    });
+}
+
+function createTooltipHTML(unit, isGlobal = false) {
+    const name = unit.name || 'Unknown';
+    const cost = unit.goldCost || 0;
+    const tier = (unit.infoTier || '').replace('Tier-', 'T');
+    const attackType = getAttackTypeName(unit.attackType);
+    const armorType = getArmorTypeName(unit.armorType);
+    
+    const content = `
+        <div class="tooltip-name">${name}</div>
+        <div class="tooltip-info">
+            Cost: ${cost}g | ${tier}<br>
+            ${attackType} | ${armorType}
+        </div>
+    `;
+    
+    return isGlobal ? content : `<div class="unit-tooltip">${content}</div>`;
+}
+
+function getAttackTypeName(attackType) {
+    if (!attackType) return 'Unknown';
+    const typeMap = {
+        'Magic': 'Magic',
+        'Pierce': 'Pierce',
+        'Impact': 'Impact',
+        'Pure': 'Pure',
+        'Chaos': 'Pure'
+    };
+    return typeMap[attackType] || attackType;
+}
+
+function getArmorTypeName(armorType) {
+    if (!armorType) return 'Unknown';
+    const typeMap = {
+        'Arcane': 'Arcane',
+        'Fortified': 'Fortified',
+        'Swift': 'Swift',
+        'Natural': 'Natural',
+        'Immaterial': 'Arcane',
+        'Unarmored': 'Swift'
+    };
+    return typeMap[armorType] || armorType;
+}
+
+function addUnitToFirstEmptySlot(unitIndex) {
+    // Check if unit is already in roll
+    if (rollData.includes(unitIndex)) {
+        return;
+    }
+    
+    // Find first empty slot
+    const emptySlotIndex = rollData.findIndex(slot => slot === null);
+    if (emptySlotIndex !== -1) {
+        addToRoll(emptySlotIndex, unitIndex);
+    }
+}
+
+function populateFilters() {
+    const legionSet = new Set();
+    const tierSet = new Set();
+    
+    units.forEach(unit => {
+        if (unit.legionId) {
+            const legionName = unit.legionId.replace('_legion_id', '').replace(/_/g, ' ');
+            legionSet.add(legionName);
+        }
+        if (unit.infoTier) {
+            tierSet.add(unit.infoTier);
+        }
+    });
+    
+    const legionFilter = document.getElementById('legionFilter');
+    Array.from(legionSet).sort().forEach(legion => {
+        const option = document.createElement('option');
+        option.value = legion;
+        option.textContent = legion.charAt(0).toUpperCase() + legion.slice(1);
+        legionFilter.appendChild(option);
+    });
+    
+    const tierFilter = document.getElementById('tierFilter');
+    // Sort tiers properly (T1, T2, T3, T4, T5, T6)
+    const tiers = Array.from(tierSet).sort((a, b) => {
+        const numA = parseInt(a.replace('Tier-', ''));
+        const numB = parseInt(b.replace('Tier-', ''));
+        return numA - numB;
+    });
+    
+    tiers.forEach(tier => {
+        const option = document.createElement('option');
+        option.value = tier;
+        option.textContent = tier.replace('Tier-', 'Tier ');
+        tierFilter.appendChild(option);
+    });
+}
+
+function filterUnits() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const legionFilter = document.getElementById('legionFilter').value.toLowerCase();
+    const tierFilter = document.getElementById('tierFilter').value;
+    
+    const unitItems = document.querySelectorAll('.unit-item');
+    
+    unitItems.forEach((item, index) => {
+        const unit = units[index];
+        const matchesSearch = !searchTerm || unit.name.toLowerCase().includes(searchTerm);
+        const matchesLegion = !legionFilter || (unit.legionId && unit.legionId.toLowerCase().includes(legionFilter));
+        const matchesTier = !tierFilter || unit.infoTier === tierFilter;
+        
+        if (matchesSearch && matchesLegion && matchesTier) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Drag and Drop Handlers
+let draggedUnitIndex = null;
+
+function handleDragStart(e) {
+    if (this.classList.contains('used')) {
+        e.preventDefault();
+        return;
+    }
+    draggedUnitIndex = parseInt(this.dataset.unitIndex);
+    this.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'copy';
+}
+
+function handleDragEnd(e) {
+    this.classList.remove('dragging');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    this.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.classList.remove('drag-over');
+    
+    const slotIndex = parseInt(this.dataset.index);
+    
+    if (draggedUnitIndex !== null && rollData[slotIndex] === null) {
+        addToRoll(slotIndex, draggedUnitIndex);
+    }
+    
+    draggedUnitIndex = null;
+}
+
+function addToRoll(slotIndex, unitIndex) {
+    // Check if unit is already in roll
+    if (rollData.includes(unitIndex)) {
+        return;
+    }
+    
+    rollData[slotIndex] = unitIndex;
+    sortRollByCost();
+    updateRollDisplay();
+    updateUnitsAvailability();
+}
+
+function sortRollByCost() {
+    // Get all non-null entries with their indices
+    const unitsWithIndices = rollData
+        .map((unitIndex, slotIndex) => ({ unitIndex, slotIndex }))
+        .filter(item => item.unitIndex !== null);
+    
+    // Sort by unit cost (cheapest to most expensive)
+    unitsWithIndices.sort((a, b) => {
+        const costA = parseInt(units[a.unitIndex]?.goldCost || 0);
+        const costB = parseInt(units[b.unitIndex]?.goldCost || 0);
+        return costA - costB;
+    });
+    
+    // Rebuild rollData with sorted units
+    const newRollData = Array(10).fill(null);
+    unitsWithIndices.forEach((item, index) => {
+        newRollData[index] = item.unitIndex;
+    });
+    
+    // Update selected indices to match new positions
+    const oldToNewIndex = new Map();
+    unitsWithIndices.forEach((item, newIndex) => {
+        oldToNewIndex.set(item.slotIndex, newIndex);
+    });
+    
+    const newSelectedIndices = new Set();
+    selectedIndices.forEach(oldIndex => {
+        if (oldToNewIndex.has(oldIndex)) {
+            newSelectedIndices.add(oldToNewIndex.get(oldIndex));
+        }
+    });
+    
+    rollData = newRollData;
+    selectedIndices = newSelectedIndices;
+}
+
+function removeFromRoll(slotIndex, event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    rollData[slotIndex] = null;
+    selectedIndices.delete(slotIndex);
+    sortRollByCost();
+    updateRollDisplay();
+    updateUnitsAvailability();
+    updateSelectionCounter();
+}
+
+function updateRollDisplay() {
+    const slots = document.querySelectorAll('.roll-slot');
+    
+    slots.forEach((slot, index) => {
+        const unitIndex = rollData[index];
+        
+        if (unitIndex !== null) {
+            const unit = units[unitIndex];
+            // Use splash images instead of icons
+            const splashPath = unit.iconPath || 'Icons/DefaultUnit.png';
+            const cdnUrl = `https://cdn.legiontd2.com/${splashPath}`;
+            const cost = unit.goldCost || '0';
+            
+            slot.classList.add('filled');
+            if (selectedIndices.has(index)) {
+                slot.classList.add('selected');
+            } else {
+                slot.classList.remove('selected');
+            }
+            
+            // Update or create the image
+            let img = slot.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                slot.appendChild(img);
+            }
+            img.src = cdnUrl;
+            img.alt = unit.name;
+            
+            // Update cost label
+            const costLabel = slot.querySelector('.cost-label');
+            if (costLabel) {
+                costLabel.textContent = cost + 'g';
+            }
+        } else {
+            slot.classList.remove('filled', 'selected');
+            const img = slot.querySelector('img');
+            if (img) {
+                img.remove();
+            }
+            const tooltip = slot.querySelector('.unit-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        }
+    });
+    
+    // Update hints when roll is complete
+    updateRollHints();
+}
+
+function updateUnitsAvailability() {
+    const unitItems = document.querySelectorAll('.unit-item');
+    
+    unitItems.forEach(item => {
+        const unitIndex = parseInt(item.dataset.unitIndex);
+        if (rollData.includes(unitIndex)) {
+            item.classList.add('used');
+        } else {
+            item.classList.remove('used');
+        }
+    });
+}
+
+function toggleSelection(slotIndex, event) {
+    // Don't toggle if clicking on remove button
+    if (event.target.classList.contains('remove-btn')) {
+        return;
+    }
+    
+    // Can only select if slot is filled
+    if (rollData[slotIndex] === null) {
+        return;
+    }
+    
+    if (selectedIndices.has(slotIndex)) {
+        selectedIndices.delete(slotIndex);
+    } else {
+        if (selectedIndices.size < MAX_SELECTIONS) {
+            selectedIndices.add(slotIndex);
+        }
+    }
+    
+    updateRollDisplay();
+    updateSelectionCounter();
+}
+
+function updateSelectionCounter() {
+    const counter = document.getElementById('selectedCount');
+    const counterDiv = document.getElementById('selectionCounter');
+    
+    counter.textContent = selectedIndices.size;
+    
+    if (selectedIndices.size === MAX_SELECTIONS) {
+        counterDiv.classList.add('complete');
+    } else {
+        counterDiv.classList.remove('complete');
+    }
+}
+
+function clearRoll() {
+    rollData = Array(10).fill(null);
+    selectedIndices.clear();
+    updateRollDisplay();
+    updateUnitsAvailability();
+    updateSelectionCounter();
+}
+
+function openUnitListModal() {
+    const modal = document.getElementById('unitListModal');
+    modal.style.display = 'block';
+    // Focus on the textarea when modal opens
+    setTimeout(() => {
+        document.getElementById('unitListInput').focus();
+    }, 100);
+}
+
+function closeUnitListModal() {
+    const modal = document.getElementById('unitListModal');
+    modal.style.display = 'none';
+    // Clear the textarea when closing
+    document.getElementById('unitListInput').value = '';
+}
+
+function loadUnitsFromList() {
+    const input = document.getElementById('unitListInput');
+    const unitListText = input.value.trim();
+    
+    if (!unitListText) {
+        return;
+    }
+    
+    try {
+        let unitIds;
+        
+        // Try to parse as JSON array first
+        try {
+            const parsed = JSON.parse(unitListText);
+            if (Array.isArray(parsed)) {
+                unitIds = parsed;
+            } else {
+                throw new Error('Not a valid array');
+            }
+        } catch (e) {
+            // If JSON parsing fails, try comma-separated format
+            unitIds = unitListText
+                .split(',')
+                .map(id => id.trim())
+                .filter(id => id.length > 0);
+        }
+        
+        // Clear current roll
+        clearRoll();
+        
+        // Find unit indices for the provided IDs
+        const unitIndices = [];
+        for (const unitId of unitIds) {
+            const unitIndex = units.findIndex(unit => unit.unitId === unitId);
+            if (unitIndex !== -1) {
+                unitIndices.push(unitIndex);
+            } else {
+                console.warn(`Unit ID not found: ${unitId}`);
+            }
+        }
+        
+        // Fill roll slots with found units (up to 10)
+        const slotsToFill = Math.min(unitIndices.length, 10);
+        for (let i = 0; i < slotsToFill; i++) {
+            rollData[i] = unitIndices[i];
+        }
+        
+        // Update display
+        updateRollDisplay();
+        updateUnitsAvailability();
+        updateSelectionCounter();
+        
+        // Close modal silently
+        closeUnitListModal();
+        
+    } catch (error) {
+        console.error('Parse error:', error);
+    }
+}
+
+// Close modal when clicking outside of it
+window.onclick = function(event) {
+    const modal = document.getElementById('unitListModal');
+    if (event.target === modal) {
+        closeUnitListModal();
+    }
+}
+
+
+async function updateRollHints() {
+    const hintsContainer = document.getElementById('rollHints');
+    
+    // Check if we have at least 1 unit selected
+    if (selectedIndices.size === 0) {
+        hintsContainer.style.display = 'none';
+        return;
+    }
+    
+    // Get unit IDs from rollData
+    const unitIds = rollData.map(index => units[index]?.unitId || null);
+    const selectedIndicesArray = Array.from(selectedIndices);
+    
+    try {
+        const response = await fetch('/api/rolldraft/hints', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                unitIds,
+                selectedIndices: selectedIndicesArray
+            })
+        });
+        
+        if (!response.ok) {
+            console.error('Failed to fetch hints');
+            return;
+        }
+        
+        const data = await response.json();
+        const hints = data.hints || [];
+        
+        // Display hints
+        hintsContainer.innerHTML = '';
+        hintsContainer.style.display = 'block';
+        
+        const isNiceRoll = hints.length === 1 && hints[0] === 'Nice Roll 👍';
+        hintsContainer.className = 'roll-hints ' + (isNiceRoll ? 'nice-roll' : 'has-warnings');
+        
+        hints.forEach(hint => {
+            const hintDiv = document.createElement('div');
+            
+            // Determine severity based on hint text
+            let className = 'hint-item ';
+            if (isNiceRoll) {
+                className += 'nice';
+            } else if (hint.includes('No Tank') || hint.includes('No DPS') || hint.includes('No T1')) {
+                className += 'warning critical';
+            } else {
+                className += 'warning';
+            }
+            
+            hintDiv.className = className;
+            hintDiv.textContent = hint;
+            hintsContainer.appendChild(hintDiv);
+        });
+        
+    } catch (error) {
+        console.error('Error fetching hints:', error);
+    }
+}
+</script>
+
+{% endblock %}
+

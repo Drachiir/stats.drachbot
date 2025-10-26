@@ -115,40 +115,137 @@ def get_avatar_border(stacks):
         return ""
 
 
-tier_dict_specific = {
-    "mmstats": 1, "mmstats_combined": 1, "openstats": 1,
-    "spellstats": 1, "unitstats": 1,
-    "rollstats": 1, "megamindstats": 0,
-    "matchupstats": 1, "sendstats": 1
+import math
+
+# --- Main Configuration Dictionary ---
+# All tuning and "magic numbers" are here for easy adjustment.
+CONFIG = {
+    # 1. Elo normalization map. Converts Elo string to a 0.0 (low) to 1.0 (high) factor.
+    "elo_map": {
+        "1600": 0.0,
+        "1800": 0.2,
+        "2000": 0.4,
+        "2200": 0.6,
+        "2400": 0.8,
+        "2600": 0.9,
+        "2800": 1.0,
+        "default": 0.5  # Fallback for any unknown elo string
+    },
+
+    # 2. Base pick rate weights (for high elo, elo_factor = 1.0).
+    # This defines the "base importance" of pick rate for each stat category.
+    "stat_pr_weights_all": {
+        "mmstats": 0.25, "mmstats_combined": 0.5, "openstats": 0.25,
+        "spellstats": 0.4, "unitstats": 0.2,
+        "rollstats": 0.3, "megamindstats": 0,
+        "matchupstats": 1.0, "sendstats": 1.0
+    },
+
+    # Weights for the "specific" view (when dict_type is True)
+    "stat_pr_weights_specific": {
+        "mmstats": 1.0, "mmstats_combined": 1.0, "openstats": 1.0,
+        "spellstats": 1.0, "unitstats": 1.0,
+        "rollstats": 1.0, "megamindstats": 0,
+        "matchupstats": 1.0, "sendstats": 1.0
+    },
+
+    # 3. Core Tuning Parameters
+
+    # The "average" win rate. Scores are calculated relative to this.
+    "avg_win_rate": 50.0,
+
+    # --- Win Rate Weighting ---
+    # At LOW elo (0.0), a 1% WR delta is this important.
+    "wr_weight_low_elo": 1.5,
+    # At HIGH elo (1.0), a 1% WR delta is this important.
+    "wr_weight_high_elo": 1.0,
+
+    # --- Pick Rate Weighting ---
+    # At LOW elo (0.0), pick rate's importance is multiplied by this factor.
+    # e.g., 0.5 = pick rate is half as important in low elo as it is in high elo.
+    "pr_weight_low_elo_multiplier": 0.5,
+
+    # --- Confidence Multiplier ---
+    # This penalizes items with very low pick rates, just like your old code.
+    # The formula is: pickrate / (pickrate + K)
+    # K=1.0 matches your old code (pickrate / (pickrate + 1))
+    # A higher K means you need a higher pickrate to get "full confidence".
+    "pr_confidence_k": 3.0,  # At 3% PR, confidence is 0.5 (3 / (3+3))
+
+    # --- Final Score Scaling ---
+    # A final multiplier to get scores in a nice range (e.g., 0-100)
+    "final_score_multiplier": 10.0
 }
 
-tier_dict_all = {
-    "mmstats": 0.5, "mmstats_combined": 0.5, "openstats": 0.7,
-    "spellstats": 0.4, "unitstats": 0.2,
-    "rollstats": 0.3, "megamindstats": 0,
-    "matchupstats": 1, "sendstats": 1
-}
 
-elo_dict = {"2800": 0, "2600": 0.01, "2400": 0.02, "2200": 0.03, "2000": 0.05, "1800": 0.1, "1600": 0.15}
+def lerp(a, b, t):
+    """Linear interpolation: from a to b by factor t (0.0 to 1.0)"""
+    return a * (1.0 - t) + b * t
+
 
 def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
-    tier_dict = tier_dict_specific if dict_type else tier_dict_all
+    """
+    Calculates a tier score based on win rate and pick rate,
+    with Elo-dependent weighting.
+    """
+
+    # --- 1. Handle Special Cases (from original code) ---
+    # These stats just return the raw winrate, ignoring all logic.
+    if (stats == "megamindstats" and not specific_tier) or \
+            (stats == "mmstats_combined" and not specific_tier):
+        return winrate
+
+    # --- 2. Get Normalized Elo Factor (0.0 to 1.0) ---
     try:
         if "-" in elo:
-            elo = elo.split("-")[0]
+            elo_key = elo.split("-")[0]
+        else:
+            elo_key = str(elo)
     except TypeError:
-        pass
-    elo = elo_dict.get(str(elo), 0.04)
+        elo_key = "default"
 
-    if stats == "megamindstats" and not specific_tier:
-        tier_score = winrate
-    elif stats == "mmstats_combined" and not specific_tier:
-        tier_score = winrate
-    else:
-        tier_score = winrate * (elo * 2 + 1) + pickrate * (tier_dict[stats] - elo)
-        tier_score *= min(1, pickrate / (1 + pickrate))
+    elo_factor = CONFIG["elo_map"].get(elo_key, CONFIG["elo_map"]["default"])
 
-    return tier_score
+    # --- 3. Get Base Stat PR Weight ---
+    pr_weights_map = CONFIG["stat_pr_weights_specific"] if dict_type else CONFIG["stat_pr_weights_all"]
+    base_pr_weight_high_elo = pr_weights_map.get(stats, 0.0)
+
+    # --- 4. Calculate Elo-Adjusted Weights ---
+
+    # Win Rate Weight:
+    # Lerps from high weight (low elo) to lower weight (high elo).
+    win_weight = lerp(CONFIG["wr_weight_low_elo"],
+                      CONFIG["wr_weight_high_elo"],
+                      elo_factor)
+
+    # Pick Rate Weight:
+    # Lerps from low weight (low elo) to high weight (high elo).
+    pr_weight_low_elo = base_pr_weight_high_elo * CONFIG["pr_weight_low_elo_multiplier"]
+    pick_weight = lerp(pr_weight_low_elo,
+                       base_pr_weight_high_elo,
+                       elo_factor)
+
+    # --- 5. Calculate Core Score Components ---
+
+    # Win Rate Component: (55% WR -> +5.0)
+    wr_delta = winrate - CONFIG["avg_win_rate"]
+    wr_score = wr_delta * win_weight
+
+    # Pick Rate Component: (10% PR * 0.7 weight -> 7.0)
+    pr_score = pickrate * pick_weight
+
+    # Combine components
+    core_score = wr_score + pr_score
+
+    # --- 6. Apply Pick Rate Confidence ---
+    # This penalizes the score if pick rate is very low.
+    # (e.g., a 1% PR item with 90% WR is probably an anomaly).
+    pr_confidence = pickrate / (pickrate + CONFIG["pr_confidence_k"])
+
+    final_score = core_score * pr_confidence * CONFIG["final_score_multiplier"]
+
+    return final_score
+
 
 def custom_winrate(value, no_dec=False):
     try:

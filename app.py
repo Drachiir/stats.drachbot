@@ -18,6 +18,7 @@ import drachbot.wavestats
 import drachbot.gamestats
 import drachbot.matchupstats
 import drachbot.sendstats
+import drachbot.rolldraft
 import util
 from drachbot.peewee_pg import GameData, PlayerData, close_db, get_db
 from util import get_rank_url, custom_winrate, plus_prefix, custom_divide, get_gamestats_values, human_format, clean_unit_name
@@ -509,6 +510,46 @@ def classic_modes():
         for i in range(22)
     ]
     return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
+
+@app.route('/rolldraft')
+def rolldraft():
+    with open('Files/json/units.json', 'r', encoding='utf-8') as f:
+        units = json.load(f)
+    # Filter to only enabled fighters (has tierInfo) that are not upgrades (no upgradesFrom)
+    units = [u for u in units 
+             if u.get('isEnabled', True) 
+             and u.get('infoTier')  # Has tier info (is a fighter)
+             and not u.get('upgradesFrom')  # Not an upgrade
+             and u.get('unitId') != 'hydraling_unit_id'
+             and u.get('unitId') != 'hydra_unit_id']
+
+    # Handle empty string or missing goldCost values
+    def get_sort_key(unit):
+        legion = unit.get('legionId', '')
+        cost = unit.get('goldCost', '0')
+        # Convert cost to int, handling empty strings
+        try:
+            cost_int = int(cost) if cost else 0
+        except (ValueError, TypeError):
+            cost_int = 0
+        return (legion, cost_int)
+    units.sort(key=get_sort_key)
+    return render_template('rolldraft.html', units=units, roll_draft=True)
+
+@app.route('/api/rolldraft/hints', methods=['POST'])
+def get_roll_hints():
+    """Calculate hints for a given roll selection"""
+    try:
+        unit_ids = request.json.get('unitIds', [])
+        selected_indices = request.json.get('selectedIndices', [])
+        
+        # Use the rolldraft module to calculate hints
+        hints = drachbot.rolldraft.calculate_roll_hints(unit_ids, selected_indices)
+        
+        return jsonify({'hints': hints})
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route("/leaderboard", defaults={"playername": None})
 @app.route("/leaderboard/<playername>")
