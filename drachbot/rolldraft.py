@@ -110,9 +110,10 @@ def calculate_roll_hints(unit_ids, selected_indices):
             continue
         
         # Get mm_groups - use mm_rec_groups if available (for autopicker), otherwise mm_groups
-        mm_groups = unit.get('mm_rec_groups', [])
-        if not mm_groups:
-            mm_groups = unit.get('mm_groups', [])
+        mm_groups = set(unit.get('mm_rec_groups', []))
+
+        for g in unit.get('mm_groups', []):
+            mm_groups.add(g)
             
         # Check tier
         tier = unit.get('infoTier', '')
@@ -150,6 +151,8 @@ def calculate_roll_hints(unit_ids, selected_indices):
         # Check tank/DPS using mm_groups
         if 'mm_tank' in mm_groups:
             has_tank = True
+        print(unit)
+        print(mm_groups)
         if 'mm_dps' in mm_groups:
             has_dps = True
     
