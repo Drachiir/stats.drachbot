@@ -600,6 +600,7 @@
 
         <div class="controls">
             <button class="btn-draft btn-clear" onclick="clearRoll()">🗑️ Clear Roll</button>
+            <button class="btn-draft btn-clear" onclick="clearSelection()">❌ Clear Selection</button>
             <button id="loadUnitsBtn" onclick="openUnitListModal()" class="btn-load-units">📋 Load Unit List</button>
         </div>
     </div>
@@ -1073,6 +1074,12 @@ function clearRoll() {
     selectedIndices.clear();
     updateRollDisplay();
     updateUnitsAvailability();
+    updateSelectionCounter();
+}
+
+function clearSelection() {
+    selectedIndices.clear();
+    updateRollDisplay();
     updateSelectionCounter();
 }
 
