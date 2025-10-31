@@ -151,8 +151,8 @@ def calculate_roll_hints(unit_ids, selected_indices):
         # Check tank/DPS using mm_groups
         if 'mm_tank' in mm_groups:
             has_tank = True
-        print(unit)
-        print(mm_groups)
+        #print(unit)
+        #print(mm_groups)
         if 'mm_dps' in mm_groups:
             has_dps = True
     

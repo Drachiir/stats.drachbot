@@ -170,6 +170,12 @@
         display: block;
     }
 
+    /* Gray out non-selected slots when there is a selection */
+    #rollSlots.has-selection .roll-slot.filled:not(.selected) {
+        filter: grayscale(60%);
+        opacity: 0.6;
+    }
+
     .controls {
         display: flex;
         justify-content: space-between;
@@ -1066,6 +1072,14 @@ function updateSelectionCounter() {
         counterDiv.classList.add('complete');
     } else {
         counterDiv.classList.remove('complete');
+    }
+
+    // Toggle gray-out state for non-selected slots
+    const rollSlotsEl = document.getElementById('rollSlots');
+    if (selectedIndices.size > 0) {
+        rollSlotsEl.classList.add('has-selection');
+    } else {
+        rollSlotsEl.classList.remove('has-selection');
     }
 }
 
