@@ -1,9 +1,9 @@
 {
   "Defaults":  ["12.09", 1600],
-  "Defaults2":  ["12.09,12.08,12.07,12.06", 0],
+  "Defaults2":  ["12.10,12.09,12.08,12.07", 0],
   "Elos":  [2800, 2600, 2400, 2200, 2000, 1800, 1600],
   "Elos2":  ["2800", "2600", "2400", "2200", "2000", "1800", "1600", "2600-2799", "2400-2599", "2200-2399", "2000-2199", "1800-1999", "1600-1799"],
-  "Patches": ["12.09", "12.08", "12.07", "12.06", "12.05", "12.04", "12.03", "12.02", "12.01", "12.00"],
+  "Patches": ["12.10","12.09", "12.08", "12.07", "12.06", "12.05", "12.04", "12.03", "12.02", "12.01", "12.00"],
   "MMs": ["All", "LockIn", "Greed", "Redraw", "Yolo", "Fiesta", "CashOut", "Castle", "Cartel",
     "Chaos", "Champion", "DoubleLockIn", "Kingsguard", "Saboteur", "Stash", "Scrapper", "Miner", "Aristocrat", "Megamind"],
   "BuffSpells": ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain", "executioner"],
