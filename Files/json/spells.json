@@ -262,5 +262,13 @@
     "iconPath": "Icons/Smite.png",
     "name": "Smite",
     "tooltip": "Gain 56 income after Wave 13"
+  },
+  {
+    "_id": "hypercarry_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/Hypercarry.png",
+    "name": "Hypercarry",
+    "tooltip": "Gain 56 income after Wave 13"
   }
 ]

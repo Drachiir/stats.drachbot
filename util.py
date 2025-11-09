@@ -770,12 +770,12 @@ def calc_leak(leak, wave, return_gold = False):
         if x in creep_values:
             leak_amount += creep_values.get(x)[1]
         elif x in incmercs:
-            leak_amount += incmercs.get(x) / 20 * 4
+            leak_amount += incmercs.get(x) / 20 * 2
         elif x in powermercs:
             if x == "Imp":
-                leak_amount += powermercs.get(x) / 20 * 3
+                leak_amount += powermercs.get(x) / 20 * 1.5
             else:
-                leak_amount += powermercs.get(x) / 20 * 6
+                leak_amount += powermercs.get(x) / 20 * 3
     if return_gold:
         return leak_amount
     else:
