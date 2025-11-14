@@ -46,7 +46,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 const newRow = [];
                 for (let row of rows) {
                     const cell = row.cells[i + 1]; // +1 to skip header column
-                    newRow.push(cell ? cell.outerHTML : "");
+                    if (cell) {
+                        // Store the data-sort attribute separately so it survives the transpose
+                        const sortValue = cell.getAttribute('data-sort');
+                        const dataAttr = cell.getAttribute('data');
+                        let html = cell.outerHTML;
+                        
+                        // Ensure data-sort is preserved in the HTML if it exists
+                        if (sortValue && !html.includes('data-sort=')) {
+                            html = html.replace('<td', `<td data-sort="${sortValue}"`);
+                        }
+                        if (dataAttr && !html.includes('data=')) {
+                            html = html.replace('<td', `<td data="${dataAttr}"`);
+                        }
+                        
+                        newRow.push(html);
+                    } else {
+                        newRow.push("");
+                    }
                 }
                 newRows.push(newRow);
             }
@@ -79,20 +96,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 
                 // Check for data-sort attribute for numeric values (like Games/Sends with formatted display)
-                // Access the original tbody cells (before transpose) to get data-sort attributes
-                const aCell = tbody.rows[columnIndex] ? tbody.rows[columnIndex].cells[aIndex + 1] : null;
-                const bCell = tbody.rows[columnIndex] ? tbody.rows[columnIndex].cells[bIndex + 1] : null;
+                // Try to extract from HTML string first (in case we're re-sorting)
+                const aSortMatch = a[columnIndex].match(/data-sort="([^"]*)"/);
+                const bSortMatch = b[columnIndex].match(/data-sort="([^"]*)"/);
                 
-                if (aCell && bCell) {
-                    const aSortValue = aCell.getAttribute('data-sort');
-                    const bSortValue = bCell.getAttribute('data-sort');
-                    
-                    if (aSortValue !== null && bSortValue !== null) {
-                        const aNumber = parseFloat(aSortValue);
-                        const bNumber = parseFloat(bSortValue);
-                        if (!isNaN(aNumber) && !isNaN(bNumber)) {
-                            return asc ? aNumber - bNumber : bNumber - aNumber;
-                        }
+                if (aSortMatch && bSortMatch) {
+                    const aNumber = parseFloat(aSortMatch[1]);
+                    const bNumber = parseFloat(bSortMatch[1]);
+                    if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                        return asc ? aNumber - bNumber : bNumber - aNumber;
                     }
                 }
                 
