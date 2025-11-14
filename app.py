@@ -1680,6 +1680,21 @@ def stats(stats, elo, patch, specific_key):
     if stats not in website_stats:
         return render_template("no_data.html", text="Page not found.")
     raw_data = {}
+    
+    # Check if patch contains multiple patches (comma-separated)
+    multiple_patches = False
+    patch_list_to_process = []
+    if "," in patch:
+        multiple_patches = True
+        # Remove 'v' prefix if present and split by comma
+        patch_str = patch.replace("v", "")
+        patch_list_to_process = [p.strip() for p in patch_str.split(",")]
+    else:
+        # Single patch - extract version number if it starts with 'v'
+        if patch.startswith("v"):
+            patch_list_to_process = [patch[1:]]
+        else:
+            patch_list_to_process = [patch]
     match stats:
         case "megamindstats":
             header_title = "MM"
@@ -1829,11 +1844,20 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Waves", "Waves", "wavestats"], ["Units", "Units", "unitstats"], ["Combo", "MercsCombo", "sendstats"]]
             folder = "sendstats"
     mod_date = None
-    # ALLOWING CUSTOM PATCH
-    if patch.startswith("v"):
-        if not validate_custom_patch(patch):
+    # ALLOWING CUSTOM PATCH (format: v10.01.01 with 3 parts)
+    # Check if it's a custom patch by counting dots - standard patches have 1 dot (e.g., 12.09), custom have 2 dots (e.g., 10.01.01)
+    is_custom_patch = patch_list_to_process[0].count(".") == 2
+    
+    if is_custom_patch:
+        # Custom patch format (e.g., v10.01.01)
+        if multiple_patches:
+            return render_template("no_data.html", text=f"Custom patch format not supported for multiple patches. Please use standard patch format.")
+        
+        # Single custom patch
+        full_patch = "v" + patch_list_to_process[0]
+        if not validate_custom_patch(full_patch):
             return render_template("no_data.html", text=f"Unsupported query")
-        path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
+        path = f"Files/player_cache/All_{full_patch}_{elo}.msgpack"
         history_raw = None
         if os.path.isfile(path):
             mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
@@ -1854,31 +1878,31 @@ def stats(stats, elo, patch, specific_key):
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave"]]
-            history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
+            history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch_list_to_process[0], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
-                return render_template("no_data.html", text=f"No Data for {patch}")
+                return render_template("no_data.html", text=f"No Data for v{patch_list_to_process[0]}")
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))
         if stats != "gamestats":
             match stats:
                 case "megamindstats":
-                    raw_data = drachbot.mmstats.mmstats("all",0, int(elo1), patch[1:],"Megamind", data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats("all",0, int(elo1), patch_list_to_process[0],"Megamind", data_only=True, history_raw=history_raw)
                 case "mmstats":
-                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch_list_to_process[0], data_only=True, history_raw=history_raw)
                 case "mmstats_combined":
-                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch[1:], "Combined", data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.mmstats.mmstats("all", 0, int(elo1), patch_list_to_process[0], "Combined", data_only=True, history_raw=history_raw)
                 case "openstats":
-                    raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.openstats.openstats("all", 0, int(elo1), patch_list_to_process[0], data_only=True, history_raw=history_raw)
                 case "spellstats":
-                    raw_data = drachbot.spellstats.spellstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.spellstats.spellstats("all", 0, int(elo1), patch_list_to_process[0], data_only=True, history_raw=history_raw)
                 case "unitstats":
-                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, history_raw=history_raw)
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch_list_to_process[0], data_only=True, history_raw=history_raw)
                 case "rollstats":
-                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch[1:], data_only=True, rollstats=True, history_raw=history_raw)
+                    raw_data = drachbot.unitstats.unitstats("all", 0, int(elo1), patch_list_to_process[0], data_only=True, rollstats=True, history_raw=history_raw)
                 case "matchupstats":
-                    raw_data = drachbot.matchupstats.matchupstats("all", 0, patch[1:], min_elo=int(elo1), history_raw=history_raw)
+                    raw_data = drachbot.matchupstats.matchupstats("all", 0, patch_list_to_process[0], min_elo=int(elo1), history_raw=history_raw)
                 case "wavestats":
-                    raw_data = drachbot.wavestats.wavestats("all", 0, int(elo1), patch[1:], history_raw=history_raw)
+                    raw_data = drachbot.wavestats.wavestats("all", 0, int(elo1), patch_list_to_process[0], history_raw=history_raw)
                 case "sendstats":
                     raw_data = drachbot.sendstats.sendstats("all", history_raw=history_raw)
             games = raw_data[1]
@@ -1890,43 +1914,56 @@ def stats(stats, elo, patch, specific_key):
             avg_elo = raw_data[4]
             raw_data = {"Wave1Stats": raw_data[1], "GameLength": raw_data[2], "WaveDict": raw_data[0]}
         if type(raw_data) == str:
-            return render_template("no_data.html", text=f"No Data for {patch}")
+            return render_template("no_data.html", text=f"No Data for v{patch_list_to_process[0]}")
     else:
-        if elo1 and elo2:
-            for file in os.listdir(shared_folder + f"data/{folder}/"):
-                if file.startswith(f"{patch}_{elo1}"):
-                    games = file.split("_")[2]
+        # Process each patch in the list (handles both single and multiple patches)
+        for patch_version in patch_list_to_process:
+            if elo1 and elo2:
+                for file in os.listdir(shared_folder + f"data/{folder}/"):
+                    if file.startswith(f"{patch_version}_{elo1}"):
+                        file_games = file.split("_")[2]
+                        try:
+                            file_games = int(file_games)
+                        except Exception:
+                            continue
+                        games += file_games
+                        file_avg_elo = file.split("_")[3].replace(".msgpack", "")
+                        with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
+                            temp_data = msgpack.unpackb(f.read(), raw=False)
+                            if not raw_data:
+                                raw_data = temp_data
+                            else:
+                                raw_data = util.merge_dicts(raw_data, temp_data)
+            else:
+                for file in os.listdir(shared_folder + f"data/{folder}/"):
+                    file_name_split = file.split("_")
+                    file_patch = file_name_split[0]
                     try:
-                        games = int(games)
-                    except Exception:
-                        return render_template("no_data.html", text="No Data")
-                    avg_elo = file.split("_")[3].replace(".msgpack", "")
-                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                        mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
-                        raw_data = msgpack.unpackb(f.read(), raw=False)
-        else:
-            for file in os.listdir(shared_folder + f"data/{folder}/"):
-                file_name_split = file.split("_")
-                file_patch = file_name_split[0]
-                try:
-                    file_elo = int(file_name_split[1])
-                    file_games = int(file_name_split[2])
-                except ValueError:
-                    continue
+                        file_elo = int(file_name_split[1])
+                        file_games = int(file_name_split[2])
+                    except ValueError:
+                        continue
 
-                file_avg_elo = file_name_split[3].replace(".msgpack", "")
+                    file_avg_elo = file_name_split[3].replace(".msgpack", "")
 
-                if file_patch == patch and file_elo >= int(elo):
-                    games += file_games
-                    with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                        mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
-                        temp_data = msgpack.unpackb(f.read(), raw=False)
-                        raw_data = util.merge_dicts(raw_data, temp_data)
+                    if file_patch == patch_version and file_elo >= int(elo):
+                        games += file_games
+                        with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
+                            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
+                            temp_data = msgpack.unpackb(f.read(), raw=False)
+                            raw_data = util.merge_dicts(raw_data, temp_data)
+        
+        # Set avg_elo based on whether we have an elo range
+        if elo1 and not elo2:
             avg_elo = f"{elo}+"
-            if stats != "gamestats":
-                sort_key = "Count" if stats != "wavestats" else "EndCount"
-                new_index = sorted(raw_data, key=lambda x: raw_data[x][sort_key], reverse=True)
-                raw_data = {k: raw_data[k] for k in new_index}
+        else:
+            avg_elo = elo
+            
+        if stats != "gamestats":
+            sort_key = "Count" if stats != "wavestats" else "EndCount"
+            new_index = sorted(raw_data, key=lambda x: raw_data[x][sort_key], reverse=True)
+            raw_data = {k: raw_data[k] for k in new_index}
     if raw_data:
         if stats != "mmstats" and stats != "gamestats":
             new_dict = {}
@@ -1957,9 +1994,27 @@ def stats(stats, elo, patch, specific_key):
                 return render_template("no_data.html", text="No Data")
         except KeyError:
             return render_template("no_data.html", text=f"{specific_key} not found")
+    # Format patch strings - keep full version for URLs, create display version for button
+    if multiple_patches:
+        patch_full = f"v{','.join(patch_list_to_process)}"
+        num_patches = len(patch_list_to_process)
+        if num_patches <= 2:
+            # Show both if only 2 patches
+            patch_display = patch_full
+        else:
+            # Show count if more than 2 patches
+            patch_display = f"Multiple Patches ({num_patches})"
+    else:
+        # Single patch - format it properly
+        if "." in patch_list_to_process[0]:
+            patch_full = f"v{patch_list_to_process[0]}"
+        else:
+            patch_full = patch_list_to_process[0]
+        patch_display = patch_full
+    
     if stats == "gamestats":
         return render_template("gamestats.html", data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
-                               games=games, avg_elo=avg_elo, patch=patch, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
+                               games=games, avg_elo=avg_elo, patch=patch_full, patch_display=patch_display, patch_list=patches, elo=elo, custom_divide=util.custom_divide,
                                human_format=util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                                specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, get_gamestats_values =util.get_gamestats_values,
                                stats=stats, get_key_value=util.get_key_value, get_cdn_image=util.get_cdn_image, mm_list=mm_list,
@@ -1977,7 +2032,7 @@ def stats(stats, elo, patch, specific_key):
     else:
         specific_tier = False
     return render_template(html_file, data=raw_data, elo_brackets=elos2, custom_winrate=util.custom_winrate,
-                           games=games, avg_elo = avg_elo, patch = patch, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
+                           games=games, avg_elo = avg_elo, patch = patch_full, patch_display=patch_display, patch_list=patches, elo = elo, custom_divide = util.custom_divide,
                            human_format= util.human_format, get_perf_list=util.get_perf_list, get_dict_value=util.get_dict_value,
                            specific_key=specific_key, get_unit_name=util.get_unit_name, sort_dict=util.sort_dict, title=title, title_image=title_image,
                            stats=stats, header_cdn=header_cdn, header_title=header_title, header_keys=header_keys, get_key_value=util.get_key_value,

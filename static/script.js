@@ -61,10 +61,15 @@ document.addEventListener("DOMContentLoaded", function () {
             const sortedRows = newRows.sort((a, b) => {
                 const aText = a[columnIndex].replace(/<[^>]*>?/gm, '').trim();
                 const bText = b[columnIndex].replace(/<[^>]*>?/gm, '').trim();
+                
+                // Get the cell elements to check for data attributes
+                const aIndex = newRows.indexOf(a);
+                const bIndex = newRows.indexOf(b);
+                
                 if (isTierColumn) {
                     // Retrieve the "data" attribute for both cells
-                    const aDataAttr = tbody.rows[1].cells[newRows.indexOf(a) + 1].getAttribute('data') || '';
-                    const bDataAttr = tbody.rows[1].cells[newRows.indexOf(b) + 1].getAttribute('data') || '';
+                    const aDataAttr = tbody.rows[1].cells[aIndex + 1].getAttribute('data') || '';
+                    const bDataAttr = tbody.rows[1].cells[bIndex + 1].getAttribute('data') || '';
                     // Check if the column has 'Tier' values (if applicable) or just sort by "data" attribute
                     const aTierValue = parseFloat(aDataAttr);
                     const bTierValue = parseFloat(bDataAttr);
@@ -72,6 +77,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         return asc ? aTierValue - bTierValue : bTierValue - aTierValue;
                     }
                 }
+                
+                // Check for data-sort attribute for numeric values (like Games/Sends with formatted display)
+                const aCell = tbody.rows[columnIndex].cells[aIndex + 1];
+                const bCell = tbody.rows[columnIndex].cells[bIndex + 1];
+                const aSortValue = aCell ? aCell.getAttribute('data-sort') : null;
+                const bSortValue = bCell ? bCell.getAttribute('data-sort') : null;
+                
+                if (aSortValue !== null && bSortValue !== null) {
+                    const aNumber = parseFloat(aSortValue);
+                    const bNumber = parseFloat(bSortValue);
+                    if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                        return asc ? aNumber - bNumber : bNumber - aNumber;
+                    }
+                }
+                
                 // Fallback: Numeric sorting for non-Tier columns
                 const aNumber = parseFloat(aText);
                 const bNumber = parseFloat(bText);

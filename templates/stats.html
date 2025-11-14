@@ -32,10 +32,10 @@
                 <br>
                 {% if stats == "wavestats" %}
                     <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
-                    Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>{{ patch }}</b></r>
+                    Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>{{ patch_display }}</b></r>
                 {% else %}
                     <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
-                    <b>{{ patch }}</b></r>
+                    <b>{{ patch_display }}</b></r>
                 {% endif %}
             </div>
             <div>
@@ -132,6 +132,8 @@
                                 {% set data = get_key_value(data, key, k, games, stats, elo, playerprofile=playerprofile) %}
                                 {% if k == "Tier" %}
                                     <td id="tierCell" data="{{ data }}"></td>
+                                {% elif k == "Games" or k == "Sends" %}
+                                    <td data-sort="{{ data }}">{{ human_format(data) }}</td>
                                 {% else %}
                                     <td>{{ data }}</td>
                                 {% endif %}
@@ -180,9 +182,14 @@
                                     {% for key in data %}
                                         {% set sub_value = get_key_value(data, key, sub[0], games, stats=stats, elo=elo, dict_type = sub[2], specific_tier = True, playerprofile=playerprofile) %}
                                         {% if stats == "wavestats" and not playername2 %}
-                                            <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']*4)}}</td>
+                                            {% set cell_data = get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count']*4) %}
                                         {% else %}
-                                            <td>{{ get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count'], stats=stats, specific_tier = True, data_dict = data, specific_key = sub_value, main_key = key, dict_header=sub[1])}}</td>
+                                            {% set cell_data = get_key_value(data[key][sub[1]], sub_value, sub_key, data[key]['Count'], stats=stats, specific_tier = True, data_dict = data, specific_key = sub_value, main_key = key, dict_header=sub[1]) %}
+                                        {% endif %}
+                                        {% if sub_key == "Games" or sub_key == "Sends" %}
+                                            <td data-sort="{{ cell_data }}">{{ human_format(cell_data) }}</td>
+                                        {% else %}
+                                            <td>{{ cell_data }}</td>
                                         {% endif %}
                                     {% endfor %}
                                 </tr>
@@ -252,6 +259,95 @@
 </script>
 {% if patch_selector %}
 <script src="/static/profile_patches2.js"></script>
+{% else %}
+<script>
+    // Function to get patches from URL path
+    function getSelectedPatchesFromUrl() {
+        const urlPath = window.location.pathname;
+        const pathSegments = urlPath.split("/");
+        
+        // Format: /stats/patch/elo or /stats/patch/elo/specific_key
+        if (pathSegments.length >= 4) {
+            const patchSegment = pathSegments[2];
+            // Remove 'v' prefix and split by comma
+            const patches = patchSegment.replace(/^v/, '').split(',');
+            return patches;
+        }
+        return [];
+    }
+
+    // Preselect checkboxes based on the URL
+    function preselectPatches() {
+        const selectedPatches = getSelectedPatchesFromUrl();
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            if (selectedPatches.includes(checkbox.value)) {
+                checkbox.checked = true;
+            }
+        });
+    }
+
+    // Event listener for the "Go" button
+    if (document.getElementById('redirectButton')) {
+        document.getElementById('redirectButton').addEventListener('click', function () {
+            // Get all the selected patches
+            var selectedPatches = [];
+            document.querySelectorAll('.patch-checkbox:checked').forEach(function (checkbox) {
+                selectedPatches.push(checkbox.value);
+            });
+
+            // If no patches selected, prevent action
+            if (selectedPatches.length === 0) {
+                alert('Please select at least one patch.');
+                return;
+            }
+
+            // Create a comma-delimited string of the selected patches
+            var patches = 'v' + selectedPatches.join(',');
+
+            // Get the base values from your current variables
+            var playerurl = "{{ playerurl }}";
+            var stats = "{{ stats }}";
+            var elo = "{{ elo }}";
+            var specificKey = "{{ specific_key }}";
+
+            // Construct the URL
+            var url = playerurl + '/' + stats + '/' + patches + '/' + elo;
+            if (specificKey && specificKey !== 'All') {
+                url += '/' + specificKey;
+            }
+
+            // Redirect to the new URL
+            window.location.href = url;
+        });
+    }
+
+    // Prevent the dropdown from closing when clicking inside
+    if (document.getElementById('patchDropdown')) {
+        document.getElementById('patchDropdown').addEventListener('click', function (event) {
+            event.stopPropagation();
+        });
+
+        // Add click event on checkboxes to prevent dropdown closing
+        document.querySelectorAll('.patch-checkbox').forEach(function (checkbox) {
+            checkbox.addEventListener('click', function (event) {
+                event.stopPropagation();
+            });
+        });
+
+        document.querySelectorAll('#patch-checkbox').forEach(function (label) {
+            label.addEventListener('click', function (event) {
+                var checkbox = this.querySelector('input[type="checkbox"]');
+                if (checkbox && event.target !== checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
+                event.stopPropagation();
+            });
+        });
+
+        // Preselect checkboxes when the page loads
+        window.addEventListener('load', preselectPatches);
+    }
+</script>
 {% endif %}
 <script>
     function assignTiers() {
