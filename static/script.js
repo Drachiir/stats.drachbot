@@ -79,16 +79,20 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 
                 // Check for data-sort attribute for numeric values (like Games/Sends with formatted display)
-                const aCell = tbody.rows[columnIndex].cells[aIndex + 1];
-                const bCell = tbody.rows[columnIndex].cells[bIndex + 1];
-                const aSortValue = aCell ? aCell.getAttribute('data-sort') : null;
-                const bSortValue = bCell ? bCell.getAttribute('data-sort') : null;
+                // Access the original tbody cells (before transpose) to get data-sort attributes
+                const aCell = tbody.rows[columnIndex] ? tbody.rows[columnIndex].cells[aIndex + 1] : null;
+                const bCell = tbody.rows[columnIndex] ? tbody.rows[columnIndex].cells[bIndex + 1] : null;
                 
-                if (aSortValue !== null && bSortValue !== null) {
-                    const aNumber = parseFloat(aSortValue);
-                    const bNumber = parseFloat(bSortValue);
-                    if (!isNaN(aNumber) && !isNaN(bNumber)) {
-                        return asc ? aNumber - bNumber : bNumber - aNumber;
+                if (aCell && bCell) {
+                    const aSortValue = aCell.getAttribute('data-sort');
+                    const bSortValue = bCell.getAttribute('data-sort');
+                    
+                    if (aSortValue !== null && bSortValue !== null) {
+                        const aNumber = parseFloat(aSortValue);
+                        const bNumber = parseFloat(bSortValue);
+                        if (!isNaN(aNumber) && !isNaN(bNumber)) {
+                            return asc ? aNumber - bNumber : bNumber - aNumber;
+                        }
                     }
                 }
                 
