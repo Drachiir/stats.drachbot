@@ -29,7 +29,10 @@ def sendstats(playerid, history_raw = {}):
             total_waves += game["ending_wave"]
 
             for wave_index in range(game["ending_wave"]):
-                mercs_wave_raw = player["mercs_sent_per_wave"][wave_index]
+                try:
+                    mercs_wave_raw = player["mercs_sent_per_wave"][wave_index]
+                except Exception:
+                    continue
                 if not mercs_wave_raw:
                     continue  # No mercs sent this wave
 
