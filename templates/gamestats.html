@@ -488,6 +488,11 @@ new Chart(ctx, {
     // Preselect checkboxes when the page loads
     window.onload = preselectPatches;
 </script>
+{% elif not patch_selector %}
+<script src="/static/patch_multiselect.js"></script>
+<script>
+    initPatchMultiselect("{{ playerurl }}", "{{ stats }}", "{{ elo }}", "All");
+</script>
 {% endif %}
 {% if patch_selector %}
 <script src="/static/profile_patches2.js"></script>
