@@ -8,6 +8,12 @@
             <label>v12.**</label>
         </li>
         {% for p in patch_list %}
+            {% if p == "12.11" %}
+                <li class="dropdown-item" id="patch-checkbox">
+                    <input type="checkbox" class="patch-checkbox" value="12">
+                    <label>v12.**</label>
+                </li>
+            {% endif %}
             {% if p == "11.11" %}
                 <li class="dropdown-item" id="patch-checkbox">
                     <input type="checkbox" class="patch-checkbox" value="11">

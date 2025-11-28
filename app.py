@@ -1849,10 +1849,11 @@ def stats(stats, elo, patch, specific_key):
     is_custom_patch = patch_list_to_process[0].count(".") == 2
     
     if is_custom_patch:
+        return render_template("no_data.html", text=f"Custom patch queries currently disabled.")
         # Custom patch format (e.g., v10.01.01)
         if multiple_patches:
             return render_template("no_data.html", text=f"Custom patch format not supported for multiple patches. Please use standard patch format.")
-        
+
         # Single custom patch
         full_patch = "v" + patch_list_to_process[0]
         if not validate_custom_patch(full_patch):
