@@ -932,7 +932,7 @@ def get_remaining_cooldown(playerid):
 @app.route("/api/request_games/<playername>/<limit>")
 def request_games_api(playername, limit):
     limit = int(limit)
-    limit = 3 if limit > 3 else limit
+    limit = 2 if limit > 2 else limit
     if len(playername) > 13 and re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername):
         playerid = playername
     else:
