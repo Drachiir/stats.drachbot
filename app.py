@@ -195,10 +195,12 @@ def block_bad_bots():
 
     user_agent = request.headers.get('User-Agent', '').lower()
     if any(bot.lower() in user_agent for bot in bad_bots):
+        print(f"Blocked a bad bot: {user_agent}")
         abort(403, description="Bot access restricted on this endpoint")
 
     # Also block requests with no user agent on API endpoints
     if not user_agent or user_agent in ['none', '-', '']:
+        print(f"Blocked a bad bot: {user_agent}")
         abort(403, description="User agent required")
 
 @app.route('/favicon.ico')
