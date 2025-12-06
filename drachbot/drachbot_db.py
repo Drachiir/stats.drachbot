@@ -248,11 +248,11 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 ranked_games = wins + losses
                 games_diff = ranked_games - ranked_games_old
                 timeout_limit = 1
-                if games_diff > 500:
-                    games_diff = 500
+                if games_diff > 150:
+                    games_diff = 150
+                    timeout_limit = 0
                     if util.is_special_player(playerid):
                         games_diff = 25
-                        timeout_limit = 0
                 if not skip_game_refresh:
                     if ranked_games_old < ranked_games:
                         games_count += get_games_loop(playerid, 0, games_diff, timeout_limit=timeout_limit)

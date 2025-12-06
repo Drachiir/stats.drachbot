@@ -925,7 +925,7 @@ def drachbot_overlay_api(playername):
 
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")
-@limiter.limit("10 per minute")  # Limit to 10 game views per minute per IP
+@limiter.limit("60 per minute")  # Limit to 10 game views per minute per IP
 def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(gameid)
     player_map = {0: 1, 1: 0, 2: 3, 3: 2}
