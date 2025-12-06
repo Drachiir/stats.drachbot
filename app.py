@@ -159,16 +159,47 @@ cache.init_app(app)
 
 @app.before_request
 def block_bad_bots():
-    bad_bots = [
-        "BadBot", "Scrapy", "Python-urllib", "curl",
-        'python-requests', 'scrapy', 'MJ12bot', 'SemrushBot', 'AhrefsBot', 'DotBot',
-        'PetalBot', 'BLEXBot', 'MegaIndex', 'YandexBot', 'SeznamBot',
-        # Add specific Chinese bot patterns
-        'Baiduspider', 'Sogou', 'YisouSpider', '360Spider', 'Bytespider'
+    # Only block bots on API-heavy endpoints that consume Legion API quota
+    api_heavy_paths = [
+        '/gameviewer/', '/api/get_player_profile/', '/api/request_games/',
+        '/profile/', '/api/get_player_stats/', '/api/get_player_matchhistory/',
+        '/api/get_simple_history/'
     ]
+
+    if not any(path in request.path for path in api_heavy_paths):
+        return  # Allow all traffic to non-API pages
+
+    bad_bots = [
+        # Basic scrapers and libraries
+        "BadBot", "Scrapy", "Python-urllib", "curl", "wget", "python-requests",
+
+        # SEO and analytics bots (often aggressive)
+        'MJ12bot', 'SemrushBot', 'AhrefsBot', 'DotBot', 'PetalBot', 'BLEXBot',
+        'MegaIndex', 'YandexBot', 'SeznamBot', 'DataMiner', 'HTTrack',
+
+        # Chinese bots (known to be aggressive)
+        'Baiduspider', 'Sogou', 'YisouSpider', '360Spider', 'Bytespider',
+        'Sogou web spider', 'Sogou inst spider', 'Sogou spider2',
+
+        # Other aggressive bots
+        'Cliqzbot', 'Qwantify', 'DuckDuckGo-Favicons-Bot', 'exabot',
+        'ia_archiver', 'archive.org_bot', 'special_archiver',
+        'facebookexternalhit', 'Twitterbot', 'LinkedInBot',
+        'WhatsApp', 'TelegramBot', 'Discordbot',
+
+        # Generic scraper patterns
+        'Go-http-client', 'Java/', 'libwww-perl', 'lwp-trivial',
+        'BBBike', 'wget', 'winhttp', 'HTTpClient', 'okhttp',
+        'scrapy', 'selenium', 'chrome-headless-shell'
+    ]
+
     user_agent = request.headers.get('User-Agent', '').lower()
     if any(bot.lower() in user_agent for bot in bad_bots):
-        abort(403)  # Forbidden
+        abort(403, description="Bot access restricted on this endpoint")
+
+    # Also block requests with no user agent on API endpoints
+    if not user_agent or user_agent in ['none', '-', '']:
+        abort(403, description="User agent required")
 
 @app.route('/favicon.ico')
 def favicon():
