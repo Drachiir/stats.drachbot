@@ -7,6 +7,8 @@ from datetime import datetime, timezone, timedelta
 import requests
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify, abort
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import re
 import drachbot.legion_api as legion_api
 import drachbot.drachbot_db as drachbot_db
@@ -40,6 +42,15 @@ app = Flask(__name__)
 app.secret_key = secret_file["flask_secret_key"]
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 scheduler = APScheduler()
+
+# Initialize rate limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per hour"],
+    storage_uri="memory://",
+    strategy="fixed-window",
+)
 
 @app.teardown_request
 def teardown_request(exception):
@@ -149,7 +160,13 @@ cache.init_app(app)
 
 @app.before_request
 def block_bad_bots():
-    bad_bots = ["BadBot", "Scrapy", "Python-urllib", "curl"]
+    bad_bots = [
+        "BadBot", "Scrapy", "Python-urllib", "curl",
+        'python-requests', 'scrapy', 'MJ12bot', 'SemrushBot', 'AhrefsBot', 'DotBot',
+        'PetalBot', 'BLEXBot', 'MegaIndex', 'YandexBot', 'SeznamBot',
+        # Add specific Chinese bot patterns
+        'Baiduspider', 'Sogou', 'YisouSpider', '360Spider', 'Bytespider'
+    ]
     user_agent = request.headers.get('User-Agent', '').lower()
     if any(bot.lower() in user_agent for bot in bad_bots):
         abort(403)  # Forbidden
@@ -878,6 +895,7 @@ def drachbot_overlay_api(playername):
 
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")
+@limiter.limit("10 per minute")  # Limit to 10 game views per minute per IP
 def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(gameid)
     player_map = {0: 1, 1: 0, 2: 3, 3: 2}

@@ -27,4 +27,4 @@ Allow: /wavestats/$
 Disallow: /gamestats/*
 Allow: /gamestats/$
 
-Disallow: /gameviewer/*
+Disallow: /gameviewer
