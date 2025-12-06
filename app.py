@@ -1146,7 +1146,7 @@ def profile(playername, stats, patch, elo, specific_key):
         new_patch = request.args.get('patch')
         if new_patch:
             patch = new_patch.replace("/", "")
-            for szn in ["12", "11"]:
+            for szn in ["27", "26", "12", "11"]:
                 if szn in patch.split(","):
                     patch = szn
                     new_patch = szn
@@ -1414,7 +1414,7 @@ def profile(playername, stats, patch, elo, specific_key):
             user_profile_data=user_profile_data
         )
     else:
-        for szn in ["12", "11"]:
+        for szn in ["27", "26", "12", "11"]:
             if szn in patch.split(","):
                 patch = szn
         try:
@@ -1451,7 +1451,7 @@ def profile(playername, stats, patch, elo, specific_key):
             mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 30:
+            if minutes_diff > 15:
                 os.remove(path)
             else:
                 with open(path, "rb") as f:
@@ -1466,7 +1466,7 @@ def profile(playername, stats, patch, elo, specific_key):
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave", "double_down", "elo_change"]]
-            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True)
+            history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True, skip_game_refresh=True)
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))
         match stats:
