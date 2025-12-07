@@ -172,12 +172,6 @@ def block_bad_bots():
         'Baiduspider', 'Sogou', 'YisouSpider', '360Spider', 'Bytespider',
         'Sogou web spider', 'Sogou inst spider', 'Sogou spider2',
 
-        # Other aggressive bots
-        'Cliqzbot', 'Qwantify', 'DuckDuckGo-Favicons-Bot', 'exabot',
-        'ia_archiver', 'archive.org_bot', 'special_archiver',
-        'facebookexternalhit', 'Twitterbot', 'LinkedInBot',
-        'WhatsApp', 'TelegramBot', 'Discordbot',
-
         # Generic scraper patterns
         'Go-http-client', 'Java/', 'libwww-perl', 'lwp-trivial',
         'BBBike', 'wget', 'winhttp', 'HTTpClient', 'okhttp',
