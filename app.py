@@ -995,18 +995,18 @@ def get_search_results(search_term):
     get_db()
     return jsonify(drachbot_db.get_search_results(search_term)), 200
 
-# @app.route('/api/get_player_stats/<playername>', methods=['GET'])
-# def get_player_stats(playername):
-#     get_db()
-#     playerid = drachbot_db.get_playerid(playername)
-#     if not playerid:
-#         api_profile = legion_api.getprofile(playername)
-#         if api_profile in [0, 1]:
-#             return jsonify({"Status": "Not Found"}), 400
-#         else:
-#             playerid = api_profile["_id"]
-#     api_stats = legion_api.getstats(playerid)
-#     return api_stats
+@app.route('/api/get_player_stats/<playername>', methods=['GET'])
+def get_player_stats(playername):
+    get_db()
+    playerid = drachbot_db.get_playerid(playername)
+    if not playerid:
+        api_profile = legion_api.getprofile(playername)
+        if api_profile in [0, 1]:
+            return jsonify({"Status": "Not Found"}), 400
+        else:
+            playerid = api_profile["_id"]
+    api_stats = legion_api.getstats(playerid)
+    return api_stats
 
 @app.route('/api/get_simple_history/<playername>', methods=['GET'])
 def get_simple_history(playername):
