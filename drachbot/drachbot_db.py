@@ -128,7 +128,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True, include_wave_one_finishes = False):
     if req_columns is None:
         req_columns = []
-    patch_list = []
+    patch_list = parse_patch_string(patch)
     if earlier_than_wave10:
         earliest_wave = 1 if include_wave_one_finishes else 2
     else:
@@ -137,42 +137,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         sort_arg = GameData.date
     else:
         sort_arg = GameData.game_elo
-    if patch != "0":
-        if "-" not in patch and "+" not in patch:
-            patch_list = patch.replace(" ", "").split(',')
-        elif "+" in patch and "-" not in patch:
-            patch_new = patch.replace(" ", "").replace("+", "")
-            if len(patch_new) == 5:
-                patch_new = patch_new.split('.')
-                for x in range(13 - int(patch_new[1])):
-                    if int(patch_new[1]) + x < 10:
-                        prefix = "0"
-                    else:
-                        prefix = ""
-                    patch_list.append(patch_new[0] + "." + prefix + str(int(patch_new[1]) + x))
-            else:
-                return []
-        elif "-" in patch:
-            patch_new = patch.split("-")
-            if len(patch_new) == 2:
-                start_major, start_minor = map(int, patch_new[0].split('.'))
-                end_major, end_minor = map(int, patch_new[1].split('.'))
 
-                for major in range(start_major, end_major + 1):
-                    if major == start_major:
-                        for minor in range(start_minor, 12):
-                            prefix = "0" if minor < 10 else ""
-                            patch_list.append(f"{major}.{prefix}{minor}")
-                    elif major == end_major:
-                        for minor in range(0, end_minor + 1):
-                            prefix = "0" if minor < 10 else ""
-                            patch_list.append(f"{major}.{prefix}{minor}")
-                    else:
-                        for minor in range(0, 12):
-                            prefix = "0" if minor < 10 else ""
-                            patch_list.append(f"{major}.{prefix}{minor}")
-            else:
-                return []
     games_count = 0
     if playerid != 'all':
         if not skip_stats:
@@ -372,3 +337,129 @@ def get_search_results(search_term):
                 "player_id": player.player_id}
                for player in query]
     return players
+
+
+def _parse_patch(patch_str):
+    """Parse patch string into (major, minor) tuple."""
+    parts = patch_str.strip().split('.')
+    if len(parts) == 2:
+        return int(parts[0]), int(parts[1])
+    raise ValueError(f"Invalid patch format: {patch_str}")
+
+
+def _format_patch(major, minor, use_old_format=False):
+    """
+    Format patch version.
+    Old format (use_old_format=True): always two digits (X.00, X.01, ..., X.11) - range 0-11
+    New format (use_old_format=False): single digit for 1-9, two digits for 10-12 (X.1, X.2, ..., X.9, X.10, X.11, X.12) - range 1-12
+    """
+    if use_old_format:
+        return f"{major}.{minor:02d}"
+    else:
+        # New format: single digit for 1-9, two digits for 10-12
+        if minor < 10:
+            return f"{major}.{minor}"
+        else:
+            return f"{major}.{minor:02d}"
+
+
+def _detect_format(patch_str):
+    """Detect if patch uses old format (X.00) or new format (X.1)."""
+    parts = patch_str.strip().split('.')
+    if len(parts) == 2:
+        minor_str = parts[1]
+        # Old format: minor version has leading zero (e.g., "00", "01", "05")
+        # New format: minor version is single digit 1-9 or starts with 1 (e.g., "1", "2", "10")
+        return len(minor_str) == 2 and minor_str[0] == '0'
+    return False
+
+
+def parse_patch_string(patch):
+    """
+    Parse patch string into a list of patch versions.
+    Supports comma-separated lists, plus notation (X.1+), and range notation (X.1-Y.5).
+    Handles both old format (X.00-X.11) and new format (X.1-X.12).
+    Returns empty list if patch is '0' or invalid.
+    """
+    if patch == '0':
+        return []
+
+    patch_list = []
+
+    if "-" not in patch and "+" not in patch:
+        # If no comma, just pass the patch string directly without parsing
+        if ',' not in patch:
+            patch_list.append(patch)
+        else:
+            # Comma-separated list: handle both X.00 and X.1 formats
+            # Normalize all to two-digit format for consistency in database queries
+            for p in patch.replace(" ", "").split(','):
+                try:
+                    major, minor = _parse_patch(p)
+                    # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
+                    if 13 <= major <= 25:
+                        continue
+                    # Normalize to two-digit format for database matching
+                    patch_list.append(f"{major}.{minor:02d}")
+                except ValueError:
+                    continue
+    elif "+" in patch and "-" not in patch:
+        # Plus notation: e.g., "25.1+" or "25.00+" generates patches up to end of range
+        # Old format: .00 to .11 (0-11), New format: .1 to .12 (1-12)
+        patch_new = patch.replace(" ", "").replace("+", "")
+        print(patch_new)
+        try:
+            major, minor = _parse_patch(patch_new)
+            # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
+            if 13 <= major <= 25:
+                return []
+
+            use_old_format = _detect_format(patch_new)
+
+            # Old format: 0-11 (12 patches), New format: 1-12 (12 patches)
+            max_minor = 11 if use_old_format else 12
+            min_minor = 0 if use_old_format else 1
+
+            for current_minor in range(minor, max_minor + 1):
+                patch_list.append(_format_patch(major, current_minor, use_old_format=use_old_format))
+        except (ValueError, IndexError):
+            return []
+    elif "-" in patch:
+        # Range notation: e.g., "25.1-26.5" or "25.00-26.05"
+        # Old format: .00 to .11 (0-11), New format: .1 to .12 (1-12)
+        patch_new = patch.split("-")
+        if len(patch_new) == 2:
+            try:
+                start_major, start_minor = _parse_patch(patch_new[0].strip())
+                end_major, end_minor = _parse_patch(patch_new[1].strip())
+
+                # Detect format from start patch
+                use_old_format = _detect_format(patch_new[0].strip())
+
+                # Define range limits based on format
+                max_minor = 11 if use_old_format else 12
+                min_minor = 0 if use_old_format else 1
+
+                for major in range(start_major, end_major + 1):
+                    # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
+                    if 13 <= major <= 25:
+                        continue
+
+                    if major == start_major:
+                        # First major version: from start_minor to max_minor (inclusive)
+                        for minor in range(start_minor, max_minor + 1):
+                            patch_list.append(_format_patch(major, minor, use_old_format=use_old_format))
+                    elif major == end_major:
+                        # Last major version: from min_minor to end_minor (inclusive)
+                        for minor in range(min_minor, end_minor + 1):
+                            patch_list.append(_format_patch(major, minor, use_old_format=use_old_format))
+                    else:
+                        # Middle major versions: all patches from min_minor to max_minor (inclusive)
+                        for minor in range(min_minor, max_minor + 1):
+                            patch_list.append(_format_patch(major, minor, use_old_format=use_old_format))
+            except (ValueError, IndexError):
+                return []
+        else:
+            return []
+
+    return patch_list
