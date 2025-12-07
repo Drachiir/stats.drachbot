@@ -262,7 +262,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if get_new_games:
                 get_games_loop(playerid, 0, 20)
             raw_data = []
-            if patch in ["12", "11", "10"]:
+            if patch in ["12", "11", "10", "26", "27"]:
                 expr = GameData.version.startswith("v"+patch)
             elif patch != "0":
                 if len(patch_list) == 1:
@@ -306,7 +306,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                         temp_data = {}
     else:
         raw_data = []
-        if patch in ["12", "11", "10"]:
+        if patch in ["12", "11", "10", "26", "27"]:
             expr = GameData.version.startswith("v" + patch)
             if games == 0:
                 games = GameData.select().where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave)).count()
