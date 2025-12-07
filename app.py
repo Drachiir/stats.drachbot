@@ -960,10 +960,10 @@ def request_games_api(playername, limit):
         playerid = playername
     else:
         get_db()
-        api_profile = legion_api.getprofile(playername)
-        if api_profile in [0, 1]:
+        result = get_player_profile(playername)
+        if not result:
             return {"error": "Player not found"}
-        playerid = api_profile["_id"]
+        playerid = result["playerid"]
     if playerid not in player_refresh_state:
         player_refresh_state[playerid] = {'in_progress': False, 'cooldown_start_time': None}
     
@@ -1000,11 +1000,10 @@ def get_player_stats(playername):
     get_db()
     playerid = drachbot_db.get_playerid(playername)
     if not playerid:
-        api_profile = legion_api.getprofile(playername)
-        if api_profile in [0, 1]:
+        result = get_player_profile(playername)
+        if not result:
             return jsonify({"Status": "Not Found"}), 400
-        else:
-            playerid = api_profile["_id"]
+        playerid = result["playerid"]
     api_stats = legion_api.getstats(playerid)
     return api_stats
 
@@ -1013,11 +1012,10 @@ def get_simple_history(playername):
     get_db()
     playerid = drachbot_db.get_playerid(playername)
     if not playerid:
-        api_profile = legion_api.getprofile(playername)
-        if api_profile in [0, 1]:
+        result = get_player_profile(playername)
+        if not result:
             return jsonify({"Status": "Not Found"}), 400
-        else:
-            playerid = api_profile["_id"]
+        playerid = result["playerid"]
     req_columns = [
         [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
          PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
