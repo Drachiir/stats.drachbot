@@ -57,10 +57,9 @@ def get_player_profile(playername, by_id = False):
 @db.atomic()
 def get_game_by_id(gameid):
     if GameData.get_or_none(GameData.game_id == gameid) is None:
-        return {"Error": "Game not found."}
-        # success = legion_api.save_game_by_id(gameid)
-        # if not success:
-        #     return {"Error": "Game not found."}
+        success = legion_api.save_game_by_id(gameid)
+        if not success:
+            return {"Error": "Game not found."}
     req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
                     GameData.spell_choices, GameData.left_king_hp, GameData.right_king_hp, GameData.player_count, GameData.game_length,
                     PlayerData.player_id, PlayerData.player_name, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,

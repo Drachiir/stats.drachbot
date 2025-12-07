@@ -48,7 +48,8 @@ def teardown_request(exception):
 
 def get_player_profile(playername):
     playerid = playername if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername) else None
-    api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
+    #api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
+    api_profile = 0
     if api_profile in [0, 1]:
         playfab_profile = get_profile_from_playfab(playername)
         if playfab_profile:
