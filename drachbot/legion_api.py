@@ -17,17 +17,42 @@ with open('Files/json/Secrets.json', 'r') as f:
 
 header = {'x-api-key': secret_file.get('apikey')}
 
+# API Call Tracking - Simple counter
+API_CALLS_FILE = 'Files/json/api_calls.json'
+
+def log_api_call(endpoint):
+    """Log an API call to the tracking file."""
+    try:
+        # Load existing data
+        try:
+            with open(API_CALLS_FILE, 'r') as f:
+                calls = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError):
+            calls = {}
+        
+        # Increment counter for this endpoint
+        calls[endpoint] = calls.get(endpoint, 0) + 1
+        
+        # Save back to file
+        with open(API_CALLS_FILE, 'w') as f:
+            json.dump(calls, f, indent=2)
+    except Exception as e:
+        print(f"Error logging API call: {e}")
+
 def get_leaderboard(num):
     url = f'https://apiv2.legiontd2.com/players/stats?limit={num}&sortBy=overallElo&sortDirection=-1'
     api_response = requests.get(url, headers=header)
+    log_api_call("players/stats")
     return json.loads(api_response.text)
 
 @db.atomic()
 def getprofile(playername, by_id = False):
     if by_id:
         request_type = 'players/byId/'
+        log_api_call("players/byId")
     else:
         request_type = 'players/byName/'
+        log_api_call("players/byName")
     url = 'https://apiv2.legiontd2.com/' + request_type + playername
     try:
         api_response = requests.get(url, headers=header)
@@ -69,6 +94,7 @@ def getstats(playerid):
     request_type = 'players/stats/'
     url = 'https://apiv2.legiontd2.com/' + request_type + playerid
     api_response = requests.get(url, headers=header)
+    log_api_call("players/stats")
     stats = json.loads(api_response.text)
     return stats
 
@@ -78,6 +104,7 @@ def pullgamedata(playerid, offset, expected):
     url = 'https://apiv2.legiontd2.com/players/matchHistory/' + str(playerid) + '?limit=' + str(50) + '&offset=' + str(offset) + '&countResults=false'
     print('Pulling ' + str(50) + ' games from API...')
     api_response = requests.get(url, headers=header)
+    log_api_call("players/matchHistory")
     raw_data = json.loads(api_response.text)
     print('Saving ranked games.')
     for x in raw_data:
@@ -100,6 +127,7 @@ def pullgamedata(playerid, offset, expected):
 def save_game_by_id(gameid):
     url = 'https://apiv2.legiontd2.com/games/byId/' + gameid + '?includeDetails=true'
     api_response = requests.get(url, headers=header)
+    log_api_call("games/byId")
     x = json.loads(api_response.text)
     if (x == {'message': 'Internal server error'}) or (x == {'err': 'Entry not found.'}):
         return False
