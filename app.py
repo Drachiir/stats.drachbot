@@ -162,7 +162,7 @@ def block_bad_bots():
 
     bad_bots = [
         # Basic scrapers and libraries
-        "BadBot", "Scrapy", "Python-urllib", "curl", "wget", "python-requests",
+        "BadBot", "Scrapy", "Python-urllib", "curl", "wget",
 
         # SEO and analytics bots (often aggressive)
         'MJ12bot', 'SemrushBot', 'AhrefsBot', 'DotBot', 'PetalBot', 'BLEXBot',
