@@ -55,7 +55,11 @@ def get_player_profile(playername):
         if playfab_profile:
             playerid = playfab_profile["AccountInfo"]["PlayFabId"]
             api_profile = {"playerName": playfab_profile["AccountInfo"]["TitleInfo"]["DisplayName"],
-                           "avatarUrl": playfab_profile["AccountInfo"]["TitleInfo"]["AvatarUrl"]}
+                           "avatarUrl": ""}
+            try:
+                api_profile["avatarUrl"] = playfab_profile["AccountInfo"]["TitleInfo"]["AvatarUrl"]
+            except Exception:
+                api_profile["avatarUrl"] = "icons/DefaultAvatar.png"
         else:
             playerid = drachbot_db.get_playerid(playername) if not playerid else None
             api_profile = {"playerName": playername, "avatarUrl": "icons/DefaultAvatar.png"}
