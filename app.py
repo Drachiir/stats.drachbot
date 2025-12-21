@@ -592,10 +592,34 @@ def get_roll_hints():
 @app.route("/leaderboard", defaults={"playername": None})
 @app.route("/leaderboard/<playername>")
 def leaderboard(playername):
+    # Get query parameters
+    page = request.args.get('page', 0, type=int)
+    if page < 0:
+        page = 0
+    statistic_name = request.args.get('stat', 'overallEloThisSeasonAtLeastOneGamePlayed', type=str)
+    
+    # Validate statistic name
+    valid_statistics = {
+        "overallEloThisSeasonAtLeastOneGamePlayed": "Elo This Season",
+        "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Elo This Season"
+    }
+    
+    if statistic_name not in valid_statistics:
+        statistic_name = "overallEloThisSeasonAtLeastOneGamePlayed"
+    
     if not playername:
         api_profile = None
-        with open("leaderboard.json", "r") as f:
-            leaderboard_data = json.load(f)
+        # Check if we need to fetch a specific page or statistic
+        if page == 0 and statistic_name == "overallEloThisSeasonAtLeastOneGamePlayed":
+            # Use cached file for default (backward compatibility)
+            try:
+                with open("leaderboard.json", "r") as f:
+                    leaderboard_data = json.load(f)
+            except FileNotFoundError:
+                leaderboard_data = get_leaderboard_page(statistic_name, page)
+        else:
+            # Fetch on-demand page
+            leaderboard_data = get_leaderboard_page(statistic_name, page)
     else:
         get_db()
         stats = get_player_profile(playername)
@@ -603,11 +627,30 @@ def leaderboard(playername):
             return render_template("no_data.html", text=f"Player { playername } not found.")
         player_id = stats["playerid"]
         api_profile = stats["api_profile"]
-        leaderboard_data = get_playfab_stats(player_id, 100)
+        leaderboard_data = get_playfab_stats(player_id, 100, statistic_name)
+        # For player-specific view, always show page 0
+        page = 0
+        has_more = False
     if not leaderboard_data:
         return render_template("no_data.html", text=f"Error loading leaderboard, try again later.")
-    return render_template("leaderboard.html", leaderboard = leaderboard_data, get_rank_url=util.get_rank_url, get_value=util.get_value_playfab,
-                           winrate = util.custom_winrate, api_profile=api_profile, leaderboard_page = True, get_cdn = util.get_cdn_image)
+    
+    # Calculate total pages (estimate based on current page - if we got 100 results, there might be more)
+    if not playername:
+        has_more = len(leaderboard_data.get("Leaderboard", [])) == 100
+    
+    return render_template("leaderboard.html", 
+                          leaderboard=leaderboard_data, 
+                          get_rank_url=util.get_rank_url, 
+                          get_value=util.get_value_playfab,
+                          winrate=util.custom_winrate, 
+                          api_profile=api_profile, 
+                          leaderboard_page=True, 
+                          get_cdn=util.get_cdn_image,
+                          current_page=page,
+                          current_statistic=statistic_name,
+                          statistic_display_name=valid_statistics.get(statistic_name, "Elo This Season"),
+                          valid_statistics=valid_statistics,
+                          has_more=has_more if not playername else False)
 
 @app.route("/event-leaderboard", defaults={"playername": None})
 @app.route("/event-leaderboard/<playername>")
@@ -2081,7 +2124,7 @@ def stats(stats, elo, patch, specific_key):
 
 if __name__ == "__main__":
     if platform.system() == "Windows":
-        #run_leaderboard_task_in_thread()
+        run_leaderboard_task_in_thread()
         for file in os.listdir("Files/player_cache"):
             os.remove(f"Files/player_cache/{file}")
         app.run(host="0.0.0.0", debug=True)

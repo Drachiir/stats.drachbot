@@ -39,17 +39,34 @@
     }
 </style>
 <div style="text-align: center; padding-top: 10px; white-space: nowrap">
-    <div style="display: flex; justify-content: center">
-        <div style="margin-bottom: 10px; display: block;">
-            <div class="input-group" style="flex-wrap: nowrap; width: 300px">
-                <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToLeaderboard(); }">
-                <button class="btn btn-dark btn-outline-light" type="button" onclick="redirectToLeaderboard()">Go</button>
-            </div>
-            <div style="padding-top: 10px;">
-                <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
-            </div>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap;">
+        <div class="input-group" style="flex-wrap: nowrap; width: 300px">
+            <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToLeaderboard(); }">
+            <button class="btn btn-dark btn-outline-light" type="button" onclick="redirectToLeaderboard()">Go</button>
         </div>
+        <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
+        {% if not api_profile %}
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <label for="statistic-select" style="margin: 0; color: white;">Statistic:</label>
+            <select id="statistic-select" class="form-control" style="width: auto; display: inline-block;" onchange="changeStatistic()">
+                {% for stat_key, stat_display in valid_statistics.items() %}
+                    <option value="{{ stat_key }}" {% if stat_key == current_statistic %}selected{% endif %}>{{ stat_display }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
     </div>
+    {% if not api_profile %}
+    <div style="padding-top: 15px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        <button class="btn btn-dark btn-outline-light" onclick="changePage({{ (current_page|int) - 1 }})" {% if (current_page|int) == 0 %}disabled{% endif %}>
+            Previous
+        </button>
+        <span style="color: white; padding: 0 10px;">Page {{ (current_page|int) + 1 }}</span>
+        <button class="btn btn-dark btn-outline-light" onclick="changePage({{ (current_page|int) + 1 }})" {% if not has_more %}disabled{% endif %}>
+            Next
+        </button>
+    </div>
+    {% endif %}
 </div>
 <div style="text-align: center; padding-top: 10px; white-space: nowrap">
     <div style="display: inline-block; position: relative">
@@ -123,6 +140,17 @@
                 {% endfor %}
             </tbody>
         </table>
+        {% if not api_profile %}
+        <div style="padding-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            <button class="btn btn-dark btn-outline-light" onclick="changePage({{ (current_page|int) - 1 }})" {% if (current_page|int) == 0 %}disabled{% endif %}>
+                Previous
+            </button>
+            <span style="color: white; padding: 0 10px;">Page {{ (current_page|int) + 1 }}</span>
+            <button class="btn btn-dark btn-outline-light" onclick="changePage({{ (current_page|int) + 1 }})" {% if not has_more %}disabled{% endif %}>
+                Next
+            </button>
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -188,8 +216,34 @@
     function redirectToLeaderboard() {
         const input = document.getElementById('search-bar2').value;
         if(input) {
-            window.location.href = `/leaderboard/${input}`;
+            const select = document.getElementById('statistic-select');
+            let url = `/leaderboard/${input}`;
+            if (select) {
+                const statistic = select.value;
+                url += `?stat=${statistic}`;
+            }
+            window.location.href = url;
         }
+    }
+    
+    function changeStatistic() {
+        const select = document.getElementById('statistic-select');
+        const statistic = select.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('stat', statistic);
+        url.searchParams.set('page', '0'); // Reset to first page when changing statistic
+        window.location.href = url.toString();
+    }
+    
+    function changePage(page) {
+        if (page < 0) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', page.toString());
+        const select = document.getElementById('statistic-select');
+        if (select) {
+            url.searchParams.set('stat', select.value);
+        }
+        window.location.href = url.toString();
     }
     let countryMapping = {};
     fetch('/static/countries.json')
