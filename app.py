@@ -2,6 +2,7 @@ import os
 import platform
 import json
 import sqlite3
+import time
 import traceback
 from datetime import datetime, timezone, timedelta
 import requests
@@ -1246,6 +1247,12 @@ def profile(playername, stats, patch, elo, specific_key):
         in_progress = player_refresh_state.get(playerid, {}).get('in_progress', False)
         cooldown_duration = get_remaining_cooldown(playerid)
         playfab_stats = get_playfab_stats(playerid)
+
+        # Retry
+        if not playfab_stats:
+            time.sleep(1)
+            playfab_stats = get_playfab_stats(playerid)
+
         if playfab_stats:
             player = playfab_stats["Leaderboard"][0]
             try:
@@ -1279,6 +1286,7 @@ def profile(playername, stats, patch, elo, specific_key):
             player_rank = player["Position"] + 1
         else:
             api_stats = legion_api.getstats(playerid)
+
         try:
             _ = api_stats["rankedWinsThisSeason"]
             _ = api_stats["rankedLossesThisSeason"]
