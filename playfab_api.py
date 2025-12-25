@@ -96,7 +96,7 @@ def leaderboard_task(count=1):
         
         PlayFabClientAPI.GetLeaderboard(leaderboard_request, make_leaderboard_callback(statistic_name))
         result_event.wait()
-        time.sleep(0.5)  # Small delay between requests
+        time.sleep(2)  # Small delay between requests
 
 
 def get_leaderboard_page(statistic_name, page=0, use_cache=True):
@@ -193,6 +193,8 @@ def event_leaderboard_task(count=1):
             login_success = True
         login_event.set()
 
+    time.sleep(2)
+
     PlayFabClientAPI.LoginWithCustomID(login_request, login_callback)
     login_event.wait()
     
@@ -241,7 +243,7 @@ def event_leaderboard_task(count=1):
 
         PlayFabClientAPI.GetLeaderboard(leaderboard_request, callback)
         result_event.wait()
-        time.sleep(0.5)  # Small delay between requests
+        time.sleep(2)  # Small delay between requests
 
 
 def get_playfab_stats(playfabid, result_count=1, statistic_name="overallEloThisSeasonAtLeastOneGamePlayed"):

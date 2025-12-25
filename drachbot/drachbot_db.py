@@ -180,7 +180,7 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     ).save()
                 except peewee.IntegrityError:
                     pass
-                data = get_games_loop(playerid, 0, 50)
+                data = get_games_loop(playerid, 0, 100)
             else:
                 new_profile = False
                 data = PlayerProfile.select().where(PlayerProfile.player_id == playerid).get()

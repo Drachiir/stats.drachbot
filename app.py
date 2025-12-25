@@ -2172,7 +2172,7 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", debug=True)
     else:
         from waitress import serve
-        scheduler.add_job(id = 'Scheduled Task', func=run_leaderboard_task_in_thread, trigger="interval", seconds=180)
+        scheduler.add_job(id = 'Scheduled Task', func=run_leaderboard_task_in_thread, trigger="interval", seconds=240)
         scheduler.start()
         for file in os.listdir("Files/player_cache"):
             os.remove(f"Files/player_cache/{file}")
