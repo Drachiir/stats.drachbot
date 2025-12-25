@@ -600,12 +600,41 @@ def leaderboard(playername):
     
     # Validate statistic name
     valid_statistics = {
-        "overallEloThisSeasonAtLeastOneGamePlayed": "Elo This Season",
-        "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Elo This Season"
+        "overallEloThisSeasonAtLeastOneGamePlayed": "Current Elo",
+        "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Elo This Season",
+        "ladderPoints": "Ladder Points",
+    }
+    
+    # Map statistics to custom icons (if they should use a specific icon instead of rank badges)
+    statistic_icons = {
+        "ladderPoints": "https://cdn.legiontd2.com/icons/LadderPoints.png",
+    }
+    
+    # Map statistics to custom column headers (for the value column)
+    statistic_column_headers = {
+        "ladderPoints": "LP",
+    }
+    
+    # Map statistics to columns that should be hidden
+    statistic_hidden_columns = {
+        "ladderPoints": ["winrate", "winlose"],
     }
     
     if statistic_name not in valid_statistics:
         statistic_name = "overallEloThisSeasonAtLeastOneGamePlayed"
+    
+    # Helper function to get the appropriate icon for a statistic
+    def get_statistic_icon_url(stat_name, stat_value):
+        if stat_name in statistic_icons:
+            return statistic_icons[stat_name]
+        else:
+            return util.get_rank_url(stat_value)
+    
+    # Get column header text for the value column
+    value_column_header = statistic_column_headers.get(statistic_name, "Elo")
+    
+    # Get list of hidden columns for this statistic
+    hidden_columns = statistic_hidden_columns.get(statistic_name, [])
     
     if not playername:
         api_profile = None
@@ -641,6 +670,7 @@ def leaderboard(playername):
     return render_template("leaderboard.html", 
                           leaderboard=leaderboard_data, 
                           get_rank_url=util.get_rank_url, 
+                          get_statistic_icon_url=get_statistic_icon_url,
                           get_value=util.get_value_playfab,
                           winrate=util.custom_winrate, 
                           api_profile=api_profile, 
@@ -650,6 +680,8 @@ def leaderboard(playername):
                           current_statistic=statistic_name,
                           statistic_display_name=valid_statistics.get(statistic_name, "Elo This Season"),
                           valid_statistics=valid_statistics,
+                          value_column_header=value_column_header,
+                          hidden_columns=hidden_columns,
                           has_more=has_more if not playername else False)
 
 @app.route("/event-leaderboard", defaults={"playername": None})

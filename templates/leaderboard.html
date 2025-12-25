@@ -77,9 +77,13 @@
                     <th class="sorted-desc" onclick="sortTable(0, 'numeric')">Rank <span class="sort-arrow">▼</span></th>
                     <th>Player</th>
                     <th>Country</th>
-                    <th class="sorted-desc" onclick="sortTable(3, 'numeric')">Elo <span class="sort-arrow">▼</span></th>
-                    <th class="sorted-desc" onclick="sortTable(4, 'numeric')">Winrate <span class="sort-arrow">▼</span></th>
-                    <th class="sorted-desc" onclick="sortTable(5, 'games')">Win/Lose <span class="sort-arrow">▼</span></th>
+                    <th class="sorted-desc" onclick="sortTableByHeader(this, 'numeric')">{{ value_column_header }} <span class="sort-arrow">▼</span></th>
+                    {% if "winrate" not in hidden_columns %}
+                    <th class="sorted-desc" onclick="sortTableByHeader(this, 'numeric')">Winrate <span class="sort-arrow">▼</span></th>
+                    {% endif %}
+                    {% if "winlose" not in hidden_columns %}
+                    <th class="sorted-desc" onclick="sortTableByHeader(this, 'games')">Win/Lose <span class="sort-arrow">▼</span></th>
+                    {% endif %}
                     {% if leaderboard["Leaderboard"] and leaderboard["Leaderboard"][0]["DrachbotData"] is defined %}
                         <th>Streak</th>
                         <th>Fav. MMs</th>
@@ -116,9 +120,13 @@
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
                             <div title="" class="Country" data-country="{{ country_code }}"></div>
                         </td>
-                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}">{{ player["StatValue"] }}</td>
+                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_statistic_icon_url(current_statistic, player["StatValue"]) }}">{{ player["StatValue"] }}</td>
+                        {% if "winrate" not in hidden_columns %}
                         <td><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></td>
+                        {% endif %}
+                        {% if "winlose" not in hidden_columns %}
                         <td>{{ wins }} - {{ losses }} ({{ wins+losses }})</td>
+                        {% endif %}
                         {% if player["DrachbotData"] is defined %}
                             {% set streak_icon = "🔥" if player["DrachbotData"]["WinStreak"] > 0 else "❄️" %}
                             {% set streak_value = player["DrachbotData"]["WinStreak"] if player["DrachbotData"]["WinStreak"] > 0 else player["DrachbotData"]["LoseStreak"] %}
@@ -188,6 +196,13 @@
         // Update sort direction classes
         header.classList.toggle("sorted-asc", !isAsc);
         header.classList.toggle("sorted-desc", isAsc);
+    }
+    
+    function sortTableByHeader(headerElement, type) {
+        const table = document.getElementById("LeaderboardTable");
+        const headers = Array.from(table.querySelectorAll("thead th"));
+        const columnIndex = headers.indexOf(headerElement);
+        sortTable(columnIndex, type);
     }
 </script>
 <script>
