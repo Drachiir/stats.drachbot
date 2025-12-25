@@ -1285,7 +1285,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 city = ""
             player_rank = player["Position"] + 1
         else:
-            print("Fall back to Legion API stats, because playfab didn't return anything.")
+            #print("Fall back to Legion API stats, because playfab didn't return anything.")
             api_stats = legion_api.getstats(playerid)
 
         try:
