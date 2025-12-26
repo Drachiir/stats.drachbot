@@ -604,21 +604,25 @@ def leaderboard(playername):
         "overallEloThisSeasonAtLeastOneGamePlayed": "Current Elo",
         "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Elo This Season",
         "ladderPoints": "Ladder Points",
+        "secondsPlayed": "Hours In-Game"
     }
     
     # Map statistics to custom icons (if they should use a specific icon instead of rank badges)
     statistic_icons = {
         "ladderPoints": "https://cdn.legiontd2.com/icons/LadderPoints.png",
+        "secondsPlayed": "",
     }
     
     # Map statistics to custom column headers (for the value column)
     statistic_column_headers = {
         "ladderPoints": "LP",
+        "secondsPlayed": "Hours",
     }
     
     # Map statistics to columns that should be hidden
     statistic_hidden_columns = {
         "ladderPoints": ["winrate", "winlose"],
+        "secondsPlayed": ["winrate", "winlose"],
     }
     
     if statistic_name not in valid_statistics:

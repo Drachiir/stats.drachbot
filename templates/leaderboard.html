@@ -120,7 +120,11 @@
                             {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
                             <div title="" class="Country" data-country="{{ country_code }}"></div>
                         </td>
-                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_statistic_icon_url(current_statistic, player["StatValue"]) }}">{{ player["StatValue"] }}</td>
+                        {% set hours_played = 0 %}
+                        {% if current_statistic == "secondsPlayed" %}
+                            {% set hours_played = player["StatValue"] / 60 / 60 %}
+                        {% endif %}
+                        <td><img style="height: 26px; padding-right: 5px" src="{{ get_statistic_icon_url(current_statistic, player["StatValue"]) }}">{{ player["StatValue"] if hours_played == 0 else hours_played|round(1) }}</td>
                         {% if "winrate" not in hidden_columns %}
                         <td><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></td>
                         {% endif %}
