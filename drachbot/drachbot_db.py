@@ -1,4 +1,6 @@
 from pathlib import Path
+from typing import re
+
 import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
@@ -230,10 +232,11 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if patch in ["12", "11", "10", "26", "27"]:
                 expr = GameData.version.startswith("v"+patch)
             elif patch != "0":
-                if len(patch_list) == 1:
-                    expr = fn.Substr(GameData.version, 2, len(patch_list[0])).in_(patch_list)
-                else:
-                    expr = fn.Substr(GameData.version, 2, 5).in_(patch_list)
+                # Regex matches patch followed by end of string or non-digit (for sub-patches like 26.1a, 12.11.1)
+                # This ensures "26.1" matches "26.1", "26.1a" but NOT "26.10"
+                escaped_patches = [re.escape(p) for p in patch_list]
+                pattern = f"^v({'|'.join(escaped_patches)})($|[^0-9])"
+                expr = GameData.version.regexp(pattern)
             else:
                 expr = True
             game_data_query = (PlayerData
@@ -276,10 +279,11 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             if games == 0:
                 games = GameData.select().where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave)).count()
         elif patch != "0":
-            if len(patch_list) == 1:
-                expr = fn.Substr(GameData.version, 2, len(patch_list[0])).in_(patch_list)
-            else:
-                expr = fn.Substr(GameData.version, 2, 5).in_(patch_list)
+            # Regex matches patch followed by end of string or non-digit (for sub-patches like 26.1a, 12.11.1)
+            # This ensures "26.1" matches "26.1", "26.1a" but NOT "26.10"
+            escaped_patches = [re.escape(p) for p in patch_list]
+            pattern = f"^v({'|'.join(escaped_patches)})($|[^0-9])"
+            expr = GameData.version.regexp(pattern)
             if games == 0:
                 games = GameData.select().where((GameData.queue == "Normal") & expr & (GameData.game_elo >= min_elo) & (GameData.ending_wave >= earliest_wave)).count()
         else:
@@ -366,11 +370,11 @@ def _format_patch(major, minor, use_old_format=False):
 def _detect_format(patch_str):
     """Detect if patch uses old format (X.00) or new format (X.1)."""
     parts = patch_str.strip().split('.')
-    if len(parts) == 2:
-        minor_str = parts[1]
-        # Old format: minor version has leading zero (e.g., "00", "01", "05")
-        # New format: minor version is single digit 1-9 or starts with 1 (e.g., "1", "2", "10")
-        return len(minor_str) == 2 and minor_str[0] == '0'
+    if len(parts) >= 1:
+        major_str = parts[0]
+        # Old format for versions 9, 10, 11, 12 (e.g., "9.00", "10.01", "12.05")
+        # New format for all other versions (e.g., "26.1", "27.2")
+        return major_str in ("9", "10", "11", "12")
     return False
 
 
@@ -433,17 +437,15 @@ def parse_patch_string(patch):
                 start_major, start_minor = _parse_patch(patch_new[0].strip())
                 end_major, end_minor = _parse_patch(patch_new[1].strip())
 
-                # Detect format from start patch
-                use_old_format = _detect_format(patch_new[0].strip())
-
-                # Define range limits based on format
-                max_minor = 11 if use_old_format else 12
-                min_minor = 0 if use_old_format else 1
-
                 for major in range(start_major, end_major + 1):
                     # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
                     if 13 <= major <= 25:
                         continue
+
+                    # Determine format for this specific major version
+                    use_old_format = major in (9, 10, 11, 12)
+                    max_minor = 11 if use_old_format else 12
+                    min_minor = 0 if use_old_format else 1
 
                     if major == start_major:
                         # First major version: from start_minor to max_minor (inclusive)
