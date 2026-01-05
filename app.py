@@ -167,20 +167,7 @@ def block_bad_bots():
 
     bad_bots = [
         # Basic scrapers and libraries
-        "BadBot", "Scrapy", "Python-urllib", "curl", "wget",
-
-        # SEO and analytics bots (often aggressive)
-        'MJ12bot', 'SemrushBot', 'AhrefsBot', 'DotBot', 'PetalBot', 'BLEXBot',
-        'MegaIndex', 'YandexBot', 'SeznamBot', 'DataMiner', 'HTTrack',
-
-        # Chinese bots (known to be aggressive)
-        'Baiduspider', 'Sogou', 'YisouSpider', '360Spider', 'Bytespider',
-        'Sogou web spider', 'Sogou inst spider', 'Sogou spider2',
-
-        # Generic scraper patterns
-        'Go-http-client', 'Java/', 'libwww-perl', 'lwp-trivial',
-        'BBBike', 'wget', 'winhttp', 'HTTpClient', 'okhttp',
-        'scrapy', 'selenium', 'chrome-headless-shell'
+        "BadBot", "Scrapy", "Python-urllib", "curl", "wget"
     ]
 
     user_agent = request.headers.get('User-Agent', '').lower()
