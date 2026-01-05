@@ -1,6 +1,5 @@
 from pathlib import Path
-from typing import re
-
+import re
 import peewee
 from peewee import fn
 import drachbot.legion_api as legion_api
