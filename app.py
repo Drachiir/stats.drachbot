@@ -52,7 +52,11 @@ def get_player_profile(playername):
     #api_profile = legion_api.getprofile(playerid or playername, by_id=bool(playerid))
     api_profile = 0
     if api_profile in [0, 1]:
-        playfab_profile = get_profile_from_playfab(playername)
+        if playerid:
+            playfab_profile = get_profile_from_playfab_by_id(playerid)
+        else:
+            playfab_profile = get_profile_from_playfab(playername)
+
         if playfab_profile:
             playerid = playfab_profile["AccountInfo"]["PlayFabId"]
             api_profile = {"playerName": playfab_profile["AccountInfo"]["TitleInfo"]["DisplayName"],

@@ -343,3 +343,30 @@ def get_profile_from_playfab(playername: str):
     PlayFabClientAPI.GetAccountInfo(playfab_request, callback)
     result_event.wait(timeout=10)
     return result
+
+
+def get_profile_from_playfab_by_id(playfab_id: str):
+    """
+    Get profile information using PlayFab ID instead of display name.
+    """
+    if not _ensure_logged_in():
+        return None
+    
+    playfab_request = {
+        "PlayFabId": playfab_id
+    }
+
+    result_event = threading.Event()
+    result = None
+
+    def callback(success, failure):
+        nonlocal result
+        if success:
+            result = success
+        else:
+            result = None
+        result_event.set()
+
+    PlayFabClientAPI.GetAccountInfo(playfab_request, callback)
+    result_event.wait(timeout=10)
+    return result
