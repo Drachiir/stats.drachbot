@@ -119,7 +119,7 @@ def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", 
         periods = string.count('.')
         new_patches.append(string.split('.', periods)[0].replace('v', '') + '.' + string.split('.', periods)[1])
     patches = list(dict.fromkeys(new_patches))
-    patches = sorted(patches, key=lambda x: int(x.split(".")[0] + x.split(".")[1]), reverse=True)
+    patches = sorted(patches, key=util.patch_sort_key, reverse=True)
     newIndex = sorted(spell_dict, key=lambda x: spell_dict[x]['Count'], reverse=True)
     spell_dict = {k: spell_dict[k] for k in newIndex}
     avgelo = round(sum(gameelo_list)/len(gameelo_list))

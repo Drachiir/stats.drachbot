@@ -117,6 +117,24 @@ buff_spells = ["hero", "magician", "vampire", "divine blessing", "glacial touch"
 mm_list: list = defaults_json["MMs"]
 mm_list.remove("All")
 
+def patch_sort_key(patch_str):
+    """
+    Returns a tuple for sorting patch versions like '26.1', '26.1c', '26.2'.
+    Handles letter suffixes in minor version (e.g., '1c' -> (1, 'c')).
+    """
+    parts = patch_str.split(".")
+    major = int(parts[0])
+    minor_str = parts[1] if len(parts) > 1 else "0"
+    # Extract numeric part and optional letter suffix
+    match = re.match(r'^(\d+)([a-zA-Z]*)$', minor_str)
+    if match:
+        minor_num = int(match.group(1))
+        suffix = match.group(2)
+    else:
+        minor_num = 0
+        suffix = minor_str
+    return (major, minor_num, suffix)
+
 def plus_prefix(a):
     if a > 0:
         b = '+' + str(a)

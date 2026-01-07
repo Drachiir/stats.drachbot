@@ -236,7 +236,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
         periods = string.count('.')
         new_patches.append(string.split('.', periods)[0].replace('v', '') + '.' + string.split('.', periods)[1])
     patches = list(dict.fromkeys(new_patches))
-    patches = sorted(patches, key=lambda x: int(x.split(".")[0] + x.split(".")[1]), reverse=True)
+    patches = sorted(patches, key=util.patch_sort_key, reverse=True)
     newIndex = sorted(masterminds_dict, key=lambda x: masterminds_dict[x]['Count'], reverse=True)
     masterminds_dict = {k: masterminds_dict[k] for k in newIndex}
     avg_gameelo = round(sum(gameelo_list)/len(gameelo_list))
