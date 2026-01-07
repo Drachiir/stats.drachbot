@@ -343,27 +343,37 @@ def get_search_results(search_term):
 
 
 def _parse_patch(patch_str):
-    """Parse patch string into (major, minor) tuple."""
+    """Parse patch string into (major, minor, suffix) tuple.
+    Handles letter suffixes like '26.1c' -> (26, 1, 'c')
+    """
     parts = patch_str.strip().split('.')
     if len(parts) == 2:
-        return int(parts[0]), int(parts[1])
+        major = int(parts[0])
+        minor_str = parts[1]
+        # Extract numeric part and optional letter suffix
+        match = re.match(r'^(\d+)([a-zA-Z]*)$', minor_str)
+        if match:
+            minor = int(match.group(1))
+            suffix = match.group(2)
+            return major, minor, suffix
     raise ValueError(f"Invalid patch format: {patch_str}")
 
 
-def _format_patch(major, minor, use_old_format=False):
+def _format_patch(major, minor, use_old_format=False, suffix=""):
     """
     Format patch version.
     Old format (use_old_format=True): always two digits (X.00, X.01, ..., X.11) - range 0-11
     New format (use_old_format=False): single digit for 1-9, two digits for 10-12 (X.1, X.2, ..., X.9, X.10, X.11, X.12) - range 1-12
+    Suffix: optional letter suffix (e.g., 'c' for 26.1c)
     """
     if use_old_format:
-        return f"{major}.{minor:02d}"
+        return f"{major}.{minor:02d}{suffix}"
     else:
         # New format: single digit for 1-9, two digits for 10-12
         if minor < 10:
-            return f"{major}.{minor}"
+            return f"{major}.{minor}{suffix}"
         else:
-            return f"{major}.{minor:02d}"
+            return f"{major}.{minor:02d}{suffix}"
 
 
 def _detect_format(patch_str):
@@ -395,15 +405,15 @@ def parse_patch_string(patch):
             patch_list.append(patch)
         else:
             # Comma-separated list: handle both X.00 and X.1 formats
-            # Normalize all to two-digit format for consistency in database queries
             for p in patch.replace(" ", "").split(','):
                 try:
-                    major, minor = _parse_patch(p)
+                    major, minor, suffix = _parse_patch(p)
                     # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
                     if 13 <= major <= 25:
                         continue
-                    # Normalize to two-digit format for database matching
-                    patch_list.append(f"{major}.{minor:02d}")
+                    # Use proper formatting based on major version
+                    use_old_format = major in (9, 10, 11, 12)
+                    patch_list.append(_format_patch(major, minor, use_old_format=use_old_format, suffix=suffix))
                 except ValueError:
                     continue
     elif "+" in patch and "-" not in patch:
@@ -412,7 +422,7 @@ def parse_patch_string(patch):
         patch_new = patch.replace(" ", "").replace("+", "")
         print(patch_new)
         try:
-            major, minor = _parse_patch(patch_new)
+            major, minor, suffix = _parse_patch(patch_new)
             # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
             if 13 <= major <= 25:
                 return []
@@ -433,8 +443,8 @@ def parse_patch_string(patch):
         patch_new = patch.split("-")
         if len(patch_new) == 2:
             try:
-                start_major, start_minor = _parse_patch(patch_new[0].strip())
-                end_major, end_minor = _parse_patch(patch_new[1].strip())
+                start_major, start_minor, _ = _parse_patch(patch_new[0].strip())
+                end_major, end_minor, _ = _parse_patch(patch_new[1].strip())
 
                 for major in range(start_major, end_major + 1):
                     # Skip major versions 13-25 (season 12 ends at 12, season 26 starts at 26)
