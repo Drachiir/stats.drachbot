@@ -821,7 +821,7 @@ def calc_leak(leak, wave, return_gold = False):
     else:
         return round(leak_amount / wave_total * 100, 1)
         
-def get_value_playfab(list_of_dicts, value, version=9):
+def get_value_playfab(list_of_dicts, value, version=10):
     for x in list_of_dicts:
         if (x["Name"] == value) and (x["Version"] == version):
             return x["Value"]
