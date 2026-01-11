@@ -1828,7 +1828,6 @@ def profile(playername, stats, patch, elo, specific_key):
 @app.route('/<stats>/', defaults={"elo": defaults[1], "patch": defaults[0], "specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/', defaults={"specific_key": "All"})
 @app.route('/<stats>/<patch>/<elo>/<specific_key>')
-@cache.cached(timeout=timeout)
 def stats(stats, elo, patch, specific_key):
     elo = str(elo)
     games = 0
