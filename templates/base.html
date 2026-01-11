@@ -222,48 +222,99 @@
                     <option value="/static/oasis.webp">Oasis</option>
                 </select>
             </li>
-            {% if user and discord_login %}
-            <li class="nav-item dropdown">
-                <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
-                    <img class="user-avatar" src="https://cdn.discordapp.com/{{ ("avatars/" + user.id + "/" + user.avatar) if user.avatar else 'embed/avatars/0' }}.png" alt="Avatar">
-                    <span>{{ user.displayname if user.displayname else user.username  }}</span>
-                </a>
-                <ul class="dropdown-menu bg-black">
-                    {% if user.player_id %}
-                        <li><a class="dropdown-item" href="/profile/{{ user.player_id }}">
-                            {% if user.ltd2_avatar_url %}
-                                <img src="https://cdn.legiontd2.com/{{ user.ltd2_avatar_url }}" 
-                                     alt="LTD2 Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 2px;">
-                            {% endif %}
-                            {{ user.ltd2_playername or 'Profile' }}
-                        </a></li>
-                    {% else %}
-                        <li><a class="dropdown-item" href="https://clan.fastly.steamstatic.com/images/25043759/00966242ac541a0f62b814b2aef0f1e173620402.png">Link LegionTD2 Account</a></li>
-                    {% endif %}
-                    
-                    <li><a class="dropdown-item" href="#" id="refreshLTD2Account">
-                        🔄 Refresh LTD2 Account
-                    </a></li>
-                    
-                    {% if user.player_id %}
-                    <li><a class="dropdown-item" href="#" id="settingsButton">
-                        ⚙️ Settings
-                    </a></li>
-                    {% endif %}
-                    
-                    <li><a class="dropdown-item" href="{{ url_for('logout') }}">↩️ Logout</a></li>
-                </ul>
+            <!-- Dynamic login area - populated by JavaScript to handle cached pages -->
+            <li id="discord-login-area">
+                <!-- Loading placeholder - will be replaced by JS -->
             </li>
-            {% elif discord_login %}
-            <li>
-                <a href="{{ url_for('login', next=request.path) }}" class="login-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"></path>
-                    </svg>
-                    Login w/ Discord
-                </a>
-            </li>
-            {% endif %}
+            <script>
+                // Dynamically load user session to handle cached pages correctly
+                (function() {
+                    const loginArea = document.getElementById('discord-login-area');
+                    const currentPath = window.location.pathname;
+                    const discordSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.545 2.907a13.2 13.2 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.2 12.2 0 0 0-3.658 0 8 8 0 0 0-.412-.833.05.05 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.04.04 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032q.003.022.021.037a13.3 13.3 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019q.463-.63.818-1.329a.05.05 0 0 0-.01-.059l-.018-.011a9 9 0 0 1-1.248-.595.05.05 0 0 1-.02-.066l.015-.019q.127-.095.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007q.121.1.248.195a.05.05 0 0 1-.004.085 8 8 0 0 1-1.249.594.05.05 0 0 0-.03.03.05.05 0 0 0 .003.041c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.2 13.2 0 0 0 4.001-2.02.05.05 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.03.03 0 0 0-.02-.019m-8.198 7.307c-.789 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.45.73 1.438 1.613 0 .888-.637 1.612-1.438 1.612m5.316 0c-.788 0-1.438-.724-1.438-1.612s.637-1.613 1.438-1.613c.807 0 1.451.73 1.438 1.613 0 .888-.631 1.612-1.438 1.612"></path></svg>';
+                    
+                    fetch('/api/user/session')
+                        .then(response => response.json())
+                        .then(userData => {
+                            if (userData.logged_in) {
+                                const avatarUrl = userData.avatar 
+                                    ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+                                    : 'https://cdn.discordapp.com/embed/avatars/0.png';
+                                const displayName = userData.displayname || userData.username;
+                                
+                                let profileLink = '';
+                                if (userData.player_id) {
+                                    const ltd2Avatar = userData.ltd2_avatar_url 
+                                        ? `<img src="https://cdn.legiontd2.com/${userData.ltd2_avatar_url}" alt="LTD2 Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 2px;">`
+                                        : '';
+                                    profileLink = `<li><a class="dropdown-item" href="/profile/${userData.player_id}">${ltd2Avatar}${userData.ltd2_playername || 'Profile'}</a></li>`;
+                                } else {
+                                    profileLink = '<li><a class="dropdown-item" href="https://clan.fastly.steamstatic.com/images/25043759/00966242ac541a0f62b814b2aef0f1e173620402.png">Link LegionTD2 Account</a></li>';
+                                }
+                                
+                                const settingsButton = userData.player_id 
+                                    ? '<li><a class="dropdown-item" href="#" id="settingsButton">⚙️ Settings</a></li>'
+                                    : '';
+                                
+                                loginArea.className = 'nav-item dropdown';
+                                loginArea.innerHTML = `
+                                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
+                                        <img class="user-avatar" src="${avatarUrl}" alt="Avatar">
+                                        <span>${displayName}</span>
+                                    </a>
+                                    <ul class="dropdown-menu bg-black">
+                                        ${profileLink}
+                                        <li><a class="dropdown-item" href="#" id="refreshLTD2Account">🔄 Refresh LTD2 Account</a></li>
+                                        ${settingsButton}
+                                        <li><a class="dropdown-item" href="/logout/">↩️ Logout</a></li>
+                                    </ul>
+                                `;
+                                
+                                // Re-attach event listeners for dynamically created elements
+                                const refreshBtn = document.getElementById('refreshLTD2Account');
+                                if (refreshBtn) {
+                                    refreshBtn.addEventListener('click', function(e) {
+                                        e.preventDefault();
+                                        fetch('/api/user/refresh-ltd2-account', { method: 'POST' })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                alert(data.message);
+                                                window.location.reload();
+                                            })
+                                            .catch(err => alert('Error refreshing account'));
+                                    });
+                                }
+                                
+                                const settingsBtn = document.getElementById('settingsButton');
+                                if (settingsBtn) {
+                                    settingsBtn.addEventListener('click', function(e) {
+                                        e.preventDefault();
+                                        const modal = document.getElementById('settingsModal');
+                                        if (modal) {
+                                            new bootstrap.Modal(modal).show();
+                                        }
+                                    });
+                                }
+                            } else {
+                                loginArea.innerHTML = `
+                                    <a href="/login/?next=${encodeURIComponent(currentPath)}" class="login-button">
+                                        ${discordSvg}
+                                        Login w/ Discord
+                                    </a>
+                                `;
+                            }
+                        })
+                        .catch(err => {
+                            // Fallback to login button on error
+                            loginArea.innerHTML = `
+                                <a href="/login/?next=${encodeURIComponent(currentPath)}" class="login-button">
+                                    ${discordSvg}
+                                    Login w/ Discord
+                                </a>
+                            `;
+                        });
+                })();
+            </script>
         </ul>
     </div>
 </nav>
@@ -467,8 +518,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-{% if user %}
-<!-- Settings Modal -->
+<!-- Settings Modal - always present for cached pages, populated dynamically -->
 <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #1c1c1c; color: white;">
@@ -480,8 +530,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
             <div class="modal-body">
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="hideCountryFlagModal" 
-                           {% if user_preferences.hide_country_flag %}checked{% endif %}>
+                    <input class="form-check-input" type="checkbox" id="hideCountryFlagModal">
                     <label class="form-check-label" for="hideCountryFlagModal">
                         🔒 Hide country flag on my profile
                     </label>
@@ -489,8 +538,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <small class="text-muted mb-3 d-block">When enabled, your country flag will be hidden for everyone viewing your profile.</small>
                 
                 <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="privateProfileModal" 
-                           {% if user_preferences.private_profile %}checked{% endif %}>
+                    <input class="form-check-input" type="checkbox" id="privateProfileModal">
                     <label class="form-check-label" for="privateProfileModal">
                         🔐 Make my profile private
                     </label>
@@ -504,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </label>
                     <input type="text" class="form-control" id="twitchUsernameModal" 
                            placeholder="Enter your Twitch username" 
-                           value="{{ user_preferences.twitch_username or '' }}"
+                           value=""
                            maxlength="30"
                            pattern="[a-zA-Z0-9_]+"
                            title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
@@ -518,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </label>
                     <input type="text" class="form-control" id="youtubeUsernameModal" 
                            placeholder="Enter your YouTube username" 
-                           value="{{ user_preferences.youtube_username or '' }}"
+                           value=""
                            maxlength="30"
                            pattern="[a-zA-Z0-9_]+"
                            title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
@@ -532,7 +580,22 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
-{% endif %}
+<script>
+// Load user preferences when settings modal is about to be shown
+document.getElementById('settingsModal').addEventListener('show.bs.modal', function () {
+    fetch('/api/user/preferences')
+        .then(response => response.json())
+        .then(prefs => {
+            if (!prefs.error) {
+                document.getElementById('hideCountryFlagModal').checked = prefs.hide_country_flag || false;
+                document.getElementById('privateProfileModal').checked = prefs.private_profile || false;
+                document.getElementById('twitchUsernameModal').value = prefs.twitch_username || '';
+                document.getElementById('youtubeUsernameModal').value = prefs.youtube_username || '';
+            }
+        })
+        .catch(err => console.log('Could not load preferences'));
+});
+</script>
 
 </body>
 </html>

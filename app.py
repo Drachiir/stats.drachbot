@@ -353,6 +353,23 @@ def inject_user():
 def api_defaults():
     return defaults_json
 
+@app.route("/api/user/session", methods=['GET'])
+def get_user_session_api():
+    """Returns the current user session state - used for dynamic login display on cached pages"""
+    user = session.get("user")
+    if not user:
+        return jsonify({"logged_in": False})
+    return jsonify({
+        "logged_in": True,
+        "id": user.get("id"),
+        "username": user.get("username"),
+        "displayname": user.get("displayname"),
+        "avatar": user.get("avatar"),
+        "player_id": user.get("player_id"),
+        "ltd2_playername": user.get("ltd2_playername"),
+        "ltd2_avatar_url": user.get("ltd2_avatar_url")
+    })
+
 @app.route("/api/user/preferences", methods=['GET'])
 def get_user_preferences_api():
     user = session.get("user")
