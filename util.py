@@ -284,6 +284,9 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
 
     final_score = core_score * pr_confidence * CONFIG["final_score_multiplier"]
 
+    if pickrate == 100:
+        final_score /= 10
+
     return final_score
 
 
