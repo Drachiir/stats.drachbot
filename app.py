@@ -76,10 +76,34 @@ def get_player_profile(playername):
     return {"playerid": playerid, "api_profile": api_profile}
 
 def validate_custom_patch(patch:str):
+    """
+    Validate custom patch formats:
+    - Old format (before v26): v12.01.1, v12.01.2 (3 numeric parts)
+    - New format (v26+): v26.1a, v26.1b (major.minor + letter suffix)
+    """
     patch = patch.strip()
-    if not re.fullmatch(r'v\d+\.\d+\.\d+', patch):
-        return False
-    return True
+    # New format for v26+: v26.1a, v26.1b, etc.
+    if re.fullmatch(r'v2[6-9]\.\d+[a-z]', patch) or re.fullmatch(r'v[3-9]\d\.\d+[a-z]', patch):
+        return True
+    # Old format before v26: v12.01.1, v10.01.01, etc.
+    if re.fullmatch(r'v\d+\.\d+\.\d+', patch):
+        return True
+    return False
+
+
+def is_custom_patch_format(patch_str: str) -> bool:
+    """
+    Check if a patch string is a custom/hotfix patch format.
+    - Old format (before v26): 12.01.1 or 12.01.01 (3 parts with dots)
+    - New format (v26+): 26.1a, 26.1b (2 parts with letter suffix)
+    """
+    # New format: 26.1a, 26.1b - check for letter suffix after number
+    if re.fullmatch(r'2[6-9]\.\d+[a-z]', patch_str) or re.fullmatch(r'[3-9]\d\.\d+[a-z]', patch_str):
+        return True
+    # Old format: 12.01.1 - check for 3 parts separated by dots
+    if patch_str.count(".") == 2:
+        return True
+    return False
 
 def main_leaderboard_task():
     leaderboard_task(1)
@@ -745,6 +769,10 @@ def wave_distribution(patch, elo):
     if patch.startswith("v"):
         if not validate_custom_patch(patch):
             return render_template("no_data.html", text=f"Unsupported query")
+        # Require Discord login for custom patch queries (abuse protection)
+        user = session.get("user")
+        if not user:
+            return render_template("no_data.html", text=f"Custom patch queries require Discord login for abuse protection. Please log in and try again.")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
         history_raw = None
         if os.path.isfile(path):
@@ -1961,13 +1989,18 @@ def stats(stats, elo, patch, specific_key):
                 sub_headers = [["Waves", "Waves", "wavestats"], ["Units", "Units", "unitstats"], ["Combo", "MercsCombo", "sendstats"]]
             folder = "sendstats"
     mod_date = None
-    # ALLOWING CUSTOM PATCH (format: v10.01.01 with 3 parts)
-    # Check if it's a custom patch by counting dots - standard patches have 1 dot (e.g., 12.09), custom have 2 dots (e.g., 10.01.01)
-    is_custom_patch = patch_list_to_process[0].count(".") == 2
+    # ALLOWING CUSTOM PATCH
+    # Old format (before v26): 12.01.1 or 12.01.01 (3 numeric parts)
+    # New format (v26+): 26.1a, 26.1b (major.minor + letter suffix)
+    is_custom_patch = is_custom_patch_format(patch_list_to_process[0])
     
     if is_custom_patch:
-        return render_template("no_data.html", text=f"Custom patch queries currently disabled.")
-        # Custom patch format (e.g., v10.01.01)
+        # Require Discord login for custom patch queries (abuse protection)
+        user = session.get("user")
+        if not user:
+            return render_template("no_data.html", text=f"Custom patch queries require Discord login. Please log in and try again.")
+        
+        # Custom patch format
         if multiple_patches:
             return render_template("no_data.html", text=f"Custom patch format not supported for multiple patches. Please use standard patch format.")
 
