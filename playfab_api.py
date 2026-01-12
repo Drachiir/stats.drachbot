@@ -251,7 +251,7 @@ def event_leaderboard_task(count=1):
         time.sleep(2)  # Small delay between requests
 
 
-def get_playfab_stats(playfabid, result_count=1, statistic_name="overallElo"): #ThisSeasonAtLeastOneGamePlayed
+def get_playfab_stats(playfabid, result_count=1, statistic_name="overallEloThisSeasonAtLeastOneGamePlayed"): #ThisSeasonAtLeastOneGamePlayed
     if not _ensure_logged_in():
         return None
     
