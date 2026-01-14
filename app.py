@@ -560,27 +560,35 @@ def home():
 @app.route('/classicmodes')
 @cache.cached(timeout=10)
 def classic_modes():
+    entries_per_page = 10
+    total_pages = 10
+    # 5 pages past (-4 to 0) + 5 pages future (1 to 5), page 1 is "now"
+    past_entries = 5 * entries_per_page  # 50 entries in the past
+    future_entries = 5 * entries_per_page  # 50 entries including current
+    total_entries = past_entries + future_entries
+    
     increment_in_seconds = 3.25 * 60 * 60
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     now = datetime.now(tz=timezone.utc)
     
     seconds_elapsed = (now - start_utc).total_seconds()
-    
     increments_since_start = int(seconds_elapsed // increment_in_seconds)
     
-    current_increment_start = start_utc + timedelta(seconds=increments_since_start * increment_in_seconds)
+    # Start from 50 entries in the past
+    start_offset = -past_entries
+    first_increment_start = start_utc + timedelta(seconds=(increments_since_start + start_offset) * increment_in_seconds)
     
     increment_delta = timedelta(seconds=increment_in_seconds)
     schedule = [
         {
-            'mode': util.modes[(increments_since_start + i) % len(util.modes)],
-            'start': (current_increment_start + i * increment_delta).isoformat(),
-            'end': (current_increment_start + (i + 1) * increment_delta).isoformat(),
-            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{util.images[util.modes[(increments_since_start + i) % len(util.modes)]]}.png"
+            'mode': util.modes[(increments_since_start + start_offset + i) % len(util.modes)],
+            'start': (first_increment_start + i * increment_delta).isoformat(),
+            'end': (first_increment_start + (i + 1) * increment_delta).isoformat(),
+            'cdn_link': f"https://cdn.legiontd2.com/icons/ClassicModes/{util.images[util.modes[(increments_since_start + start_offset + i) % len(util.modes)]]}.png"
         }
-        for i in range(22)
+        for i in range(total_entries)
     ]
-    return render_template('classic_modes.html', schedule=schedule, classic_schedule = True)
+    return render_template('classic_modes.html', schedule=schedule, classic_schedule=True, entries_per_page=entries_per_page, total_pages=total_pages)
 
 @app.route('/rolldraft')
 def rolldraft():

@@ -12,47 +12,65 @@
             <p>Classic modes rotate every 3.25 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
             <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 20px">
                 <div>
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+                        <button id="prevBtnTop" class="btn btn-secondary" onclick="changePage(-1)">← Previous</button>
+                        <button id="nextBtnTop" class="btn btn-secondary" onclick="changePage(1)">Next →</button>
+                    </div>
                     <table class="table table-hover table-striped table-bordered">
                         <tr>
                             <th>Mode</th><th>Schedule</th>
                         </tr>
-                        {% for item in schedule %}
-                            <tr>
-                                <td>
-                                    <div style="text-align: left">
-                                        <img width="48" height="48" src="{{ item.cdn_link }}">
-                                        <r>{{ item.mode }}</r>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div style="text-align: left; text-wrap: wrap">
-                                        <r class="schedule" data-start="{{ item.start }}" data-end="{{ item.end }}">
-                                            {{ item.start }} {{ item.end }}
-                                        </r>
-                                        <br>
-                                        <small class="time-remaining"></small> <!-- Placeholder for time remaining -->
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
+                        <tbody id="scheduleBody"></tbody>
                     </table>
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                        <button id="prevBtnBottom" class="btn btn-secondary" onclick="changePage(-1)">← Previous</button>
+                        <button id="nextBtnBottom" class="btn btn-secondary" onclick="changePage(1)">Next →</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const schedules = document.querySelectorAll('.schedule');
+    const allSchedule = {{ schedule | tojson }};
+    const entriesPerPage = {{ entries_per_page }};
+    const totalPages = {{ total_pages }};
+    let currentPage = 5; // Page index 5 = "now" page (6th page, since we have 5 pages of past data)
 
-        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById('user-timezone').innerText = userTimezone;
+    function formatTimeDiff(ms) {
+        const absMs = Math.abs(ms);
+        const seconds = Math.floor(absMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        const remainingMinutes = minutes % 60;
 
-        schedules.forEach(function(schedule, index) {
-            const startUTC = schedule.getAttribute('data-start');
-            const endUTC = schedule.getAttribute('data-end');
+        let parts = [];
+        if (days > 0) {
+            parts.push(`${days} day${days > 1 ? 's' : ''}`);
+        }
+        if (remainingHours > 0) {
+            parts.push(`${remainingHours} hour${remainingHours > 1 ? 's' : ''}`);
+        }
+        if (remainingMinutes > 0) {
+            parts.push(`${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`);
+        }
+        return parts.length > 0 ? parts.join(' ') : 'less than a minute';
+    }
 
-            const startDate = new Date(startUTC);
-            const endDate = new Date(endUTC);
+    function renderPage() {
+        const startIdx = currentPage * entriesPerPage;
+        const endIdx = startIdx + entriesPerPage;
+        const pageData = allSchedule.slice(startIdx, endIdx);
+        
+        const tbody = document.getElementById('scheduleBody');
+        tbody.innerHTML = '';
+        
+        const now = new Date();
+        
+        pageData.forEach(function(item) {
+            const startDate = new Date(item.start);
+            const endDate = new Date(item.end);
 
             const startLocal = startDate.toLocaleString('default', {
                 day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
@@ -62,44 +80,58 @@
                 day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
             }).replace(',', '');
 
-            schedule.innerHTML = `${startLocal} → ${endLocal}`;
-
-            const now = new Date();
-            const timeDiff = startDate - now;
+            const timeToStart = startDate - now;
+            const timeToEnd = endDate - now;
             let timeRemaining;
+            let style = '';
 
-            if (timeDiff > 0) {
-                const seconds = Math.floor(timeDiff / 1000);
-                const minutes = Math.floor(seconds / 60);
-                const hours = Math.floor(minutes / 60);
-                const days = Math.floor(hours / 24);
-
-                const remainingMinutes = minutes % 60;
-
-                let timeRemainingParts = [];
-                if (days > 0) {
-                    timeRemainingParts.push(`${days} day${days > 1 ? 's' : ''}`);
-                }
-                if (hours > 0) {
-                    timeRemainingParts.push(`${hours % 24} hour${hours % 24 > 1 ? 's' : ''}`);
-                }
-                if (remainingMinutes > 0) {
-                    timeRemainingParts.push(`${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}`);
-                }
-
-                timeRemaining = `in ${timeRemainingParts.join(' ')}`;
-            } else {
+            if (timeToStart > 0) {
+                timeRemaining = `in ${formatTimeDiff(timeToStart)}`;
+            } else if (timeToEnd > 0) {
                 timeRemaining = `Now`;
+                style = 'font-weight: bold; color: red;';
+            } else {
+                timeRemaining = `${formatTimeDiff(timeToEnd)} ago`;
             }
 
-            const timeRemainingElement = schedule.parentNode.querySelector('.time-remaining');
-            timeRemainingElement.innerHTML = timeRemaining;
-
-            if (index === 0 && timeRemaining === 'Now') {
-                timeRemainingElement.style.fontWeight = 'bold';
-                timeRemainingElement.style.color = 'red';
-            }
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>
+                    <div style="text-align: left">
+                        <img width="48" height="48" src="${item.cdn_link}">
+                        <r>${item.mode}</r>
+                    </div>
+                </td>
+                <td>
+                    <div style="text-align: left; text-wrap: wrap">
+                        <r>${startLocal} → ${endLocal}</r>
+                        <br>
+                        <small style="${style}">${timeRemaining}</small>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
         });
+
+        // Update button state
+        document.getElementById('prevBtnTop').disabled = currentPage <= 0;
+        document.getElementById('prevBtnBottom').disabled = currentPage <= 0;
+        document.getElementById('nextBtnTop').disabled = currentPage >= totalPages - 1;
+        document.getElementById('nextBtnBottom').disabled = currentPage >= totalPages - 1;
+    }
+
+    function changePage(delta) {
+        const newPage = currentPage + delta;
+        if (newPage >= 0 && newPage < totalPages) {
+            currentPage = newPage;
+            renderPage();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById('user-timezone').innerText = userTimezone;
+        renderPage();
     });
 </script>
 {% endblock %}
