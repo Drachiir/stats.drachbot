@@ -33,11 +33,11 @@
         min-width: max-content;
         min-height: max-content;
         white-space: nowrap; /* Prevents text from wrapping inside the div */
-        margin: 8px;
+        margin: 6px;
     }
     #chart-container {
         width: 100%; /* Ensure it takes full width */
-        height: 400px; /* You can adjust the height */
+        height: 375px; /* You can adjust the height */
         display: flex;
         justify-content: center;
         align-items: center;
@@ -184,6 +184,10 @@
       transform: translateY(-1px);
       background-color: rgba(30, 144, 255, 0.1);
     }
+
+    .small-subtle-text{
+        font-size: 12px;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
@@ -304,10 +308,15 @@
                 <r2 style=""><b>Season 2026 Stats</b></r2><br>
                 <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L ({{ api_stats["rankedWinsThisSeason"] + api_stats["rankedLossesThisSeason"] }})
                 <br>({{ winrate([api_stats["rankedWinsThisSeason"], (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }} WR%)</r2><br>
-                <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
-                <r2>{{ api_stats["overallElo"] }} </r2><r2 style="color: #919191">Current</r2><br>
-                <img width="32" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakEloThisSeason"]) }}">
-                <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 style="color: #919191">Peak</r2>
+                <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
+                <r2>{{ api_stats["overallElo"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Current Elo</r2><br>
+                <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakEloThisSeason"]) }}">
+                <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Season Peak</r2>
+                {% if api_stats["overallPeakElo"] > 0 %}
+                    <br>
+                    <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakElo"]) }}">
+                    <r2>{{ api_stats["overallPeakElo"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Overall Peak</r2>
+                {% endif %}
             </div>
             <div class="profile-div">
                 <r2>
@@ -369,7 +378,7 @@
                     const mvp = mvpCount[state];
 
                     statsDisplay.innerHTML = `
-                        <r2>${wins}W - ${losses}L<br>(${wr} WR%)</r2><br>
+                        <r2>${wins}W - ${losses}L<br>${wr} WR%</r2><br>
                         <r2>Elo: ${elo}</r2><br>
                         <r2>MVP Rate: ${(mvp / totalGames * 100).toFixed(1)}%</r2>
                     `;
@@ -381,7 +390,7 @@
             {% for x in ["Teammates", "Enemies"] %}
                 <div class="profile-div" style="position: relative;">
                     <table class="table table-sm table-hover scrollable"
-                           style="display: inline-block; max-height: 140px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
+                           style="display: inline-block; max-height: 145px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
                         <tbody>
                             <tr>
                                 <th><r3>{{ x }}</r3></th>
@@ -1236,7 +1245,7 @@
                     ctx.drawImage(img, tickX + 8, tickY + 6, 20, 20); // Draw the image
                     // Draw the label value next to the icon
                     ctx.fillStyle = 'rgba(204,204,204,1)';
-                    ctx.font = '12px Arial';
+                    ctx.font = '10px Arial';
                     ctx.fillText(value, tickX + 30, tickY + 18); // Adjust position to avoid overlap
                 }
             });

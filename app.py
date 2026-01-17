@@ -1315,7 +1315,7 @@ def profile(playername, stats, patch, elo, specific_key):
                 api_profile["guildTag"] = player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1]
             except Exception:
                 api_profile["guildTag"] = ""
-            for stat_key, version in [("rankedWinsThisSeason", 10), ("rankedLossesThisSeason", 10), ("overallElo", 13), ("overallPeakEloThisSeason", 13)]:
+            for stat_key, version in [("rankedWinsThisSeason", 10), ("rankedLossesThisSeason", 10), ("overallElo", 13), ("overallPeakEloThisSeason", 13), ("overallPeakElo", 1)]:
                 try:
                     api_stats[stat_key] = util.get_value_playfab(player["Profile"]["Statistics"], stat_key, version=version)
                 except Exception:
@@ -1358,6 +1358,9 @@ def profile(playername, stats, patch, elo, specific_key):
             api_stats["rankedWinsThisSeason"] = 0
         if not api_stats["rankedLossesThisSeason"]:
             api_stats["rankedLossesThisSeason"] = 0
+
+        api_stats["overallPeakElo"] = api_stats.get("overallPeakElo", 0)
+
         stats_list = website_stats
         image_list = [
             "https://cdn.legiontd2.com/icons/Mastermind.png",
