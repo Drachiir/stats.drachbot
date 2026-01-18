@@ -307,7 +307,7 @@
             <div class="profile-div">
                 <r2 style=""><b>Season 2026 Stats</b></r2><br>
                 <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L ({{ api_stats["rankedWinsThisSeason"] + api_stats["rankedLossesThisSeason"] }})
-                <br>({{ winrate([api_stats["rankedWinsThisSeason"], (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }} WR%)</r2><br>
+                <br>{{ winrate([api_stats["rankedWinsThisSeason"], (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }}% Winrate</r2><br>
                 <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
                 <r2>{{ api_stats["overallElo"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Current Elo</r2><br>
                 <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakEloThisSeason"]) }}">
@@ -378,7 +378,7 @@
                     const mvp = mvpCount[state];
 
                     statsDisplay.innerHTML = `
-                        <r2>${wins}W - ${losses}L<br>${wr} WR%</r2><br>
+                        <r2>${wins}W - ${losses}L<br>${wr}% Winrate</r2><br>
                         <r2>Elo: ${elo}</r2><br>
                         <r2>MVP Rate: ${(mvp / totalGames * 100).toFixed(1)}%</r2>
                     `;
