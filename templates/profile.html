@@ -380,7 +380,7 @@
                     statsDisplay.innerHTML = `
                         <r2>${wins}W - ${losses}L<br>${wr}% Winrate</r2><br>
                         <r2>Elo: ${elo}</r2><br>
-                        <r2>MVP Rate: ${(mvp / totalGames * 100).toFixed(1)}%</r2>
+                        <r2>${(mvp / totalGames * 100).toFixed(1)}% MVP Rate</r2>
                     `;
                     document.querySelectorAll('.state-button').forEach(btn => btn.classList.remove('active'));
                     document.getElementById(`btn-${state}`).classList.add('active');
