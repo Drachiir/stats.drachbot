@@ -270,5 +270,13 @@
     "iconPath": "Icons/Hypercarry.png",
     "name": "Hypercarry",
     "tooltip": "Gain 56 income after Wave 13"
+  },
+  {
+    "_id": "magic_lamp_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/MagicLamp.png",
+    "name": "MagicLamp",
+    "tooltip": "Gain 56 income after Wave 13"
   }
 ]
