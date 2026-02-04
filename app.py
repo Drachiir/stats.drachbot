@@ -1586,11 +1586,11 @@ def profile(playername, stats, patch, elo, specific_key):
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
                             PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave,
-                            PlayerData.double_down, PlayerData.elo_change],
+                            PlayerData.double_down, PlayerData.elo_change, PlayerData.magic_lamp],
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
-                            "income_per_wave", "double_down", "elo_change"]]
+                            "income_per_wave", "double_down", "elo_change", "magic_lamp"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True, skip_game_refresh=True)
             with open(path, "wb") as f:
                 f.write(msgpack.packb(history_raw, default=str))
@@ -2051,11 +2051,11 @@ def stats(stats, elo, patch, specific_key):
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
                             PlayerData.workers_per_wave, PlayerData.megamind, PlayerData.build_per_wave, PlayerData.champ_location, PlayerData.spell_location, PlayerData.fighters,
-                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave],
+                            PlayerData.mercs_sent_per_wave, PlayerData.leaks_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.fighter_value_per_wave, PlayerData.income_per_wave, PlayerData.magic_lamp],
                            ["game_id", "queue", "date", "version", "ending_wave", "game_elo", "spell_choices", "game_length"],
                            ["player_id", "player_slot", "game_result", "player_elo", "legion", "opener", "spell", "workers_per_wave", "megamind", "build_per_wave",
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
-                            "income_per_wave"]]
+                            "income_per_wave", "magic_lamp"]]
             history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch_list_to_process[0], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for v{patch_list_to_process[0]}")
