@@ -122,8 +122,10 @@ class PlayerData(BaseModel):
     megamind = BooleanField()
     champ_location = TextField()  # "chosenChampionLocation"
     double_down = BooleanField()
+    magic_lamp = BooleanField(null=True)
 
 
+@db.atomic()
 def save_game(data):
     date_format = "%Y-%m-%dT%H:%M:%S"
     pids = []
@@ -163,7 +165,12 @@ def save_game(data):
                 double_down = player["doubledown"]
             except Exception:
                 double_down = False
-            
+
+            try:
+                magic_lamp = player["magic_lamp"]
+            except Exception:
+                magic_lamp = False
+
             def convert_data(keys):
                 for key in keys:
                     new_list = []
@@ -173,6 +180,7 @@ def save_game(data):
                         else:
                             new_list.append("!".join(wave))
                     player[key] = new_list
+
             try:
                 convert_data(["mercenariesSentPerWave", "mercenariesReceivedPerWave", "leaksPerWave", "buildPerWave", "kingUpgradesPerWave", "opponentKingUpgradesPerWave"])
                 if player["gameResult"] is None:
@@ -211,15 +219,21 @@ def save_game(data):
                     kingups_received_per_wave=player["opponentKingUpgradesPerWave"],
                     megamind=megamind,
                     champ_location=champ_location,
-                    double_down=double_down
+                    double_down=double_down,
+                    magic_lamp=magic_lamp
                 )
                 player_data.save()
             except Exception:
                 traceback.print_exc()
 
-# if __name__ == '__main__': #"incomenchill": false, "votedmode": null "availablemode": 6,
-#     migrator = PostgresqlMigrator(db)
-#     migrate(
-#         migrator.add_column('PlayerProfile', 'elo', IntegerField(null=True))
-#     )
-#     quit()
+
+if __name__ == '__main__':  # "incomenchill": false, "votedmode": null "availablemode": 6,
+    migrator = PostgresqlMigrator(db)
+    # migrate(
+    #     migrator.add_column(
+    #         'playerdata',
+    #         'magic_lamp',
+    #         BooleanField(default=False, null=False)
+    #     )
+    # )
+    quit()
