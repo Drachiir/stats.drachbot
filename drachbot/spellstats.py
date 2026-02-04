@@ -61,6 +61,13 @@ def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", 
                 if spellname != "all" and player["spell"].lower() != spellname:
                     continue
                 spell_name = player["spell"].lower()
+
+                try:
+                    if player["magic_lamp"]:
+                        spell_name = "magic lamp"
+                except Exception:
+                    pass
+
                 spell_dict[spell_name]["Count"] += 1
                 spell_dict[spell_name]["Elo"] += player["player_elo"]
                 spell_dict[spell_name]["Worker"] += player["workers_per_wave"][9]
