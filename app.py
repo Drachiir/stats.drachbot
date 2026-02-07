@@ -1022,7 +1022,7 @@ def drachbot_overlay_api(playername):
                     player["legion"] = "Megamind"
                 if player["legion"] in mms:
                     mms[player["legion"]] += 1
-                else:
+                elif len(mms) < 5:
                     mms[player["legion"]] = 1
                 # Wave 1 Tendency
                 if player["mercs_sent_per_wave"][0].split("!")[0] == "Snail":
