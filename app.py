@@ -996,11 +996,14 @@ def drachbot_overlay_api(playername):
         return {"Masterminds": {}, "Wave1": {"UpgradeKingAttack": 0, "Snail": 0, "Mythium32": 0}, "WinLose": {"Wins": 0, "Losses": 0}, "EloChange": 0, "String": f"Private Profile"}
 
     if not playerid:
+        result = get_player_profile(playername)
+        if not result:
+            return {"Error": "Player not found"}
+        playerid = result["playerid"]
+
+    if not playerid:
         return {"Error": "Player not found"}
-        # api_profile = legion_api.getprofile(playername)
-        # if api_profile in [0, 1]:
-        #     return {"Error": "Player not found"}
-        # playerid = api_profile["_id"]
+
     req_columns = [
         [GameData.queue, GameData.date, GameData.ending_wave, GameData.game_elo, GameData.player_ids,
          PlayerData.player_id, PlayerData.game_result, PlayerData.elo_change, PlayerData.legion,
