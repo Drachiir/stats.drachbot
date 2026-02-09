@@ -125,7 +125,6 @@ class PlayerData(BaseModel):
     magic_lamp = BooleanField(null=True)
 
 
-@db.atomic()
 def save_game(data):
     date_format = "%Y-%m-%dT%H:%M:%S"
     pids = []
