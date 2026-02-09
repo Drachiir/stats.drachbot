@@ -13,49 +13,15 @@ modes = [
     'Superhero',        # classic_special_mode_8
     'PvE',              # classic_special_mode_11
     'Mini and Wumbo',   # classic_special_mode_9
-    'Giga Mercs',       # classic_special_mode_6
-    'PvE',              # classic_special_mode_11
-    'Super Fiesta',     # classic_special_mode_0
-    'Superhero',        # classic_special_mode_8
-    'PvE',              # classic_special_mode_11
-    'Mini and Wumbo',   # classic_special_mode_9
-    'Super Fiesta',     # classic_special_mode_0
     'PvE',              # classic_special_mode_11
     'Giga Mercs',       # classic_special_mode_6
-    'Superhero',        # classic_special_mode_8
-    'PvE',              # classic_special_mode_11
-    'Mini and Wumbo',   # classic_special_mode_9
-    'Giga Mercs',       # classic_special_mode_6
-    'PvE',              # classic_special_mode_11
-    'Super Fiesta',     # classic_special_mode_0
-    'PvE',              # classic_special_mode_11
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
-    'PvE',              # classic_special_mode_11
-    'Giga Mercs',       # classic_special_mode_6
-    'Super Fiesta',     # classic_special_mode_0
-    'PvE',              # classic_special_mode_11
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
     'PvE',              # classic_special_mode_11
     'Super Fiesta',     # classic_special_mode_0
     'Superhero',        # classic_special_mode_8
     'PvE',              # classic_special_mode_11
     'Mini and Wumbo',   # classic_special_mode_9
-    'Tower Defense',    # classic_special_mode_10
-    'PvE',              # classic_special_mode_11
-    'Giga Mercs',       # classic_special_mode_6
-    'Super Fiesta',     # classic_special_mode_0
-    'PvE',              # classic_special_mode_11
-    'Superhero',        # classic_special_mode_8
-    'Mini and Wumbo',   # classic_special_mode_9
-    'PvE',              # classic_special_mode_11
-    'Super Fiesta',     # classic_special_mode_0
-    'Superhero',        # classic_special_mode_8
-    'PvE',              # classic_special_mode_11
-    'Mini and Wumbo',   # classic_special_mode_9
-    'Giga Mercs',       # classic_special_mode_6
 ]
+
 
 images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wumbo": "9",
           "Tower Defense": "10", "PvE": "11"}
