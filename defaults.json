@@ -10,5 +10,5 @@
     "Chaos", "Champion", "DoubleLockIn", "Kingsguard", "Saboteur", "Stash", "Scrapper", "Miner", "Aristocrat", "Shepherd", "Evolution", "Megamind"],
   "BuffSpells": ["hero", "magician", "vampire", "divine blessing", "glacial touch", "guardian angel", "protector", "pulverizer", "sorcerer", "titan", "villain", "executioner", "hypercarry"],
   "StatCategories": ["mmstats","megamindstats", "mmstats_combined", "openstats", "sendstats", "matchupstats", "spellstats", "rollstats", "unitstats", "wavestats", "gamestats"],
-  "EventPointsVersion": 19
+  "EventPointsVersion": 20
 }
