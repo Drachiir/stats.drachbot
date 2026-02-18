@@ -113,13 +113,25 @@ def pullgamedata(playerid, offset, expected):
         if (raw_data == {'message': 'Internal server error'}) or (raw_data == {'err': 'Entry not found.'}) or isinstance(raw_data, dict):
             break
         if x['queueType'] == 'Normal':
-            if GameData.get_or_none(GameData.game_id == x["_id"]) is None:
+            try:
+                game_exists = GameData.get_or_none(GameData.game_id == x["_id"]) is not None
+            except Exception as e:
+                print(f"DB error checking game {x.get('_id', 'unknown')}: {e}")
+                db.rollback()
+                games_count += 1
+                continue
+            if not game_exists:
                 ranked_count += 1
                 try:
                     peewee_pg.save_game(x)
                 except peewee.IntegrityError as e:
                     print(e)
                     print(f"Peewee Integrity Error: {x["_id"]}")
+                    db.rollback()
+                    break
+                except Exception as e:
+                    print(f"Unexpected DB error saving game {x.get('_id', 'unknown')}: {e}")
+                    db.rollback()
                     break
         games_count += 1
     return [ranked_count, games_count]
