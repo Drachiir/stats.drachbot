@@ -126,7 +126,8 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 @db.atomic()
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
-                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True, include_wave_one_finishes = False):
+                    skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True,
+                    include_wave_one_finishes = False, include_custom_queue = False):
     if req_columns is None:
         req_columns = []
     patch_list = parse_patch_string(patch)
@@ -238,10 +239,15 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 expr = GameData.version.regexp(pattern)
             else:
                 expr = True
+
+            queue_expr = False
+            if include_custom_queue:
+                queue_expr = GameData.queue.startswith("Custom")
+
             game_data_query = (PlayerData
                          .select(*req_columns[0])
                          .join(GameData)
-                         .where(GameData.player_ids.contains(playerid) & (GameData.queue == "Normal") & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
+                         .where(GameData.player_ids.contains(playerid) & ((GameData.queue == "Normal") | (queue_expr & (GameData.player_count == 4))) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
                          .order_by(sort_arg.desc())
                          ).dicts()
 

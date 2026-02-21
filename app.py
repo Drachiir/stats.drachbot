@@ -1395,13 +1395,13 @@ def profile(playername, stats, patch, elo, specific_key):
                  PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
                  PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
                  PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size, PlayerData.double_down],
-                ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
+                ["game_id", "date", "version", "ending_wave", "game_elo", "game_length", "queue"],
                 ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
                  "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
             skip_game_refresh = True if api_stats["overallElo"] > 1600 else False
             skip_game_refresh = True
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
-                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True)
+                                                  playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True, include_custom_queue=True)
             try:
                 os.remove(path)
             except Exception:
@@ -1427,7 +1427,7 @@ def profile(playername, stats, patch, elo, specific_key):
             if type(game["date"]) == str:
                 game["date"] = datetime.strptime(game["date"], "%Y-%m-%d %H:%M:%S")
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
-            temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
+            temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": f"{game["queue"] if game["queue"] == "Custom" else ""} {game["version"]}", "EloChange": ""
                          ,"Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
                          "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "",
                          "Spell": "", "Worker": "", "Megamind": False, "MVP": False}
