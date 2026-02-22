@@ -916,3 +916,32 @@ def generate_stats(playerid,winlose,elochange,api_stats=None):
             season_wins=rng.randint(int(season_total*0.45),int(season_total*0.55));season_losses=season_total-season_wins
             api_stats=api_stats.copy();api_stats["rankedWinsThisSeason"]=season_wins;api_stats["rankedLossesThisSeason"]=season_losses
     return winlose,elochange,api_stats
+
+def calculate_level_from_xp(total_xp):
+    """Calculate player level from total XP using the game's XP table."""
+    XP_TABLE = [
+        0, 0, 200, 1150, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000,
+        24000, 26000, 28000, 30000, 32000, 34000, 36000, 38000, 40000, 42000, 44000, 46000, 48000,
+        50000, 52000, 54000, 56000, 58000, 60000, 60000, 60000, 66000, 60000, 60000, 60000, 60000,
+        60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000,
+        60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000,
+        60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000,
+        60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000,
+        60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000
+    ]
+    
+    remaining_xp = total_xp
+    level = 0
+    
+    while True:
+        xp_needed = XP_TABLE[level + 1] if level < 100 else 60000
+        if remaining_xp >= xp_needed:
+            remaining_xp -= xp_needed
+            level += 1
+        else:
+            return {
+                'level': level,
+                'current_xp': remaining_xp,
+                'xp_needed': xp_needed,
+                'progress': remaining_xp / xp_needed if xp_needed > 0 else 0.0
+            }

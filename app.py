@@ -1328,6 +1328,16 @@ def profile(playername, stats, patch, elo, specific_key):
             except Exception:
                 avatar_stacks = 0
             api_stats["avatarBorder"] = util.get_avatar_border(avatar_stacks)
+            
+            try:
+                total_xp = util.get_value_playfab(player["Profile"]["Statistics"], "totalXp", version=1)
+                level_info = util.calculate_level_from_xp(total_xp)
+                api_stats["playerLevel"] = level_info['level']
+                api_stats["playerXpProgress"] = level_info['progress']
+                api_stats["playerCurrentXp"] = level_info['current_xp']
+                api_stats["playerXpNeeded"] = level_info['xp_needed']
+            except Exception:
+                api_stats["playerLevel"] = None
 
             country = player["Profile"]["Locations"][0]["CountryCode"]
             try:

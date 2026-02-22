@@ -193,20 +193,22 @@
 <div class="container-lg" style="padding-top: 2vw; display: block">
     <div class="profile-main" style="position: relative">
         <div style="padding: 8px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
-            <div style="text-align: center; width: max-content;">
+            <div style="text-align: center; width: max-content; padding-top: 10px;">
                 <div style="padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left;">
                     <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
                     {% if api_stats["avatarBorder"] %}
                         <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
                     {% endif %}
-                    {% if known_names|length > 0 %}
-                        {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
-                        <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
-                    {% else %}
-                        <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
-                    {% endif %}
-                    <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
-                    <div style="position: absolute; bottom: 5px; left: 70px">
+                    <div style="position: absolute; top: -2px; left: 70px;">
+                        {% if known_names|length > 0 %}
+                            {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
+                            <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
+                        {% else %}
+                            <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
+                        {% endif %}
+                        <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
+                    </div>
+                    <div style="position: absolute; top: 25px; left: 70px;">
                         {% if player_rank %}
                             <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
                         {% endif %}
@@ -224,6 +226,14 @@
                             </a>
                         {% endif %}
                     </div>
+                    {% if api_stats.get("playerLevel") is not none %}
+                    <div data-title="{{ api_stats['playerCurrentXp'] }} / {{ api_stats['playerXpNeeded'] }} XP" style="position: absolute; top: 42px; left: 70px; cursor: help;">
+                        <r2 style="color: #00d4ff; font-size: 0.85rem;"><b>Lvl {{ api_stats["playerLevel"] }}</b></r2>
+                        <div style="width: 120px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; display: inline-block; vertical-align: middle; margin-left: 6px;">
+                            <div style="height: 100%; width: {{ (api_stats["playerXpProgress"] * 100)|round(1) }}%; background: linear-gradient(90deg, #0095ff, #00d4ff); border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 <div>
                     <div>
