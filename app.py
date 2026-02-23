@@ -1505,16 +1505,20 @@ def profile(playername, stats, patch, elo, specific_key):
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     elochange["Overall"] += player["elo_change"]
                     elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
-                    if (player["mvp_score"] > teammate["mvp_score"]) and game["ending_wave"] != 1:
-                        temp_dict["MVP"] = True
-                        mvp_count["Overall"] += 1
-                        mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
-                    if player["game_result"] == "won":
-                        winlose["Overall"][0] += 1
-                        winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][0] += 1
-                    elif player["game_result"] == "lost":
-                        winlose["Overall"][1] += 1
-                        winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][1] += 1
+                    
+                    if game["queue"] == "Custom":
+                        games -= 1
+                    else:
+                        if (player["mvp_score"] > teammate["mvp_score"]) and game["ending_wave"] != 1:
+                            temp_dict["MVP"] = True
+                            mvp_count["Overall"] += 1
+                            mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
+                        if player["game_result"] == "won":
+                            winlose["Overall"][0] += 1
+                            winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][0] += 1
+                        elif player["game_result"] == "lost":
+                            winlose["Overall"][1] += 1
+                            winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][1] += 1
                     temp_dict["Result_String"] = [player["game_result"], f"Wave {game["ending_wave"]}"]
             history_parsed.append(temp_dict)
         newIndex = sorted(mms, key=lambda x: mms[x], reverse=True)
