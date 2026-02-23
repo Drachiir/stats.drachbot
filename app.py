@@ -1505,10 +1505,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     elochange["Overall"] += player["elo_change"]
                     elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
-                    
-                    if game["queue"] == "Custom":
-                        games -= 1
-                    else:
+                    if game["queue"] != "Custom":
                         if (player["mvp_score"] > teammate["mvp_score"]) and game["ending_wave"] != 1:
                             temp_dict["MVP"] = True
                             mvp_count["Overall"] += 1
