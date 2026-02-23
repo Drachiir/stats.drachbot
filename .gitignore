@@ -1,0 +1,36 @@
+# Temporary files
+*_temp.json
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+
+# IDE files
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Database files
+*.db
+*.sqlite
+
+# Environment variables
+.env 
+event_leaderboard.json
+Files/json/api_calls.json
+Files/json/clankers.json
+Files/json/Secrets.json
+Files/json/slang.json
+Files/json/units.xml
+Files/player_cache/Drachir_profile_26.2,26.1.msgpack
+leaderboard.json
+shared2/leaderboard/1v1/leaderboard_25-07-25.json
+test.py
