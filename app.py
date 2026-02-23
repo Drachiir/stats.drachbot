@@ -1503,9 +1503,9 @@ def profile(playername, stats, patch, elo, specific_key):
                                     spells[player["spell"]] = 1
                         except KeyError:
                             pass
-                    values.insert(0, player["player_elo"]+player["elo_change"])
-                    game_date = game["date"]
-                    labels.insert(0,game_date.strftime("%d/%m/%Y"))
+                        values.insert(0, player["player_elo"]+player["elo_change"])
+                        game_date = game["date"]
+                        labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     elochange["Overall"] += player["elo_change"]
                     elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
