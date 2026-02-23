@@ -1451,14 +1451,16 @@ def profile(playername, stats, patch, elo, specific_key):
                     enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
                     enemy2 = game["players_data"][player_map[player["player_slot"]][2]]
                     p: dict
-                    for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
-                        if p[0]["player_id"] in player_dict[p[1]]:
-                            player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
-                            player_dict[p[1]][p[0]["player_id"]]["EloChange"] += player["elo_change"]
-                        else:
-                            player_dict[p[1]][p[0]["player_id"]] = {"Count": 1, "Wins": 0, "Playername": p[0]["player_name"], "Playerid": p[0]["player_id"], "EloChange": player["elo_change"]}
-                        if player["game_result"] == "won":
-                            player_dict[p[1]][p[0]["player_id"]]["Wins"] += 1
+                    # Ranked stats
+                    if game["queue"] == "Normal":
+                        for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
+                            if p[0]["player_id"] in player_dict[p[1]]:
+                                player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
+                                player_dict[p[1]][p[0]["player_id"]]["EloChange"] += player["elo_change"]
+                            else:
+                                player_dict[p[1]][p[0]["player_id"]] = {"Count": 1, "Wins": 0, "Playername": p[0]["player_name"], "Playerid": p[0]["player_id"], "EloChange": player["elo_change"]}
+                            if player["game_result"] == "won":
+                                player_dict[p[1]][p[0]["player_id"]]["Wins"] += 1
                     #Match history details
                     temp_dict["Opener"] = player["opener"]
                     temp_dict["Mastermind"] = player["legion"]
@@ -1470,42 +1472,45 @@ def profile(playername, stats, patch, elo, specific_key):
                     if player["megamind"]:
                         temp_dict["Megamind"] = True
                     temp_dict["Worker"] = round(player["workers_per_wave"][-1], 1)
-                    #Fav MM
-                    if player["megamind"]:
-                        player["legion"] = "Megamind"
-                    if player["legion"] in mms:
-                        mms[player["legion"]] += 1
-                    else:
-                        mms[player["legion"]] = 1
-                    #Wave 1 Tendency
-                    if player["mercs_sent_per_wave"][0].split("!")[0] == "Snail":
-                        wave1["Snail"] += 1
-                    elif str(player["kingups_sent_per_wave"][0].split("!")[0]).startswith("Upgrade"):
-                        wave1["King"] += 1
-                    else:
-                        wave1["Save"] += 1
-                    #Fav Opener
-                    for opener_unit in set(player["opener"].split(",")):
-                        if opener_unit in openers:
-                            openers[opener_unit] += 1
+                    # Ranked stats
+                    if game["queue"] == "Normal":
+                        # Fav MM
+                        if player["megamind"]:
+                            player["legion"] = "Megamind"
+                        if player["legion"] in mms:
+                            mms[player["legion"]] += 1
                         else:
-                            openers[opener_unit] = 1
-                    #Fav Spells
-                    try:
-                        if player["spell"] != "none":
-                            if player["spell"] in spells:
-                                spells[player["spell"]] += 1
+                            mms[player["legion"]] = 1
+                        #Wave 1 Tendency
+                        if player["mercs_sent_per_wave"][0].split("!")[0] == "Snail":
+                            wave1["Snail"] += 1
+                        elif str(player["kingups_sent_per_wave"][0].split("!")[0]).startswith("Upgrade"):
+                            wave1["King"] += 1
+                        else:
+                            wave1["Save"] += 1
+                        #Fav Opener
+                        for opener_unit in set(player["opener"].split(",")):
+                            if opener_unit in openers:
+                                openers[opener_unit] += 1
                             else:
-                                spells[player["spell"]] = 1
-                    except KeyError:
-                        pass
+                                openers[opener_unit] = 1
+                        #Fav Spells
+                        try:
+                            if player["spell"] != "none":
+                                if player["spell"] in spells:
+                                    spells[player["spell"]] += 1
+                                else:
+                                    spells[player["spell"]] = 1
+                        except KeyError:
+                            pass
                     values.insert(0, player["player_elo"]+player["elo_change"])
                     game_date = game["date"]
                     labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
                     elochange["Overall"] += player["elo_change"]
                     elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
-                    if game["queue"] != "Custom":
+                    # Ranked stats
+                    if game["queue"] == "Normal":
                         if (player["mvp_score"] > teammate["mvp_score"]) and game["ending_wave"] != 1:
                             temp_dict["MVP"] = True
                             mvp_count["Overall"] += 1
@@ -1516,6 +1521,8 @@ def profile(playername, stats, patch, elo, specific_key):
                         elif player["game_result"] == "lost":
                             winlose["Overall"][1] += 1
                             winlose["SoloQ" if player["party_size"] == 1 else "DuoQ"][1] += 1
+                    else:
+                        games -= 1
                     temp_dict["Result_String"] = [player["game_result"], f"Wave {game["ending_wave"]}"]
             history_parsed.append(temp_dict)
         newIndex = sorted(mms, key=lambda x: mms[x], reverse=True)
