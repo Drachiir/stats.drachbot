@@ -567,7 +567,7 @@ def classic_modes():
     future_entries = 5 * entries_per_page  # 50 entries including current
     total_entries = past_entries + future_entries
     
-    increment_in_seconds = 3.25 * 60 * 60
+    increment_in_seconds = 1.75 * 60 * 60
     start_utc = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     now = datetime.now(tz=timezone.utc)
     

@@ -19,12 +19,12 @@ modes = [
     'Super Fiesta',     # classic_special_mode_0
     'Superhero',        # classic_special_mode_8
     'PvE',              # classic_special_mode_11
-    'Mini and Wumbo',   # classic_special_mode_9
+    'Vanilla',   # classic_special_mode_9
 ]
 
 
 images = {"Super Fiesta": "0", "Giga Mercs": "6", "Superhero": "8", "Mini and Wumbo": "9",
-          "Tower Defense": "10", "PvE": "11"}
+          "Tower Defense": "10", "PvE": "11", "Vanilla": "12"}
 
 wave_names= [
     "Crab",
