@@ -198,11 +198,6 @@ def get_leaderboard_page(statistic_name, page=0, use_cache=True):
 
 
 def event_leaderboard_task(count=1):
-    # Read the current event points version from defaults.json
-    with open("defaults.json", "r") as f:
-        defaults_data = json.load(f)
-    event_points_version = defaults_data.get("EventPointsVersion", 12)
-
     if not _ensure_logged_in():
         print("Failed to login for event leaderboard task")
         return
@@ -223,8 +218,7 @@ def event_leaderboard_task(count=1):
                 "ShowLocations": True,
                 "ShowAvatarUrl": True,
                 "ShowContactEmailAddresses": True
-            },
-            "Version": event_points_version
+            }
         }
 
         result_event = threading.Event()
@@ -287,11 +281,6 @@ def get_playfab_event_stats(playfabid, result_count=1):
     if not _ensure_logged_in():
         return None
     
-    # Read the current event points version from defaults.json
-    with open("defaults.json", "r") as f:
-        defaults_data = json.load(f)
-    event_points_version = defaults_data.get("EventPointsVersion", 12)
-    
     stats_request = {
         "PlayFabId": playfabid,
         "StatisticName": "eventPoints",
@@ -302,8 +291,7 @@ def get_playfab_event_stats(playfabid, result_count=1):
             "ShowLocations": True,
             "ShowAvatarUrl": True,
             "ShowContactEmailAddresses": True
-        },
-        "Version": event_points_version
+        }
     }
     result_event = threading.Event()
     result = None
