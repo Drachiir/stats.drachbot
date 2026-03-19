@@ -1511,7 +1511,7 @@ def profile(playername, stats, patch, elo, specific_key):
                     elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
                     # Ranked stats
                     if game["queue"] == "Normal":
-                        if (player["mvp_score"] > teammate["mvp_score"]) and game["ending_wave"] != 1:
+                        if (player["mvp_score"] >= teammate["mvp_score"]) and game["ending_wave"] != 1:
                             temp_dict["MVP"] = True
                             mvp_count["Overall"] += 1
                             mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
