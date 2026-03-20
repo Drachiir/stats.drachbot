@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from peewee import *
 import platform
 from playhouse.postgres_ext import *
-from playhouse.pool import PooledPostgresqlExtDatabase
+from playhouse.pool import PooledPostgresqlDatabase
 import requests
 import time
 from playhouse.migrate import *
@@ -23,11 +23,11 @@ with open("Files/json/Secrets.json", "r") as f:
     f.close()
 
 
-db = PooledPostgresqlExtDatabase(
+db = PooledPostgresqlDatabase(
     "postgres",
     max_connections=None,
     stale_timeout=None,
-    server_side_cursors=True,
+    #server_side_cursors=True,
     user=secret_file["pg_user"],
     password=secret_file["pg_password"],
     host=secret_file["pg_host"],
