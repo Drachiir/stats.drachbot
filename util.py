@@ -197,8 +197,7 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
 
     # --- 1. Handle Special Cases (from original code) ---
     # These stats just return the raw winrate, ignoring all logic.
-    if (stats == "megamindstats" and not specific_tier) or \
-            (stats == "mmstats_combined" and not specific_tier):
+    if stats == "megamindstats" and not specific_tier:
         return winrate
 
     # --- 2. Get Normalized Elo Factor (0.0 to 1.0) ---
