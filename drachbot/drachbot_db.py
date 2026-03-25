@@ -41,7 +41,7 @@ def get_player_profile(playername, by_id = False):
                               .where(expr)
                               .dicts())
         rows = list(profile_data_query)
-        if len(rows) == 1:
+        if len(rows) > 0:
             playerid = rows[0]["player_id"]
             api_profile = {"playerName": rows[0]["player_name"],
                            "avatarUrl": rows[0]["avatar_url"],

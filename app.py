@@ -1238,11 +1238,12 @@ def load(playername, stats, patch, elo, specific_key):
 def profile(playername, stats, patch, elo, specific_key):
     # Check if profile is private early to avoid expensive operations
     user = session.get("user")
-    
+    by_id = False
     # Get playerid for private check
     if re.fullmatch(r'(?=.*[0-9])(?=.*[A-F])[0-9A-F]{13,16}', playername):
         # playername is already a player ID
         playerid = playername
+        by_id = True
     else:
         # playername is a name, get the player ID
         get_db()
@@ -1278,7 +1279,7 @@ def profile(playername, stats, patch, elo, specific_key):
         #get player profile
         api_stats = {"avatarBorder": "", "flag": "", "Country": ""}
         get_db()
-        drachbot_profile = drachbot_db.get_player_profile(playername)
+        drachbot_profile = drachbot_db.get_player_profile(playername, by_id=by_id)
         if drachbot_profile:
             playerid = drachbot_profile["playerid"]
             api_profile = drachbot_profile["api_profile"]
