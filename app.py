@@ -2117,6 +2117,7 @@ def stats(stats, elo, patch, specific_key):
             return render_template("no_data.html", text=f"No Data for v{patch_list_to_process[0]}")
     else:
         # Process each patch in the list (handles both single and multiple patches)
+        max_data_mtime = None
         for patch_version in patch_list_to_process:
             if elo1 and elo2:
                 for file in os.listdir(shared_folder + f"data/{folder}/"):
@@ -2129,7 +2130,8 @@ def stats(stats, elo, patch, specific_key):
                         games += file_games
                         file_avg_elo = file.split("_")[3].replace(".msgpack", "")
                         with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
+                            mtime = os.path.getmtime(shared_folder + f"data/{folder}/" + file)
+                            max_data_mtime = mtime if max_data_mtime is None else max(max_data_mtime, mtime)
                             temp_data = msgpack.unpackb(f.read(), raw=False)
                             if not raw_data:
                                 raw_data = temp_data
@@ -2150,10 +2152,14 @@ def stats(stats, elo, patch, specific_key):
                     if file_patch == patch_version and file_elo >= int(elo):
                         games += file_games
                         with open(shared_folder + f"data/{folder}/" + file, "rb") as f:
-                            mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(shared_folder + f"data/{folder}/" + file)).timestamp())
+                            mtime = os.path.getmtime(shared_folder + f"data/{folder}/" + file)
+                            max_data_mtime = mtime if max_data_mtime is None else max(max_data_mtime, mtime)
                             temp_data = msgpack.unpackb(f.read(), raw=False)
                             raw_data = util.merge_dicts(raw_data, temp_data)
-        
+                            
+        if max_data_mtime is not None:
+            mod_date = util.time_ago(max_data_mtime)
+
         # Set avg_elo based on whether we have an elo range
         if elo1 and not elo2:
             avg_elo = f"{elo}+"
