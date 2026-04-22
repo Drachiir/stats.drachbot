@@ -1437,6 +1437,10 @@ def profile(playername, stats, patch, elo, specific_key):
         for game in history:
             if type(game["date"]) == str:
                 game["date"] = datetime.strptime(game["date"], "%Y-%m-%d %H:%M:%S")
+
+            if not game["queue"]:
+                game["queue"] = "None"
+
             end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
             temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": f"{game["queue"] if game["queue"] == "Custom" else ""} {game["version"]}", "EloChange": ""
                          ,"Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
