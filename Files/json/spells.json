@@ -29,7 +29,7 @@
     "enabled": true,
     "iconPath": "Icons/Hero.png",
     "name": "Hero",
-    "tooltip": "Gives a fighter an aura that buffs the attack speed and defense of adjacently-built units by 3.8%"
+    "tooltip": "Gives a fighter an aura that buffs the attack speed and defense of adjacently-built units by 3.5%"
   },
   {
     "_id": "villain_powerup_id",
@@ -45,7 +45,7 @@
     "enabled": true,
     "iconPath": "Icons/DarkRitual.png",
     "name": "Dark Ritual",
-    "tooltip": "Damages your king by 20% of current health, and +145 gold"
+    "tooltip": "Damages your king by 20% of current health, and +140 gold"
   },
   {
     "_id": "investment_powerup_id",
@@ -53,7 +53,7 @@
     "enabled": true,
     "iconPath": "Icons/Investment.png",
     "name": "Investment",
-    "tooltip": "+30 income"
+    "tooltip": "+31 income"
   },
   {
     "_id": "giant_snail_powerup_id",
@@ -61,7 +61,7 @@
     "enabled": true,
     "iconPath": "Icons/GiantSnail.png",
     "name": "Giant Snail",
-    "tooltip": "Your future Snails are replaced by Giant Snails that have 300 bonus health and 10 bonus damage"
+    "tooltip": "Your future Snails are replaced by Giant Snails that have 360 bonus health and 12 bonus damage."
   },
   {
     "_id": "venture_powerup_id",
@@ -69,7 +69,7 @@
     "enabled": true,
     "iconPath": "Icons/Venture.png",
     "name": "Venture",
-    "tooltip": "Pay up to 105 gold now. Receive 3x that amount when wave 12 ends."
+    "tooltip": "Pay up to 100 gold now. Receive 3x that amount when wave 12 ends."
   },
   {
     "_id": "loan_powerup_id",
@@ -77,7 +77,7 @@
     "enabled": true,
     "iconPath": "Icons/Loan.png",
     "name": "Loan",
-    "tooltip": "+200 gold, -30 income"
+    "tooltip": "+100 gold, 80 mythium, -30 income"
   },
   {
     "_id": "sacrifice_powerup_id",
@@ -85,7 +85,7 @@
     "enabled": true,
     "iconPath": "Icons/Sacrifice.png",
     "name": "Sacrifice",
-    "tooltip": "Refund a fighter for full value + 90 gold"
+    "tooltip": "Refund a fighter for full value + 88 gold"
   },
   {
     "_id": "overwork_powerup_id",
@@ -93,7 +93,7 @@
     "enabled": true,
     "iconPath": "Icons/Overwork.png",
     "name": "Overwork",
-    "tooltip": "Your workers gather mythium 60% faster until the end of wave 11. After that, they gather mythium 35% slower until the end of wave 12."
+    "tooltip": "Your workers gather mythium 65% faster until the end of wave 11. After that, they gather mythium 30% slower until the end of wave 12."
   },
   {
     "_id": "sorcerer_spell_damage_powerup_id",
@@ -101,7 +101,7 @@
     "enabled": true,
     "iconPath": "Icons/Sorcerer.png",
     "name": "Sorcerer",
-    "tooltip": "Increases a fighter's ability damage by 58%."
+    "tooltip": "Increases a fighter's mana regeneration by 1.6."
   },
   {
     "_id": "all_out_assault_powerup_id",
@@ -117,7 +117,7 @@
     "enabled": true,
     "iconPath": "Icons/Magician.png",
     "name": "Magician",
-    "tooltip": "Gives a fighter an aura that buffs the mana regeneration of adjacently-built units by 0.48 per second."
+    "tooltip": "Gives a fighter an aura that buffs the mana regeneration of adjacently-built units by 0.42 per second."
   },
   {
     "_id": "vampire_powerup_id",
@@ -125,7 +125,7 @@
     "enabled": true,
     "iconPath": "Icons/Vampire.png",
     "name": "Vampire",
-    "tooltip": "Gives a fighter an aura that grants 28% lifesteal and ability vamp to adjacently-built units"
+    "tooltip": "Gives a fighter an aura that grants 30% lifesteal and ability vamp to adjacently-built units"
   },
   {
     "_id": "creditor_powerup_id",
@@ -141,7 +141,7 @@
     "enabled": true,
     "iconPath": "Icons/PawnShop.png",
     "name": "Pawn Shop",
-    "tooltip": "You can now sell fighters for a 90% refund for the rest of the game. Also, +75 gold."
+    "tooltip": "You can now sell fighters for a 90% refund for the rest of the game. Also, +68 gold."
   },
   {
     "_id": "pulverizer_powerup_id",
@@ -149,7 +149,7 @@
     "enabled": true,
     "iconPath": "Icons/Pulverize.png",
     "name": "Pulverizer",
-    "tooltip": "Gives this fighter the ability to stun every 3 attacks (5 for ranged) for 2.5 seconds (0.3 to bosses). Does not work on summons or clones."
+    "tooltip": "Gives this fighter the ability to stun every 3 attacks (5 for ranged) for 1.5 seconds (0.3 to bosses). Does not work on summons or clones. Also, +5% attack speed."
   },
   {
     "_id": "protector_powerup_id",
@@ -157,7 +157,7 @@
     "enabled": true,
     "iconPath": "Icons/Protector.png",
     "name": "Protector",
-    "tooltip": "Gives a fighter +650 hp and an aura that buffs the health regeneration of all allies in a large area by 0.5% missing health until the fighter dies"
+    "tooltip": "Gives a fighter +700 hp and an aura that buffs the health regeneration of all allies in a large area by 0.6% missing health until the fighter dies"
   },
   {
     "_id": "guardian_angel_powerup_id",
@@ -165,7 +165,7 @@
     "enabled": true,
     "iconPath": "Icons/GuardianAngel.png",
     "name": "Guardian Angel",
-    "tooltip": "Gives a fighter a buff that brings it back to life after it dies. It will revive with up to 1500 health."
+    "tooltip": "Gives a fighter a buff that brings it back to life after it dies. It will revive with up to 1550 health."
   },
   {
     "_id": "embargo_powerup_id",
@@ -173,7 +173,7 @@
     "enabled": true,
     "iconPath": "Icons/Embargo.png",
     "name": "Embargo",
-    "tooltip": "You can't send mercenaries or upgrade the king until after Wave 12 spawns. Then, +80 gold and +80 mythium. Mercenaries sent after/on wave 11 will be refunded."
+    "tooltip": "You can't send mercenaries or upgrade the king until after Wave 12 spawns. Then, +80 gold and +75 mythium. Mercenaries sent after/on wave 11 will be refunded."
   },
   {
     "_id": "titan_powerup_id",
@@ -181,7 +181,7 @@
     "enabled": true,
     "iconPath": "Icons/Titan.png",
     "name": "Titan",
-    "tooltip": "Gives a fighter +1350 hp."
+    "tooltip": "Gives a fighter +1500 hp."
   },
   {
     "_id": "battle_scars_powerup_id",
@@ -189,7 +189,15 @@
     "enabled": true,
     "iconPath": "Icons/BattleScars.png",
     "name": "Battle Scars",
-    "tooltip": "After each wave, the fighter with the highest damage taken permanently gains +320 health and 3.5% attack speed."
+    "tooltip": "After each wave, the fighter with the highest damage taken permanently gains +320 health and 3.3% attack speed."
+  },
+  {
+    "_id": "hypercarry_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/Hypercarry.png",
+    "name": "Hypercarry",
+    "tooltip": "Choose a fighter. Every wave, it gains 4% attack speed, lifesteal, and ability vamp."
   },
   {
     "_id": "divine_blessing_powerup_id",
@@ -197,7 +205,7 @@
     "enabled": true,
     "iconPath": "Icons/DivineBlessing.png",
     "name": "Divine Blessing",
-    "tooltip": "Gives a fighter +2000 health and +18% attack speed. If the fighter dies, the buff is permanently lost."
+    "tooltip": "Gives a fighter +1800 health and +20% attack speed. If the fighter dies, the buff is permanently lost."
   },
   {
     "_id": "counterattack_powerup_id",
@@ -229,7 +237,7 @@
     "enabled": true,
     "iconPath": "Icons/SpreadTheWealth.png",
     "name": "Spread The Wealth",
-    "tooltip": "+95 gold to your teammate"
+    "tooltip": "+98 gold to your teammate"
   },
   {
     "_id": "executioner_powerup_id",
@@ -237,23 +245,7 @@
     "enabled": true,
     "iconPath": "Icons/Executioner.png",
     "name": "Executioner",
-    "tooltip": "Makes a fighter a executioner. Executes enemies below 10% health (5% for ranged fighters) and gains 1-4 gold (based on wave number) on execute. Only works on the primary autoattack of the fighter."
-  },
-  {
-    "_id": "black_market_powerup_id",
-    "category": "spells",
-    "enabled": true,
-    "iconPath": "Icons/BlackMarket.png",
-    "name": "Black Market",
-    "tooltip": "Gain 56 income after Wave 13"
-  },
-  {
-    "_id": "lizard_army_powerup_id",
-    "category": "spells",
-    "enabled": true,
-    "iconPath": "Icons/LizardArmy.png",
-    "name": "Lizard Army",
-    "tooltip": "Gain 56 income after Wave 13"
+    "tooltip": "Makes a fighter a executioner. Executes enemies below $1% health ($2% for ranged fighters) and gains $3-$4 gold (based on wave number) on execute. Only works on the primary autoattack of the fighter."
   },
   {
     "_id": "smite_powerup_id",
@@ -261,22 +253,38 @@
     "enabled": true,
     "iconPath": "Icons/Smite.png",
     "name": "Smite",
-    "tooltip": "Gain 56 income after Wave 13"
+    "tooltip": "+75 gold. Damages the enemy king by 30% of current health."
   },
   {
-    "_id": "hypercarry_powerup_id",
+    "_id": "black_market_powerup_id",
     "category": "spells",
     "enabled": true,
-    "iconPath": "Icons/Hypercarry.png",
-    "name": "Hypercarry",
-    "tooltip": "Gain 56 income after Wave 13"
+    "iconPath": "Icons/BlackMarket.png",
+    "name": "Black Market",
+    "tooltip": "Gain 60 income after Wave 13"
   },
   {
     "_id": "magic_lamp_powerup_id",
     "category": "spells",
     "enabled": true,
     "iconPath": "Icons/MagicLamp.png",
-    "name": "MagicLamp",
-    "tooltip": "Gain 56 income after Wave 13"
+    "name": "Magic Lamp",
+    "tooltip": "+13 gold and grants a random legion spell, even those not offered this game!"
+  },
+  {
+    "_id": "prosperity_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/Prosperity.png",
+    "name": "Prosperity",
+    "tooltip": "You get 145 gold and your opponent gets 30 gold when wave 12 starts."
+  },
+  {
+    "_id": "wolverine_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/Wolverine.png",
+    "name": "Wolverine",
+    "tooltip": "Makes a fighter a wolverine. Once per combat, after falling below $1% hp, this fighter gets $2 hp/sec regen for $3 seconds."
   }
 ]
