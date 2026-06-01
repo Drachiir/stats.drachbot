@@ -47,7 +47,10 @@ def sendstats(playerid, history_raw = {}):
                 enemy_units = set()
                 if enemy_index is not None and enemy_index < len(players_data):
                     enemy_player = players_data[enemy_index]
-                    units_raw = enemy_player["build_per_wave"][wave_index]
+                    try:
+                        units_raw = enemy_player["build_per_wave"][wave_index]
+                    except Exception:
+                        continue
                     if units_raw:
                         for unit_str in units_raw.split("!"):
                             unit = unit_str.split("_unit_")[0].replace("_", " ").lower()
