@@ -8,18 +8,14 @@ from datetime import datetime
 from re import findall
 
 modes = [
-    'PvE',              # classic_special_mode_11
-    'Super Fiesta',     # classic_special_mode_0
     'Superhero',        # classic_special_mode_8
-    'PvE',              # classic_special_mode_11
-    'Mini and Wumbo',   # classic_special_mode_9
-    'PvE',              # classic_special_mode_11
-    'Giga Mercs',       # classic_special_mode_6
-    'PvE',              # classic_special_mode_11
-    'Super Fiesta',     # classic_special_mode_0
-    'Superhero',        # classic_special_mode_8
-    'PvE',              # classic_special_mode_11
-    'Vanilla',   # classic_special_mode_9
+    'Mini and Wumbo',  # classic_special_mode_9
+    'Super Fiesta',  # classic_special_mode_0
+    'Giga Mercs',  # classic_special_mode_6
+    'Superhero',  # classic_special_mode_8
+    'Mini and Wumbo',  # classic_special_mode_9
+    'Super Fiesta',  # classic_special_mode_0
+    'Vanilla',  # classic_special_mode_9
 ]
 
 
