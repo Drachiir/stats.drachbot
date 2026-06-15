@@ -62,7 +62,7 @@
                     {% for unit in player["roll"].split(",") %}
                         <img style="float: right" width="32" height="32" src="{{ get_cdn(unit, "Unit") }}"><br>
                     {% endfor %}
-                    <div style="margin-left: auto; position: relative" dd-tooltip="Magic Lamp">
+                    <div style="margin-left: auto; position: relative" {% if player["magic_lamp"] %}dd-tooltip="Magic Lamp"{% endif %}>
                         {% if player['spell'] != "none" %}
                             <img width="32" height="32" src="{{ get_cdn(player['spell'], "Spell") }}"><br>
                             {% if player["magic_lamp"] %}
