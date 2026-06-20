@@ -150,3 +150,5 @@ def save_game_by_id(gameid):
         print(e)
         print(f"Peewee Integrity Error: {x["_id"]}")
         return False
+    except Exception:
+        return False
