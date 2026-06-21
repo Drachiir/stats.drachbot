@@ -129,6 +129,9 @@ def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", 
     patches = sorted(patches, key=util.patch_sort_key, reverse=True)
     newIndex = sorted(spell_dict, key=lambda x: spell_dict[x]['Count'], reverse=True)
     spell_dict = {k: spell_dict[k] for k in newIndex}
-    avgelo = round(sum(gameelo_list)/len(gameelo_list))
+    try:
+        avgelo = round(sum(gameelo_list)/len(gameelo_list))
+    except ZeroDivisionError:
+        avgelo = 0
     if data_only:
         return [spell_dict, games, avgelo]
