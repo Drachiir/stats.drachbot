@@ -286,5 +286,13 @@
     "iconPath": "Icons/Wolverine.png",
     "name": "Wolverine",
     "tooltip": "Makes a fighter a wolverine. Once per combat, after falling below $1% hp, this fighter gets $2 hp/sec regen for $3 seconds."
+  },
+  {
+    "_id": "sniper_powerup_id",
+    "category": "spells",
+    "enabled": true,
+    "iconPath": "Icons/Sniper.png",
+    "name": "Sniper",
+    "tooltip": "Sniper."
   }
 ]
