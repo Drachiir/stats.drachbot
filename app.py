@@ -876,7 +876,7 @@ def proleaks(wave, patch):
                 games = int(games)
             except Exception:
                 return render_template("no_data.html", text="No Data")
-            avg_elo = datajson.split("_")[3].replace(".json", "")
+            avg_elo = datajson.split("_")[3].replace(".msgpack", "")
             mod_date = util.time_ago(datetime.fromtimestamp(os.path.getmtime(f"{shared_folder}/data/proleaks/{datajson}")).timestamp())
             with open(f"{shared_folder}/data/proleaks/{datajson}", "rb") as f:
                 data = msgpack.unpackb(f.read(), raw=False)
@@ -889,11 +889,12 @@ def proleaks(wave, patch):
                            const_file = util.const_file, plus_prefix = util.plus_prefix, games=games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
                            clean_unit_name = util.clean_unit_name, patch_list = patches, wave_string = f"Wave{wave}", mod_date=mod_date)
 
-@app.route('/openers/', defaults= {"opener": None, "patch": defaults[0]})
-@app.route('/openers/<patch>', defaults= {"opener": None})
-@app.route('/openers/<patch>/<opener>')
+@app.route('/openers/', defaults= {"opener": None, "patch": defaults[0], "wave": 1})
+@app.route('/openers/<patch>', defaults= {"opener": None, "wave": 1})
+@app.route('/openers/<patch>/<opener>', defaults= {"wave": 1})
+@app.route('/openers/<patch>/<opener>/<wave>')
 @cache.cached(timeout=timeout)
-def openers(patch, opener):
+def openers(patch, opener, wave):
     for datajson in os.listdir(f"{shared_folder}/data/openers/"):
         if datajson.startswith(f"{patch}"):
             games = datajson.split("_")[2]
@@ -910,15 +911,31 @@ def openers(patch, opener):
         return render_template("no_data.html", text=f"No data.")
     new_patches = patches[:]
     if not opener:
-        return render_template("openers_overview.html", openers_data=data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+        # The overview only renders the opener key and its game count, so strip the builds out
+        # instead of embedding the whole dataset into the page.
+        overview_data = {k: {"Count": v["Count"]} for k, v in data.items()}
+        return render_template("openers_overview.html", openers_data=overview_data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,
                                clean_unit_name=util.clean_unit_name, patch_list=new_patches, mod_date=mod_date, opener_name = True)
     else:
         if opener not in data:
             return render_template("no_data.html", text=f"Opener not found.")
-        return render_template("openers.html", openers_data = data[opener]["Data"], get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
-                               const_file = util.const_file, plus_prefix = util.plus_prefix, games=data[opener]["Count"], avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
-                               clean_unit_name = util.clean_unit_name, patch_list = new_patches, mod_date=mod_date, opener_name = opener)
+        opener_data = data[opener]
+        if isinstance(opener_data["Data"], dict):
+            waves_available = [1, 2, 3]
+            wave_data = opener_data["Data"].get(f"Wave{wave}")
+            wave_games = opener_data.get("Counts", {}).get(f"Wave{wave}", opener_data["Count"])
+        else:
+            # Older files only hold wave 1 as a flat list.
+            waves_available = [1]
+            wave_data = opener_data["Data"] if str(wave) == "1" else None
+            wave_games = opener_data["Count"]
+        if not wave_data:
+            return render_template("no_data.html", text=f"No data.")
+        return render_template("openers.html", openers_data = wave_data, get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
+                               const_file = util.const_file, plus_prefix = util.plus_prefix, games=wave_games, avg_elo=avg_elo, patch_name = patch, human_format = util.human_format,
+                               clean_unit_name = util.clean_unit_name, patch_list = new_patches, mod_date=mod_date, opener_name = opener,
+                               wave = wave, wave_string = f"Wave{wave}", waves_available = waves_available)
 
 
 @app.route("/api/livegames/", defaults={"playername": None})

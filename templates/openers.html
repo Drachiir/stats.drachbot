@@ -50,7 +50,7 @@
         <img style="height: 64px; margin-right: 10px;" src="https://cdn.legiontd2.com/icons/Mastery/5.png">
         <r style="font-size: 1rem;">
             <b>{{ opener_name[:18] }} Openers | {{ human_format(games) }}</b> Games |
-            <b>v{{ patch_name }}</b>
+            <b>v{{ patch_name }} | Wave {{ wave }} <img style="width: 24px;" src="{{ get_cdn(wave_string, "Wave") }}"></b>
         </r>
     </div>
     <div style="padding-right: 10px; display: flex; padding-top: 10px; gap: 10px; flex-wrap: wrap; justify-content: space-evenly">
@@ -92,6 +92,19 @@
                 {% endfor %}
             </ul>
         </div>
+        {% if waves_available|length > 1 %}
+        <div>
+            <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Wave
+            </button>
+            <ul class="dropdown-menu">
+                {% for wave_option in waves_available %}
+                    <li><a class="dropdown-item wave-link" data-wave="{{ wave_option }}" data-patch="{{ patch_name }}">Wave{{ wave_option }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <div>
             <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -99,7 +112,7 @@
             </button>
             <ul class="dropdown-menu" style="max-height: 400px; overflow-y: scroll;">
                 {% for patch in patch_list %}
-                    <li><a class="dropdown-item" href="/openers/{{ patch }}/{{ opener_name }}">v{{ patch }}</a></li>
+                    <li><a class="dropdown-item patch-link" data-wave="{{ wave }}" data-patch="{{ patch }}">v{{ patch }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -134,12 +147,48 @@
         </div>
     {% endfor %}
 </div>
+<script>
+    // Function to build URL with current params
+    const buildUrl = (base, params) => {
+        return params ? `${base}?${params}` : base;
+    };
+
+    const openerSlug = encodeURIComponent({{ opener_name|tojson }});
+
+    // Function to update the links with current parameters
+    const updateLinks = () => {
+        const currentParams = new URLSearchParams(window.location.search);
+        const queryString = currentParams.toString();
+
+        document.querySelectorAll('.wave-link, .patch-link').forEach(link => {
+            const wave = link.getAttribute('data-wave');
+            const patch = link.getAttribute('data-patch');
+            const url = buildUrl(`/openers/${patch}/${openerSlug}/${wave}`, queryString);
+            link.setAttribute('href', url);
+        });
+    };
+
+    // Detect initial load and history changes
+    document.addEventListener('DOMContentLoaded', updateLinks);
+    window.addEventListener('popstate', updateLinks);
+
+    // Optional: If using pushState elsewhere in the app, override it to detect URL changes
+    (function(history) {
+        const pushState = history.pushState;
+        history.pushState = function(state, title, url) {
+            const result = pushState.apply(history, arguments);
+            updateLinks();  // Update links whenever pushState is called
+            return result;
+        };
+    })(window.history);
+</script>
 <script type="application/json" id="openers-data">
     {{ openers_data|tojson|safe }}
 </script>
 <script>
 const openers_data = JSON.parse(document.getElementById('openers-data').textContent);
 const constantStats = {{ const_file|tojson }};
+const wave = "{{ wave }}";
 let selectedUnits = [];
 let currentPage = 1;
 let sendFilter = '';
@@ -474,7 +523,7 @@ function renderBuild(data) {
         lane.querySelector('.player-name').innerText = buildData['playername'];
         lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
         lane.querySelector('.player-legion-image').src = `https://cdn.legiontd2.com/icons/Items/${buildData['mastermind']}.png`;
-        lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/1';
+        lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/' + wave;
         lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
 
         const grid = lane.querySelector('.grid');
@@ -492,7 +541,7 @@ function renderBuild(data) {
             "LegionSpellPositionZ": -1.0,
             "Gold": 0,
             "Mythium": 0,
-            "Wave": 1,
+            "Wave": parseInt(wave, 10),
             "HasChampion": false,
             "ChampionX": -1.0,
             "ChampionZ": -1.0
