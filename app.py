@@ -1062,7 +1062,9 @@ def drachbot_overlay_api(playername):
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")
 def gameviewer(gameid, wave):
-    data = drachbot.drachbot_db.get_game_by_id(gameid)
+    data = drachbot.drachbot_db.get_game_by_id(
+        gameid, allow_api_fetch=session.get("user") is not None
+    )
     player_map = {0: 1, 1: 0, 2: 3, 3: 2}
     if data == {"Error": "Game not found."}:
         return render_template("no_data.html", text="Game ID not found/valid")
