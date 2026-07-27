@@ -126,19 +126,6 @@
                 </ul>
             </div>
         </div>
-        {% if waves_available %}
-        <div>
-            <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                    aria-expanded="false" id="waveButton">
-                Wave
-            </button>
-            <ul class="dropdown-menu">
-                {% for wave_option in waves_available %}
-                    <li><a class="dropdown-item" onclick="setWave({{ wave_option }})">Wave{{ wave_option }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
         <div>
             <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -157,7 +144,6 @@
 
 <script>
     let openersData = {{ openers_data | tojson }};
-    const wavesAvailable = {{ waves_available|tojson }};
 
     // Convert to array and sort by "Count" in descending order
     let sortedData = Object.entries(openersData)
@@ -166,24 +152,12 @@
     let currentIndex = 0;
     const batchSize = 130;
     let filteredData = [...sortedData]; // Default to full dataset
-    let currentWave = 1;
     let selectedUnits = [];
     let searchQuery = '';
 
-    const waveKey = () => `Wave${currentWave}`;
-
-    function waveCount(value) {
-        if (value.Counts && value.Counts[waveKey()] !== undefined) {
-            return value.Counts[waveKey()];
-        }
-        return value.Count;
-    }
-
-    function waveUnits(value) {
-        if (value.Units && value.Units[waveKey()]) {
-            return value.Units[waveKey()];
-        }
-        return [];
+    // Every unit the opener builds across waves 1-3.
+    function openerUnits(value) {
+        return value.Units || [];
     }
 
     function getCdnImage(name) {
@@ -232,7 +206,7 @@
         const unitCount = units.length;
 
         const card = document.createElement('a');
-        card.href = `/openers/{{ patch_name }}/` + encodeURIComponent(key) + (wavesAvailable.length ? `/${currentWave}` : '');
+        card.href = `/openers/{{ patch_name }}/` + encodeURIComponent(key);
         card.className = 'openerCard';
 
         const unitGrid = document.createElement('div');
@@ -248,7 +222,7 @@
 
         const countText = document.createElement('div');
         countText.className = 'count-text';
-        countText.textContent = `${formatNumber(waveCount(value))} Games`;
+        countText.textContent = `${formatNumber(value.Count)} Games`;
 
         card.appendChild(unitGrid);
         card.appendChild(countText);
@@ -281,7 +255,7 @@
             const searchMatch = queryWords.every(word => keyLower.includes(word));
             if (!searchMatch) return false;
             if (!selectedUnits.length) return true;
-            const units = waveUnits(value);
+            const units = openerUnits(value);
             return selectedUnits.every(unit => units.includes(unit));
         });
 
@@ -291,15 +265,6 @@
 
     function handleSearch(event) {
         searchQuery = event.target.value.toLowerCase().trim();
-        applyFilters();
-    }
-
-    function setWave(wave) {
-        currentWave = wave;
-        document.getElementById("waveButton").textContent = `Wave ${wave}`;
-        // Unit tokens differ per wave, so drop selections that no longer exist.
-        selectedUnits = [];
-        updateURL();
         applyFilters();
     }
 
@@ -318,7 +283,6 @@
 
     function updateURL() {
         const newURL = new URL(window.location);
-        newURL.searchParams.set('wave', currentWave);
         newURL.searchParams.set('unit', selectedUnits.join(','));
         window.history.pushState({}, '', newURL);
     }
@@ -327,7 +291,7 @@
         // Only offer units that still appear in the currently visible openers.
         const unitSet = new Set();
         filteredData.forEach(([key, value]) => {
-            waveUnits(value).forEach(unit => unitSet.add(unit));
+            openerUnits(value).forEach(unit => unitSet.add(unit));
         });
         selectedUnits.forEach(unit => unitSet.add(unit));
 
@@ -383,11 +347,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         const urlParams = new URLSearchParams(window.location.search);
-        const waveParam = parseInt(urlParams.get('wave'), 10);
-        if (wavesAvailable.includes(waveParam)) {
-            currentWave = waveParam;
-            document.getElementById("waveButton").textContent = `Wave ${waveParam}`;
-        }
         const unitParam = urlParams.get('unit');
         selectedUnits = unitParam ? unitParam.split(',') : [];
 

@@ -914,14 +914,15 @@ def openers(patch, opener, wave):
         # The overview only needs counts and unit lists, so strip the builds out instead of
         # embedding the whole dataset into the page.
         overview_data = {}
-        overview_waves = []
         for k, v in data.items():
             overview_data[k] = {"Count": v["Count"]}
             if isinstance(v["Data"], dict):
-                overview_data[k]["Counts"] = v.get("Counts", {})
-                overview_data[k]["Units"] = v.get("Units", {})
-                overview_waves = [1, 2, 3]
-        return render_template("openers_overview.html", openers_data=overview_data, waves_available=overview_waves,
+                # Every unit the opener builds across waves 1-3, for the unit filter.
+                units = set()
+                for wave_units in v.get("Units", {}).values():
+                    units.update(wave_units)
+                overview_data[k]["Units"] = sorted(units)
+        return render_template("openers_overview.html", openers_data=overview_data,
                                get_cdn=util.get_cdn_image, get_rank_url=util.get_rank_url,
                                const_file=util.const_file, plus_prefix=util.plus_prefix, games=games, avg_elo=avg_elo, patch_name=patch, human_format=util.human_format,
                                clean_unit_name=util.clean_unit_name, patch_list=new_patches, mod_date=mod_date, opener_name = True)
