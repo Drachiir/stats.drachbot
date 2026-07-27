@@ -113,6 +113,32 @@
                     style="width: 100%; padding: 8px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px;">
             </div>
         </div>
+        <div class="dropdown">
+            <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                Units
+            </button>
+            <div id="statsDropdown" class="dropdown-content">
+                <ul class="dropdown-menu dropdown-scrollbar" id="unitDropdown">
+                    <input type="text" class="form-control border-0 border-bottom shadow-none mb-2"
+                           placeholder="Search..." id="statsInput" onkeyup="unitDropdownFilter()">
+                    <li onclick="setUnitFilter('RESET')"><a class="dropdown-item">Reset Units</a></li>
+                </ul>
+            </div>
+        </div>
+        {% if waves_available %}
+        <div>
+            <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false" id="waveButton">
+                Wave
+            </button>
+            <ul class="dropdown-menu">
+                {% for wave_option in waves_available %}
+                    <li><a class="dropdown-item" onclick="setWave({{ wave_option }})">Wave{{ wave_option }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <div>
             <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -131,6 +157,7 @@
 
 <script>
     let openersData = {{ openers_data | tojson }};
+    const wavesAvailable = {{ waves_available|tojson }};
 
     // Convert to array and sort by "Count" in descending order
     let sortedData = Object.entries(openersData)
@@ -139,6 +166,59 @@
     let currentIndex = 0;
     const batchSize = 130;
     let filteredData = [...sortedData]; // Default to full dataset
+    let currentWave = 1;
+    let selectedUnits = [];
+    let searchQuery = '';
+
+    const waveKey = () => `Wave${currentWave}`;
+
+    function waveCount(value) {
+        if (value.Counts && value.Counts[waveKey()] !== undefined) {
+            return value.Counts[waveKey()];
+        }
+        return value.Count;
+    }
+
+    function waveUnits(value) {
+        if (value.Units && value.Units[waveKey()]) {
+            return value.Units[waveKey()];
+        }
+        return [];
+    }
+
+    function getCdnImage(name) {
+        let newString = "";
+        var splitChar;
+        if (name.includes("_")) {
+            if (name.includes("_unit_id")) {
+                name = name.split("_unit_id")[0];
+                if (name[0] === " ") {
+                    name = name.slice(1);
+                }
+            }
+            splitChar = "_";
+        } else {
+            splitChar = " ";
+        }
+        name.split(splitChar).forEach((word) => {
+            newString += word.charAt(0).toUpperCase() + word.slice(1);
+        });
+        if (newString === "HellRaiserBuffed") {
+            newString = "HellRaiser";
+        } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
+            newString = "PackRat(Footprints)";
+        } else if (newString === "Aps") {
+            newString = "APS";
+        } else if (newString === "Mps") {
+            newString = "MPS";
+        }
+        return `https://cdn.legiontd2.com/icons/${newString}.png`;
+    }
+
+    function capitalize(str) {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    }
 
     function formatNumber(num) {
         if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + "M";
@@ -152,7 +232,7 @@
         const unitCount = units.length;
 
         const card = document.createElement('a');
-        card.href = `/openers/{{ patch_name }}/` + key;
+        card.href = `/openers/{{ patch_name }}/` + encodeURIComponent(key) + (wavesAvailable.length ? `/${currentWave}` : '');
         card.className = 'openerCard';
 
         const unitGrid = document.createElement('div');
@@ -168,7 +248,7 @@
 
         const countText = document.createElement('div');
         countText.className = 'count-text';
-        countText.textContent = `${formatNumber(value.Count)} Games`;
+        countText.textContent = `${formatNumber(waveCount(value))} Games`;
 
         card.appendChild(unitGrid);
         card.appendChild(countText);
@@ -193,22 +273,125 @@
         currentIndex += batchSize;
     }
 
-    function handleSearch(event) {
-        const query = event.target.value.toLowerCase().trim();
-        const queryWords = query.split(/\s+/); // Split query into words
+    function applyFilters() {
+        const queryWords = searchQuery ? searchQuery.split(/\s+/) : [];
 
-        // Filter data based on unit names containing all words
         filteredData = sortedData.filter(([key, value]) => {
             const keyLower = key.toLowerCase();
-            return queryWords.every(word => keyLower.includes(word)); // Ensure all words exist
+            const searchMatch = queryWords.every(word => keyLower.includes(word));
+            if (!searchMatch) return false;
+            if (!selectedUnits.length) return true;
+            const units = waveUnits(value);
+            return selectedUnits.every(unit => units.includes(unit));
         });
 
+        populateUnitDropdown();
         loadMoreCards(true); // Reset and load filtered data
     }
 
+    function handleSearch(event) {
+        searchQuery = event.target.value.toLowerCase().trim();
+        applyFilters();
+    }
+
+    function setWave(wave) {
+        currentWave = wave;
+        document.getElementById("waveButton").textContent = `Wave ${wave}`;
+        // Unit tokens differ per wave, so drop selections that no longer exist.
+        selectedUnits = [];
+        updateURL();
+        applyFilters();
+    }
+
+    function setUnitFilter(unit) {
+        if (unit === "RESET") {
+            selectedUnits = [];
+        } else if (selectedUnits.includes(unit)) {
+            selectedUnits = selectedUnits.filter(u => u !== unit);
+        } else {
+            selectedUnits.push(unit);
+        }
+        document.getElementById("statsInput").value = "";
+        updateURL();
+        applyFilters();
+    }
+
+    function updateURL() {
+        const newURL = new URL(window.location);
+        newURL.searchParams.set('wave', currentWave);
+        newURL.searchParams.set('unit', selectedUnits.join(','));
+        window.history.pushState({}, '', newURL);
+    }
+
+    function populateUnitDropdown() {
+        // Only offer units that still appear in the currently visible openers.
+        const unitSet = new Set();
+        filteredData.forEach(([key, value]) => {
+            waveUnits(value).forEach(unit => unitSet.add(unit));
+        });
+        selectedUnits.forEach(unit => unitSet.add(unit));
+
+        const units = Array.from(unitSet);
+        units.sort((a, b) => {
+            const isSelectedA = selectedUnits.includes(a);
+            const isSelectedB = selectedUnits.includes(b);
+            if (isSelectedA && !isSelectedB) return -1;
+            if (!isSelectedA && isSelectedB) return 1;
+            return a.localeCompare(b);
+        });
+
+        const dropdownMenu = document.getElementById('unitDropdown');
+        dropdownMenu.querySelectorAll('li:not(:first-child):not(:nth-child(2))').forEach(item => item.remove());
+        units.forEach(unit => {
+            const isChecked = selectedUnits.includes(unit) ? "checked" : "";
+            const unitItem = document.createElement('li');
+            unitItem.innerHTML = `
+                <label class="dropdown-item" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" style="margin: 0;" ${isChecked} onclick="setUnitFilter('${unit}')">
+                    <img style="width: 24px;" src="${getCdnImage(unit)}">
+                    ${capitalize(unit.replace("_unit_id", "").replace(/_/g, " "))}
+                </label>`;
+            dropdownMenu.appendChild(unitItem);
+        });
+    }
+
+    function unitDropdownFilter() {
+        const input = document.getElementById("statsInput");
+        const filter = input.value.toUpperCase();
+        const ul = document.getElementById("unitDropdown");
+        const li = ul.getElementsByTagName("li");
+
+        for (let i = 0; i < li.length; i++) {
+            if (li[i].getAttribute("onclick") === "setUnitFilter('RESET')") {
+                li[i].style.display = "";
+                continue;
+            }
+            const label = li[i].querySelector(".dropdown-item");
+            const checkbox = li[i].querySelector("input[type='checkbox']");
+            const txtValue = label ? (label.textContent || label.innerText) : "";
+            if ((checkbox && checkbox.checked) || txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    }
+
+    document.getElementById('unitDropdown').addEventListener('click', function(event) {
+        event.stopPropagation();
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
-        // Load initial batch when the page loads
-        loadMoreCards();
+        const urlParams = new URLSearchParams(window.location.search);
+        const waveParam = parseInt(urlParams.get('wave'), 10);
+        if (wavesAvailable.includes(waveParam)) {
+            currentWave = waveParam;
+            document.getElementById("waveButton").textContent = `Wave ${waveParam}`;
+        }
+        const unitParam = urlParams.get('unit');
+        selectedUnits = unitParam ? unitParam.split(',') : [];
+
+        applyFilters();
 
         // Attach search event listener
         document.getElementById("searchInput").addEventListener("input", handleSearch);
