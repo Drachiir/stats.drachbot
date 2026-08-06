@@ -805,7 +805,10 @@ def wave_distribution(patch, elo):
             date_diff = datetime.now(tz=timezone.utc) - mod_date2
             minutes_diff = date_diff.total_seconds() / 60
             if minutes_diff > 120:
-                os.remove(path)
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
             else:
                 with open(path, "rb") as f:
                     history_raw = msgpack.unpackb(f.read(), raw=False)
@@ -1424,7 +1427,10 @@ def profile(playername, stats, patch, elo, specific_key):
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
             if minutes_diff > 10:
-                os.remove(path)
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
             else:
                 with open(path, "rb") as f:
                     history = msgpack.unpackb(f.read(), raw=False)
@@ -1631,7 +1637,10 @@ def profile(playername, stats, patch, elo, specific_key):
             date_diff = datetime.now(tz=timezone.utc) - mod_date
             minutes_diff = date_diff.total_seconds() / 60
             if minutes_diff > 15:
-                os.remove(path)
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
             else:
                 with open(path, "rb") as f:
                     history_raw = msgpack.unpackb(f.read(), raw=False)
@@ -2096,7 +2105,10 @@ def stats(stats, elo, patch, specific_key):
             date_diff = datetime.now(tz=timezone.utc) - mod_date2
             minutes_diff = date_diff.total_seconds() / 60
             if minutes_diff > 120:
-                os.remove(path)
+                try:
+                    os.remove(path)
+                except FileNotFoundError:
+                    pass
             else:
                 with open(path, "rb") as f:
                     history_raw = msgpack.unpackb(f.read(), raw=False)

@@ -127,7 +127,7 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
 
 
 def _select_cols_with_game_id(select_cols):
-    if GameData.game_id in select_cols:
+    if any(column is GameData.game_id for column in select_cols):
         return select_cols
     return [GameData.game_id, *select_cols]
 
