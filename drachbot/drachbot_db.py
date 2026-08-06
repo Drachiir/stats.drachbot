@@ -125,6 +125,42 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
+
+def _select_cols_with_game_id(select_cols):
+    if GameData.game_id in select_cols:
+        return select_cols
+    return [GameData.game_id, *select_cols]
+
+
+def _group_games_by_id(rows, game_fields, player_fields, expected_players=4, sort_players=True):
+    raw_data = []
+    temp_data = None
+    current_game_id = None
+
+    def flush():
+        nonlocal temp_data
+        if temp_data is not None and len(temp_data["players_data"]) == expected_players:
+            if sort_players:
+                temp_data["players_data"] = sorted(
+                    temp_data["players_data"], key=lambda x: x["player_slot"]
+                )
+            raw_data.append(temp_data)
+        temp_data = None
+
+    for row in rows:
+        game_id = row["game_id"]
+        p_data = {field: row[field] for field in player_fields}
+        if current_game_id != game_id:
+            flush()
+            current_game_id = game_id
+            temp_data = {field: row[field] for field in game_fields}
+            temp_data["players_data"] = [p_data]
+        else:
+            temp_data["players_data"].append(p_data)
+    flush()
+    return raw_data
+
+
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
                     skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True,
@@ -251,40 +287,20 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 queue_expr = GameData.queue.startswith("Custom")
 
             game_data_query = (PlayerData
-                         .select(*req_columns[0])
+                         .select(*_select_cols_with_game_id(req_columns[0]))
                          .join(GameData)
                          .where(GameData.player_ids.contains(playerid) & ((GameData.queue == "Normal") | (queue_expr & (GameData.player_count == 4))) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
-                         .order_by(sort_arg.desc())
+                         .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                          ).dicts()
 
             if games != 0:
                 game_data_query = game_data_query.limit(games*4)
 
-            for i, row in enumerate(game_data_query.iterator()):
-                p_data = {}
-                for field in req_columns[2]:
-                    p_data[field] = row[field]
-                if i % 4 == 0:
-                    temp_data = {}
-                    for field in req_columns[1]:
-                        temp_data[field] = row[field]
-                    temp_data["players_data"] = [p_data]
-                else:
-                    try:
-                        temp_data["players_data"].append(p_data)
-                    except Exception:
-                        pass
-                if i % 4 == 3:
-                    try:
-                        if len(temp_data["players_data"]) == 4:
-                            if sort_players:
-                                temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
-                            raw_data.append(temp_data)
-                            temp_data = {}
-                    except KeyError:
-                        temp_data = {}
+            raw_data = _group_games_by_id(
+                game_data_query.iterator(), req_columns[1], req_columns[2],
+                sort_players=sort_players
+            )
     else:
-        raw_data = []
         if patch in ["12", "11", "10", "26", "27"]:
             expr = GameData.version.startswith("v" + patch)
             if games == 0:
@@ -304,34 +320,15 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         if games > 200000:
             games = 200000
         game_data_query = (PlayerData
-                           .select(*req_columns[0])
+                           .select(*_select_cols_with_game_id(req_columns[0]))
                            .join(GameData)
                            .where((GameData.queue == "Normal") & expr & ((GameData.game_elo >= min_elo) & (GameData.game_elo <= max_elo)) & (GameData.ending_wave >= earliest_wave))
                            .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                            .limit(games * 4)).dicts()
-        temp_data = {}
-        for i, row in enumerate(game_data_query.iterator()):
-            p_data = {}
-            for field in req_columns[2]:
-                p_data[field] = row[field]
-            if i % 4 == 0:
-                temp_data = {}
-                for field in req_columns[1]:
-                    temp_data[field] = row[field]
-                temp_data["players_data"] = [p_data]
-            else:
-                try:
-                    temp_data["players_data"].append(p_data)
-                except Exception:
-                    pass
-            if i % 4 == 3:
-                try:
-                    if len(temp_data["players_data"]) == 4:
-                        temp_data["players_data"] = sorted(temp_data["players_data"], key=lambda x: x['player_slot'])
-                        raw_data.append(temp_data)
-                        temp_data = {}
-                except KeyError:
-                    temp_data = {}
+        raw_data = _group_games_by_id(
+            game_data_query.iterator(), req_columns[1], req_columns[2],
+            sort_players=sort_players
+        )
     if update == 0:
         return raw_data
     else:
