@@ -125,105 +125,121 @@ class PlayerData(BaseModel):
     magic_lamp = BooleanField(null=True)
 
 
+def _is_deadlock(exc):
+    return "deadlock" in str(exc).lower()
+
+
+def _retry_on_deadlock(fn, max_retries=3, best_effort=False):
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except OperationalError as e:
+            if not _is_deadlock(e) or attempt + 1 >= max_retries:
+                if best_effort:
+                    traceback.print_exc()
+                    return None
+                raise
+            time.sleep(0.05 * (2 ** attempt))
+    return None
+
+
+def _join_waves(waves):
+    return ["" if len(wave) == 0 else "!".join(wave) for wave in waves]
+
+
 def save_game(data):
     date_format = "%Y-%m-%dT%H:%M:%S"
-    pids = []
-    for player in data["playersData"]:
-        pids.append(player["playerId"])
+    players = sorted(data["playersData"], key=lambda p: p["playerId"])
+    pids = [player["playerId"] for player in players]
     if len(pids) != 4 and len(pids) != 8 and len(pids) != 2:
         if len(pids) != 0:
             print("Odd number of pids for game" + data["_id"])
         else:
             print("Less than 4/8 player ids for game " + data["_id"])
         return
-    if GameData.get_or_none(GameData.game_id == data["_id"]) is None:
-        game_data = GameData(
+    if GameData.get_or_none(GameData.game_id == data["_id"]) is not None:
+        return
+
+    player_rows = []
+    for player in players:
+        try:
+            megamind = player["megamind"]
+            champ_location = player["chosenChampionLocation"]
+        except Exception:
+            megamind = False
+            champ_location = "N/A"
+
+        try:
+            double_down = player["doubledown"]
+        except Exception:
+            double_down = False
+
+        try:
+            magic_lamp = player["magic_lamp"]
+        except Exception:
+            magic_lamp = False
+
+        game_result = player["gameResult"] if player["gameResult"] is not None else "Tied"
+        player_rows.append(dict(
             game_id=data["_id"],
-            queue=data["queueType"],
-            version=data["version"],
-            date=datetime.strptime(data["date"].split(".")[0], date_format),
-            ending_wave=data["endingWave"],
-            game_length=data["gameLength"],
-            game_elo=data["gameElo"],
-            player_count=data["playerCount"],
-            spell_choices=data["spellChoices"],
-            left_king_hp=data["leftKingPercentHp"],
-            right_king_hp=data["rightKingPercentHp"],
-            player_ids=pids
-        )
-        game_data.save()
-        for player in data["playersData"]:
-            try:
-                megamind = player["megamind"]
-                champ_location = player["chosenChampionLocation"]
-            except Exception:
-                megamind = False
-                champ_location = "N/A"
+            player_id=player["playerId"],
+            player_name=player["playerName"],
+            player_slot=player["playerSlot"],
+            legion=player["legion"],
+            workers=player["workers"],
+            fighter_value=player["value"],
+            game_result=game_result,
+            player_elo=player["overallElo"],
+            elo_change=player["eloChange"],
+            fighters=player["fighters"],
+            spell=player["chosenSpell"],
+            spell_location=player["chosenSpellLocation"],
+            party_size=player["partySize"],
+            opener=player["firstWaveFighters"],
+            roll=player["rolls"],
+            party_members=player["partyMembers"],
+            party_members_ids=player["partyMembersIds"],
+            mvp_score=player["mvpScore"],
+            net_worth_per_wave=player["netWorthPerWave"],
+            fighter_value_per_wave=player["valuePerWave"],
+            workers_per_wave=player["workersPerWave"],
+            income_per_wave=player["incomePerWave"],
+            mercs_sent_per_wave=_join_waves(player["mercenariesSentPerWave"]),
+            mercs_received_per_wave=_join_waves(player["mercenariesReceivedPerWave"]),
+            leaks_per_wave=_join_waves(player["leaksPerWave"]),
+            build_per_wave=_join_waves(player["buildPerWave"]),
+            leak_value=player["leakValue"],
+            leaks_caught_value=player["leaksCaughtValue"],
+            kingups_sent_per_wave=_join_waves(player["kingUpgradesPerWave"]),
+            kingups_received_per_wave=_join_waves(player["opponentKingUpgradesPerWave"]),
+            megamind=megamind,
+            champ_location=champ_location,
+            double_down=double_down,
+            magic_lamp=magic_lamp
+        ))
 
-            try:
-                double_down = player["doubledown"]
-            except Exception:
-                double_down = False
+    def insert_game():
+        with db.atomic():
+            if GameData.get_or_none(GameData.game_id == data["_id"]) is not None:
+                return
+            GameData(
+                game_id=data["_id"],
+                queue=data["queueType"],
+                version=data["version"],
+                date=datetime.strptime(data["date"].split(".")[0], date_format),
+                ending_wave=data["endingWave"],
+                game_length=data["gameLength"],
+                game_elo=data["gameElo"],
+                player_count=data["playerCount"],
+                spell_choices=data["spellChoices"],
+                left_king_hp=data["leftKingPercentHp"],
+                right_king_hp=data["rightKingPercentHp"],
+                player_ids=pids
+            ).save()
+            for row in player_rows:
+                PlayerData(**row).save()
 
-            try:
-                magic_lamp = player["magic_lamp"]
-            except Exception:
-                magic_lamp = False
-
-            def convert_data(keys):
-                for key in keys:
-                    new_list = []
-                    for i, wave in enumerate(player[key]):
-                        if len(wave) == 0:
-                            new_list.append("")
-                        else:
-                            new_list.append("!".join(wave))
-                    player[key] = new_list
-
-            try:
-                convert_data(["mercenariesSentPerWave", "mercenariesReceivedPerWave", "leaksPerWave", "buildPerWave", "kingUpgradesPerWave", "opponentKingUpgradesPerWave"])
-                if player["gameResult"] is None:
-                    player["gameResult"] = "Tied"
-                player_data = PlayerData(
-                    game_id=data["_id"],
-                    player_id=player["playerId"],
-                    player_name=player["playerName"],
-                    player_slot=player["playerSlot"],
-                    legion=player["legion"],
-                    workers=player["workers"],
-                    fighter_value=player["value"],
-                    game_result=player["gameResult"],
-                    player_elo=player["overallElo"],
-                    elo_change=player["eloChange"],
-                    fighters=player["fighters"],
-                    spell=player["chosenSpell"],
-                    spell_location=player["chosenSpellLocation"],
-                    party_size=player["partySize"],
-                    opener=player["firstWaveFighters"],
-                    roll=player["rolls"],
-                    party_members=player["partyMembers"],
-                    party_members_ids=player["partyMembersIds"],
-                    mvp_score=player["mvpScore"],
-                    net_worth_per_wave=player["netWorthPerWave"],
-                    fighter_value_per_wave=player["valuePerWave"],
-                    workers_per_wave=player["workersPerWave"],
-                    income_per_wave=player["incomePerWave"],
-                    mercs_sent_per_wave=player["mercenariesSentPerWave"],
-                    mercs_received_per_wave=player["mercenariesReceivedPerWave"],
-                    leaks_per_wave=player["leaksPerWave"],
-                    build_per_wave=player["buildPerWave"],
-                    leak_value=player["leakValue"],
-                    leaks_caught_value=player["leaksCaughtValue"],
-                    kingups_sent_per_wave=player["kingUpgradesPerWave"],
-                    kingups_received_per_wave=player["opponentKingUpgradesPerWave"],
-                    megamind=megamind,
-                    champ_location=champ_location,
-                    double_down=double_down,
-                    magic_lamp=magic_lamp
-                )
-                player_data.save()
-            except Exception:
-                traceback.print_exc()
+    _retry_on_deadlock(insert_game)
 
 
 if __name__ == '__main__':  # "incomenchill": false, "votedmode": null "availablemode": 6,

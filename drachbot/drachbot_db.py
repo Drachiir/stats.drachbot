@@ -125,7 +125,6 @@ def get_games_loop(playerid, offset, expected, timeout_limit = 1):
         print('All '+str(expected)+' required games pulled.')
     return games_count
 
-@db.atomic()
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
                     skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True,
@@ -143,6 +142,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
         sort_arg = GameData.game_elo
 
     games_count = 0
+    new_profile = False
+    games_diff = 0
     if playerid != 'all':
         if not skip_stats:
             if PlayerProfile.get_or_none(PlayerProfile.player_id == playerid) is None:
@@ -166,22 +167,23 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                 except KeyError:
                     games_played = 0
                 try:
-                    PlayerProfile(
-                        player_id=playerid,
-                        player_name=playerprofile["playerName"],
-                        avatar_url=playerprofile["avatarUrl"],
-                        country=playerstats["flag"],
-                        city=playerstats["city"],
-                        guild_tag=playerprofile["guildTag"],
-                        elo = playerstats["overallElo"],
-                        rank = playerstats["playerRank"],
-                        total_games_played=games_played,
-                        ranked_wins_current_season=wins,
-                        ranked_losses_current_season=losses,
-                        ladder_points=ladder_points,
-                        offset=offset,
-                        last_updated=datetime.now(tz=timezone.utc)
-                    ).save()
+                    with db.atomic():
+                        PlayerProfile(
+                            player_id=playerid,
+                            player_name=playerprofile["playerName"],
+                            avatar_url=playerprofile["avatarUrl"],
+                            country=playerstats["flag"],
+                            city=playerstats["city"],
+                            guild_tag=playerprofile["guildTag"],
+                            elo = playerstats["overallElo"],
+                            rank = playerstats["playerRank"],
+                            total_games_played=games_played,
+                            ranked_wins_current_season=wins,
+                            ranked_losses_current_season=losses,
+                            ladder_points=ladder_points,
+                            offset=offset,
+                            last_updated=datetime.now(tz=timezone.utc)
+                        ).save()
                 except peewee.IntegrityError:
                     pass
                 data = get_games_loop(playerid, 0, 100)
@@ -201,19 +203,20 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     ladder_points = playerstats["ladderPoints"]
                 except KeyError:
                     ladder_points = 0
-                PlayerProfile.update(
-                    player_name=playerprofile["playerName"],
-                    avatar_url=playerprofile["avatarUrl"],
-                    country=playerstats["flag"] if playerstats["flag"] else data.country,
-                    city=playerstats["city"] if playerstats["city"] else data.city,
-                    guild_tag=playerprofile["guildTag"] if playerprofile["guildTag"] else data.guild_tag,
-                    elo=playerstats["overallElo"],
-                    rank=playerstats["playerRank"],
-                    ladder_points = ladder_points,
-                    ranked_wins_current_season=wins,
-                    ranked_losses_current_season=losses,
-                    last_updated=datetime.now()
-                ).where(PlayerProfile.player_id == playerid).execute()
+                with db.atomic():
+                    PlayerProfile.update(
+                        player_name=playerprofile["playerName"],
+                        avatar_url=playerprofile["avatarUrl"],
+                        country=playerstats["flag"] if playerstats["flag"] else data.country,
+                        city=playerstats["city"] if playerstats["city"] else data.city,
+                        guild_tag=playerprofile["guildTag"] if playerprofile["guildTag"] else data.guild_tag,
+                        elo=playerstats["overallElo"],
+                        rank=playerstats["playerRank"],
+                        ladder_points = ladder_points,
+                        ranked_wins_current_season=wins,
+                        ranked_losses_current_season=losses,
+                        last_updated=datetime.now()
+                    ).where(PlayerProfile.player_id == playerid).execute()
                 ranked_games = wins + losses
                 games_diff = ranked_games - ranked_games_old
                 timeout_limit = 1
@@ -226,7 +229,8 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
                     if ranked_games_old < ranked_games:
                         games_count += get_games_loop(playerid, 0, games_diff, timeout_limit=timeout_limit)
                     if games_count > 0:
-                        PlayerProfile.update(offset=min(500, games_count+data.offset)).where(PlayerProfile.player_id == playerid).execute()
+                        with db.atomic():
+                            PlayerProfile.update(offset=min(500, games_count+data.offset)).where(PlayerProfile.player_id == playerid).execute()
         if update == 0:
             if get_new_games:
                 get_games_loop(playerid, 0, 20)
