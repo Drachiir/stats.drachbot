@@ -641,10 +641,13 @@ def leaderboard(playername):
     
     # Validate statistic name
     valid_statistics = {
-        "overallEloThisSeasonAtLeastOneGamePlayed": "Current Elo",
-        "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Elo This Season",
+        "overallEloThisSeasonAtLeastOneGamePlayed": "Ranked Elo",
+        "overallPeakEloThisSeasonAtLeastOneGamePlayed": "Peak Ranked Elo - This Season",
+        "overallPeakElo": "Peak Ranked Elo - All Time",
         "ladderPoints": "Ladder Points",
-        "secondsPlayed": "Hours In-Game"
+        "secondsPlayed": "Hours In-Game",
+        "classicElo": "Classic Elo",
+        "classicPeakElo": "Classic Elo - All Time",
     }
     
     # Map statistics to custom icons (if they should use a specific icon instead of rank badges)
