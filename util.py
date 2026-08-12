@@ -804,11 +804,17 @@ def calc_leak(leak, wave, return_gold = False):
         return round(leak_amount / wave_total * 100, 1)
         
 def get_value_playfab(list_of_dicts, value, version=10):
+    """Get a PlayFab statistic value. Pass version=None for the highest Version."""
+    if version is None:
+        best = None
+        for x in list_of_dicts:
+            if x["Name"] == value and (best is None or x["Version"] > best["Version"]):
+                best = x
+        return best["Value"] if best else 0
     for x in list_of_dicts:
         if (x["Name"] == value) and (x["Version"] == version):
             return x["Value"]
-    else:
-        return 0
+    return 0
         
 def clean_unit_name(name):
     return name.split("_unit_id")[0].replace("_", " ").capitalize()
