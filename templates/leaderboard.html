@@ -93,8 +93,13 @@
             </thead>
             <tbody>
                 {% for player in leaderboard["Leaderboard"] %}
-                    {% set wins = get_value(player["Profile"]["Statistics"], "rankedWinsThisSeason") %}
-                    {% set losses = get_value(player["Profile"]["Statistics"], "rankedLossesThisSeason") %}
+                    {% if current_statistic in ["classicElo", "classicPeakElo"] %}
+                        {% set wins = get_value(player["Profile"]["Statistics"], "classicWins") %}
+                        {% set losses = get_value(player["Profile"]["Statistics"], "classicLosses") %}
+                    {% else %}
+                        {% set wins = get_value(player["Profile"]["Statistics"], "rankedWinsThisSeason") %}
+                        {% set losses = get_value(player["Profile"]["Statistics"], "rankedLossesThisSeason") %}
+                    {% endif %}
                     {% if not wins %}
                         {% set wins = 0 %}
                     {% endif %}
