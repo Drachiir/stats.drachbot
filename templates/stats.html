@@ -336,32 +336,41 @@
     });
     
     function highlightAndScrollTo(searchTerm) {
-        // Clear previous highlights
         document.querySelectorAll('.search-highlight').forEach(el => {
             el.classList.remove('search-highlight');
         });
-        
-        // Find all elements with xtitle attributes that match
+
         const elementsWithXtitle = document.querySelectorAll('[xtitle]');
-        const matches = [];
-        
+        const exactMatches = [];
+        const partialMatches = [];
+        const searchLower = searchTerm.toLowerCase();
+
         elementsWithXtitle.forEach(element => {
             const xtitle = element.getAttribute('xtitle');
-            if (xtitle && xtitle.toLowerCase().includes(searchTerm.toLowerCase())) {
-                // Only highlight if the element is in the second row (the row with unit images)
-                const row = element.closest('tr');
-                if (row && row.rowIndex === 1) { // rowIndex 1 is the second row (0-indexed)
-                    // Highlight the image inside the td/cell
-                    const img = element.querySelector('img');
-                    if (img) {
-                        img.classList.add('search-highlight');
-                    }
-                    matches.push(element);
-                }
+            if (!xtitle) return;
+
+            const row = element.closest('tr');
+            if (!row || row.rowIndex !== 1) return;
+
+            const img = element.querySelector('img');
+            if (!img) return;
+
+            const titleLower = xtitle.toLowerCase();
+            if (titleLower === searchLower) {
+                exactMatches.push(element);
+            } else if (titleLower.includes(searchLower)) {
+                partialMatches.push(element);
             }
         });
-        
-        // Scroll to first result if any found
+
+        const matches = exactMatches.length > 0 ? exactMatches : partialMatches;
+        matches.forEach(element => {
+            const img = element.querySelector('img');
+            if (img) {
+                img.classList.add('search-highlight');
+            }
+        });
+
         if (matches.length > 0) {
             scrollToElement(matches[0]);
         }
