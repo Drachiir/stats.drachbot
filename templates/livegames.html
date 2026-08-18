@@ -25,11 +25,9 @@
     <div class="pagination">
         <button class="btn btn-dark btn-outline-light btn-sm" id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
         <button class="btn btn-dark btn-outline-light btn-sm" id="nextBtn" onclick="changePage(1)">Next</button>
-    </div>
-    <div class="btn-group" role="group" aria-label="Queue">
-        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-1v1" onclick="setQueue('1v1')">1v1</button>
-        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-2v2" onclick="setQueue('2v2')">2v2</button>
-        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-4v4" onclick="setQueue('4v4')">4v4</button>
+        <button class="btn btn-dark btn-outline-light btn-sm" id="queue-1v1" onclick="setQueue('1v1')">1v1</button>
+        <button class="btn btn-dark btn-outline-light btn-sm" id="queue-2v2" onclick="setQueue('2v2')">2v2</button>
+        <button class="btn btn-dark btn-outline-light btn-sm" id="queue-4v4" onclick="setQueue('4v4')">4v4</button>
     </div>
     <div style="text-align: center; flex: 1; color: #fff11b; padding: 10px">
         <span id="sellout-controls">
@@ -214,7 +212,7 @@
                     </div>
                     <div class="game-header">
                         Game Elo: <img style="width: 24px; vertical-align: middle;" src="${getRankUrl(gameElo)}"> ${gameElo}
-                        <div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">±${teamStats.team1EloChange} / ±${teamStats.team2EloChange}</div>
+                        ${currentQueue !== '4v4' ? `<div xtitle="Win Chances: ${teamStats.winProbabilityTeam1}% - ${teamStats.winProbabilityTeam2}%">±${teamStats.team1EloChange} / ±${teamStats.team2EloChange}</div>` : ''}
                     </div>
                     <div class="players-container">
                         <div class="team">
