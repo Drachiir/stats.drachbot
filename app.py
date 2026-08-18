@@ -637,8 +637,7 @@ def classic_modes():
 
 @app.route('/rolldraft')
 def rolldraft():
-    with open('Files/json/units.json', 'r', encoding='utf-8') as f:
-        units = json.load(f)
+    units = list(util.get_units_json())
     # Filter to only enabled fighters (has tierInfo) that are not upgrades (no upgradesFrom)
     units = [u for u in units 
              if u.get('isEnabled', True) 

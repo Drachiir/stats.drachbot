@@ -1,11 +1,18 @@
 import json
 import math
+import os
+import platform
 import random
 import re
 import time
 import traceback
 from datetime import datetime
 from re import findall
+
+if platform.system() == "Linux":
+    shared2_folder = "/shared2/"
+else:
+    shared2_folder = "D:/Projekte/Python/Drachbot/shared2/"
 
 modes = [
     'Superhero',        # classic_special_mode_8
@@ -96,6 +103,53 @@ def patch_sort_key(patch_str):
         minor_num = 0
         suffix = minor_str
     return (major, minor_num, suffix)
+
+_json_cache = {
+    "units": {"key": None, "data": None},
+    "spells": {"key": None, "data": None},
+}
+
+def _latest_patch_file(filename: str):
+    root = os.path.join(shared2_folder, "patches")
+    if not os.path.isdir(root):
+        return None
+    versions = []
+    for name in os.listdir(root):
+        path = os.path.join(root, name, filename)
+        if os.path.isfile(path):
+            versions.append(name)
+    if not versions:
+        return None
+    latest = max(versions, key=patch_sort_key)
+    return os.path.join(root, latest, filename)
+
+def _load_latest_json(kind: str):
+    cache = _json_cache[kind]
+    filename = f"{kind}.json"
+    latest = _latest_patch_file(filename)
+    fallback = os.path.join("Files", "json", filename)
+    path = latest or fallback
+    if cache["key"] == path and cache["data"] is not None:
+        return cache["data"]
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception:
+        if path != fallback:
+            with open(fallback, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            path = fallback
+        else:
+            raise
+    cache["key"] = path
+    cache["data"] = data
+    return data
+
+def get_units_json():
+    return _load_latest_json("units")
+
+def get_spells_json():
+    return _load_latest_json("spells")
 
 def plus_prefix(a):
     if a > 0:

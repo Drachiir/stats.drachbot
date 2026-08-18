@@ -7,8 +7,7 @@ import drachbot.legion_api as legion_api
 def unitstats(playerid, games, min_elo, patch, sort="date", unit = "all", min_cost = 0, max_cost = 2000, data_only = False, transparent = False, rollstats = False, history_raw = {}):
     unit_dict = {}
     unit = unit.lower()
-    with open('Files/json/units.json', 'r') as f:
-        units_json = json.load(f)
+    units_json = util.get_units_json()
     for u_js in units_json:
         if u_js["totalValue"] != '':
             if u_js["unitId"] and min_cost <= int(u_js["totalValue"]) <= max_cost: #and (u_js["sortOrder"].split(".")[1].endswith("U") or u_js["sortOrder"].split(".")[1].endswith("U2") or "neko" in u_js["unitId"]):

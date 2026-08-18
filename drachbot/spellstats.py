@@ -23,8 +23,7 @@ else:
 def spellstats(playerid, games, min_elo, patch, sort="date", spellname = "all", data_only = False, transparent = False, history_raw = {}):
     spell_dict = {}
     spellname = spellname.lower()
-    with open('Files/json/spells.json', 'r') as f:
-        spells_json = json.load(f)
+    spells_json = util.get_spells_json()
     for s_js in spells_json:
         string = s_js["_id"]
         string = string.replace('_', ' ')

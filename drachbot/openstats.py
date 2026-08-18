@@ -15,8 +15,7 @@ else:
 
 def openstats(playerid, games, min_elo, patch, sort="date", data_only = False, transparent = False, history_raw = {}):
     unit_dict = {}
-    with open('Files/json/units.json', 'r') as f:
-        units_json = json.load(f)
+    units_json = util.get_units_json()
     for u_js in units_json:
         if u_js["totalValue"] != '':
             if u_js["unitId"] and 270 >= int(u_js["totalValue"]) > 0:

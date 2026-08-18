@@ -36,8 +36,7 @@ def mmstats(playerid, games, min_elo, patch, mastermind = 'All', sort="date", da
     for x in mmnames_list:
         masterminds_dict[x] = {"Count": 0, "Wins": 0, "Worker": 0, "Opener": {}, "Spell": {}, "Elo": 0, "Targets": {}, "Rolls": {}}
     unit_dict = {}
-    with open('Files/json/units.json', 'r') as f:
-        units_json = json.load(f)
+    units_json = util.get_units_json()
     for u_js in units_json:
         if u_js["totalValue"] != '':
             string = u_js["unitId"]
