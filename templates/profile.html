@@ -1028,24 +1028,24 @@
                     let westPlayers = data[2]; // Team 1
                     let eastPlayers = data[3]; // Team 2
 
-                    // Calculate sellout scores
+                    const isTwoVTwo = westPlayers.length === 2 && eastPlayers.length === 2;
                     const calculateSelloutScore = (you, teammate, opponent, other) => you + other - teammate - opponent;
 
-                    const westSelloutScores = westPlayers.map((player, index) => {
+                    const westSelloutScores = isTwoVTwo ? westPlayers.map((player, index) => {
                         const you = parseInt(player[1]);
-                        const teammate = parseInt(westPlayers[1 - index][1]); // teammate is the other player in the same team
-                        const opponent = parseInt(eastPlayers[index][1]); // opponent is aligned by sending order
-                        const other = parseInt(eastPlayers[1 - index][1]); // other opponent
+                        const teammate = parseInt(westPlayers[1 - index][1]);
+                        const opponent = parseInt(eastPlayers[index][1]);
+                        const other = parseInt(eastPlayers[1 - index][1]);
                         return calculateSelloutScore(you, teammate, opponent, other);
-                    });
+                    }) : westPlayers.map(() => '');
 
-                    const eastSelloutScores = eastPlayers.map((player, index) => {
+                    const eastSelloutScores = isTwoVTwo ? eastPlayers.map((player, index) => {
                         const you = parseInt(player[1]);
-                        const teammate = parseInt(eastPlayers[1 - index][1]); // teammate is the other player in the same team
-                        const opponent = parseInt(westPlayers[1 - index][1]); // opponent is aligned by sending order
-                        const other = parseInt(westPlayers[index][1]); // other opponent
+                        const teammate = parseInt(eastPlayers[1 - index][1]);
+                        const opponent = parseInt(westPlayers[1 - index][1]);
+                        const other = parseInt(westPlayers[index][1]);
                         return calculateSelloutScore(you, teammate, opponent, other);
-                    });
+                    }) : eastPlayers.map(() => '');
 
                     // Build the game details HTML
                     const gameHTML = `

@@ -53,7 +53,7 @@
     {% elif livegames %}
         <title>Legion TD 2 Livegames</title>
         <meta property="og:title" content="Legion TD 2 Livegames" />
-        <meta name="description" content="All the ongoing 2v2 games">
+        <meta name="description" content="All the ongoing {{ queue }} games">
         <meta property="og:image" content="https://cdn.legiontd2.com/splashes/Campaign/campaign-3-7.png" />
     {% elif data %}
         {% if specific_key == "All" or specific_key == "Megamind" %}

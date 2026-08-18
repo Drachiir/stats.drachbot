@@ -21,20 +21,27 @@
         cursor: not-allowed;
     }
 </style>
-<div style="display: flex; padding: 10px">
+<div style="display: flex; padding: 10px; flex-wrap: wrap; align-items: center; gap: 10px">
     <div class="pagination">
         <button class="btn btn-dark btn-outline-light btn-sm" id="prevBtn" onclick="changePage(-1)" disabled>Previous</button>
         <button class="btn btn-dark btn-outline-light btn-sm" id="nextBtn" onclick="changePage(1)">Next</button>
     </div>
-    <div style="text-align: center; width: 100%; color: #fff11b; padding: 10px">
-        <label style="color: white">
-            <input type="checkbox" id="toggleSellout" onchange="toggleSelloutScores()"> Show Sellout Scores
-        </label>
-        <img src="https://cdn.7tv.app/emote/01H5N1K7DR0004J7X9EEXWJ76A/1x.webp">
-        <a style="margin-right: 20px; text-decoration: none; font-size: 20px" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3351115892" target="_blank" style="margin-left: 8px; text-decoration: none;">
-            <span title="Learn about Sellout Score">?</span>
-        </a>
-        <r>Note: Elo ± calculations are not accurate for games with Duos</r>
+    <div class="btn-group" role="group" aria-label="Queue">
+        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-1v1" onclick="setQueue('1v1')">1v1</button>
+        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-2v2" onclick="setQueue('2v2')">2v2</button>
+        <button type="button" class="btn btn-dark btn-outline-light btn-sm" id="queue-4v4" onclick="setQueue('4v4')">4v4</button>
+    </div>
+    <div style="text-align: center; flex: 1; color: #fff11b; padding: 10px">
+        <span id="sellout-controls">
+            <label style="color: white">
+                <input type="checkbox" id="toggleSellout" onchange="toggleSelloutScores()"> Show Sellout Scores
+            </label>
+            <img src="https://cdn.7tv.app/emote/01H5N1K7DR0004J7X9EEXWJ76A/1x.webp">
+            <a style="margin-right: 20px; text-decoration: none; font-size: 20px" href="https://steamcommunity.com/sharedfiles/filedetails/?id=3351115892" target="_blank">
+                <span title="Learn about Sellout Score">?</span>
+            </a>
+        </span>
+        <r id="duo-note">Note: Elo ± calculations are not accurate for games with Duos</r>
     </div>
 </div>
 <div class="main-container">
@@ -53,6 +60,7 @@
     let currentPage = 1;
     const gamesPerPage = 21;
     let showSelloutScores = false;
+    let currentQueue = '{{ queue }}';
 
     function getRelativeTime(timestamp) {
         const now = new Date().getTime();
@@ -159,6 +167,34 @@
         renderGames(gamesData.slice((currentPage - 1) * gamesPerPage, currentPage * gamesPerPage));
     }
 
+    function isTwoVTwo() {
+        return currentQueue === '2v2';
+    }
+
+    function updateQueueUI() {
+        ['1v1', '2v2', '4v4'].forEach(queue => {
+            document.getElementById(`queue-${queue}`).classList.toggle('active', queue === currentQueue);
+        });
+        const selloutControls = document.getElementById('sellout-controls');
+        const duoNote = document.getElementById('duo-note');
+        selloutControls.style.display = isTwoVTwo() ? '' : 'none';
+        duoNote.style.display = isTwoVTwo() ? '' : 'none';
+        if (!isTwoVTwo()) {
+            showSelloutScores = false;
+            document.getElementById('toggleSellout').checked = false;
+        }
+    }
+
+    function setQueue(queue) {
+        if (queue === currentQueue) return;
+        currentQueue = queue;
+        currentPage = 1;
+        const path = queue === '2v2' ? '/livegames' : `/livegames/${queue}`;
+        history.pushState({ queue }, '', path);
+        updateQueueUI();
+        fetchGames(currentPage);
+    }
+
     function renderGames(games) {
         const gamesContainer = document.getElementById('games-container');
         gamesContainer.innerHTML = '';
@@ -168,7 +204,9 @@
             const westPlayers = game[2];
             const eastPlayers = game[3];
             const teamStats = calculateTeamStats(westPlayers, eastPlayers);
-            const selloutScores = calculateSelloutScores(westPlayers, eastPlayers);
+            const selloutScores = isTwoVTwo() && westPlayers.length === 2 && eastPlayers.length === 2
+                ? calculateSelloutScores(westPlayers, eastPlayers)
+                : {};
             const gameHTML = `
                 <div class="game-card">
                     <div class="timestamp-container">
@@ -219,7 +257,8 @@
             const baseUrl = window.location.origin.includes('127.0.0.1')
                 ? 'https://drach.bot'
                 : '';
-            const response = await fetch(`${baseUrl}/api/livegames`);
+            const queueParam = currentQueue === '2v2' ? '' : `?queue=${currentQueue}`;
+            const response = await fetch(`${baseUrl}/api/livegames/${queueParam}`);
             gamesData = await response.json();
             gamesData = gamesData.sort((a, b) => b[1] - a[1]);
             const start = (page - 1) * gamesPerPage;
@@ -251,6 +290,15 @@
         });
     }
 
+    window.addEventListener('popstate', () => {
+        const match = window.location.pathname.match(/\/livegames(?:\/(1v1|2v2|4v4))?$/);
+        currentQueue = (match && match[1]) || '2v2';
+        currentPage = 1;
+        updateQueueUI();
+        fetchGames(currentPage);
+    });
+
+    updateQueueUI();
     fetchGames(currentPage);
 
     setInterval(() => {

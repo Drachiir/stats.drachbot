@@ -984,27 +984,57 @@ def openers(patch, opener, wave):
                                wave = wave, wave_string = f"Wave{wave}", waves_available = waves_available)
 
 
+LIVE_QUEUES = {
+    "2v2": {"suffix": "", "team_size": 2},
+    "1v1": {"suffix": "1v1", "team_size": 1},
+    "4v4": {"suffix": "4v4", "team_size": 4},
+}
+
+def get_livegames_folder(queue):
+    return f"{shared_folder_live}{LIVE_QUEUES[queue]['suffix']}"
+
+def parse_live_game(folder, game, team_size):
+    path = f"{folder}/{game}"
+    with open(path, "r", encoding="utf_8") as f2:
+        txt = [line.replace("\n", "") for line in f2.readlines()]
+    mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc).timestamp()
+    game_elo = txt[-1]
+    west_players = [line.split(":") for line in txt[0:team_size]]
+    east_players = [line.split(":") for line in txt[team_size:team_size * 2]]
+    return [mod_date, game_elo, west_players, east_players]
+
+def player_in_live_game(playername, west_players, east_players):
+    name = playername.lower()
+    return (any(name in [p.lower() for p in sublist] for sublist in west_players)
+            or any(name in [p.lower() for p in sublist] for sublist in east_players))
+
+def iter_live_games(queue):
+    folder = get_livegames_folder(queue)
+    team_size = LIVE_QUEUES[queue]["team_size"]
+    try:
+        files = os.listdir(folder)
+    except FileNotFoundError:
+        return
+    for game in files:
+        try:
+            yield parse_live_game(folder, game, team_size)
+        except Exception:
+            continue
+
 @app.route("/api/livegames/", defaults={"playername": None})
 @app.route("/api/livegames/<playername>")
 def livegames_api(playername):
-    games = []
-    for game in os.listdir(shared_folder_live):
-        try:
-            with open(f"{shared_folder_live}/{game}", "r", encoding="utf_8") as f2:
-                txt = f2.readlines()
-                f2.close()
-            path2 = f"{shared_folder_live}/{game}"
-            mod_date = datetime.fromtimestamp(os.path.getmtime(path2), tz=timezone.utc).timestamp()
-            game_elo = txt[-1]
-            west_players = [txt[0].replace("\n", "").split(":"), txt[1].replace("\n", "").split(":")]
-            east_players = [txt[2].replace("\n", "").split(":"), txt[3].replace("\n", "").split(":")]
-            if not playername:
-                games.append([mod_date, game_elo, west_players, east_players])
-            elif (any(playername.lower() in [p.lower() for p in sublist] for sublist in west_players)
-                  or any(playername.lower() in [p.lower() for p in sublist] for sublist in east_players)):
-                return [mod_date, game_elo, west_players, east_players]
-        except Exception:
-            continue
+    queue = request.args.get("queue", "2v2")
+    if queue not in LIVE_QUEUES:
+        queue = "2v2"
+    if playername:
+        queues = LIVE_QUEUES if request.args.get("queue") is None else {queue: LIVE_QUEUES[queue]}
+        for q in queues:
+            for parsed in iter_live_games(q):
+                if player_in_live_game(playername, parsed[2], parsed[3]):
+                    return parsed
+        return []
+    games = list(iter_live_games(queue))
     games = sorted(games, key=lambda x: int(x[1]), reverse=True)
     return games
 
@@ -1118,8 +1148,11 @@ def gameviewer(gameid, wave):
                            const_file = util.const_file, plus_prefix = util.plus_prefix, wave=wave, player_map=player_map)
     
 @app.route("/livegames")
-def livegames():
-    return render_template("livegames.html", get_rank_url=get_rank_url, livegames = True)
+@app.route("/livegames/<queue>")
+def livegames(queue="2v2"):
+    if queue not in LIVE_QUEUES:
+        return render_template("no_data.html", text="Page not found"), 404
+    return render_template("livegames.html", get_rank_url=get_rank_url, livegames=True, queue=queue)
 
 player_refresh_state = {}
 COOLDOWN_PERIOD = 300
