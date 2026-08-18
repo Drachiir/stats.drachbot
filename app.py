@@ -28,6 +28,7 @@ from playfab_api import *
 from flask_cors import CORS, cross_origin
 import threading
 from threading import Thread
+import tempfile
 import msgpack
 import sitedb
 
@@ -104,6 +105,50 @@ def is_custom_patch_format(patch_str: str) -> bool:
     if patch_str.count(".") == 2:
         return True
     return False
+
+def _load_msgpack_cache(path):
+    try:
+        with open(path, "rb") as f:
+            data = f.read()
+        if not data:
+            raise ValueError("empty cache")
+        return msgpack.unpackb(data, raw=False)
+    except FileNotFoundError:
+        return None
+    except Exception:
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        return None
+
+def _load_fresh_msgpack_cache(path, max_age_minutes):
+    try:
+        mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
+    except FileNotFoundError:
+        return None
+    minutes_diff = (datetime.now(tz=timezone.utc) - mod_date).total_seconds() / 60
+    if minutes_diff > max_age_minutes:
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        return None
+    return _load_msgpack_cache(path)
+
+def _save_msgpack_cache(path, obj):
+    cache_dir = os.path.dirname(path) or "."
+    os.makedirs(cache_dir, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(dir=cache_dir, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            f.write(msgpack.packb(obj, default=str))
+        os.replace(tmp_path, path)
+    except Exception:
+        try:
+            os.remove(tmp_path)
+        except FileNotFoundError:
+            pass
 
 def main_leaderboard_task():
     leaderboard_task(1)
@@ -802,19 +847,7 @@ def wave_distribution(patch, elo):
         if not user:
             return render_template("no_data.html", text=f"Custom patch queries require Discord login for abuse protection. Please log in and try again.")
         path = f"Files/player_cache/All_{patch}_{elo}.msgpack"
-        history_raw = None
-        if os.path.isfile(path):
-            mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-            date_diff = datetime.now(tz=timezone.utc) - mod_date2
-            minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 120:
-                try:
-                    os.remove(path)
-                except FileNotFoundError:
-                    pass
-            else:
-                with open(path, "rb") as f:
-                    history_raw = msgpack.unpackb(f.read(), raw=False)
+        history_raw = _load_fresh_msgpack_cache(path, 120)
         if not history_raw:
             get_db()
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
@@ -828,8 +861,7 @@ def wave_distribution(patch, elo):
             history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch[1:], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for {patch}")
-            with open(path, "wb") as f:
-                f.write(msgpack.packb(history_raw, default=str))
+            _save_msgpack_cache(path, history_raw)
         raw_data = drachbot.wavestats.wavestats("all", 0, int(elo), patch[1:], history_raw=history_raw)
         games = raw_data[1]
         avg_elo = raw_data[2]
@@ -1187,10 +1219,8 @@ def get_simple_history(playername):
 @app.route('/api/get_player_matchhistory/<playername>/<playerid>/<patch>/<page>', methods=['GET'])
 def get_player_matchhistory(playername, playerid, patch, page):
     path = f"Files/player_cache/{playername}_profile_{patch}.msgpack"
-    try:
-        with open(path, "rb") as f:
-            history = msgpack.unpackb(f.read(), raw=False)
-    except FileNotFoundError:
+    history = _load_msgpack_cache(path)
+    if history is None:
         get_db()
         req_columns = [
             [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
@@ -1201,12 +1231,7 @@ def get_player_matchhistory(playername, playerid, patch, page):
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
              "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
         history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True)
-        try:
-            os.remove(path)
-        except Exception:
-            pass
-        with open(path, "wb") as f:
-            f.write(msgpack.packb(history, default=str))
+        _save_msgpack_cache(path, history)
     history_parsed = []
     slice_int = 20*int(page)
     player_map = {1: [1, 2, 3], 2: [0, 2, 3], 5: [3, 0, 1], 6: [2, 0, 1]}
@@ -1424,19 +1449,7 @@ def profile(playername, stats, patch, elo, specific_key):
             "https://cdn.legiontd2.com/icons/DefaultAvatar.png"
         ]
         path = f"Files/player_cache/{api_profile["playerName"]}_profile_{patch}.msgpack"
-        history = None
-        if os.path.isfile(path) and cooldown_duration == 0:
-            mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-            date_diff = datetime.now(tz=timezone.utc) - mod_date
-            minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 10:
-                try:
-                    os.remove(path)
-                except FileNotFoundError:
-                    pass
-            else:
-                with open(path, "rb") as f:
-                    history = msgpack.unpackb(f.read(), raw=False)
+        history = _load_fresh_msgpack_cache(path, 10) if cooldown_duration == 0 else None
         if not history:
             req_columns = [
                 [GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.game_length,
@@ -1450,12 +1463,7 @@ def profile(playername, stats, patch, elo, specific_key):
             skip_game_refresh = True
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True, include_custom_queue=True)
-            try:
-                os.remove(path)
-            except Exception:
-                pass
-            with open(path, "wb") as f:
-                f.write(msgpack.packb(history, default=str))
+            _save_msgpack_cache(path, history)
         history_parsed = []
         winlose = {"Overall": [0,0], "SoloQ": [0,0], "DuoQ": [0,0]}
         elochange = {"Overall": 0, "SoloQ": 0, "DuoQ": 0}
@@ -1634,19 +1642,7 @@ def profile(playername, stats, patch, elo, specific_key):
         playername2 = api_profile["playerName"]
         #GET GAMES JSON
         path = f"Files/player_cache/{playername2}_{patch}_{elo}.msgpack"
-        history_raw = None
-        if os.path.isfile(path):
-            mod_date = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-            date_diff = datetime.now(tz=timezone.utc) - mod_date
-            minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 15:
-                try:
-                    os.remove(path)
-                except FileNotFoundError:
-                    pass
-            else:
-                with open(path, "rb") as f:
-                    history_raw = msgpack.unpackb(f.read(), raw=False)
+        history_raw = _load_fresh_msgpack_cache(path, 15)
         if not history_raw:
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
                             PlayerData.player_id, PlayerData.player_slot, PlayerData.game_result, PlayerData.player_elo, PlayerData.legion, PlayerData.opener, PlayerData.spell,
@@ -1658,8 +1654,7 @@ def profile(playername, stats, patch, elo, specific_key):
                             "champ_location", "spell_location", "fighters", "mercs_sent_per_wave", "leaks_per_wave", "kingups_sent_per_wave", "fighter_value_per_wave",
                             "income_per_wave", "double_down", "elo_change", "magic_lamp"]]
             history_raw = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns, pname=playername, skip_stats=True, skip_game_refresh=True)
-            with open(path, "wb") as f:
-                f.write(msgpack.packb(history_raw, default=str))
+            _save_msgpack_cache(path, history_raw)
         match stats:
             case "megamindstats":
                 header_title = "MM"
@@ -2102,19 +2097,7 @@ def stats(stats, elo, patch, specific_key):
         if not validate_custom_patch(full_patch):
             return render_template("no_data.html", text=f"Unsupported query")
         path = f"Files/player_cache/All_{full_patch}_{elo}.msgpack"
-        history_raw = None
-        if os.path.isfile(path):
-            mod_date2 = datetime.fromtimestamp(os.path.getmtime(path), tz=timezone.utc)
-            date_diff = datetime.now(tz=timezone.utc) - mod_date2
-            minutes_diff = date_diff.total_seconds() / 60
-            if minutes_diff > 120:
-                try:
-                    os.remove(path)
-                except FileNotFoundError:
-                    pass
-            else:
-                with open(path, "rb") as f:
-                    history_raw = msgpack.unpackb(f.read(), raw=False)
+        history_raw = _load_fresh_msgpack_cache(path, 120)
         if not history_raw:
             get_db()
             req_columns = [[GameData.game_id, GameData.queue, GameData.date, GameData.version, GameData.ending_wave, GameData.game_elo, GameData.player_ids, GameData.spell_choices, GameData.game_length,
@@ -2128,8 +2111,7 @@ def stats(stats, elo, patch, specific_key):
             history_raw = drachbot_db.get_matchistory("all", 0, int(elo1), patch_list_to_process[0], earlier_than_wave10=True, req_columns=req_columns)
             if len(history_raw) == 0:
                 return render_template("no_data.html", text=f"No Data for v{patch_list_to_process[0]}")
-            with open(path, "wb") as f:
-                f.write(msgpack.packb(history_raw, default=str))
+            _save_msgpack_cache(path, history_raw)
         if stats != "gamestats":
             match stats:
                 case "megamindstats":
