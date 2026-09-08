@@ -34,3 +34,4 @@ Files/player_cache/Drachir_profile_26.2,26.1.msgpack
 leaderboard.json
 shared2/leaderboard/1v1/leaderboard_25-07-25.json
 test.py
+/Files/player_cache/*.msgpack
