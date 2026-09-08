@@ -394,6 +394,14 @@ def inject_user():
         user_preferences = sitedb.get_user_preferences(user["id"])
     return dict(user=user, discord_login=True, user_preferences=user_preferences)
 
+@app.context_processor
+def inject_display_names():
+    return {
+        "get_unit_name": util.get_unit_name,
+        "get_display_name_map": util.get_display_name_map,
+        "get_icon_path_map": util.get_icon_path_map,
+    }
+
 @app.route("/api/defaults")
 def api_defaults():
     return defaults_json

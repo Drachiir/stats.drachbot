@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block html_head %}
     <meta name="robots" content="noindex">
+    {% include '_unit_lookups.html' %}
 {% endblock %}
 {% block content %}
 <style>
@@ -764,39 +765,11 @@
         }
     }
 
-    function getUnitName(name) {
-        if (!name) return "";
-
-        let splitChar = name.includes("_") ? "_" : " ";
-        if (name.includes("_unit_id")) {
-            name = name.split("_unit_id")[0];
-            if (name.startsWith(" ")) {
-                name = name.slice(1);
-            }
-        }
-
-        let newString = name.split(splitChar).map(str => str.charAt(0).toUpperCase() + str.slice(1)).join("");
-
-        switch (newString) {
-            case "HellRaiserBuffed":
-                return "HellRaiser";
-            case "PackRat(footprints)":
-            case "PackRatNest":
-                return "PackRat(Footprints)";
-            case "Aps":
-                return "APS";
-            case "Mps":
-                return "MPS";
-            default:
-                return newString;
-        }
-    }
-
     function getCDN(string, header, profile = false) {
         if (header === "Unit") {
             if (string === "Save") return "/static/save.png";
             if (!string && profile) return "https://cdn.legiontd2.com/icons/Worker.png";
-            return `https://cdn.legiontd2.com/icons/${getUnitName(string)}.png`;
+            return getCdnImage(string);
         }
 
         if (header === "MMs") {
@@ -804,9 +777,10 @@
         }
 
         if (header === "Spell") {
-            return `https://cdn.legiontd2.com/icons/${getUnitName(string)
-                .replace("PresstheAttack", "PressTheAttack")
-                .replace("None", "Granddaddy")}.png`;
+            if (string && String(string).toLowerCase() === "none") {
+                return "https://cdn.legiontd2.com/icons/Granddaddy.png";
+            }
+            return getCdnImage(string);
         }
         return "";
     }

@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block html_head %}
     <meta name="robots" content="noindex">
+    {% include '_unit_lookups.html' %}
 {% endblock %}
 {% block content %}
 <div class="wave-nav">
@@ -362,34 +363,6 @@ function calcLeak(leak, wave, returnGold = false) {
     } else {
         return Math.round((leakAmount / waveTotal) * 100);
     }
-}
-
-function getCdnImage(name) {
-    let newString = "";
-    if (name.includes("_")) {
-        if (name.includes("_unit_id")) {
-            name = name.split("_unit_id")[0];
-            if (name[0] === " ") {
-                name = name.slice(1);
-            }
-        }
-        splitChar = "_";
-    } else {
-        splitChar = " ";
-    }
-    name.split(splitChar).forEach((word) => {
-        newString += word.charAt(0).toUpperCase() + word.slice(1);
-    });
-    if (newString === "HellRaiserBuffed") {
-        newString = "HellRaiser";
-    } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
-        newString = "PackRat(Footprints)";
-    } else if (newString === "Aps") {
-        newString = "APS";
-    } else if (newString === "Mps") {
-        newString = "MPS";
-    }
-    return `https://cdn.legiontd2.com/icons/${newString}.png`;
 }
 
 function changeUrlNumber(newNumber) {

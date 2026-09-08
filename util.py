@@ -109,6 +109,12 @@ _json_cache = {
     "spells": {"key": None, "data": None},
 }
 
+_content_lookup = {
+    "key": None,
+    "names": None,
+    "icons": None,
+}
+
 def _latest_patch_file(filename: str):
     root = os.path.join(shared2_folder, "patches")
     if not os.path.isdir(root):
@@ -150,6 +156,104 @@ def get_units_json():
 
 def get_spells_json():
     return _load_latest_json("spells")
+
+def _normalize_content_key(value):
+    if not value:
+        return ""
+    value = str(value).lower().strip()
+    value = value.replace("_unit_id", "").replace("_powerup_id", "")
+    value = value.replace("_", " ")
+    value = value.replace(" unit id", "").replace(" powerup id", "").replace(" spell damage", "")
+    return " ".join(value.split())
+
+def _icon_cdn_suffix(icon_path):
+    if not icon_path:
+        return ""
+    relative = str(icon_path).replace("\\", "/")
+    if relative.lower().startswith("icons/"):
+        relative = relative[6:]
+    return relative
+
+def _icon_cdn_url(icon):
+    suffix = _icon_cdn_suffix(icon)
+    if not suffix:
+        return None
+    return f"https://cdn.legiontd2.com/icons/{suffix}"
+
+def _index_content(mapping, display, *keys):
+    for key in keys:
+        if not key:
+            continue
+        mapping[key] = display
+        mapping[str(key).lower()] = display
+        norm = _normalize_content_key(key)
+        if norm:
+            mapping[norm] = display
+
+def _ensure_content_lookups():
+    cache_key = (_json_cache["units"]["key"], _json_cache["spells"]["key"])
+    if _content_lookup["key"] == cache_key and _content_lookup["names"] is not None:
+        return _content_lookup["names"], _content_lookup["icons"]
+    get_units_json()
+    get_spells_json()
+    cache_key = (_json_cache["units"]["key"], _json_cache["spells"]["key"])
+    names = {}
+    icons = {}
+    for unit in get_units_json():
+        display = unit.get("name")
+        if not display:
+            continue
+        unit_id = unit.get("unitId", "")
+        icon = _icon_cdn_suffix(unit.get("iconPath"))
+        _index_content(names, display, unit_id, display)
+        if icon:
+            _index_content(icons, icon, unit_id, display)
+    for spell in get_spells_json():
+        display = spell.get("name")
+        if not display:
+            continue
+        spell_id = spell.get("_id", "")
+        icon = _icon_cdn_suffix(spell.get("iconPath"))
+        _index_content(names, display, spell_id, display)
+        if icon:
+            _index_content(icons, icon, spell_id, display)
+    if "pack rat" in names:
+        for alias in ("pack rat (footprints)", "pack rat nest", "packrat(footprints)", "packratnest"):
+            names[alias] = names["pack rat"]
+    for alias in ("pack rat (footprints)", "pack rat nest", "packrat(footprints)", "packratnest"):
+        icons[alias] = "PackRat(Footprints).png"
+    if "hell raiser" in names:
+        names["hell raiser buffed"] = names["hell raiser"]
+        names["hellraiserbuffed"] = names["hell raiser"]
+    _content_lookup["key"] = cache_key
+    _content_lookup["names"] = names
+    _content_lookup["icons"] = icons
+    return names, icons
+
+def get_display_name_map():
+    try:
+        names, _ = _ensure_content_lookups()
+        return {key: name for key, name in names.items() if key == _normalize_content_key(key)}
+    except Exception:
+        return {}
+
+def get_icon_path_map():
+    try:
+        _, icons = _ensure_content_lookups()
+        return {key: icon for key, icon in icons.items() if key == _normalize_content_key(key)}
+    except Exception:
+        return {}
+
+def _lookup_icon(name):
+    if not name:
+        return None
+    try:
+        _, icons = _ensure_content_lookups()
+        if name in icons:
+            return icons[name]
+        return icons.get(_normalize_content_key(name))
+    except Exception:
+        return None
 
 def plus_prefix(a):
     if a > 0:
@@ -385,7 +489,7 @@ def sort_dict(dict, key):
     return {k: dict[k] for k in newIndex}
 
 
-def get_unit_name(name):
+def _legacy_unit_name(name):
     if not name:
         return ""
     if "_" in name:
@@ -411,25 +515,26 @@ def get_unit_name(name):
         new_string = "MPS"
     return new_string
 
+def get_unit_name(name):
+    if not name:
+        return ""
+    if name in mm_list or name in ("Hybrid", "Megamind", "Save"):
+        return name
+    try:
+        names, _ = _ensure_content_lookups()
+        if name in names:
+            return names[name]
+        norm = _normalize_content_key(name)
+        if norm in names:
+            return names[norm]
+    except Exception:
+        pass
+    return _legacy_unit_name(name)
+
 def get_unit_name_list(name):
     if not name:
         return ""
-    else:
-        name = name[0]
-    new_string = ""
-    for string in name.split(" "):
-        new_string += string.capitalize()
-    if new_string == "HellRaiserBuffed":
-        new_string = "HellRaiser"
-    if new_string == "PackRat(footprints)":
-        new_string = "PackRat(Footprints)"
-    if new_string == "PackRatNest":
-        new_string = "PackRat(Footprints)"
-    if new_string == "Aps":
-        new_string = "APS"
-    if new_string == "Mps":
-        new_string = "MPS"
-    return new_string
+    return get_unit_name(name[0])
 
 def get_cdn_image(string, header, profile = False):
     match header:
@@ -441,7 +546,10 @@ def get_cdn_image(string, header, profile = False):
                 return "/static/save.png"
             if not string and profile:
                 return f"https://cdn.legiontd2.com/icons/Worker.png"
-            return f"https://cdn.legiontd2.com/icons/{get_unit_name(string)}.png"
+            icon = _lookup_icon(string)
+            if icon:
+                return _icon_cdn_url(icon)
+            return f"https://cdn.legiontd2.com/icons/{_legacy_unit_name(string)}.png"
         case "MM" | "MMs" | "Best MMs" | "mmstats" | "mmstats_combined" | "megamindstats" | "Best With" | "Best Against" | "Teammate"\
             | "Enemies" | "Sending To" | "Receiving From" | "Match Up":
             if (string not in mm_list) and (string != "Hybrid"):
@@ -449,7 +557,12 @@ def get_cdn_image(string, header, profile = False):
             else:
                 return f"https://cdn.legiontd2.com/icons/Items/{string}.png"
         case "Spell" | "Spells" | "Best Spells" | "Best Spell" | "spellstats":
-            return f"https://cdn.legiontd2.com/icons/{get_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
+            if string and str(string).lower() == "none":
+                return "https://cdn.legiontd2.com/icons/Granddaddy.png"
+            icon = _lookup_icon(string)
+            if icon:
+                return _icon_cdn_url(icon)
+            return f"https://cdn.legiontd2.com/icons/{_legacy_unit_name(string).replace('PresstheAttack', 'PressTheAttack').replace('None', 'Granddaddy')}.png"
         case "Wave" | "wavestats" | "Best Wave" | "Waves":
             wave_num = findall(r'\d+', string)
             return f"https://cdn.legiontd2.com/icons/{wave_names[int(wave_num[0])-1]}.png"
@@ -498,7 +611,7 @@ def get_tooltip(header:str):
         case "Delta":
             return "Winrate delta"
         case _:
-            return header.capitalize()
+            return get_unit_name(header)
   
 def get_key_value(data, key, k, games, stats="", elo = 0, specific_tier = False, dict_type = None, playerprofile = False, data_dict = {}, specific_key = "", main_key = "", dict_header = None):
     match k:
@@ -871,7 +984,7 @@ def get_value_playfab(list_of_dicts, value, version=10):
     return 0
         
 def clean_unit_name(name):
-    return name.split("_unit_id")[0].replace("_", " ").capitalize()
+    return get_unit_name(name)
 
 def timing_decorator(func):
     def wrapper(*args, **kwargs):

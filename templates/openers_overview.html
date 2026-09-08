@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-
+{% block html_head %}
+    {% include '_unit_lookups.html' %}
+{% endblock %}
 {% block content %}
 <style>
     .grid-container {
@@ -160,35 +162,6 @@
         return value.Units || [];
     }
 
-    function getCdnImage(name) {
-        let newString = "";
-        var splitChar;
-        if (name.includes("_")) {
-            if (name.includes("_unit_id")) {
-                name = name.split("_unit_id")[0];
-                if (name[0] === " ") {
-                    name = name.slice(1);
-                }
-            }
-            splitChar = "_";
-        } else {
-            splitChar = " ";
-        }
-        name.split(splitChar).forEach((word) => {
-            newString += word.charAt(0).toUpperCase() + word.slice(1);
-        });
-        if (newString === "HellRaiserBuffed") {
-            newString = "HellRaiser";
-        } else if (newString === "PackRat(footprints)" || newString === "PackRatNest") {
-            newString = "PackRat(Footprints)";
-        } else if (newString === "Aps") {
-            newString = "APS";
-        } else if (newString === "Mps") {
-            newString = "MPS";
-        }
-        return `https://cdn.legiontd2.com/icons/${newString}.png`;
-    }
-
     function capitalize(str) {
         if (!str) return '';
         return str.charAt(0).toUpperCase() + str.slice(1);
@@ -214,8 +187,8 @@
 
         units.forEach(unit => {
             const img = document.createElement('img');
-            img.src = `https://cdn.legiontd2.com/icons/${unit.trim()}.png`;
-            img.alt = unit.trim();
+            img.src = getCdnImage(unit.trim());
+            img.alt = getDisplayName(unit.trim());
             img.className = 'unit-image';
             unitGrid.appendChild(img);
         });
@@ -313,7 +286,7 @@
                 <label class="dropdown-item" style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" style="margin: 0;" ${isChecked} onclick="setUnitFilter('${unit}')">
                     <img style="width: 24px;" src="${getCdnImage(unit)}">
-                    ${capitalize(unit.replace("_unit_id", "").replace(/_/g, " "))}
+                    ${getDisplayName(unit)}
                 </label>`;
             dropdownMenu.appendChild(unitItem);
         });

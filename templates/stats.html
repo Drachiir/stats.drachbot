@@ -78,7 +78,7 @@
                                onkeyup="statsFilter()">
                             {% for d in data_keys %}
                                 <li><a class="dropdown-item" href="#" onclick="highlightAndScrollTo('{{ d }}'); return false;">
-                                    <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ d|capitalize }}</a></li>
+                                    <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ get_unit_name(d) }}</a></li>
                             {% endfor %}
                         </ul>
                     </div>
