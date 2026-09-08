@@ -1,0 +1,44 @@
+<script>
+    window.UNIT_DISPLAY_NAMES = {{ get_display_name_map()|tojson }};
+    window.UNIT_ICON_PATHS = {{ get_icon_path_map()|tojson }};
+    function normalizeContentKey(id) {
+        if (!id) return "";
+        return String(id).toLowerCase()
+            .replace(/_unit_id.*$/, "")
+            .replace(/_powerup_id.*$/, "")
+            .replace(/_/g, " ")
+            .replace(/ unit id$/, "")
+            .replace(/ powerup id$/, "")
+            .trim();
+    }
+    function getDisplayName(id) {
+        if (!id) return "";
+        const names = window.UNIT_DISPLAY_NAMES || {};
+        if (names[id]) return names[id];
+        const norm = normalizeContentKey(id);
+        if (names[norm]) return names[norm];
+        if (names[String(id).toLowerCase()]) return names[String(id).toLowerCase()];
+        return norm.charAt(0).toUpperCase() + norm.slice(1);
+    }
+    function getCdnImage(name) {
+        if (!name) return "";
+        if (name === "Save") return "/static/save.png";
+        const icons = window.UNIT_ICON_PATHS || {};
+        const icon = icons[name] || icons[normalizeContentKey(name)] || icons[String(name).toLowerCase()];
+        if (icon) return "https://cdn.legiontd2.com/icons/" + icon;
+        let splitChar = name.includes("_") ? "_" : " ";
+        let raw = name;
+        if (raw.includes("_unit_id")) {
+            raw = raw.split("_unit_id")[0];
+            if (raw[0] === " ") raw = raw.slice(1);
+        }
+        let fallback = raw.split(splitChar).map(word => word.charAt(0).toUpperCase() + word.slice(1)).join("");
+        if (fallback === "HellRaiserBuffed") fallback = "HellRaiser";
+        else if (fallback === "PackRat(footprints)" || fallback === "PackRatNest") fallback = "PackRat(Footprints)";
+        else if (fallback === "Aps") fallback = "APS";
+        else if (fallback === "Mps") fallback = "MPS";
+        else if (fallback === "PresstheAttack") fallback = "PressTheAttack";
+        else if (fallback === "None") fallback = "Granddaddy";
+        return "https://cdn.legiontd2.com/icons/" + fallback + ".png";
+    }
+</script>
