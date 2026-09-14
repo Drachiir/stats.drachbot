@@ -1,3 +1,4 @@
+import difflib
 import json
 import math
 import os
@@ -530,6 +531,54 @@ def get_unit_name(name):
     except Exception:
         pass
     return _legacy_unit_name(name)
+
+def unit_id_key(unit_id):
+    return str(unit_id).replace('_', ' ').replace(' unit id', '').replace('units ', '').strip()
+
+def build_unit_alias_map(units_json=None):
+    if units_json is None:
+        units_json = get_units_json()
+    aliases = {}
+    for u_js in units_json:
+        uid_key = unit_id_key(u_js.get("unitId") or "")
+        if not uid_key:
+            continue
+        aliases[uid_key] = uid_key
+        name_key = (u_js.get("name") or "").lower()
+        if name_key:
+            aliases[name_key] = uid_key
+    aliases.setdefault("pack rat nest", "pack rat")
+    aliases.setdefault("pack rat (footprints)", "pack rat")
+    return aliases
+
+def resolve_unit_key(unit, valid_keys, aliases=None):
+    if not unit or unit == "all":
+        return unit
+    unit = str(unit).lower().strip()
+    if unit in slang:
+        unit = slang.get(unit)
+    if unit in valid_keys:
+        return unit
+    if aliases is None:
+        aliases = build_unit_alias_map()
+    mapped = aliases.get(unit)
+    if mapped and mapped in valid_keys:
+        return mapped
+    display = get_unit_name(unit).lower()
+    if display in valid_keys:
+        return display
+    mapped = aliases.get(display)
+    if mapped and mapped in valid_keys:
+        return mapped
+    close_matches = difflib.get_close_matches(unit, list(valid_keys), n=1)
+    if close_matches:
+        return close_matches[0]
+    close_matches = difflib.get_close_matches(unit, list(aliases.keys()), n=1)
+    if close_matches:
+        mapped = aliases[close_matches[0]]
+        if mapped in valid_keys:
+            return mapped
+    return None
 
 def get_unit_name_list(name):
     if not name:

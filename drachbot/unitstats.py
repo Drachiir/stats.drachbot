@@ -8,15 +8,13 @@ def unitstats(playerid, games, min_elo, patch, sort="date", unit = "all", min_co
     unit_dict = {}
     unit = unit.lower()
     units_json = util.get_units_json()
+    aliases = util.build_unit_alias_map(units_json)
     for u_js in units_json:
         if u_js["totalValue"] != '':
             if u_js["unitId"] and min_cost <= int(u_js["totalValue"]) <= max_cost: #and (u_js["sortOrder"].split(".")[1].endswith("U") or u_js["sortOrder"].split(".")[1].endswith("U2") or "neko" in u_js["unitId"]):
-                string = u_js["unitId"]
-                string = string.replace('_', ' ')
-                string = string.replace(' unit id', '')
+                string = util.unit_id_key(u_js["unitId"])
                 if u_js["upgradesFrom"]:
-                    string2 = u_js["upgradesFrom"][0]
-                    string2 = string2.replace('_', ' ').replace(' unit id', '').replace('units ', '')
+                    string2 = aliases.get(util.unit_id_key(u_js["upgradesFrom"][0]), util.unit_id_key(u_js["upgradesFrom"][0]))
                 else:
                     string2 = ""
                 unit_dict[string] = {'Count': 0, 'Wins': 0, 'Elo': 0, 'ComboUnit': {}, 'MMs': {}, 'Spells': {}, "upgradesFrom": string2}
@@ -25,14 +23,10 @@ def unitstats(playerid, games, min_elo, patch, sort="date", unit = "all", min_co
     if not unit_dict:
         return "No units found"
     if unit != "all":
-        if unit in util.slang:
-            unit = util.slang.get(unit)
-        if unit not in unit_dict:
-            close_matches = difflib.get_close_matches(unit, list(unit_dict.keys()))
-            if len(close_matches) > 0:
-                unit = close_matches[0]
-            else:
-                return unit + " unit not found."
+        resolved = util.resolve_unit_key(unit, unit_dict, aliases)
+        if not resolved:
+            return unit + " unit not found."
+        unit = resolved
     if type(history_raw) == str:
         return history_raw
     if len(history_raw) == 0:
@@ -45,8 +39,12 @@ def unitstats(playerid, games, min_elo, patch, sort="date", unit = "all", min_co
         gameelo_list.append(game["game_elo"])
         for player in game["players_data"]:
             if player["player_id"] != playerid and playerid != "all": continue
-            fighter_set = set(player["fighters"].lower().split(","))
-            fighter_set_copy = set(player["fighters"].lower().split(","))
+            fighter_set = set()
+            for raw in player["fighters"].lower().split(","):
+                if not raw:
+                    continue
+                fighter_set.add(aliases.get(raw, raw))
+            fighter_set_copy = set(fighter_set)
             if rollstats:
                 for fighter in fighter_set_copy:
                     if fighter == "" or fighter not in unit_dict:

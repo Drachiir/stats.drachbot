@@ -77,7 +77,7 @@
                                id="statsInput"
                                onkeyup="statsFilter()">
                             {% for d in data_keys %}
-                                <li><a class="dropdown-item" href="#" onclick="highlightAndScrollTo('{{ d }}'); return false;">
+                                <li><a class="dropdown-item" href="#" onclick="highlightAndScrollTo({{ d|tojson }}); return false;">
                                     <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ get_unit_name(d) }}</a></li>
                             {% endfor %}
                         </ul>
@@ -109,7 +109,7 @@
                             <r>{{ header_title }}</r>
                         </th>
                         {% for key in data %}
-                            <td><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
+                            <td><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" data-key="{{ key }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
                             {% if stats == "megamindstats" and key != "Megamind" %}
                                 <img loading="lazy" style="top:-93%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
                             {% endif %}
@@ -356,9 +356,10 @@
             if (!img) return;
 
             const titleLower = xtitle.toLowerCase();
-            if (titleLower === searchLower) {
+            const keyLower = (element.getAttribute('data-key') || '').toLowerCase();
+            if (titleLower === searchLower || keyLower === searchLower) {
                 exactMatches.push(element);
-            } else if (titleLower.includes(searchLower)) {
+            } else if (titleLower.includes(searchLower) || keyLower.includes(searchLower)) {
                 partialMatches.push(element);
             }
         });
