@@ -57,6 +57,7 @@ def get_player_profile(playername, by_id = False):
 
 @db.atomic()
 def get_game_by_id(gameid, allow_api_fetch=False):
+    gameid = gameid.casefold()
     if GameData.get_or_none(GameData.game_id == gameid) is None:
         if not allow_api_fetch:
             return {"Error": "Game not found."}
