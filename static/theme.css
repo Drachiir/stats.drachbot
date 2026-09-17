@@ -500,6 +500,27 @@ r4 {
     margin-right: 6px;
 }
 
+#discord-login-area .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#discord-login-area .dropdown-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+}
+
+#discord-login-area .dropdown-item img {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .table {
     --bs-table-bg: transparent;
     --bs-table-color: var(--text);
@@ -673,6 +694,9 @@ i[data-title]:active::after {
 
 [xtitle] {
     position: relative;
+}
+
+a[xtitle] {
     display: inline-block;
     line-height: 0;
 }
@@ -747,6 +771,167 @@ div#loading {
 .modal-header,
 .modal-footer {
     border-color: var(--border);
+}
+
+.settings-modal {
+    max-width: 460px;
+}
+
+#settingsModal .modal-content {
+    background: #16181d;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+#settingsModal .modal-header {
+    align-items: flex-start;
+    padding: 18px 20px 14px;
+    background: #13151a;
+}
+
+#settingsModal .modal-title {
+    font-size: 1.12rem;
+    font-weight: 600;
+    color: var(--text-strong);
+    letter-spacing: 0.01em;
+}
+
+#settingsModal .settings-modal__subtitle {
+    margin: 4px 0 0;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+#settingsModal .modal-body {
+    padding: 8px 20px 12px;
+}
+
+#settingsModal .settings-section {
+    padding: 12px 0;
+}
+
+#settingsModal .settings-section + .settings-section {
+    border-top: 1px solid var(--border);
+}
+
+#settingsModal .settings-section__title {
+    margin: 0 0 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+#settingsModal .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 -8px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+#settingsModal .settings-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+#settingsModal .settings-row__copy {
+    min-width: 0;
+}
+
+#settingsModal .settings-row__name {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-strong);
+}
+
+#settingsModal .settings-row__hint {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--text-muted);
+}
+
+#settingsModal .settings-row__switch {
+    margin: 0;
+    padding: 0;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+}
+
+#settingsModal .form-check-input {
+    width: 2.4em;
+    height: 1.3em;
+    margin: 0;
+    cursor: pointer;
+    background-color: #2a333d;
+    border-color: var(--border-strong);
+}
+
+#settingsModal .form-check-input:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+#settingsModal .form-check-input:focus {
+    box-shadow: 0 0 0 2px var(--accent-muted);
+    border-color: var(--accent);
+}
+
+#settingsModal .settings-field {
+    margin-bottom: 12px;
+}
+
+#settingsModal .settings-field:last-child {
+    margin-bottom: 0;
+}
+
+#settingsModal .settings-field__label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+#settingsModal .settings-field__label .fa-twitch {
+    color: #9146ff;
+}
+
+#settingsModal .settings-field__label .fa-youtube {
+    color: #ff4e45;
+}
+
+#settingsModal .input-group-text {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--dropdown-bg);
+    border-right: 0;
+}
+
+#settingsModal .input-group .form-control {
+    border-left: 0;
+    font-size: 0.88rem;
+}
+
+#settingsModal .modal-footer {
+    padding: 12px 20px 16px;
+    gap: 8px;
+}
+
+#settingsModal .modal-footer .btn {
+    min-width: 92px;
+    padding: 7px 14px;
 }
 
 .login-button {

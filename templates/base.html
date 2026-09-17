@@ -227,15 +227,15 @@
                                 let profileLink = '';
                                 if (userData.player_id) {
                                     const ltd2Avatar = userData.ltd2_avatar_url 
-                                        ? `<img src="https://cdn.legiontd2.com/${userData.ltd2_avatar_url}" alt="LTD2 Avatar" style="width: 20px; height: 20px; border-radius: 50%; margin-right: 2px;">`
-                                        : '';
+                                        ? `<img src="https://cdn.legiontd2.com/${userData.ltd2_avatar_url}" alt="">`
+                                        : '<i class="fa-solid fa-user"></i>';
                                     profileLink = `<li><a class="dropdown-item" href="/profile/${userData.player_id}">${ltd2Avatar}${userData.ltd2_playername || 'Profile'}</a></li>`;
                                 } else {
-                                    profileLink = '<li><a class="dropdown-item" href="https://clan.akamai.steamstatic.com/images/25043759/bfc9aca6a29fc0beb5770070bb1bfe2b04ab9abc.png">Link LegionTD2 Account</a></li>';
+                                    profileLink = '<li><a class="dropdown-item" href="https://clan.akamai.steamstatic.com/images/25043759/bfc9aca6a29fc0beb5770070bb1bfe2b04ab9abc.png"><i class="fa-solid fa-link"></i>Link LegionTD2 Account</a></li>';
                                 }
                                 
                                 const settingsButton = userData.player_id 
-                                    ? '<li><a class="dropdown-item" href="#" id="settingsButton">⚙️ Settings</a></li>'
+                                    ? '<li><a class="dropdown-item" href="#" id="settingsButton"><i class="fa-solid fa-gear"></i>Settings</a></li>'
                                     : '';
                                 
                                 loginArea.className = 'nav-item dropdown';
@@ -246,9 +246,9 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         ${profileLink}
-                                        <li><a class="dropdown-item" href="#" id="refreshLTD2Account">🔄 Refresh LTD2 Account</a></li>
+                                        <li><a class="dropdown-item" href="#" id="refreshLTD2Account"><i class="fa-solid fa-arrows-rotate"></i>Refresh LTD2 Account</a></li>
                                         ${settingsButton}
-                                        <li><a class="dropdown-item" href="/logout/">↩️ Logout</a></li>
+                                        <li><a class="dropdown-item" href="/logout/"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>
                                     </ul>
                                 `;
                                 
@@ -281,7 +281,7 @@
                                 loginArea.innerHTML = `
                                     <a href="/login/?next=${encodeURIComponent(currentPath)}" class="login-button">
                                         ${discordSvg}
-                                        Login w/ Discord
+                                        Discord
                                     </a>
                                 `;
                             }
@@ -291,7 +291,7 @@
                             loginArea.innerHTML = `
                                 <a href="/login/?next=${encodeURIComponent(currentPath)}" class="login-button">
                                     ${discordSvg}
-                                    Login w/ Discord
+                                    Discord
                                 </a>
                             `;
                         });
@@ -501,62 +501,74 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Settings Modal - always present for cached pages, populated dynamically -->
 <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered settings-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="settingsModalLabel">
-                    <i class="fas fa-cog"></i> Settings
-                </h5>
+                <div>
+                    <h5 class="modal-title" id="settingsModalLabel">Profile settings</h5>
+                    <p class="settings-modal__subtitle">Privacy and linked accounts</p>
+                </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="hideCountryFlagModal">
-                    <label class="form-check-label" for="hideCountryFlagModal">
-                        🔒 Hide country flag on my profile
+                <section class="settings-section">
+                    <h6 class="settings-section__title">Privacy</h6>
+                    <label class="settings-row" for="hideCountryFlagModal">
+                        <span class="settings-row__copy">
+                            <span class="settings-row__name">Hide country flag</span>
+                            <span class="settings-row__hint">Hidden for everyone viewing your profile</span>
+                        </span>
+                        <span class="form-check form-switch settings-row__switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="hideCountryFlagModal">
+                        </span>
                     </label>
-                </div>
-                <small class="text-muted mb-3 d-block">When enabled, your country flag will be hidden for everyone viewing your profile.</small>
-                
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="privateProfileModal">
-                    <label class="form-check-label" for="privateProfileModal">
-                        🔐 Make my profile private
+                    <label class="settings-row" for="privateProfileModal">
+                        <span class="settings-row__copy">
+                            <span class="settings-row__name">Private profile</span>
+                            <span class="settings-row__hint">Only you can view your profile</span>
+                        </span>
+                        <span class="form-check form-switch settings-row__switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="privateProfileModal">
+                        </span>
                     </label>
-                </div>
-                <small class="text-muted mb-3 d-block">When enabled, only you can view your profile. Other users will see "User profile is private".</small>
-                
-                <div class="mb-3">
-                    <label for="twitchUsernameModal" class="form-label">
-                        <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" alt="Twitch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
-                        Twitch Username
-                    </label>
-                    <input type="text" class="form-control" id="twitchUsernameModal" 
-                           placeholder="Enter your Twitch username" 
-                           value=""
-                           maxlength="30"
-                           pattern="[a-zA-Z0-9_]+"
-                           title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
-                    <small class="text-muted">Your Twitch channel will be linked on your profile (e.g., twitch.tv/username)</small>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="youtubeUsernameModal" class="form-label">
-                        <img src="https://www.youtube.com/favicon.ico" alt="YouTube" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
-                        YouTube Username
-                    </label>
-                    <input type="text" class="form-control" id="youtubeUsernameModal" 
-                           placeholder="Enter your YouTube username" 
-                           value=""
-                           maxlength="30"
-                           pattern="[a-zA-Z0-9_]+"
-                           title="Only letters, numbers, and underscores are allowed. Maximum 30 characters.">
-                    <small class="text-muted">Your YouTube channel will be linked on your profile (e.g., youtube.com/@username)</small>
-                </div>
+                </section>
+                <section class="settings-section">
+                    <h6 class="settings-section__title">Linked accounts</h6>
+                    <div class="settings-field">
+                        <label for="twitchUsernameModal" class="settings-field__label">
+                            <i class="fa-brands fa-twitch" aria-hidden="true"></i> Twitch
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">twitch.tv/</span>
+                            <input type="text" class="form-control" id="twitchUsernameModal"
+                                   placeholder="username"
+                                   value=""
+                                   maxlength="30"
+                                   pattern="[a-zA-Z0-9_]+"
+                                   title="Only letters, numbers, and underscores are allowed. Maximum 30 characters."
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="settings-field">
+                        <label for="youtubeUsernameModal" class="settings-field__label">
+                            <i class="fa-brands fa-youtube" aria-hidden="true"></i> YouTube
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">youtube.com/@</span>
+                            <input type="text" class="form-control" id="youtubeUsernameModal"
+                                   placeholder="username"
+                                   value=""
+                                   maxlength="30"
+                                   pattern="[a-zA-Z0-9_]+"
+                                   title="Only letters, numbers, and underscores are allowed. Maximum 30 characters."
+                                   autocomplete="off">
+                        </div>
+                    </div>
+                </section>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveSettings">Save Settings</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveSettings">Save</button>
             </div>
         </div>
     </div>
