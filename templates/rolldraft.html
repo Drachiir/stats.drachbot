@@ -9,26 +9,25 @@
         overflow: visible;
     }
 
-    .page-header {
+    .rolldraft-header {
         text-align: center;
-        margin-bottom: 30px;
+        margin-bottom: 24px;
+        display: block;
     }
 
-    .page-header h1 {
+    .rolldraft-header h1 {
         font-family: 'Roboto', sans-serif;
-        font-size: 2.5rem;
-        font-weight: 300;
-        color: white;
-        text-shadow: 0 0 10px rgba(66, 183, 255, 0.5);
+        font-size: 2.2rem;
+        font-weight: 500;
+        color: var(--text-strong);
     }
 
     .draft-area {
-        background: linear-gradient(135deg, rgba(35, 40, 47, 0.98) 0%, rgba(25, 28, 33, 0.98) 100%);
-        border: 3px solid rgba(80, 90, 102, 0.8);
-        border-radius: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         padding: 25px;
         margin-bottom: 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         overflow: visible;
     }
 
@@ -487,8 +486,7 @@
     }
 
     .unit-item:hover {
-        border-color: #5498db;
-        transform: scale(1.1);
+        border-color: var(--accent);
         z-index: 100;
         overflow: visible;
     }
@@ -576,7 +574,7 @@
             grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
         }
 
-        .page-header h1 {
+        .rolldraft-header h1 {
             font-size: 1.8rem;
         }
     }
@@ -584,8 +582,8 @@
 
 <div class="rolldraft-container">
     <div id="globalUnitTooltip" class="unit-tooltip"></div>
-    <div class="page-header">
-        <h1>🎲 Roll Draft Simulator</h1>
+    <div class="rolldraft-header">
+        <h1>Roll Draft Simulator</h1>
         <p style="color: #bbb; font-family: 'Roboto', sans-serif;">Click, drag or load 10 units to the roll selector, then click to pick 6 units!</p>
     </div>
 

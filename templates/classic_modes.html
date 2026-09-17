@@ -1,18 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div style="display: flex; justify-content: center">
-        <div style="padding-top: 30px; display: inline-block; text-align: center">
-            <div style="display: flex; justify-content: space-evenly;">
-                <r style="font-size:2rem"><b>Classic Modes Schedule</b></r>
-                <div>
-                    <button class="btn btn-primary" onclick="location.reload();" style="margin-bottom: 20px;">Refresh Schedule</button>
-                </div>
-            </div>
-            <p>Classic modes rotate every 1.75 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
-            <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 20px">
-                <div>
-                    <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
+    <div class="page-header" style="justify-content: center; text-align: center;">
+        <div>
+            <div class="page-header__title">Classic Modes Schedule</div>
+            <p class="page-header__meta">Classic modes rotate every 1.75 hours. Times are displayed in your local time zone: <strong id="user-timezone"></strong>.</p>
+        </div>
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="location.reload();">Refresh Schedule</button>
+        </div>
+    </div>
+            <div class="surface surface-pad" style="max-width: 720px; margin: 0 auto;">
+                    <div class="pagination-bar" style="justify-content: center; margin-bottom: 15px;">
                         <button id="prevBtnTop" class="btn btn-secondary" onclick="changePage(-1)">← Previous</button>
                         <button id="nextBtnTop" class="btn btn-secondary" onclick="changePage(1)">Next →</button>
                     </div>
@@ -22,14 +21,11 @@
                         </tr>
                         <tbody id="scheduleBody"></tbody>
                     </table>
-                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 15px;">
+                    <div class="pagination-bar" style="justify-content: center; margin-top: 15px;">
                         <button id="prevBtnBottom" class="btn btn-secondary" onclick="changePage(-1)">← Previous</button>
                         <button id="nextBtnBottom" class="btn btn-secondary" onclick="changePage(1)">Next →</button>
                     </div>
-                </div>
             </div>
-        </div>
-    </div>
 <script>
     const allSchedule = {{ schedule | tojson }};
     const entriesPerPage = {{ entries_per_page }};

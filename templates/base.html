@@ -95,38 +95,28 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    {% if not leaderboard and not classic_schedule and not profile and stats != "gamestats" and not duofinder %}
-        <link rel="stylesheet" href="/static/style.css">
-    {% endif %}
+    <link rel="stylesheet" href="/static/theme.css">
+    <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/discordlogin.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap"
           rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet" crossorigin="anonymous">
-    <style>
-        .navbar-brand:hover {
-            color: #9540ff;
-        }
-    </style>
 </head>
-<body style="
-    background-color: #171717;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;">
-<nav class="navbar sticky-top navbar-expand-md navbar-dark bg-black p-1 text-dark bg-opacity-75 border-bottom" style="text-wrap: nowrap">
-    <a style="margin-left: 1vw;" href="/" class="navbar-brand">
-        <img src="/static/drachia_still.png" alt="Logo" width="30" height="30" class="d-inline-block align-text-top"><r style="font-weight: 400;">Drachbot</r></a>
+<body>
+<nav class="navbar site-header sticky-top navbar-expand-lg navbar-dark">
+    <a href="/" class="navbar-brand">
+        <img src="/static/drachia_still.png" alt="Logo" width="30" height="30"><r>Drachbot</r></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto" id="myList">
+        <ul class="navbar-nav site-nav-main" id="myList">
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Stats Pages
                 </a>
-                <ul class="dropdown-menu bg-black">
+                <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="{{ playerurl }}/mmstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src="https://cdn.legiontd2.com/icons/Mastermind.png">MM Stats</a></li>
                     <li><a class="dropdown-item" href="{{ playerurl }}/megamindstats/{{ (patch + "/") if patch else "" }}{{ elo }}">
@@ -155,7 +145,7 @@
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Misc Pages
                 </a>
-                <ul class="dropdown-menu bg-black">
+                <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/livegames">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a></li>
                     <li><a class="dropdown-item" href="/event-leaderboard">
@@ -183,49 +173,41 @@
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Discord
                 </a>
-                <ul class="dropdown-menu bg-black">
+                <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="https://discord.com/oauth2/authorize?client_id=1152235985053171793&permissions=274878253120&scope=bot">Discord Bot Invite</a></li>
                     <li><a class="dropdown-item" href="https://discord.gg/GBHyFtgnrs">Drachbot Discord Server</a></li>
                 </ul>
             </li>
+        </ul>
+        <div class="site-nav-meta">
             {% if mod_date %}
-                <li class="nav-item active">
-                    <a data-title="Data is updated once every 6h" class="nav-link">Updated: {{ mod_date }}</a>
-                </li>
+                <span data-title="Data is updated once every 6h">Updated {{ mod_date }}</span>
             {% endif %}
-            <li class="nav-item active">
-                <a class="nav-link">Creator Code: <span style="color: goldenrod">Drachir</span></a>
-            </li>
-            <li>
-                <div class="search-container" style="position: relative;">
-                    <div class="input-group profile-input" style="flex-wrap: nowrap; padding-right: 10px;">
-                        <input type="text" id="profileInput1" class="form-control" placeholder="Search Player"
-                               aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions1'))">
-                        <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToProfile(document.getElementById('profileInput1'))">></button>
-                    </div>
-                    <div id="suggestions1" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
+            <span>Creator Code: <span class="creator-code">Drachir</span></span>
+        </div>
+        <div class="site-nav-tools">
+            <div class="site-search">
+                <div class="input-group profile-input">
+                    <input type="text" id="profileInput1" class="form-control" placeholder="Search Player"
+                           aria-label="Profile Name" oninput="getSearchSuggestions(this, document.getElementById('suggestions1'))">
+                    <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToProfile(document.getElementById('profileInput1'))">></button>
                 </div>
-            </li>
-            <li>
-                <div class="input-group" style="flex-wrap: nowrap; padding-right: 10px;">
-                    <input type="text" id="gameInput" class="form-control" placeholder="Search Game ID" aria-label="Game ID" onkeydown="if(event.key === 'Enter'){ redirectToGame(); }">
-                    <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToGame()">></button>
-                </div>
-            </li>
-            <li>
-                <select class="form-select" id="selector" style="max-width: 150px; margin-right: 10px;">
-                    <option value="pass">Select background</option>
-                    <option value="/static/Gray.jpg">Dark</option>
-                    <option value="/static/earthking.jpg">Earth King</option>
-                    <option value="/static/skyking.webp">Sky King</option>
-                    <option value="/static/sovereign.webp">Sovereign</option>
-                    <option value="/static/oasis.webp">Oasis</option>
-                </select>
-            </li>
-            <!-- Dynamic login area - populated by JavaScript to handle cached pages -->
-            <li id="discord-login-area">
-                <!-- Loading placeholder - will be replaced by JS -->
-            </li>
+                <div id="suggestions1" class="dropdown-menu" style="display: none; position: absolute; top: 100%; left: 0; width: max-content;"></div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="gameInput" class="form-control" placeholder="Search Game ID" aria-label="Game ID" onkeydown="if(event.key === 'Enter'){ redirectToGame(); }">
+                <button class="btn btn-secondary btn-sm" type="button" onclick="redirectToGame()">></button>
+            </div>
+            <select class="form-select" id="selector">
+                <option value="pass">Select background</option>
+                <option value="/static/Gray.jpg">Dark</option>
+                <option value="/static/earthking.jpg">Earth King</option>
+                <option value="/static/skyking.webp">Sky King</option>
+                <option value="/static/sovereign.webp">Sovereign</option>
+                <option value="/static/oasis.webp">Oasis</option>
+            </select>
+            <div id="discord-login-area"></div>
+        </div>
             <script>
                 // Dynamically load user session to handle cached pages correctly
                 (function() {
@@ -258,11 +240,11 @@
                                 
                                 loginArea.className = 'nav-item dropdown';
                                 loginArea.innerHTML = `
-                                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: lightgray; display: flex; align-items: center; gap: 4px;">
+                                    <a class="dropdown-toggle user-menu-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <img class="user-avatar" src="${avatarUrl}" alt="Avatar">
                                         <span>${displayName}</span>
                                     </a>
-                                    <ul class="dropdown-menu bg-black">
+                                    <ul class="dropdown-menu dropdown-menu-end">
                                         ${profileLink}
                                         <li><a class="dropdown-item" href="#" id="refreshLTD2Account">🔄 Refresh LTD2 Account</a></li>
                                         ${settingsButton}
@@ -315,13 +297,12 @@
                         });
                 })();
             </script>
-        </ul>
     </div>
 </nav>
 <script>
     function applyBackground(url) {
         document.body.style.backgroundImage = `
-            radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
+            radial-gradient(circle, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.9) 100%),
             url("${url}")
           `;
     }
@@ -347,7 +328,7 @@
         localStorage.setItem('backgroundImage', selectedValue);
     });
 </script>
-<div class="container" style="width: 100%">
+<div class="site-content{% if game_viewer %} site-content--wide{% endif %}">
     {% block content %} {% endblock %}
 </div>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -358,7 +339,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 {% if home %}
-    <div style="padding-left: 20px; padding-bottom: 20px; position: fixed; bottom:0; right:0;">
+    <div class="kofi-wrap">
         <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script>
         <script type='text/javascript'>kofiwidget2.init('Support Me', '#2e48a1', 'P5P5VOKWW');
         kofiwidget2.draw();</script>
@@ -521,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Settings Modal - always present for cached pages, populated dynamically -->
 <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" style="background-color: #1c1c1c; color: white;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="settingsModalLabel">
                     <i class="fas fa-cog"></i> Settings

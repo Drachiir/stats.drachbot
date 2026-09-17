@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="padding-top: 40px">
-    <!-- Title and description -->
-    <div style="display: flex; justify-content: space-between; white-space: nowrap; flex-wrap: wrap">
+<div class="page-header">
         <div>
-            <h1 style="font-size: 22px">Ending Wave Distribution</h1>
-            <r2>Games: <b>{{ games }}</b> | Patch: <b>{{ patch }}</b> | Avg Elo: <span><img style="width: 24px; height: auto" src="{{ get_rank_url(avg_elo) }}"></span><b>{{ avg_elo }}</b>
-            | Avg End Wave: <b>{{ get_avg_end_wave(wave_data) }}</b></r2><br>
+            <h1 class="page-header__title" style="font-size: 22px">Ending Wave Distribution</h1>
+            <div class="page-header__meta">Games: <b>{{ games }}</b> | Patch: <b>{{ patch }}</b> | Avg Elo: <span><img style="width: 24px; height: auto" src="{{ get_rank_url(avg_elo) }}"></span><b>{{ avg_elo }}</b>
+            | Avg End Wave: <b>{{ get_avg_end_wave(wave_data) }}</b></div>
         </div>
-        <div>
+        <div class="toolbar">
             <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
             aria-expanded="false">
                 {{ patch }}

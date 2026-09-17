@@ -358,3 +358,24 @@ function redirectToGame() {
         window.location.href = `/gameviewer/${input}`;
     }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("table.col-hover").forEach((table) => {
+        table.addEventListener("mouseover", (event) => {
+            const cell = event.target.closest("td, th");
+            if (!cell || !table.contains(cell)) return;
+            const index = cell.cellIndex;
+            if (table._colHoverIndex === index) return;
+            table._colHoverIndex = index;
+            table.querySelectorAll(".col-hl").forEach((el) => el.classList.remove("col-hl"));
+            for (const row of table.rows) {
+                const colCell = row.cells[index];
+                if (colCell) colCell.classList.add("col-hl");
+            }
+        });
+        table.addEventListener("mouseleave", () => {
+            table._colHoverIndex = null;
+            table.querySelectorAll(".col-hl").forEach((el) => el.classList.remove("col-hl"));
+        });
+    });
+});

@@ -3,7 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/theme.css">
     <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <meta name="robots" content="noindex">
     {% if og_data %}
         <meta property="og:title" content="{{ og_data["api_profile"]["playerName"] }}'s Drachbot Profile" />
@@ -11,22 +13,15 @@
         <meta property="og:image" content="https://cdn.legiontd2.com/{{ og_data["api_profile"]["avatarUrl"] }}" />
     {% endif %}
 </head>
-<body style="
-    background-color: #171717;
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
-    height:100vh; /* use 100% of the height of the viewport */
-    display:grid;
-    place-items: center;">
+<body class="empty-state" style="min-height:100vh; display:grid; place-items:center;">
     <div>
-        <div style="padding-left: 80px"><div id="loading"></div></div>
-        <div style="color: white; padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
+        <div id="loading" class="center"></div>
+        <div class="empty-state__text" style="padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
     </div>
     <script>
         function applyBackground(url) {
             document.body.style.backgroundImage = `
-                radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.85) 100%),
+                radial-gradient(circle, rgba(0,0,0,0.58) 0%, rgba(0,0,0,0.9) 100%),
                 url("${url}")
               `;
         }

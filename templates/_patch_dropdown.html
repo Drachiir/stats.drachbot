@@ -2,7 +2,7 @@
         aria-expanded="false">
     {{ patch_display }}
 </button>
-<ul class="dropdown-menu bg-black" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
+<ul class="dropdown-menu" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
     <form id="patchForm">
         {% for p in patch_list %}
             <li class="dropdown-item" id="patch-checkbox">
@@ -19,7 +19,7 @@
         </form>
     </li>
     {% endif %}
-    <li class="dropdown-item text-center" style="position: sticky; bottom: 0; background-color: #000000">
+    <li class="dropdown-item text-center" style="position: sticky; bottom: 0; background-color: var(--surface-raised)">
         <button class="btn btn-primary w-100" id="redirectButton">Go</button>
     </li>
 </ul>

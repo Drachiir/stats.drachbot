@@ -9,142 +9,88 @@
         --textsize: clamp(0.6rem, 1vw, 1.2rem);
         --waveimgsize: clamp(36px, 5vw, 48px);
         --imgsize: clamp(20px, 3vw, 28px);
-        --blueAccent: #0095ff;
-        --blackBg: rgba(23, 23, 23, 0.95);
-    }
-    r {
-      font-family: "Roboto", sans-serif;
-      font-weight: 300;
-      font-style: normal;
-    }
-    r2 {
-        font-family: "Roboto", sans-serif;
-        font-weight: 300;
-        font-style: normal;
-        vertical-align: middle;
-        font-size: 1rem;
-    }
-    r3 {
-        font-family: "Roboto", monospace;
-        font-weight: 300;
-        font-style: normal;
-        font-size: 0.85rem;
     }
     .profile-div {
         min-width: max-content;
         min-height: max-content;
-        white-space: nowrap; /* Prevents text from wrapping inside the div */
+        white-space: nowrap;
         margin: 6px;
     }
     #chart-container {
-        width: 100%; /* Ensure it takes full width */
-        height: 375px; /* You can adjust the height */
+        width: 100%;
+        height: 375px;
         display: flex;
         justify-content: center;
         align-items: center;
     }
-
-    /* Make sure the canvas stretches within the container */
     canvas {
         width: 100% !important;
         height: 100% !important;
     }
     .profile-main {
-        background: var(--blackBg);
-        border-radius: 10px;
-        box-shadow:inset 0 0 0 1px #2c2c2c;
-    }
-    @media (max-width: 480px) {
-        .profile-main {
-            max-width: 100%;
-        }
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: inset 0 0 0 1px var(--border);
     }
     @media (max-width: 768px) {
         .profile-main{
             max-width: 100%;
         }
     }
-    table th{
-        opacity: .85;
-        background-color: #222223 !important;
-    }
-    table td{
-        background-color: rgba(0, 0, 0, 0) !important;
-    }
     .player-row:hover{
         cursor: pointer;
     }
-    [data-title]:hover::after, [data-title]:active::after{
-        content: attr(data-title);
-        background-color: black;
-        font-family: "Roboto", sans-serif;
-        text-align: center;
-        border-radius: 10px;
-        padding: 5px;
-        border: gray 1px solid;
-        position: absolute;
-        z-index: 1;
-    }
     [names-tooltip]:hover::after, [names-tooltip]:active::after{
         content: attr(names-tooltip);
-        background-color: black;
+        background-color: #0b0d11;
         font-size: 1rem;
-        font-family: "Roboto", sans-serif;
+        font-family: var(--font);
         text-align: center;
-        border-radius: 10px;
+        border-radius: 8px;
         max-width: 80%;
         text-wrap: wrap;
         padding: 3px;
         left: 64px;
         top: 90%;
-        border: var(--blueAccent) 1px solid;
+        border: 1px solid var(--accent);
         position: absolute;
         z-index: 1;
     }
-    /* Apply custom styles to scrollable div */
     .scrollable {
-        height: 170px;   /* Adjust the height as needed */
-        overflow-y: auto; /* Enable vertical scrolling */
+        height: 170px;
+        overflow-y: auto;
         width: 100%;
     }
-    /* Custom scrollbar styles for WebKit browsers (Chrome, Safari, etc.) */
     .scrollable::-webkit-scrollbar {
-        width: 12px; /* Width of the scrollbar */
+        width: 12px;
     }
-    /* Track - the background of the scrollbar */
     .scrollable::-webkit-scrollbar-track {
-        background: rgba(0, 0, 0, 0); /* Light gray background */
+        background: transparent;
     }
-    /* Handle - the draggable part of the scrollbar */
     .scrollable::-webkit-scrollbar-thumb {
-        background: var(--blueAccent); /* Darker gray handle */
-        border-radius: 10px; /* Round edges */
-    }
-    /* Handle on hover */
-    .scrollable::-webkit-scrollbar-thumb:hover {
-        background: var(--blueAccent); /* Darker on hover */
-    }
-    .strokeText{
-        -webkit-text-stroke: 3px black;
-        paint-order: stroke fill;
-        font-weight: 400;
+        background: var(--accent);
+        border-radius: 10px;
     }
     .clickableDiv{
         cursor: pointer;
-        box-shadow:inset 0 0 0 1px #2c2c2c;
-        transition: background-color 0.2s ease, border 0.2s ease;
+        box-shadow: inset 0 0 0 1px var(--border);
     }
     .clickableDiv:hover{
-        background-color: #1c1c1c !important;
+        background-color: rgba(28, 32, 38, 0.94) !important;
     }
-    .highlight {
-        background-color: var(--blueAccent) !important; /* Green background for the button */
+    .matchhistoryPlayerName {
+      display: inline-block;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--accent);
+      cursor: pointer;
     }
-    .fav-imgs{
-        transition: transform 0.2s ease, border 0.2s ease;
+    .matchhistoryPlayerName:hover {
+      border-color: var(--accent);
+      background-color: var(--accent-muted);
     }
-    .fav-imgs:hover{
-        transform: scale(1.1);
+    .small-subtle-text{
+        font-size: 12px;
     }
     #loading-spinner {
         position: fixed;
@@ -152,42 +98,16 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 9999;
-        display: none; /* Initially hidden */
+        display: none;
         text-align: center;
     }
-
     .spinner {
-        border: 8px solid rgb(255, 255, 255);
-        border-top: 8px solid #3498db;
+        border: 8px solid rgba(255, 255, 255, 0.15);
+        border-top: 8px solid var(--accent);
         border-radius: 50%;
         width: 100px;
         height: 100px;
         animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .matchhistoryPlayerName {
-      display: inline-block;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      color: #1e90ff; /* Dodger Blue */
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .matchhistoryPlayerName:hover {
-      border-color: #1e90ff;
-      box-shadow: 0 0 2px rgba(30, 144, 255, 0.6);
-      transform: translateY(-1px);
-      background-color: rgba(30, 144, 255, 0.1);
-    }
-
-    .small-subtle-text{
-        font-size: 12px;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -248,7 +168,7 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <r><b>Stats Pages</b></r>
                         </button>
-                        <ul class="dropdown-menu bg-black">
+                        <ul class="dropdown-menu">
                             {% for stat in stats_list %}
                                 <li><a class="dropdown-item" style="color: white; text-decoration: none;" href="/load/{{ playerid }}/{{ stat }}/{{ patch }}">
                                     <div><img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}"><r2>{{ stat.capitalize() }}</r2></div>
@@ -260,7 +180,7 @@
                         <button class="btn btn-secondary" id="check-livegame-btn">Live Game</button>
                         <div class="modal fade" id="liveGameModal" tabindex="-1" aria-labelledby="liveGameModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
-                                <div class="modal-content" style="background-color: #1c1c1c">
+                                <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="liveGameModalLabel">Live Match Details</h5>
                                         <div style="display: flex; align-items: center; padding-left: 50px">
@@ -283,7 +203,7 @@
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Select Patches
                         </button>
-                        <ul class="dropdown-menu bg-black" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
+                        <ul class="dropdown-menu" style="max-height: 400px; overflow-y: scroll" id="patchDropdown">
                             <form id="patchForm">
                                 <li class="dropdown-item" id="patch-checkbox">
                                     <input type="checkbox" class="patch-checkbox" value="26">
@@ -351,22 +271,17 @@
                 .state-button {
                     padding: 2px 3px;
                     font-size: 12px;
-                    border: 1px solid var(--blueAccent);
+                    border: 1px solid var(--accent);
                     border-radius: 5px;
-                    background-color: #393939;
-                    color: var(--blueAccent);
+                    background-color: var(--surface-solid);
+                    color: var(--accent);
                     cursor: pointer;
-                    transition: background-color 0.3s, color 0.3s;
                 }
 
-                .state-button:hover {
-                    background-color: var(--blueAccent);
-                    color: #393939;
-                }
-
+                .state-button:hover,
                 .state-button.active {
-                    background-color: var(--blueAccent);
-                    color: #393939;
+                    background-color: var(--accent);
+                    color: #061018;
                 }
             </style>
             <script>
@@ -424,8 +339,8 @@
                             {% endfor %}
                         </tbody>
                     </table>
-                    <button style="position: absolute; font-size: 20px; padding: 0; background: none; border: none; right: -20px; top: -3px;"
-                            class="btn btn-primary btn-sm fullscreen-btn"
+                    <button style="position: absolute; font-size: 20px; padding: 0; right: -20px; top: -3px;"
+                            class="btn btn-sm fullscreen-btn"
                             data-bs-toggle="modal"
                             data-bs-target="#tableModal"
                             onclick="renderTableModal('{{ x }}')">
@@ -436,7 +351,7 @@
 
             <div class="modal fade" id="tableModal" tabindex="-1" aria-labelledby="tableModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-xl">
-                    <div class="modal-content" style="height: 90vh; background-color: #1c1c1c">
+                    <div class="modal-content" style="height: 90vh;">
                         <div class="modal-header">
                             <h5 class="modal-title" id="tableModalLabel">Table Details</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -592,7 +507,6 @@
     th .sort-indicator {
         margin-left: 5px;
         display: inline-block;
-        transition: transform 0.3s ease-in-out;
     }
 
     th.ascending .sort-indicator {
@@ -1023,7 +937,7 @@
 
                     // Build the game details HTML
                     const gameHTML = `
-                        <div class="game-card card text-white mb-3" style="background-color: #1c1c1c">
+                        <div class="game-card card text-white mb-3">
                             <div class="card-body">
                                 <div class="game-header mb-3">
                                     <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap; height: 40px; gap: 30px; flex-wrap: wrap">

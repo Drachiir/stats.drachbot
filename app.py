@@ -526,7 +526,7 @@ def refresh_ltd2_account_api():
     
     return jsonify({"message": message, "player_id": player_id})
 
-@cache.cached(timeout=timeout, key_prefix='home_data')
+@cache.cached(timeout=timeout, key_prefix='home_data_v3')
 def get_home_data():
     """Cache the expensive data processing for the home page"""
     folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
@@ -574,7 +574,7 @@ def get_home_data():
 
             temp_keys = list(temp_data.keys())
             keys.append([folder, temp_keys])
-            data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], temp_keys[:2]])
+            data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], temp_keys[:3]])
     try:
         total_games = util.human_format(int(data_list[0][1]))
     except IndexError:

@@ -1,97 +1,84 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <style>
-        .noWrapStats{
-            white-space: nowrap;
-        }
-        @media (max-width: 600px) {
-            .noWrapStats {
-                white-space: wrap;
-            }
-        }
-        .tier-Splus { color: Yellow; }
-        .tier-S { color: Gold; }
-        .tier-A { color: GreenYellow; }
-        .tier-B { color: MediumSeaGreen; }
-        .tier-C { color: DarkOrange; }
-        .tier-D { color: Red; }
-    </style>
-    <div style="padding-top: 15px;">
-        <div style="display: flex; justify-content: space-between; flex-wrap: wrap">
-            <div class="noWrapStats">
-                <img style="float:left; padding-right: 20px; padding-left: 10px;" src={{ title_image }}>
-                {% if player_avatar_url %}
-                    <a class="linkTextNoDeco" href="{{ playerurl }}">
-                    <img style="height: 32px" src="https://cdn.legiontd2.com/{{ player_avatar_url }}">
-                {% endif %}
-                <r style="font-size: 1.5rem;" href="#">{{ title }} Stats</r>
-                {% if player_avatar_url %}
-                    </a>
-                {% endif %}
-                <br>
-                {% if stats == "wavestats" %}
-                    <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
-                    Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>{{ patch_display }}</b></r>
-                {% else %}
-                    <r style="font-size: 1rem;"><b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
-                    <b>{{ patch_display }}</b></r>
-                {% endif %}
-            </div>
+    <div class="page-header">
+        <div class="page-header__identity">
+            <img class="page-header__icon" src={{ title_image }}>
             <div>
-                <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    <img style="width: 20px;" src="{{ get_rank_url(elo) }}">{{ elo }}
-                </button>
-                <ul class="dropdown-menu">
-                    {% for i in elo_brackets %}
-                        <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
-                            {% set elo_suffix = "+" %}
-                            {% if i is string %}
-                                {% if "-" in i %}
-                                    {% set elo_suffix = "" %}
-                                {% endif %}
-                            {% endif %}
-                            <img style="width: 24px; height: auto" src="{{ get_rank_url(i) }}">{{ i }}{{ elo_suffix }}</a></li>
-                    {% endfor %}
-                </ul>
-                {% if not patch_selector %}
-                    {% include '_patch_dropdown.html' %}
+                <div class="page-header__title">
+                {% if player_avatar_url %}
+                    <a class="page-header__title-link" href="{{ playerurl }}">
+                    <img class="page-header__player-avatar" src="https://cdn.legiontd2.com/{{ player_avatar_url }}">
+                    <span>{{ title }} Stats</span>
+                    </a>
                 {% else %}
-                    <div class="dropdown" style="float: right; padding-left: 5px">
-                        {% include '_player_patch_dropdown.html' %}
-                    </div>
+                    {{ title }} Stats
                 {% endif %}
-                <div style="float: left; padding-right: 5px;" class="dropdown">
-                    <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                        {{ header_title }}
-                    </button>
-                    <div id="statsDropdown" class="dropdown-content">
-                        <ul class="dropdown-menu dropdown-scrollbar">
-                            <input type="text"
-                               class="form-control
-                                      border-0 border-bottom
-                                      shadow-none mb-2"
-                               placeholder="Search..."
-                               id="statsInput"
-                               onkeyup="statsFilter()">
-                            {% for d in data_keys %}
-                                <li><a class="dropdown-item" href="#" onclick='highlightAndScrollTo({{ d|tojson }}); return false;'>
-                                    <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ get_unit_name(d) }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
+                </div>
+                <div class="page-header__meta">
+                {% if stats == "wavestats" %}
+                    <b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
+                    Avg End Wave: <b>{{ get_avg_end_wave(data) }}</b> | <b>{{ patch_display }}</b>
+                {% else %}
+                    <b>{{ human_format(games) }}</b> Ranked Games | Avg Game Elo: <b><img style="width: 24px;" src="{{ get_rank_url(avg_elo) }}">{{ avg_elo }} </b> |
+                    <b>{{ patch_display }}</b>
+                {% endif %}
                 </div>
             </div>
         </div>
-        <div class="scroll-container">
-            <div class="scroll-top" style="overflow-y: hidden">
-                <div class="fakeContent" style="height: 20px;"></div>
+        <div class="toolbar">
+            <div class="dropdown">
+                <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                    {{ header_title }}
+                </button>
+                <div id="statsDropdown" class="dropdown-content">
+                    <ul class="dropdown-menu dropdown-scrollbar">
+                        <input type="text"
+                           class="form-control
+                                  border-0 border-bottom
+                                  shadow-none mb-2"
+                           placeholder="Search..."
+                           id="statsInput"
+                           onkeyup="statsFilter()">
+                        {% for d in data_keys %}
+                            <li><a class="dropdown-item" href="#" onclick='highlightAndScrollTo({{ d|tojson }}); return false;'>
+                                <img loading="lazy" style="width: 24px;" src="{{ get_cdn_image(d, header_title) }}">{{ get_unit_name(d) }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
-            <div style="display: flex; justify-content: center;">
-                <table style="margin-top: 0; display: inline-block; width: max-content" class="table"
-                       id="myTable">
+            <button class="btn btn-dark btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                <img style="width: 20px;" src="{{ get_rank_url(elo) }}">{{ elo }}
+            </button>
+            <ul class="dropdown-menu">
+                {% for i in elo_brackets %}
+                    <li><a class="dropdown-item" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ i }}">
+                        {% set elo_suffix = "+" %}
+                        {% if i is string %}
+                            {% if "-" in i %}
+                                {% set elo_suffix = "" %}
+                            {% endif %}
+                        {% endif %}
+                        <img style="width: 24px; height: auto" src="{{ get_rank_url(i) }}">{{ i }}{{ elo_suffix }}</a></li>
+                {% endfor %}
+            </ul>
+            {% if not patch_selector %}
+                {% include '_patch_dropdown.html' %}
+            {% else %}
+                <div class="dropdown">
+                    {% include '_player_patch_dropdown.html' %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="scroll-container surface">
+            <div class="scroll-top">
+                <div class="fakeContent"></div>
+            </div>
+            <div class="stats-table-scroll">
+                <table class="table col-hover" id="myTable">
                     {# HEADER 1 #}
                     <thead>
                     <tr>
@@ -109,14 +96,15 @@
                             <r>{{ header_title }}</r>
                         </th>
                         {% for key in data %}
-                            <td><div style="position: relative"><a xtitle="{{ get_tooltip(key) }}" data-key="{{ key }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
-                            {% if stats == "megamindstats" and key != "Megamind" %}
-                                <img loading="lazy" style="top:-93%;left: 0px; position: absolute" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
-                            {% endif %}
-                            </a>
-                            </div>
+                            <td>
+                                <div class="icon-stack">
+                                    <a xtitle="{{ get_tooltip(key) }}" data-key="{{ key }}" href="{{ playerurl }}/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img loading="lazy" src="{{ get_cdn_image(key, header_title) }}">
+                                    {% if stats == "megamindstats" and key != "Megamind" %}
+                                        <img class="megamind-badge" loading="lazy" width="32" height="32" src="https://cdn.legiontd2.com/icons/Items/Megamind.png">
+                                    {% endif %}
+                                    </a>
+                                </div>
                             </td>
-
                         {% endfor %}
                     </tr>
                     {# HEADER 1 KEYS #}
@@ -199,31 +187,13 @@
                 </table>
             </div>
         </div>
-    </div>
-<style>
-    .scroll-container {
-        position: relative;
-        width: 100%;
-        overflow: hidden;
-    }
-
-    .scroll-top {
-        overflow-x: auto;
-        height: 20px;
-        z-index: 999;
-    }
-    
-    /* Add smooth scrolling transitions */
-    #myTable, .scroll-top {
-        transition: scroll-left 0.3s ease-out;
-    }
-</style>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const scrollTop = document.querySelector('.scroll-top');
         const fakeContent = document.querySelector('.fakeContent');
         const table = document.querySelector('#myTable');
+        const tableScroll = document.querySelector('.stats-table-scroll');
+        if (!scrollTop || !fakeContent || !table || !tableScroll) return;
 
         fakeContent.style.width = table.scrollWidth + 'px';
 
@@ -233,15 +203,15 @@
         scrollTop.addEventListener('scroll', () => {
             if (!isSyncingScrollTop) {
                 isSyncingTable = true;
-                table.scrollLeft = scrollTop.scrollLeft;
+                tableScroll.scrollLeft = scrollTop.scrollLeft;
                 isSyncingTable = false;
             }
         });
 
-        table.addEventListener('scroll', () => {
+        tableScroll.addEventListener('scroll', () => {
             if (!isSyncingTable) {
                 isSyncingScrollTop = true;
-                scrollTop.scrollLeft = table.scrollLeft;
+                scrollTop.scrollLeft = tableScroll.scrollLeft;
                 isSyncingScrollTop = false;
             }
         });
@@ -381,14 +351,14 @@
         const parentCell = element.closest('td');
         
         if (parentCell) {
-            const table = document.getElementById('myTable');
+            const tableScroll = document.querySelector('.stats-table-scroll');
             
             // Calculate the scroll position to center the cell
-            const scrollLeft = parentCell.offsetLeft - (table.offsetWidth / 2) + (parentCell.offsetWidth / 2);
+            const scrollLeft = parentCell.offsetLeft - (tableScroll.offsetWidth / 2) + (parentCell.offsetWidth / 2);
             const targetScrollLeft = Math.max(0, scrollLeft);
             
             // Custom smooth scrolling animation
-            const startScrollLeft = table.scrollLeft;
+            const startScrollLeft = tableScroll.scrollLeft;
             const distance = targetScrollLeft - startScrollLeft;
             const duration = 500; // 500ms animation
             const startTime = performance.now();
@@ -401,7 +371,7 @@
                 const easeOutQuart = 1 - Math.pow(1 - progress, 4);
                 
                 const currentScrollLeft = startScrollLeft + (distance * easeOutQuart);
-                table.scrollLeft = currentScrollLeft;
+                tableScroll.scrollLeft = currentScrollLeft;
                 
                 // Also sync the scroll-top element
                 const scrollTop = document.querySelector('.scroll-top');
@@ -442,25 +412,4 @@
         });
      }
 </script>
-
-<style>
-    /* Add invisible border to all images to prevent layout shift */
-    #myTable img {
-        border: 2px solid transparent;
-        border-radius: 4px;
-    }
-    
-    .search-highlight {
-        border: 2px solid rgba(255, 235, 59, 0.8) !important;
-        box-shadow: 0 0 8px rgba(255, 235, 59, 0.6) !important;
-        border-radius: 4px;
-        position: relative;
-        z-index: 5;
-    }
-    
-    #statsInput:focus {
-        border-color: #007bff;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-    }
-</style>
 {% endblock %}

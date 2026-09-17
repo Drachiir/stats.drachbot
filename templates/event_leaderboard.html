@@ -9,28 +9,9 @@
     .player-row:hover {
         cursor: pointer;
     }
-    .highlight {
-        background-color: #ffffff !important;
-    }
-    table td {
-        background-color: rgba(30, 35, 43, 0.93) !important;
-    }
     th {
         cursor: pointer;
-        position: relative;
         white-space: nowrap;
-    }
-    th .sort-arrow {
-        font-size: 0.8em;
-        margin-left: 5px;
-        display: inline-block;
-        transition: transform 0.2s ease;
-    }
-    th.sorted-asc .sort-arrow {
-        transform: rotate(180deg);
-    }
-    th.sorted-desc .sort-arrow {
-        transform: rotate(0deg);
     }
     .icon-img {
         width: 32px;
@@ -38,23 +19,15 @@
         margin: 2px;
     }
 </style>
-<div style="text-align: center; padding-top: 10px; white-space: nowrap">
-    <div style="display: flex; justify-content: center">
-        <div style="margin-bottom: 10px; display: block;">
-            <div class="input-group" style="flex-wrap: nowrap; width: 300px">
-                <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToEventLeaderboard(); }">
-                <button class="btn btn-dark btn-outline-light" type="button" onclick="redirectToEventLeaderboard()">Go</button>
-            </div>
-            <div style="padding-top: 10px;">
-                <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()" style="width: 300px;">
-            </div>
-
+<div class="toolbar leaderboard-toolbar">
+        <div class="input-group">
+            <input type="text" id="search-bar2" class="form-control" placeholder="Search Player outside Top100" aria-label="Profile Name" onkeydown="if(event.key === 'Enter'){ redirectToEventLeaderboard(); }">
+            <button class="btn btn-dark btn-outline-light" type="button" onclick="redirectToEventLeaderboard()">Go</button>
         </div>
-    </div>
+        <input type="text" id="search-bar" class="form-control" placeholder="Search by Name/ Guild or Country" onkeyup="filterTable()">
 </div>
-<div style="text-align: center; padding-top: 10px; white-space: nowrap">
-    <div style="display: inline-block; position: relative">
-        <div id="result-count" style="margin-bottom: 10px; position: absolute; left: 0; top: -25px"></div>
+<div class="surface leaderboard-wrap">
+        <div id="result-count" style="margin: 8px 12px 0;"></div>
         <table id="LeaderboardTable" class="table table-hover table-bordered">
             <thead>
                 <tr>
@@ -74,7 +47,7 @@
                     <tr class="player-row">
                         <td>{{ player["Position"] + 1 }}</td>
                         <td>
-                            <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard" style="color: white; text-decoration: none">
+                            <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard linkTextNoDeco">
                                 <div style="text-align: left;">
                                     <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
                                     <r class="player-name"> {{ player["DisplayName"] }}</r>
@@ -111,7 +84,6 @@
                 {% endfor %}
             </tbody>
         </table>
-    </div>
 </div>
 
 <script>

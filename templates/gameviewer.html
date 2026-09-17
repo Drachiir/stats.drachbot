@@ -12,6 +12,7 @@
     </div>
 {% endfor %}
 </div>
+<div class="game-viewer-stack">
 <div class="king_hp_bars_container">
     {% for king_hp in [[game_data["left_king_hp"], "EarthKing"], [game_data["right_king_hp"], "SkyKing"]] %}
         <div class="king_hp_bar_outside">
@@ -23,7 +24,7 @@
         </div>
     {% endfor %}
 </div>
-<div class="players-container">
+<div class="players-container game-lanes">
     {% for player in game_data['players_data'] %}
         <div class="player-lane {% if player.double_down %}double-down-glow{% endif %}" data-player="{{ player['player_slot'] }}">
             <div class="player-info" style="position: relative">
@@ -105,6 +106,7 @@
     <div><r><b>Game elo:</b> {{ game_data['game_elo'] }}</r></div>
     <div><r><b>Game length:</b> {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
 </div>
+</div>
 <style>
     :root{
         --player1: #ff4d4d;
@@ -128,12 +130,21 @@
         text-shadow: 0 0 5px #a964e5;
         position: relative;
     }
+    .game-viewer-stack {
+        display: flex;
+        flex-direction: column;
+        width: max-content;
+        max-width: 100%;
+        margin: 0 auto;
+    }
     .king_hp_bars_container{
         border-radius: 10px;
-        margin-left: 10px;
-        margin-right: 10px;
+        margin: 0 0 8px;
         display: flex;
         justify-content: space-between;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
     }
     .king_hp_bar_outside{
         display: flex;
@@ -141,9 +152,8 @@
         overflow: hidden;
         width: calc(var(--kingHpBarW) + 32px);
         height: 32px;
-        background-color: #535353;
-        border: 1px solid #444;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        background-color: #2b3138;
+        border: 1px solid var(--border);
     }
     .king_hp_bar_outside img{
         flex-shrink: 0;
@@ -179,11 +189,13 @@
         flex-wrap: wrap;
         gap: 10px;
         padding: 15px;
-        margin: 10px;
-        background-color: #2e2e2e;
-        border: 1px solid #444;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        margin: 8px 0 0;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
     }
     .wave-nav {
         display: flex;
@@ -195,12 +207,15 @@
         overflow-x: auto;
     }
     .wave-nav img:hover{
-        border: #0080ff 1px solid;
-        transform: scale(1.1);
+        border: 1px solid var(--accent);
     }
     .players-container {
         display: flex;
         flex-wrap: nowrap;
+        justify-content: center;
+        gap: 8px;
+        width: max-content;
+        max-width: 100%;
         {% if game_data['players_data']|length == 8 %}
             overflow-x: scroll;
         {% endif %}
@@ -227,11 +242,10 @@
         width: 300px;
         min-width: 300px;
         padding: 15px;
-        margin: 10px;
-        background-color: #1c1c1c;
-        border: 1px solid #444;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        margin: 0;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         position: relative;
     }
     .player-info {
@@ -246,7 +260,7 @@
         position: relative;
     }
     .grid-square {
-        background-color: #474747;
+        background-color: #2b3138;
         position: relative;
         display: flex;
         justify-content: center;
