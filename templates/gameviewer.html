@@ -12,6 +12,7 @@
     </div>
 {% endfor %}
 </div>
+<div class="game-viewer-scroll">
 <div class="game-viewer-stack">
 <div class="king_hp_bars_container">
     {% for king_hp in [[game_data["left_king_hp"], "EarthKing"], [game_data["right_king_hp"], "SkyKing"]] %}
@@ -107,6 +108,7 @@
     <div><r><b>Game length:</b> {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
 </div>
 </div>
+</div>
 <style>
     :root{
         --player1: #ff4d4d;
@@ -130,11 +132,15 @@
         text-shadow: 0 0 5px #a964e5;
         position: relative;
     }
+    .game-viewer-scroll {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
     .game-viewer-stack {
         display: flex;
         flex-direction: column;
         width: max-content;
-        max-width: 100%;
         margin: 0 auto;
     }
     .king_hp_bars_container{
@@ -212,18 +218,9 @@
     .players-container {
         display: flex;
         flex-wrap: nowrap;
-        justify-content: center;
+        justify-content: flex-start;
         gap: 8px;
         width: max-content;
-        max-width: 100%;
-        {% if game_data['players_data']|length == 8 %}
-            overflow-x: scroll;
-        {% endif %}
-    }
-    @media (max-width: 1400px) {
-        .players-container {
-            overflow-x: scroll;
-        }
     }
     @media (min-width: 1000px) {
         .wave-nav{
