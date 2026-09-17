@@ -283,6 +283,12 @@ r4 {
     row-gap: 2px;
 }
 
+.page-header__meta--stack {
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: 2px;
+}
+
 .page-header__meta b {
     display: inline-flex;
     align-items: center;
@@ -932,6 +938,124 @@ div#loading {
 #settingsModal .modal-footer .btn {
     min-width: 92px;
     padding: 7px 14px;
+}
+
+#check-livegame-btn.live-game-active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #061018;
+    font-weight: 600;
+}
+
+#check-livegame-btn.live-game-active:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #061018;
+}
+
+#liveGameModal .modal-content {
+    background: #16181d;
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+#liveGameModal .modal-header {
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #13151a;
+}
+
+#liveGameModal .modal-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-strong);
+}
+
+#liveGameModal .live-match-toggles {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+#liveGameModal .live-match-help {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 600;
+    width: 22px;
+    text-align: center;
+}
+
+#liveGameModal .live-match-help:hover {
+    color: var(--accent);
+}
+
+#liveGameModal .live-match-toggles .btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #061018;
+}
+
+#liveGameModal .modal-body {
+    padding: 16px 18px 18px;
+}
+
+.live-match__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+    color: #b8c2d0;
+    font-size: 0.88rem;
+}
+
+.live-match__teams {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px 24px;
+}
+
+.live-match__team {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.live-match__player {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+    color: var(--text);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.live-match__player:hover {
+    color: var(--accent);
+}
+
+.live-match__player img {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.live-match__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.live-match__elo {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
 }
 
 .login-button {

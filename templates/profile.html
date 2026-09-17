@@ -179,20 +179,18 @@
                     <div class="dropdown" style="padding-top: 4px">
                         <button class="btn btn-secondary" id="check-livegame-btn">Live Game</button>
                         <div class="modal fade" id="liveGameModal" tabindex="-1" aria-labelledby="liveGameModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="liveGameModalLabel">Live Match Details</h5>
-                                        <div style="display: flex; align-items: center; padding-left: 50px">
+                                        <h5 class="modal-title" id="liveGameModalLabel">Live match</h5>
+                                        <div class="live-match-toggles">
                                             <div id="toggle-sellout" class="btn-group" role="group">
-                                                <button type="button" class="btn btn-sm btn-primary active" id="elo-toggle">Elo</button>
-                                                <button type="button" class="btn btn-sm btn-primary" id="sellout-toggle">Sellout Score</button>
+                                                <button type="button" class="btn btn-sm btn-dark active" id="elo-toggle">Elo</button>
+                                                <button type="button" class="btn btn-sm btn-dark" id="sellout-toggle">Sellout</button>
                                             </div>
-                                            <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3351115892" target="_blank" style="margin-left: 8px; text-decoration: none;">
-                                                <span title="Learn about Sellout Score">?</span>
-                                            </a>
+                                            <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3351115892" target="_blank" class="live-match-help" title="Learn about Sellout Score">?</a>
                                         </div>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <div class="modal-body" id="liveGameDetails">
                                         <!-- Game details will be inserted here -->
@@ -888,7 +886,7 @@
             $.get(baseUrl + `/api/livegames/${playerName}`, function (data) {
                 if (data.length > 0) {
                     let button = $('#check-livegame-btn');
-                    button.addClass('highlight');
+                    button.addClass('live-game-active');
                 }
             }).fail(function () {
                 console.error('Failed to retrieve live game status.');
@@ -935,43 +933,27 @@
                         return calculateSelloutScore(you, teammate, opponent, other);
                     }) : eastPlayers.map(() => '');
 
-                    // Build the game details HTML
+                    const playerRow = (player, score) => `
+                        <a class="live-match__player" href="/profile/${player[0]}">
+                            <img src="${getRankUrl(player[1])}" alt="">
+                            <span class="live-match__name">${player[0]}</span>
+                            <span class="rankHover live-match__elo" data-type="elo">${player[1]}</span>
+                            <span class="rankHover live-match__elo" data-type="sellout" style="display: none;">${score}</span>
+                        </a>
+                    `;
+
                     const gameHTML = `
-                        <div class="game-card card text-white mb-3">
-                            <div class="card-body">
-                                <div class="game-header mb-3">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; white-space: nowrap; height: 40px; gap: 30px; flex-wrap: wrap">
-                                        <div>
-                                            Game Elo: ${gameElo}
-                                        </div>
-                                        <div>
-                                            Game Time: <span id="game-duration">${formatDuration(0)}</span>
-                                        </div>
-                                    </div>
+                        <div class="live-match">
+                            <div class="live-match__meta">
+                                <span>Game Elo: ${gameElo}</span>
+                                <span>Game Time: <span id="game-duration">${formatDuration(0)}</span></span>
+                            </div>
+                            <div class="live-match__teams">
+                                <div class="live-match__team">
+                                    ${westPlayers.map((player, index) => playerRow(player, westSelloutScores[index])).join('')}
                                 </div>
-
-                                <div class="players-container d-flex justify-content-between">
-                                    <div class="team west-team text-center">
-                                        ${westPlayers.map((player, index) => `
-                                            <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                                <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
-                                                <span>${player[0]}</span>
-                                                <div class="rankHover" data-type="elo" style="display: block;">${player[1]}</div>
-                                                <div class="rankHover" data-type="sellout" style="display: none;">${westSelloutScores[index]}</div>
-                                            </a>
-                                        `).join('')}
-                                    </div>
-
-                                    <div class="team east-team text-center">
-                                        ${eastPlayers.map((player, index) => `
-                                            <a class="player d-block mb-2" style="color: white; text-decoration: none;" href="/profile/${player[0]}">
-                                                <img src="${getRankUrl(player[1])}" class="rounded-circle mb-1" alt="${player[0]} rank" style="width: 32px;">
-                                                <span>${player[0]}</span>
-                                                <div class="rankHover" data-type="elo" style="display: block;">${player[1]}</div>
-                                                <div class="rankHover" data-type="sellout" style="display: none;">${eastSelloutScores[index]}</div>
-                                            </a>
-                                        `).join('')}
-                                    </div>
+                                <div class="live-match__team">
+                                    ${eastPlayers.map((player, index) => playerRow(player, eastSelloutScores[index])).join('')}
                                 </div>
                             </div>
                         </div>

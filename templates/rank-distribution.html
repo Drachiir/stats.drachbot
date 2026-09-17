@@ -5,8 +5,10 @@
         <div>
             {% set parts = snapshot.split("-") %}
             <h1 class="page-header__title" style="font-size: 22px">Rank Distribution 20{{ parts[2] }}</h1>
-            <div class="page-header__meta">Snapshot taken {{ snapshot }}<br>
-            Total players: <span id="totalPlayersCount"></span></div>
+            <div class="page-header__meta page-header__meta--stack">
+                <div>Snapshot taken {{ snapshot }}</div>
+                <div>Total players: <span id="totalPlayersCount"></span></div>
+            </div>
         </div>
         <div class="toolbar">
             <form method="GET">
