@@ -1,3 +1,21 @@
+User-agent: Discordbot
+Allow: /gameviewer
+
+User-agent: facebookexternalhit
+Allow: /gameviewer
+
+User-agent: Twitterbot
+Allow: /gameviewer
+
+User-agent: Slackbot
+Allow: /gameviewer
+
+User-agent: Slackbot-LinkExpanding
+Allow: /gameviewer
+
+User-agent: TelegramBot
+Allow: /gameviewer
+
 User-agent: *
 
 Disallow: /api

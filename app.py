@@ -1154,11 +1154,19 @@ def drachbot_overlay_api(playername):
                     winlose["Losses"] += 1
     return {"Masterminds": mms, "Wave1": wave1, "WinLose": winlose, "EloChange": elochange, "String": f"Last {len(history)} Games"}
 
+def _is_link_preview_bot():
+    user_agent = request.headers.get("User-Agent", "").lower()
+    preview_bots = (
+        "discordbot", "facebookexternalhit", "twitterbot", "slackbot",
+        "telegrambot", "whatsapp", "linkedinbot",
+    )
+    return any(bot in user_agent for bot in preview_bots)
+
 @app.route("/gameviewer/<gameid>", defaults={"wave": 1})
 @app.route("/gameviewer/<gameid>/<wave>")
 def gameviewer(gameid, wave):
     data = drachbot.drachbot_db.get_game_by_id(
-        gameid, allow_api_fetch=session.get("user") is not None
+        gameid, allow_api_fetch=session.get("user") is not None or _is_link_preview_bot()
     )
     player_map = {0: 1, 1: 0, 2: 3, 3: 2}
     if data == {"Error": "Game not found."}:
