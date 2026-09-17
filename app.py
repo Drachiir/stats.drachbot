@@ -402,6 +402,17 @@ def inject_display_names():
         "get_icon_path_map": util.get_icon_path_map,
     }
 
+@app.context_processor
+def inject_static_url():
+    def static_url(filename):
+        path = os.path.join(app.static_folder, filename)
+        try:
+            version = int(os.path.getmtime(path))
+        except OSError:
+            version = 0
+        return f"/static/{filename}?v={version}"
+    return {"static_url": static_url}
+
 @app.route("/api/defaults")
 def api_defaults():
     return defaults_json

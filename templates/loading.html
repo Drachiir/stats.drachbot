@@ -3,8 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/theme.css">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ static_url('theme.css') }}">
+    <link rel="stylesheet" href="{{ static_url('style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <meta name="robots" content="noindex">
     {% if og_data %}
@@ -32,6 +32,6 @@
         }
     </script>
     <script> window.location.replace("{{ url|safe }}"); </script>
-    <script src="/static/script.js"></script>
+    <script src="{{ static_url('script.js') }}"></script>
 </body>
 </html>
