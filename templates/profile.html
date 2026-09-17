@@ -109,52 +109,104 @@
         height: 100px;
         animation: spin 1s linear infinite;
     }
+    .profile-identity {
+        text-align: center;
+        width: max-content;
+        max-width: 100%;
+        padding-top: 10px;
+    }
+    .profile-identity__top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        text-align: left;
+    }
+    .profile-identity__avatar {
+        position: relative;
+        flex-shrink: 0;
+        line-height: 0;
+    }
+    .profile-identity__border {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    .profile-identity__info {
+        min-width: 0;
+    }
+    .profile-identity__name {
+        font-size: clamp(1.15rem, calc(1.95rem - var(--name-chars, 12) * 0.04rem), 1.5rem);
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+    .profile-identity__name r2 {
+        font-size: inherit;
+    }
+    .profile-identity__name r2.profile-identity__guild {
+        color: gold;
+        font-size: 1rem;
+    }
+    .profile-identity__meta,
+    .profile-identity__level {
+        margin-top: 2px;
+        white-space: nowrap;
+    }
+    .profile-identity__level {
+        cursor: help;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <div class="container-lg" style="padding-top: 2vw; display: block">
     <div class="profile-main" style="position: relative">
         <div style="padding: 8px; display: flex; flex-wrap: wrap; overflow: hidden; align-items: flex-start; justify-content: space-evenly">
-            <div style="text-align: center; width: max-content; padding-top: 10px;">
-                <div style="padding-bottom: 10px; position: relative; text-wrap: nowrap; text-overflow: ellipsis; text-align: left;">
-                    <img style="vertical-align: middle;" src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}">
-                    {% if api_stats["avatarBorder"] %}
-                        <img style="position: absolute; left: 0; top: 0" src="/{{ api_stats["avatarBorder"] }}">
-                    {% endif %}
-                    <div style="position: absolute; top: -3px; left: 70px;">
-                        {% if known_names|length > 0 %}
-                            {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
-                            <r2 names-tooltip="{{ names_tooltip }}" style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
-                        {% else %}
-                            <r2 style="font-size: 1.5rem"><b>{{ api_profile["playerName"] }}</b></r2>
-                        {% endif %}
-                        <r2 style="color: gold;"><b> {{ api_profile["guildTag"] }}</b></r2>
-                    </div>
-                    <div style="position: absolute; top: 24px; left: 70px;">
-                        {% if player_rank %}
-                            <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
-                        {% endif %}
-                        {% if api_stats["flag"] and not hide_flag_on_profile %}
-                            <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
-                        {% endif %}
-                        {% if twitch_username %}
-                            <a href="https://twitch.tv/{{ twitch_username|e }}" target="_blank" rel="noopener noreferrer" style="color: #9146ff; text-decoration: none; height: 48px">
-                                <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" alt="Twitch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
-                            </a>
-                        {% endif %}
-                        {% if youtube_username %}
-                            <a href="https://youtube.com/@{{ youtube_username|e }}" target="_blank" rel="noopener noreferrer" style="color: #ff0000; text-decoration: none; height: 48px">
-                                <img src="https://www.youtube.com/favicon.ico" alt="YouTube" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
-                            </a>
+            <div class="profile-identity">
+                <div class="profile-identity__top">
+                    <div class="profile-identity__avatar">
+                        <img src="https://cdn.legiontd2.com/{{ api_profile["avatarUrl"] }}" alt="">
+                        {% if api_stats["avatarBorder"] %}
+                            <img class="profile-identity__border" src="/{{ api_stats["avatarBorder"] }}" alt="">
                         {% endif %}
                     </div>
-                    {% if api_stats.get("playerLevel") is not none %}
-                    <div data-title="{{ api_stats['playerCurrentXp'] }} / {{ api_stats['playerXpNeeded'] }} XP" style="position: absolute; top: 43px; left: 70px; cursor: help;">
-                        <r2 style="color: #00d4ff; font-size: 0.9rem;"><b>Level {{ api_stats["playerLevel"] }}</b></r2>
-                        <div style="width: 100px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; display: inline-block; vertical-align: middle; margin-left: 6px;">
-                            <div style="height: 100%; width: {{ (api_stats["playerXpProgress"] * 100)|round(1) }}%; background: linear-gradient(90deg, #0095ff, #00d4ff); border-radius: 3px;"></div>
+                    <div class="profile-identity__info">
+                        <div class="profile-identity__name" style="--name-chars: {{ api_profile['playerName']|length }}">
+                            {% if known_names|length > 0 %}
+                                {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
+                                <r2 names-tooltip="{{ names_tooltip }}"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
+                            {% else %}
+                                <r2><b>{{ api_profile["playerName"] }}</b></r2>
+                            {% endif %}
+                            {% if api_profile["guildTag"] %}
+                                <r2 class="profile-identity__guild"><b> {{ api_profile["guildTag"] }}</b></r2>
+                            {% endif %}
                         </div>
+                        <div class="profile-identity__meta">
+                            {% if player_rank %}
+                                <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
+                            {% endif %}
+                            {% if api_stats["flag"] and not hide_flag_on_profile %}
+                                <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
+                            {% endif %}
+                            {% if twitch_username %}
+                                <a href="https://twitch.tv/{{ twitch_username|e }}" target="_blank" rel="noopener noreferrer" style="color: #9146ff; text-decoration: none;">
+                                    <img src="https://static.twitchcdn.net/assets/favicon-32-e29e246c157142c94346.png" alt="Twitch" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                                </a>
+                            {% endif %}
+                            {% if youtube_username %}
+                                <a href="https://youtube.com/@{{ youtube_username|e }}" target="_blank" rel="noopener noreferrer" style="color: #ff0000; text-decoration: none;">
+                                    <img src="https://www.youtube.com/favicon.ico" alt="YouTube" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 4px;">
+                                </a>
+                            {% endif %}
+                        </div>
+                        {% if api_stats.get("playerLevel") is not none %}
+                        <div class="profile-identity__level" data-title="{{ api_stats['playerCurrentXp'] }} / {{ api_stats['playerXpNeeded'] }} XP">
+                            <r2 style="color: #00d4ff; font-size: 0.9rem;"><b>Level {{ api_stats["playerLevel"] }}</b></r2>
+                            <div style="width: 100px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; display: inline-block; vertical-align: middle; margin-left: 6px;">
+                                <div style="height: 100%; width: {{ (api_stats["playerXpProgress"] * 100)|round(1) }}%; background: linear-gradient(90deg, #0095ff, #00d4ff); border-radius: 3px;"></div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
                 </div>
                 <div>
                     <div>
