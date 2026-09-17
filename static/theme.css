@@ -23,6 +23,8 @@
     --discord: #5865f2;
     --discord-hover: #4752c4;
     --font: "Roboto", system-ui, sans-serif;
+    --dropdown-bg: #14161a;
+    --dropdown-btn: #2a333d;
 }
 
 *,
@@ -33,6 +35,17 @@
 
 html {
     color-scheme: dark;
+}
+
+[data-bs-theme="dark"] {
+    --bs-dropdown-bg: var(--dropdown-bg);
+    --bs-dropdown-link-color: var(--text);
+    --bs-dropdown-link-hover-bg: var(--accent-muted);
+    --bs-dropdown-link-hover-color: var(--text-strong);
+    --bs-dropdown-link-active-bg: var(--accent-muted);
+    --bs-dropdown-link-active-color: var(--text-strong);
+    --bs-dropdown-border-color: var(--border-strong);
+    --bs-form-select-bg: var(--dropdown-bg);
 }
 
 body {
@@ -378,7 +391,7 @@ r4 {
 .form-control,
 .form-select,
 .input-group-text {
-    background-color: var(--surface-solid);
+    background-color: var(--dropdown-bg);
     border-color: var(--border-strong);
     color: var(--text);
 }
@@ -391,7 +404,7 @@ r4 {
 .form-select:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-muted);
-    background-color: var(--surface-solid);
+    background-color: var(--dropdown-bg);
     color: var(--text);
 }
 
@@ -402,7 +415,7 @@ r4 {
 
 .btn-dark,
 .btn-outline-light {
-    background: var(--surface-solid);
+    background: var(--dropdown-bg);
     border-color: var(--border-strong);
     color: var(--text);
 }
@@ -410,22 +423,39 @@ r4 {
 .btn-dark:hover,
 .btn-outline-light:hover,
 .btn-dark:focus,
-.btn-outline-light:hover {
+.btn-outline-light:focus {
     background: var(--accent-muted);
     border-color: var(--accent);
     color: var(--text-strong);
 }
 
-.btn-secondary {
-    background: #2a333d;
+.btn-dark.show,
+.btn-outline-light.show,
+.btn-dark:active,
+.btn-outline-light:active {
+    background: var(--dropdown-bg);
     border-color: var(--border-strong);
     color: var(--text);
 }
 
-.btn-secondary:hover {
+.btn-secondary {
+    background: var(--dropdown-btn);
+    border-color: var(--border-strong);
+    color: var(--text);
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
     background: #36404c;
     border-color: var(--accent);
     color: var(--text-strong);
+}
+
+.btn-secondary.show,
+.btn-secondary:active {
+    background: var(--dropdown-btn);
+    border-color: var(--border-strong);
+    color: var(--text);
 }
 
 .btn-primary {
@@ -443,19 +473,24 @@ r4 {
 
 .dropdown-menu,
 .dropdown-menu.bg-black {
-    background: var(--surface-raised);
-    border: 1px solid var(--border);
+    --bs-dropdown-bg: var(--dropdown-bg);
+    background-color: var(--dropdown-bg);
+    border: 1px solid var(--border-strong);
     color: var(--text);
 }
 
-.dropdown-item {
+.dropdown-item,
+.dropdown-item:visited {
     color: var(--text);
+    background-color: transparent;
     cursor: pointer;
 }
 
 .dropdown-item:hover,
-.dropdown-item:focus {
-    background: var(--accent-muted);
+.dropdown-item:focus,
+.dropdown-item:active,
+.dropdown-item.active {
+    background-color: var(--accent-muted);
     color: var(--text-strong);
 }
 
