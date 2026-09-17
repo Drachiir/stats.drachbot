@@ -12,8 +12,6 @@
     </div>
 {% endfor %}
 </div>
-<div class="game-viewer-scroll">
-<div class="game-viewer-stack">
 <div class="king_hp_bars_container">
     {% for king_hp in [[game_data["left_king_hp"], "EarthKing"], [game_data["right_king_hp"], "SkyKing"]] %}
         <div class="king_hp_bar_outside">
@@ -25,6 +23,8 @@
         </div>
     {% endfor %}
 </div>
+<div class="game-viewer-scroll">
+<div class="game-viewer-stack">
 <div class="players-container game-lanes">
     {% for player in game_data['players_data'] %}
         <div class="player-lane {% if player.double_down %}double-down-glow{% endif %}" data-player="{{ player['player_slot'] }}">
@@ -94,6 +94,8 @@
         </div>
     {% endfor %}
 </div>
+</div>
+</div>
 <div class="game-info">
     <div style="display: flex; gap: 5px">
         <r>Spell Choices:</r>
@@ -106,8 +108,6 @@
     <div><r><b>Version:</b> {{ game_data['version'] }}</r></div>
     <div><r><b>Game elo:</b> {{ game_data['game_elo'] }}</r></div>
     <div><r><b>Game length:</b> {{ (game_data['game_length'] / 60)|round|int }} minutes</r></div>
-</div>
-</div>
 </div>
 <style>
     :root{
@@ -145,11 +145,12 @@
     }
     .king_hp_bars_container{
         border-radius: 10px;
-        margin: 0 0 8px;
+        margin: 0 auto 8px;
         display: flex;
         justify-content: space-between;
+        gap: 8px;
         width: 100%;
-        min-width: 0;
+        max-width: 100%;
         box-sizing: border-box;
     }
     .king_hp_bar_outside{
@@ -195,9 +196,9 @@
         flex-wrap: wrap;
         gap: 10px;
         padding: 15px;
-        margin: 8px 0 0;
+        margin: 8px auto 0;
         width: 100%;
-        min-width: 0;
+        max-width: 100%;
         box-sizing: border-box;
         background: var(--surface);
         border: 1px solid var(--border);
@@ -233,6 +234,11 @@
         }
         .wave-nav{
             padding-left: 10px;
+        }
+        .king_hp_bar_outside {
+            flex: 1 1 0;
+            width: auto;
+            min-width: 0;
         }
     }
     .player-lane {
