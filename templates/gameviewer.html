@@ -173,11 +173,11 @@
         height: 22px;
         background-color: #2a950f;
         transition: width 0.5s ease-in-out;
-        max-width: var(--kingHpBarW);
+        max-width: none;
         flex-shrink: 0;
     }
     .king_hp_bar_upgrades{
-        width: var(--kingHpBarW);
+        width: 100%;
         height: 10px;
     }
     .king_hp_bar_upgrades > div{
@@ -447,9 +447,18 @@ function changeWave(wave) {
     document.getElementById("wave"+currentWave).style.border = "#0080ff 2px solid"
     document.getElementById("wave"+currentWave).style.transform = "scale(1.1)"
     document.getElementById("wave"+currentWave+"Text").style.display = "block"
-    const hpBarWidth = getComputedStyle(document.body).getPropertyValue('--kingHpBarW');
-    document.getElementById("king_hp_bar0").style.width = (parseInt(hpBarWidth) * leftKingHp).toString() + "px";
-    document.getElementById("king_hp_bar1").style.width = (parseInt(hpBarWidth) * rightKingHp).toString() + "px";
+    const kingTrackWidth = (barId) => {
+        const bar = document.getElementById(barId);
+        const outside = bar.closest('.king_hp_bar_outside');
+        const icon = outside.querySelector('img');
+        const fallback = parseInt(getComputedStyle(document.body).getPropertyValue('--kingHpBarW'), 10);
+        const track = outside.clientWidth - (icon ? icon.offsetWidth : 32);
+        return track > 0 ? track : fallback;
+    };
+    const leftTrack = kingTrackWidth('king_hp_bar0');
+    const rightTrack = kingTrackWidth('king_hp_bar1');
+    document.getElementById("king_hp_bar0").style.width = (leftTrack * leftKingHp) + "px";
+    document.getElementById("king_hp_bar1").style.width = (rightTrack * rightKingHp) + "px";
     document.getElementById("king_hp_text0").innerText = (Math.round(leftKingHp * 100)).toString() + "%";
     document.getElementById("king_hp_text1").innerText = (Math.round(rightKingHp * 100)).toString() + "%";
     document.querySelectorAll('.player-lane').forEach((lane, index) => {
@@ -582,7 +591,7 @@ function changeWave(wave) {
         });
     });
     //Update Kingups
-    function updateKingUpgrades(kingBar, kingUps, barId) {
+    function updateKingUpgrades(kingBar, kingUps, barId, hpBarWidth) {
         // Store previous state for comparison
         if (!window.kingUpgradeStates) {
             window.kingUpgradeStates = {};
@@ -680,8 +689,8 @@ function changeWave(wave) {
     let leftKingBar = document.getElementById("king_hp_bar_upgrades0");
     let rightKingBar = document.getElementById("king_hp_bar_upgrades1");
     
-    updateKingUpgrades(leftKingBar, leftKingUps, 'left');
-    updateKingUpgrades(rightKingBar, rightKingUps, 'right');
+    updateKingUpgrades(leftKingBar, leftKingUps, 'left', leftTrack);
+    updateKingUpgrades(rightKingBar, rightKingUps, 'right', rightTrack);
 }
 document.addEventListener('keydown', (e) => {
     if (e.code === "ArrowUp" || e.code === "ArrowRight") {
