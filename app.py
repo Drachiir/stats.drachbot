@@ -973,7 +973,7 @@ def openers(patch, opener, wave):
         for k, v in data.items():
             overview_data[k] = {"Count": v["Count"]}
             if isinstance(v["Data"], dict):
-                # Every unit the opener builds across waves 1-3, for the unit filter.
+                # Every unit the opener builds across waves 1-4, for the unit filter.
                 units = set()
                 for wave_units in v.get("Units", {}).values():
                     units.update(wave_units)
@@ -987,7 +987,7 @@ def openers(patch, opener, wave):
             return render_template("no_data.html", text=f"Opener not found.")
         opener_data = data[opener]
         if isinstance(opener_data["Data"], dict):
-            waves_available = [1, 2, 3]
+            waves_available = [1, 2, 3, 4]
             wave_data = opener_data["Data"].get(f"Wave{wave}")
             wave_games = opener_data.get("Counts", {}).get(f"Wave{wave}", opener_data["Count"])
         else:
