@@ -89,6 +89,13 @@
       border-color: var(--accent);
       background-color: var(--accent-muted);
     }
+    .matchhistoryPlayerName.is-search-match {
+        border-color: #e2b340;
+        background-color: rgba(226, 179, 64, 0.22);
+    }
+    .matchhistoryPlayerName.is-search-match r2 {
+        color: #f3d27a !important;
+    }
     .small-subtle-text{
         font-size: 12px;
     }
@@ -154,6 +161,100 @@
     }
     .profile-identity__level {
         cursor: help;
+    }
+    .match-history-section {
+        margin-top: 18px;
+        background: var(--surface);
+        border-radius: var(--radius);
+        box-shadow: inset 0 0 0 1px var(--border);
+        padding: 8px 10px 10px;
+    }
+    .match-history-header {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        margin-bottom: 8px;
+        min-height: 34px;
+    }
+    .match-history-header > .match-history-title {
+        grid-column: 2;
+        justify-self: center;
+        text-align: center;
+    }
+    .match-history-record {
+        display: block;
+        font-size: 0.95rem;
+        line-height: 1.2;
+    }
+    .match-history-record .mh-wins {
+        color: #6af945;
+    }
+    .match-history-record .mh-losses {
+        color: #d64444;
+    }
+    .match-history-filters {
+        grid-column: 3;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .match-history-queue {
+        display: flex;
+        gap: 5px;
+    }
+    .mh-filter-btn {
+        padding: 4px 10px;
+        font-size: 13px;
+        border: 1px solid var(--accent);
+        border-radius: 5px;
+        background-color: var(--surface-solid);
+        color: var(--accent);
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease;
+    }
+    .mh-filter-btn:hover,
+    .mh-filter-btn.active {
+        background-color: var(--accent);
+        color: #061018;
+    }
+    .match-history-search {
+        width: auto;
+        flex-wrap: nowrap;
+    }
+    .match-history-search > .form-select {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    .match-history-search > .form-control {
+        width: 160px;
+        flex: 1 1 160px;
+    }
+    .match-history-search__btn {
+        background-color: var(--surface-solid);
+        color: var(--accent);
+        border-color: var(--border-strong);
+        font-size: 13px;
+    }
+    .match-history-search__btn:hover,
+    .match-history-search__btn:focus {
+        background-color: var(--accent);
+        color: #061018;
+        border-color: var(--accent);
+    }
+    #match-history {
+        transition: opacity 0.2s ease;
+    }
+    #match-history.is-filtering {
+        opacity: 0;
+        pointer-events: none;
+    }
+    .match-history-empty {
+        text-align: center;
+        color: #a5a5a5;
+        padding: 16px;
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
@@ -469,11 +570,33 @@
             </div>
         </div>
     </div>
-    <div style="text-align: center"><r2 style="font-size: 1.5rem"><b>Match History</b></r2></div>
+    <div class="match-history-section">
+    <div class="match-history-header">
+        <div class="match-history-title">
+            <r2 style="font-size: 1.5rem"><b>Match History</b></r2>
+            <r2 id="match-history-record" class="match-history-record"></r2>
+        </div>
+        <div class="match-history-filters">
+            <div class="match-history-queue">
+                <button type="button" class="mh-filter-btn active" data-queue="all" onclick="setMatchQueue('all')">All</button>
+                <button type="button" class="mh-filter-btn" data-queue="solo" onclick="setMatchQueue('solo')">Solo</button>
+                <button type="button" class="mh-filter-btn" data-queue="duo" onclick="setMatchQueue('duo')">Duo</button>
+            </div>
+            <div class="input-group input-group-sm match-history-search">
+                <select id="matchPlayerSide" class="form-select" onchange="changePlayerSide()">
+                    <option value="any" selected>Any</option>
+                    <option value="ally">Ally</option>
+                    <option value="enemy">Enemy</option>
+                </select>
+                <input type="text" id="matchPlayerSearch" class="form-control" placeholder="Search player" autocomplete="off" onkeydown="if (event.key === 'Enter') submitPlayerSearch()">
+                <button type="button" class="btn match-history-search__btn" onclick="submitPlayerSearch()">Search</button>
+            </div>
+        </div>
+    </div>
     <div style="max-height: 90vh; overflow-y: scroll; border-radius: 10px; padding-top: 5px;
                 display: flex; flex-direction: column; gap: 3px;" id="match-history">
     {% for game in history[:short_history] %}
-        <div class="clickableDiv" style="position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
+        <div class="clickableDiv" data-result="{{ game["Result_String"][0] }}" style="position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;">
             <div style="display: flex; gap: 5px; text-wrap: nowrap; width: 100%; justify-content: center">
                 <div style="width: 40%">
                     <div>
@@ -545,6 +668,7 @@
     {% endfor %}
     <div id="loading-spinner" style="display: none;">
         <div class="spinner"></div>
+    </div>
     </div>
     </div>
 </div>
@@ -699,6 +823,10 @@
     let currentPage = 1;
     let isLoading = false;
     let allGamesLoaded = false;
+    let matchQueue = "all";
+    let filterGeneration = 0;
+    let appliedPlayerSearch = "";
+    let appliedPlayerSide = "any";
 
     function getRankUrl(elo) {
         if (typeof elo !== 'number') {
@@ -752,6 +880,7 @@
     function createGameElement(game) {
         const gameDiv = document.createElement('div');
         gameDiv.className = 'clickableDiv';
+        gameDiv.dataset.result = game.Result_String[0];
         gameDiv.style.cssText = "position: relative; background: var(--blackBg); border-radius: 10px; display: flex; padding: 10px; text-decoration: none; color: inherit;";
 
         let color;
@@ -803,13 +932,20 @@
                 <div style="display: flex; white-space: nowrap; gap: 20px; align-items: center; width: 40%">
                     ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
                         <div style="width: 50%">
-                            ${group.map(player => `
-                                <a class="matchhistoryPlayerName" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
+                            ${group.map(player => {
+                                const name = String(player[0] ?? "");
+                                const role = player[4] || "";
+                                const matched = appliedPlayerSearch
+                                    && name.toLowerCase().includes(appliedPlayerSearch.toLowerCase())
+                                    && (appliedPlayerSide === "any" || role === appliedPlayerSide);
+                                return `
+                                <a class="matchhistoryPlayerName${matched ? " is-search-match" : ""}" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
-                                    <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${player[0]}</r2>
+                                    <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${escapeHtml(name)}</r2>
                                     ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
                                 </a><br>
-                            `).join('')}
+                            `;
+                            }).join('')}
                         </div>
                     `).join('')}
                 </div>
@@ -828,43 +964,170 @@
         return gameDiv;
     }
 
-    async function loadMoreGames() {
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+    }
+
+    function updateVisibleRecord() {
+        const record = document.getElementById("match-history-record");
+        const cards = document.querySelectorAll("#match-history .clickableDiv");
+        let wins = 0;
+        let losses = 0;
+        cards.forEach(card => {
+            if (card.dataset.result === "won") wins++;
+            else if (card.dataset.result === "lost") losses++;
+        });
+        if (!wins && !losses) {
+            record.textContent = "";
+            return;
+        }
+        record.innerHTML = `<span class="mh-wins">${wins}W</span> - <span class="mh-losses">${losses}L</span>`;
+    }
+
+    function changePlayerSide() {
+        const side = document.getElementById("matchPlayerSide").value;
+        if (side === appliedPlayerSide) return;
+        appliedPlayerSide = side;
+        if (appliedPlayerSearch) applyMatchFilters();
+    }
+
+    function submitPlayerSearch() {
+        const next = document.getElementById("matchPlayerSearch").value.trim();
+        const side = document.getElementById("matchPlayerSide").value;
+        if (next === appliedPlayerSearch && side === appliedPlayerSide) return;
+        appliedPlayerSearch = next;
+        appliedPlayerSide = side;
+        applyMatchFilters();
+    }
+
+    function setMatchQueue(queue) {
+        if (matchQueue === queue) return;
+        matchQueue = queue;
+        document.querySelectorAll(".mh-filter-btn").forEach(btn => {
+            btn.classList.toggle("active", btn.dataset.queue === queue);
+        });
+        applyMatchFilters();
+    }
+
+    function clearMatchCards() {
+        const matchHistoryDiv = document.getElementById("match-history");
+        matchHistoryDiv.querySelectorAll(".clickableDiv, .match-history-empty").forEach(el => el.remove());
+    }
+
+    function showMatchHistoryEmpty() {
+        const matchHistoryDiv = document.getElementById("match-history");
+        if (matchHistoryDiv.querySelector(".match-history-empty")) return;
+        const empty = document.createElement("div");
+        empty.className = "match-history-empty";
+        empty.textContent = "No games match this filter.";
+        matchHistoryDiv.prepend(empty);
+    }
+
+    function beginMatchFade() {
+        const list = document.getElementById("match-history");
+        if (list.classList.contains("is-filtering")) return Promise.resolve();
+        return new Promise(resolve => {
+            let settled = false;
+            const finish = () => {
+                if (settled) return;
+                settled = true;
+                list.removeEventListener("transitionend", onEnd);
+                resolve();
+            };
+            const onEnd = (event) => {
+                if (event.target !== list || event.propertyName !== "opacity") return;
+                finish();
+            };
+            list.addEventListener("transitionend", onEnd);
+            list.classList.add("is-filtering");
+            setTimeout(finish, 280);
+        });
+    }
+
+    function applyMatchFilters() {
+        filterGeneration++;
+        currentPage = 0;
+        allGamesLoaded = false;
+        isLoading = false;
+        loadMoreGames(true);
+    }
+
+    async function loadMoreGames(replace) {
         if (isLoading) return;
         if (allGamesLoaded) return;
+        const generation = filterGeneration;
         isLoading = true;
 
-        const url = `/api/get_player_matchhistory/${playerName}/${playerId}/${patch}/${currentPage}`;
-        console.log(url);
+        const params = new URLSearchParams();
+        if (matchQueue !== "all") params.set("queue", matchQueue);
+        const playerSearch = appliedPlayerSearch;
+        if (playerSearch) {
+            params.set("player", playerSearch);
+            if (appliedPlayerSide !== "any") params.set("side", appliedPlayerSide);
+        }
+        const query = params.toString();
+        const url = `/api/get_player_matchhistory/${playerName}/${playerId}/${patch}/${currentPage}${query ? `?${query}` : ""}`;
 
-        let spinnerTimeout;
-        const spinner = document.getElementById('loading-spinner');
-        spinner.style.display = 'none';
+        const spinner = document.getElementById("loading-spinner");
+        if (!replace) spinner.style.display = "block";
+        const fadeReady = replace ? beginMatchFade() : null;
 
         try {
-            spinner.style.display = 'block';
             const response = await fetch(url);
+            if (fadeReady) await fadeReady;
+            if (generation !== filterGeneration) return;
+            const matchHistoryDiv = document.getElementById("match-history");
             if (!response.ok) {
                 allGamesLoaded = true;
-                throw new Error("Failed to fetch data");
+                if (replace) {
+                    const pageScroll = window.scrollY;
+                    clearMatchCards();
+                    showMatchHistoryEmpty();
+                    window.scrollTo(0, pageScroll);
+                    requestAnimationFrame(() => {
+                        if (generation === filterGeneration) matchHistoryDiv.classList.remove("is-filtering");
+                    });
+                    updateVisibleRecord();
+                }
+                return;
             }
 
             const data = await response.json();
-
-            const matchHistoryDiv = document.getElementById('match-history');
+            if (generation !== filterGeneration) return;
+            const pageScroll = replace ? window.scrollY : 0;
+            const listScroll = replace ? matchHistoryDiv.scrollTop : 0;
+            if (replace) {
+                matchHistoryDiv.style.minHeight = `${matchHistoryDiv.offsetHeight}px`;
+                clearMatchCards();
+            }
             data.forEach(game => {
                 const gameElement = createGameElement(game);
                 matchHistoryDiv.appendChild(gameElement);
             });
+            if (replace) {
+                matchHistoryDiv.style.minHeight = "";
+                matchHistoryDiv.scrollTop = listScroll;
+                window.scrollTo(0, pageScroll);
+                requestAnimationFrame(() => {
+                    if (generation === filterGeneration) matchHistoryDiv.classList.remove("is-filtering");
+                });
+            }
+            updateVisibleRecord();
 
             currentPage++;
         } catch (error) {
-            console.error("Error loading more games:", error);
+            if (generation === filterGeneration) {
+                console.error("Error loading more games:", error);
+            }
         } finally {
-            isLoading = false;
-            setTimeout(() => {
-                clearTimeout(spinnerTimeout);
-                spinner.style.display = 'none';
-            }, 200);
+            if (generation === filterGeneration) {
+                isLoading = false;
+                spinner.style.display = "none";
+            }
         }
     }
 
@@ -877,6 +1140,7 @@
             loadMoreGames();
         }
     });
+    updateVisibleRecord();
 </script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

@@ -1291,9 +1291,42 @@ def get_player_matchhistory(playername, playerid, patch, page):
              "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
         history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True)
         _save_msgpack_cache(path, history)
+    queue_filter = (request.args.get("queue") or "all").lower()
+    name_filter = (request.args.get("player") or "").strip().lower()
+    side_filter = (request.args.get("side") or "any").lower()
+    if queue_filter not in ("solo", "duo"):
+        queue_filter = "all"
+    if side_filter not in ("ally", "enemy"):
+        side_filter = "any"
+    player_map = {1: [1, 2, 3], 2: [0, 2, 3], 5: [3, 0, 1], 6: [2, 0, 1]}
+
+    def players_on_side(game, profile_player, side):
+        players = game["players_data"]
+        mapped = player_map.get(profile_player.get("player_slot") if profile_player else None)
+        if not mapped:
+            return []
+        indexes = [mapped[0]] if side == "ally" else mapped[1:]
+        return [players[index] for index in indexes if index < len(players)]
+
+    def game_matches(game):
+        profile_player = next((player for player in game["players_data"] if player["player_id"] == playerid), None)
+        if queue_filter == "solo" and (not profile_player or profile_player.get("party_size") != 1):
+            return False
+        if queue_filter == "duo" and (not profile_player or profile_player.get("party_size") == 1):
+            return False
+        if name_filter:
+            if side_filter == "any":
+                targets = game["players_data"]
+            else:
+                targets = players_on_side(game, profile_player, side_filter)
+            if not any(name_filter in (player.get("player_name") or "").lower() for player in targets):
+                return False
+        return True
+
+    if queue_filter != "all" or name_filter:
+        history = [game for game in history if game_matches(game)]
     history_parsed = []
     slice_int = 20*int(page)
-    player_map = {1: [1, 2, 3], 2: [0, 2, 3], 5: [3, 0, 1], 6: [2, 0, 1]}
     for game in history[slice_int:][:20]:
         if type(game["date"]) == str:
             game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
@@ -1302,8 +1335,16 @@ def get_player_matchhistory(playername, playerid, patch, page):
             , "Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
                      "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "",
                      "Worker": "", "Megamind": False, "MVP": False}
-        for player in game["players_data"]:
-            temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"]])
+        profile_player = next((player for player in game["players_data"] if player["player_id"] == playerid), None)
+        role_by_index = {}
+        mapped = player_map.get(profile_player.get("player_slot") if profile_player else None)
+        if mapped:
+            role_by_index[mapped[0]] = "ally"
+            role_by_index[mapped[1]] = "enemy"
+            role_by_index[mapped[2]] = "enemy"
+        for index, player in enumerate(game["players_data"]):
+            role = "self" if player["player_id"] == playerid else role_by_index.get(index, "")
+            temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"], role])
             if player["player_id"] == playerid:
                 teammate = game["players_data"][player_map[player["player_slot"]][0]]
                 if player["mvp_score"] > teammate["mvp_score"]:
