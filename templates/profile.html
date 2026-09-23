@@ -206,8 +206,10 @@
         gap: 5px;
     }
     .mh-filter-btn {
-        padding: 4px 10px;
+        height: 26px;
+        padding: 0 10px;
         font-size: 13px;
+        line-height: 1;
         border: 1px solid var(--accent);
         border-radius: 5px;
         background-color: var(--surface-solid);
@@ -222,7 +224,19 @@
     }
     .match-history-search {
         width: auto;
+        height: 26px;
         flex-wrap: nowrap;
+    }
+    .match-history-search > .form-select,
+    .match-history-search__field,
+    .match-history-search__field > .form-control,
+    .match-history-search > .match-history-search__btn {
+        height: 26px;
+        min-height: 0;
+        font-size: 13px;
+        line-height: 1.2;
+        padding-top: 0;
+        padding-bottom: 0;
     }
     .match-history-search > .form-select {
         flex: 0 0 auto;
