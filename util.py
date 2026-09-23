@@ -327,11 +327,10 @@ CONFIG = {
     "pr_weight_low_elo_multiplier": 0.5,
 
     # --- Confidence Multiplier ---
-    # This penalizes items with very low pick rates, just like your old code.
-    # The formula is: pickrate / (pickrate + K)
-    # K=1.0 matches your old code (pickrate / (pickrate + 1))
-    # A higher K means you need a higher pickrate to get "full confidence".
-    "pr_confidence_k": 3.0,  # At 3% PR, confidence is 0.5 (3 / (3+3))
+    # pickrate / (pickrate + K). Applied only to above-average scores, so a thin
+    # sample cannot turn a below-average win rate into a better tier.
+    # At 3% PR, confidence is 0.5 (3 / (3+3)).
+    "pr_confidence_k": 3.0,
 
     # --- Final Score Scaling ---
     # A final multiplier to get scores in a nice range (e.g., 0-100)
@@ -398,11 +397,14 @@ def get_tier_score(winrate, pickrate, dict_type, specific_tier, elo, stats):
     core_score = wr_score + pr_score
 
     # --- 6. Apply Pick Rate Confidence ---
-    # This penalizes the score if pick rate is very low.
-    # (e.g., a 1% PR item with 90% WR is probably an anomaly).
+    # A thin sample discounts an above-average score (a 90% WR on 1% PR is not S-tier).
+    # It must not shrink a below-average score toward 0, or a bad low-pick result
+    # outranks a better-measured one.
     pr_confidence = pickrate / (pickrate + CONFIG["pr_confidence_k"])
-
-    final_score = core_score * pr_confidence * CONFIG["final_score_multiplier"]
+    if core_score > 0:
+        final_score = core_score * pr_confidence * CONFIG["final_score_multiplier"]
+    else:
+        final_score = core_score * CONFIG["final_score_multiplier"]
 
     if pickrate == 100:
         final_score /= 10
