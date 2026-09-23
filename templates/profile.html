@@ -635,7 +635,8 @@
                     </div>
                 </div>
                 <div style="display: flex; white-space: nowrap; gap: 20px; align-items: center; width: 40%">
-                    {% for x in [game["players_data"][:2], game["players_data"][2:]] %}
+                    {% set team_split = game["players_data"]|length // 2 %}
+                    {% for x in [game["players_data"][:team_split], game["players_data"][team_split:]] %}
                         <div style="width: 50%">
                             {% for player in x %}
                                 {% if player[3] == playerid %}
@@ -930,7 +931,10 @@
                     </div>
                 </div>
                 <div style="display: flex; white-space: nowrap; gap: 20px; align-items: center; width: 40%">
-                    ${[game.players_data.slice(0, 2), game.players_data.slice(2)].map(group => `
+                    ${(() => {
+                        const teamSplit = Math.floor(game.players_data.length / 2);
+                        return [game.players_data.slice(0, teamSplit), game.players_data.slice(teamSplit)];
+                    })().map(group => `
                         <div style="width: 50%">
                             ${group.map(player => {
                                 const name = String(player[0] ?? "");

@@ -137,10 +137,11 @@ def _group_games_by_id(rows, game_fields, player_fields, expected_players=4, sor
     raw_data = []
     temp_data = None
     current_game_id = None
+    allowed_counts = (expected_players,) if isinstance(expected_players, int) else tuple(expected_players)
 
     def flush():
         nonlocal temp_data
-        if temp_data is not None and len(temp_data["players_data"]) == expected_players:
+        if temp_data is not None and len(temp_data["players_data"]) in allowed_counts:
             if sort_players:
                 temp_data["players_data"] = sorted(
                     temp_data["players_data"], key=lambda x: x["player_slot"]
@@ -165,7 +166,7 @@ def _group_games_by_id(rows, game_fields, player_fields, expected_players=4, sor
 def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_than_wave10 = False,
                     sort_by = "date", req_columns=None, playerprofile = None, playerstats = None, pname ="",
                     skip_stats=False, get_new_games = False, max_elo = 9001, skip_game_refresh = False, sort_players = True,
-                    include_wave_one_finishes = False, include_custom_queue = False):
+                    include_wave_one_finishes = False, include_custom_queue = False, include_classic_queue = False):
     if req_columns is None:
         req_columns = []
     patch_list = parse_patch_string(patch)
@@ -283,22 +284,26 @@ def get_matchistory(playerid, games, min_elo=0, patch='0', update = 0, earlier_t
             else:
                 expr = True
 
-            queue_expr = False
+            queue_match = (GameData.queue == "Normal")
             if include_custom_queue:
-                queue_expr = GameData.queue.startswith("Custom")
+                queue_match = queue_match | (GameData.queue.startswith("Custom") & (GameData.player_count == 4))
+            if include_classic_queue:
+                queue_match = queue_match | (GameData.queue.in_(["Classic", "Pve"]))
 
             game_data_query = (PlayerData
                          .select(*_select_cols_with_game_id(req_columns[0]))
                          .join(GameData)
-                         .where(GameData.player_ids.contains(playerid) & ((GameData.queue == "Normal") | (queue_expr & (GameData.player_count == 4))) & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
+                         .where(GameData.player_ids.contains(playerid) & queue_match & (GameData.game_elo >= min_elo) & expr & (GameData.ending_wave >= earliest_wave))
                          .order_by(sort_arg.desc(), GameData.id.desc(), PlayerData.player_slot)
                          ).dicts()
 
+            players_per_game = 8 if include_classic_queue else 4
             if games != 0:
-                game_data_query = game_data_query.limit(games*4)
+                game_data_query = game_data_query.limit(games * players_per_game)
 
             raw_data = _group_games_by_id(
                 game_data_query.iterator(), req_columns[1], req_columns[2],
+                expected_players=(4, 8) if include_classic_queue else 4,
                 sort_players=sort_players
             )
     else:

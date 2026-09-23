@@ -1164,3 +1164,52 @@ def calculate_level_from_xp(total_xp):
                 'xp_needed': xp_needed,
                 'progress': remaining_xp / xp_needed if xp_needed > 0 else 0.0
             }
+
+LEFT_TEAM_SLOTS = (1, 2, 3, 4)
+RIGHT_TEAM_SLOTS = (5, 6, 7, 8)
+# slot -> (partner, send_to, receive_from)
+SLOT_LANES = {
+    1: (2, 5, 6),
+    2: (1, 6, 5),
+    5: (6, 2, 1),
+    6: (5, 1, 2),
+    3: (4, 7, 8),
+    4: (3, 8, 7),
+    7: (8, 4, 3),
+    8: (7, 3, 4),
+}
+
+def team_slots(slot):
+    if slot in LEFT_TEAM_SLOTS:
+        return LEFT_TEAM_SLOTS
+    if slot in RIGHT_TEAM_SLOTS:
+        return RIGHT_TEAM_SLOTS
+    return ()
+
+def players_on_team_side(players, slot, side):
+    team = team_slots(slot)
+    if not team:
+        return []
+    if side == "ally":
+        return [player for player in players if player.get("player_slot") in team and player.get("player_slot") != slot]
+    return [player for player in players if player.get("player_slot") not in team]
+
+def lane_player_indexes(players, slot):
+    lane = SLOT_LANES.get(slot)
+    if not lane:
+        return None
+    index_by_slot = {player.get("player_slot"): index for index, player in enumerate(players)}
+    try:
+        partner = index_by_slot[lane[0]]
+        opponents = sorted((index_by_slot[lane[1]], index_by_slot[lane[2]]))
+    except KeyError:
+        return None
+    return [partner, opponents[0], opponents[1]]
+
+def player_role(slot, other_slot):
+    team = team_slots(slot)
+    if not team or other_slot == slot:
+        return ""
+    if other_slot in team:
+        return "ally"
+    return "enemy"

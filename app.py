@@ -1286,11 +1286,12 @@ def get_player_matchhistory(playername, playerid, patch, page):
              PlayerData.player_id, PlayerData.player_name, PlayerData.player_elo, PlayerData.player_slot, PlayerData.game_result, PlayerData.elo_change,
              PlayerData.legion, PlayerData.mercs_sent_per_wave, PlayerData.kingups_sent_per_wave, PlayerData.opener, PlayerData.megamind, PlayerData.spell,
              PlayerData.workers_per_wave, PlayerData.mvp_score, PlayerData.party_size, PlayerData.double_down],
-            ["game_id", "date", "version", "ending_wave", "game_elo", "game_length"],
+            ["game_id", "date", "version", "ending_wave", "game_elo", "game_length", "queue"],
             ["player_id", "player_name", "player_elo", "player_slot", "game_result", "elo_change", "legion",
              "mercs_sent_per_wave", "kingups_sent_per_wave", "opener", "megamind", "spell", "workers_per_wave", "mvp_score", "party_size", "double_down"]]
-        history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True)
+        history = drachbot_db.get_matchistory(playerid, 0, 0, patch, earlier_than_wave10=True, req_columns=req_columns, skip_stats=True, include_wave_one_finishes=True, include_custom_queue=True)
         _save_msgpack_cache(path, history)
+    history = [game for game in history if game.get("queue") not in ("Classic", "Pve")]
     queue_filter = (request.args.get("queue") or "all").lower()
     name_filter = (request.args.get("player") or "").strip().lower()
     side_filter = (request.args.get("side") or "any").lower()
@@ -1298,15 +1299,11 @@ def get_player_matchhistory(playername, playerid, patch, page):
         queue_filter = "all"
     if side_filter not in ("ally", "enemy"):
         side_filter = "any"
-    player_map = {1: [1, 2, 3], 2: [0, 2, 3], 5: [3, 0, 1], 6: [2, 0, 1]}
 
     def players_on_side(game, profile_player, side):
-        players = game["players_data"]
-        mapped = player_map.get(profile_player.get("player_slot") if profile_player else None)
-        if not mapped:
+        if not profile_player:
             return []
-        indexes = [mapped[0]] if side == "ally" else mapped[1:]
-        return [players[index] for index in indexes if index < len(players)]
+        return util.players_on_team_side(game["players_data"], profile_player.get("player_slot"), side)
 
     def game_matches(game):
         profile_player = next((player for player in game["players_data"] if player["player_id"] == playerid), None)
@@ -1331,23 +1328,20 @@ def get_player_matchhistory(playername, playerid, patch, page):
         if type(game["date"]) == str:
             game["date"] = datetime.strptime(game["date"].split(" ")[0], "%Y-%m-%d")
         end_wave_cdn = util.get_cdn_image(str(game["ending_wave"]), "Wave")
-        temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": game["version"], "EloChange": ""
+        queue = game.get("queue") or ""
+        queue_label = "Custom" if queue == "Custom" else ""
+        temp_dict = {"EndWave": end_wave_cdn, "Result_String": "", "Version": f"{queue_label} {game['version']}".strip(), "EloChange": ""
             , "Date": game["date"], "gamelink": f"/gameviewer/{game["game_id"]}",
                      "time_ago": util.time_ago(game["date"]), "players_data": [], "Opener": "", "Mastermind": "", "Spell": "",
                      "Worker": "", "Megamind": False, "MVP": False}
         profile_player = next((player for player in game["players_data"] if player["player_id"] == playerid), None)
-        role_by_index = {}
-        mapped = player_map.get(profile_player.get("player_slot") if profile_player else None)
-        if mapped:
-            role_by_index[mapped[0]] = "ally"
-            role_by_index[mapped[1]] = "enemy"
-            role_by_index[mapped[2]] = "enemy"
-        for index, player in enumerate(game["players_data"]):
-            role = "self" if player["player_id"] == playerid else role_by_index.get(index, "")
+        profile_slot = profile_player.get("player_slot") if profile_player else None
+        for player in game["players_data"]:
+            role = "self" if player["player_id"] == playerid else util.player_role(profile_slot, player.get("player_slot"))
             temp_dict["players_data"].append([player["player_name"], player["player_elo"], player["party_size"], player["player_id"], role])
             if player["player_id"] == playerid:
-                teammate = game["players_data"][player_map[player["player_slot"]][0]]
-                if player["mvp_score"] > teammate["mvp_score"]:
+                lane = util.lane_player_indexes(game["players_data"], player["player_slot"])
+                if lane and player["mvp_score"] > game["players_data"][lane[0]]["mvp_score"]:
                     temp_dict["MVP"] = True
                 # Match history details
                 temp_dict["Opener"] = player["opener"]
@@ -1564,6 +1558,7 @@ def profile(playername, stats, patch, elo, specific_key):
             history = drachbot_db.get_matchistory(playerid, 0, elo, patch, earlier_than_wave10=True, req_columns=req_columns,
                                                   playerstats=api_stats, playerprofile=api_profile, pname=playername, skip_game_refresh=skip_game_refresh, include_wave_one_finishes=True, include_custom_queue=True)
             _save_msgpack_cache(path, history)
+        history = [game for game in history if game.get("queue") not in ("Classic", "Pve")]
         history_parsed = []
         winlose = {"Overall": [0,0], "SoloQ": [0,0], "DuoQ": [0,0]}
         elochange = {"Overall": 0, "SoloQ": 0, "DuoQ": 0}
@@ -1574,7 +1569,6 @@ def profile(playername, stats, patch, elo, specific_key):
         wave1 = {"King": 0, "Snail": 0, "Save": 0}
         openers = {}
         spells = {}
-        player_map = {1: [1,2,3], 2: [0,2,3], 5: [3,0,1], 6: [2,0,1]}
         player_dict = {"Teammates": {}, "Enemies": {}}
         games = len(history)
         short_history = 20
@@ -1596,13 +1590,11 @@ def profile(playername, stats, patch, elo, specific_key):
                 if player["player_id"] == playerid:
                     if player["player_name"] != api_profile["playerName"]:
                         known_names.add(player["player_name"])
-                    # Players
-                    teammate = game["players_data"][player_map[player["player_slot"]][0]]
-                    enemy1 = game["players_data"][player_map[player["player_slot"]][1]]
-                    enemy2 = game["players_data"][player_map[player["player_slot"]][2]]
-                    p: dict
-                    # Ranked stats
-                    if game["queue"] == "Normal":
+                    lane = util.lane_player_indexes(game["players_data"], player["player_slot"]) if game["queue"] == "Normal" else None
+                    if lane:
+                        teammate = game["players_data"][lane[0]]
+                        enemy1 = game["players_data"][lane[1]]
+                        enemy2 = game["players_data"][lane[2]]
                         for p in [[teammate, "Teammates"],[enemy1, "Enemies"],[enemy2, "Enemies"]]:
                             if p[0]["player_id"] in player_dict[p[1]]:
                                 player_dict[p[1]][p[0]["player_id"]]["Count"] += 1
@@ -1657,11 +1649,12 @@ def profile(playername, stats, patch, elo, specific_key):
                         game_date = game["date"]
                         labels.insert(0,game_date.strftime("%d/%m/%Y"))
                     temp_dict["EloChange"] = util.plus_prefix(player["elo_change"])
-                    elochange["Overall"] += player["elo_change"]
-                    elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
+                    if game["queue"] not in ("Classic", "Pve"):
+                        elochange["Overall"] += player["elo_change"]
+                        elochange["SoloQ" if player["party_size"] == 1 else "DuoQ"] += player["elo_change"]
                     # Ranked stats
                     if game["queue"] == "Normal":
-                        if (player["mvp_score"] >= teammate["mvp_score"]) and game["ending_wave"] != 1:
+                        if lane and (player["mvp_score"] >= teammate["mvp_score"]) and game["ending_wave"] != 1:
                             temp_dict["MVP"] = True
                             mvp_count["Overall"] += 1
                             mvp_count["SoloQ" if player["party_size"] == 1 else "DuoQ"] += 1
