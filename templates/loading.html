@@ -16,7 +16,7 @@
 <body class="empty-state" style="min-height:100vh; display:grid; place-items:center;">
     <div>
         <div id="loading" class="center"></div>
-        <div class="empty-state__text" style="padding-top: 20px"><r>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</r></div>
+        <div class="empty-state__text" style="padding-top: 20px"><span>{% if text %}{{ text }}{% else %}Loading Data... This may take up to a minute{% endif %}</span></div>
     </div>
     <script>
         function applyBackground(url) {

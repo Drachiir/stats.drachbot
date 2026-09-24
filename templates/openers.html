@@ -95,13 +95,13 @@
         <div class="player-build" data-player="{{ loop.index0 }}">
             <img class="player-legion-image" width="32" height="32" src="">
             <a class="player-profile-link" href="" style="text-decoration: none">
-                    <r class="player-name" style="font-weight: 400"></r></a>
+                    <span class="player-name" style="font-weight: 400"></span></a>
                 <div class="player-elo" style="float: right"></div><br>
             <div style="display: flex; justify-content: space-evenly; width: 100%">
                 <div>
-                    <img width="20" height="auto" src="https://cdn.legiontd2.com/Icons/Value32.png"><r class="fighter-value"></r>
+                    <img width="20" height="auto" src="https://cdn.legiontd2.com/Icons/Value32.png"><span class="fighter-value"></span>
                 </div>
-                <a style="text-decoration: none" class="game-link" href=""><r>Game Link↗️</r></a>
+                <a style="text-decoration: none" class="game-link" href=""><span>Game Link↗️</span></a>
             </div>
             <div class="grid" data-build="0">
                 {% for row in range(14) %}
@@ -496,7 +496,7 @@ function renderBuild(data) {
         lane.querySelector('.player-profile-link').href = '/profile/' + buildData['playername'];
         lane.querySelector('.player-legion-image').src = `https://cdn.legiontd2.com/icons/Items/${buildData['mastermind']}.png`;
         lane.querySelector('.game-link').href = '/gameviewer/' + buildData['game_id'] + '/' + wave;
-        lane.querySelector('.player-elo').innerHTML = `<r>${buildData['elo']}</r> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
+        lane.querySelector('.player-elo').innerHTML = `<span>${buildData['elo']}</span> <img style="width: 24px" loading="lazy" src="${getRankUrl(buildData['elo'])}">`;
 
         const grid = lane.querySelector('.grid');
         grid.querySelectorAll('.grid-square').forEach(square => {
@@ -558,7 +558,7 @@ function renderBuild(data) {
                     }
                     gridSquare.innerHTML = `<img loading="lazy" src="${unitImage}" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 10; width: 100%; height: 100%;">`;
                     if (stacks !== "0") {
-                        gridSquare.innerHTML += `<r2 style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</r2>`;
+                        gridSquare.innerHTML += `<span class="text" style="position: absolute; transform: translate(${xOffset}%, ${yOffset}%); z-index: 90; font-size: 0.7rem; top: ${topStringStacks}; ${leftStacks} -webkit-text-stroke: 1px black; paint-order: stroke fill; font-weight: 500;">${stacks}</span>`;
                     }
                     if (coord === buildData["champ"]) {
                         gridSquare.innerHTML += `<img loading="lazy" src="https://cdn.legiontd2.com/icons/Items/Champion.png" style="position: absolute; transform: translate(${xOffsetChamp}%, ${yOffset}%); z-index: 90; width: 45%; height: 45%; top: ${topString}; right: 0">`;
@@ -576,7 +576,7 @@ function renderBuild(data) {
         addCopyButton("build" + index, JSON.stringify(buildJson));
 
         const sendsDiv = document.getElementById("sends" + index);
-        sendsDiv.innerHTML = `<r>${sendTotal}</r><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
+        sendsDiv.innerHTML = `<span>${sendTotal}</span><img width="24" height="24" loading="lazy" src="https://cdn.legiontd2.com/icons/Mythium32.png">`;
 
         mercsReceived.split("!").forEach(merc => {
             if (merc) {
@@ -597,7 +597,7 @@ function renderBuild(data) {
             } else if (leakPercentage <= 89) {
                 color = "orange";
             }
-            leaksDiv.innerHTML = `<r style="color: ${color}">${leakPercentage}%</r>`;
+            leaksDiv.innerHTML = `<span style="color: ${color}">${leakPercentage}%</span>`;
         }
         leaksCurrentWave.split("!").forEach(leak => {
             if (leak) {

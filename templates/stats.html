@@ -93,7 +93,7 @@
                     <tbody>
                     <tr>
                         <th>
-                            <r>{{ header_title }}</r>
+                            <span>{{ header_title }}</span>
                         </th>
                         {% for key in data %}
                             <td>
@@ -111,7 +111,7 @@
                     {% for k in header_keys %}
                         <tr>
                             <th>
-                                <r style="white-space: nowrap;">{{ k }}</r>
+                                <span style="white-space: nowrap;">{{ k }}</span>
                                 {% if k in ["Pickrate", "W on 4", "W on 10", "Pickrate*", "Usage Rate", "Tier"] %}
                                     <i data-title="{{ get_tooltip(k) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                                 {% endif %}
@@ -132,7 +132,7 @@
                     {% for sub in sub_headers %}
                         <tr>
                             <th>
-                                <r style="white-space: nowrap;">{{ sub[0] }}</r>
+                                <span style="white-space: nowrap;">{{ sub[0] }}</span>
                                 <i data-title="{{ get_tooltip(sub[0]) }}" style="font-size:14px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                             </th>
                             {% for key in data %}
@@ -162,7 +162,7 @@
                             {% for sub_key in sub_keys %}
                                 <tr>
                                     <th>
-                                        <r style="white-space: nowrap;">{{ sub_key }}</r>
+                                        <span style="white-space: nowrap;">{{ sub_key }}</span>
                                         {% if sub_key in ["Synergy", "Counter", "Delta"] %}
                                             <i data-title="{{ get_tooltip(sub_key) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                                         {% endif %}

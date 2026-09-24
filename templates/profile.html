@@ -90,7 +90,7 @@
         border-color: #e2b340;
         background-color: rgba(226, 179, 64, 0.22);
     }
-    .matchhistoryPlayerName.is-search-match r2 {
+    .matchhistoryPlayerName.is-search-match .text {
         color: #f3d27a !important;
     }
     .small-subtle-text{
@@ -144,10 +144,10 @@
         line-height: 1.2;
         white-space: nowrap;
     }
-    .profile-identity__name r2 {
+    .profile-identity__name .text {
         font-size: inherit;
     }
-    .profile-identity__name r2.profile-identity__guild {
+    .profile-identity__name .text.profile-identity__guild {
         color: gold;
         font-size: 1rem;
     }
@@ -307,17 +307,17 @@
                     <div class="profile-identity__info">
                         <div class="profile-identity__name" style="--name-chars: {{ api_profile['playerName']|length }}">
                             {% if known_names|length > 0 %}
-                                <r2 class="profile-name-alias" xtitle="{{ 'Past Names:\n' + known_names|join('\n') }}"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
+                                <span class="text profile-name-alias" xtitle="{{ 'Past Names:\n' + known_names|join('\n') }}"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></span>
                             {% else %}
-                                <r2><b>{{ api_profile["playerName"] }}</b></r2>
+                                <span class="text"><b>{{ api_profile["playerName"] }}</b></span>
                             {% endif %}
                             {% if api_profile["guildTag"] %}
-                                <r2 class="profile-identity__guild"><b> {{ api_profile["guildTag"] }}</b></r2>
+                                <span class="text profile-identity__guild"><b> {{ api_profile["guildTag"] }}</b></span>
                             {% endif %}
                         </div>
                         <div class="profile-identity__meta">
                             {% if player_rank %}
-                                <r2 style="color: gold;">Rank #{{ player_rank }}</r2>
+                                <span class="text" style="color: gold;">Rank #{{ player_rank }}</span>
                             {% endif %}
                             {% if api_stats["flag"] and not hide_flag_on_profile %}
                                 <img title="{{ api_stats["Country"] }}" src="https://cdn.legiontd2.com/flags/4x3/{{ api_stats["flag"]|lower }}.png">
@@ -335,7 +335,7 @@
                         </div>
                         {% if api_stats.get("playerLevel") is not none %}
                         <div class="profile-identity__level" data-title="{{ api_stats['playerCurrentXp'] }} / {{ api_stats['playerXpNeeded'] }} XP">
-                            <r2 style="color: #00d4ff; font-size: 0.9rem;"><b>Level {{ api_stats["playerLevel"] }}</b></r2>
+                            <span class="text" style="color: #00d4ff; font-size: 0.9rem;"><b>Level {{ api_stats["playerLevel"] }}</b></span>
                             <div style="width: 100px; height: 5px; background: rgba(255, 255, 255, 0.1); border-radius: 3px; overflow: hidden; margin-top: 2px; display: inline-block; vertical-align: middle; margin-left: 6px;">
                                 <div style="height: 100%; width: {{ (api_stats["playerXpProgress"] * 100)|round(1) }}%; background: linear-gradient(90deg, #0095ff, #00d4ff); border-radius: 3px;"></div>
                             </div>
@@ -353,12 +353,12 @@
                             {% endif %}
                         </button>
                         <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <r><b>Stats Pages</b></r>
+                            <span><b>Stats Pages</b></span>
                         </button>
                         <ul class="dropdown-menu">
                             {% for stat in stats_list %}
                                 <li><a class="dropdown-item" style="color: white; text-decoration: none;" href="/load/{{ playerid }}/{{ stat }}/{{ patch }}">
-                                    <div><img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}"><r2>{{ stat.capitalize() }}</r2></div>
+                                    <div><img width="32" height="auto" style="vertical-align: middle" src="{{ image_list[loop.index0]}}"><span class="text">{{ stat.capitalize() }}</span></div>
                                 </a></li>
                             {% endfor %}
                         </ul>
@@ -421,26 +421,26 @@
                 </div>
             </div>
             <div class="profile-div">
-                <r2 style=""><b>Season 2026 Stats</b></r2><br>
-                <r2>{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L ({{ api_stats["rankedWinsThisSeason"] + api_stats["rankedLossesThisSeason"] }})
-                <br>{{ winrate([api_stats["rankedWinsThisSeason"], (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }}% Winrate</r2><br>
+                <span class="text" style=""><b>Season 2026 Stats</b></span><br>
+                <span class="text">{{ api_stats["rankedWinsThisSeason"] }}W - {{ api_stats["rankedLossesThisSeason"] }}L ({{ api_stats["rankedWinsThisSeason"] + api_stats["rankedLossesThisSeason"] }})
+                <br>{{ winrate([api_stats["rankedWinsThisSeason"], (api_stats["rankedWinsThisSeason"]+api_stats["rankedLossesThisSeason"])]) }}% Winrate</span><br>
                 <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallElo"]) }}">
-                <r2>{{ api_stats["overallElo"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Current Elo</r2><br>
+                <span class="text">{{ api_stats["overallElo"] }} </span><span class="text small-subtle-text" style="color: #919191">Current Elo</span><br>
                 <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakEloThisSeason"]) }}">
-                <r2>{{ api_stats["overallPeakEloThisSeason"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Season Peak</r2>
+                <span class="text">{{ api_stats["overallPeakEloThisSeason"] }} </span><span class="text small-subtle-text" style="color: #919191">Season Peak</span>
                 {% if api_stats["overallPeakElo"] > 0 %}
                     <br>
                     <img width="28" height="auto" style="vertical-align: middle" src="{{ get_rank_url(api_stats["overallPeakElo"]) }}">
-                    <r2>{{ api_stats["overallPeakElo"] }} </r2><r2 class="small-subtle-text" style="color: #919191">Overall Peak</r2>
+                    <span class="text">{{ api_stats["overallPeakElo"] }} </span><span class="text small-subtle-text" style="color: #919191">Overall Peak</span>
                 {% endif %}
             </div>
             <div class="profile-div">
-                <r2>
+                <span class="text">
                     <b>Last {{ games }} Games </b>
-                </r2>
+                </span>
                 <i data-title="Patch: ({{ patch }})" style="font-size:14px; color: var(--blueAccent)" class="fa">?</i><br>
                 <div class="button-container">
-                    <button class="state-button" onclick="switchState('Overall')" id="btn-Overall">Total</button>
+                    <button class="state-button" onclick="switchState('Overall')" id="btn-Overall">All</button>
                     <button class="state-button" onclick="switchState('SoloQ')" id="btn-SoloQ">Solo</button>
                     <button class="state-button" onclick="switchState('DuoQ')" id="btn-DuoQ">Duo</button>
                 </div>
@@ -489,9 +489,9 @@
                     const mvp = mvpCount[state];
 
                     statsDisplay.innerHTML = `
-                        <r2>${wins}W - ${losses}L<br>${wr}% Winrate</r2><br>
-                        <r2>Elo: ${elo}</r2><br>
-                        <r2>${(mvp / totalGames * 100).toFixed(1)}% MVP Rate</r2>
+                        <span class="text">${wins}W - ${losses}L<br>${wr}% Winrate</span><br>
+                        <span class="text">Elo: ${elo}</span><br>
+                        <span class="text">${(mvp / totalGames * 100).toFixed(1)}% MVP Rate</span>
                     `;
                     document.querySelectorAll('.state-button').forEach(btn => btn.classList.remove('active'));
                     document.getElementById(`btn-${state}`).classList.add('active');
@@ -504,22 +504,22 @@
                            style="display: inline-block; max-height: 145px; overflow: hidden; overflow-y: scroll; border-collapse: separate; text-align: center">
                         <tbody>
                             <tr>
-                                <th><r3>{{ x }}</r3></th>
-                                <th><r3>Games</r3></th>
-                                <th><r3>Winrate</r3></th>
-                                <th><r3>Elo</r3></th>
+                                <th><span class="text-sm">{{ x }}</span></th>
+                                <th><span class="text-sm">Games</span></th>
+                                <th><span class="text-sm">Winrate</span></th>
+                                <th><span class="text-sm">Elo</span></th>
                             </tr>
                             {% for mate in player_dict[x] %}
                                 {% set mate_dict = player_dict[x][mate] %}
                                 <tr class="player-row" data-href="/load/{{ mate_dict["Playerid"] }}">
                                     <td style="text-align: left">
                                         <a style="text-decoration: none; color: white" href="/load/{{ mate_dict["Playerid"] }}" class="open-in-new-tab">
-                                            <r3>{{ mate_dict["Playername"][:14] }}</r3>
+                                            <span class="text-sm">{{ mate_dict["Playername"][:14] }}</span>
                                         </a>
                                     </td>
-                                    <td><r3>{{ mate_dict["Count"] }}</r3></td>
-                                    <td><r3>{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</r3></td>
-                                    <td><r3>{{ plus_prefix(mate_dict["EloChange"]) }}</r3></td>
+                                    <td><span class="text-sm">{{ mate_dict["Count"] }}</span></td>
+                                    <td><span class="text-sm">{{ winrate([mate_dict["Wins"],mate_dict["Count"]]) }}%</span></td>
+                                    <td><span class="text-sm">{{ plus_prefix(mate_dict["EloChange"]) }}</span></td>
                                 </tr>
                             {% endfor %}
                         </tbody>
@@ -560,12 +560,12 @@
 
             <div style="display: flex; flex-wrap: wrap; justify-content: space-evenly; width: 100%">
                 <div class="profile-div">
-                    <r2>Wave 1 Tendency:</r2><br>
+                    <span class="text">Wave 1 Tendency:</span><br>
                     <div style="display: flex">
                         {% for x in ["UpgradeKingAttack", "Snail", "Mythium32"] %}
                             <div class="fav-imgs" style="position: relative;">
                                 <img style="width: var(--waveimgsize)"  src="https://cdn.legiontd2.com/icons/{{ x }}.png">
-                                <r2 style="position: absolute; bottom: -4px; left: 0;" class="strokeText">{{ wave1[loop.index0] }}%</r2>
+                                <span style="position: absolute; bottom: -4px; left: 0;" class="text strokeText">{{ wave1[loop.index0] }}%</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -574,7 +574,7 @@
                                         ["Favorite Masterminds", "MMs", mms, "mmstats"],
                                         ["Favorite Legion Spells", "Spell", spells, "spellstats"]] %}
                     <div class="profile-div">
-                        <r2>{{ fav_category[0] }}:</r2><br>
+                        <span class="text">{{ fav_category[0] }}:</span><br>
                         <div style="display: flex">
                         {% for key in fav_category[2] %}
                             <div class="fav-imgs" style="position: relative;">
@@ -585,7 +585,7 @@
                                 {% endif %}
                                 <a style="color: white; text-decoration: none" href="/load/{{ playername }}/{{ fav_category[3] }}/{{ patch }}/{{ elo }}/{{ url_key }}">
                                     <img style="width: var(--waveimgsize)" src="{{ get_cdn(key, fav_category[1]) }}">
-                                    <r2 class="strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</r2>
+                                    <span class="text strokeText" style="position: absolute; bottom: -4px; left: 0;">{{ winrate([fav_category[2][key], games], no_dec=True) }}%</span>
                                 </a>
                             </div>
                         {% endfor %}
@@ -607,8 +607,8 @@
     <div class="match-history-section">
     <div class="match-history-header">
         <div class="match-history-title">
-            <r2 style="font-size: 1.5rem"><b>Match History</b></r2>
-            <r2 id="match-history-record" class="match-history-record"></r2>
+            <span class="text" style="font-size: 1.5rem"><b>Match History</b></span>
+            <span id="match-history-record" class="text match-history-record"></span>
         </div>
         <div class="match-history-filters">
             <div class="match-history-queue">
@@ -639,14 +639,14 @@
                     <div>
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="{{ game["EndWave"] }}">
                         {% if game["Result_String"][0] == "won" %}
-                            <r2 style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</r2>
+                            <span class="text" style="color: #6af945; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</span>
                         {% elif game["Result_String"][0] == "lost" %}
-                            <r2 style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</r2>
+                            <span class="text" style="color: #d64444; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</span>
                         {% else %}
-                            <r2 style="color: #aeaeae; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</r2>
+                            <span class="text" style="color: #aeaeae; font-size: var(--textsize)">{{ game["Result_String"][1] }}{% if game["EloChange"] != "0" %} ({{ game["EloChange"] }} Elo){% endif %}</span>
                         {% endif %}
                         {% if game["MVP"] %}
-                            <r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>
+                            <span class="text" style="color: goldenrod; font-size: var(--textsize)">[MVP]</span>
                         {% endif %}
                         {% if game.DoubleDown %}
                             <img title="Double Down" style="width: 24px; clip-path: circle(); width: var(--imgsize);" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png">
@@ -661,7 +661,7 @@
                         </div>
                         <div>
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="https://cdn.legiontd2.com/Icons/Worker.png">
-                            <r style="font-size: var(--textsize)">{{ game["Worker"] }}</r>
+                            <span style="font-size: var(--textsize)">{{ game["Worker"] }}</span>
                         </div>
                         <div>
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="{{ get_cdn(game["Spell"], "Spell") }}">
@@ -683,7 +683,7 @@
                                 {% endif %}
                                 <a class="matchhistoryPlayerName" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/{{ player[3] }}">
                                     <img style="width: 16px;" src="{{ get_rank_url(player[1]) }}">
-                                    <r2 style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</r2>
+                                    <span class="text" style="font-size: var(--textsize); color: {{ color }}">{{ player[0] }}</span>
                                     {% if player[2] > 1 %}
                                         <img style="width: 16px;" src="/static/party.png">
                                     {% endif %}
@@ -694,10 +694,10 @@
                 </div>
                 <div style="width: 20%; position: relative;">
                     <div style="position: absolute; top: -15%; right: 0">
-                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">{{ game["time_ago"] }}</r2>
+                        <span class="text" style="color: #a5a5a5; font-size: var(--textsize)">{{ game["time_ago"] }}</span>
                     </div>
                     <div style="position: absolute; bottom: -15%; right: 0">
-                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">{{ game["Version"] }}</r2>
+                        <span class="text" style="color: #a5a5a5; font-size: var(--textsize)">{{ game["Version"] }}</span>
                     </div>
                 </div>
             </div>
@@ -932,9 +932,9 @@
         }
 
         const eloChangeText = game.EloChange !== '0' && game.EloChange !== 0 ? ` (${game.EloChange} Elo)` : '';
-        const resultHTML = `<r2 style="color: ${color}; font-size: var(--textsize)">
+        const resultHTML = `<span class="text" style="color: ${color}; font-size: var(--textsize)">
             ${game.Result_String[1]}${eloChangeText}
-        </r2>`;
+        </span>`;
 
 
         gameDiv.innerHTML = `
@@ -944,7 +944,7 @@
                         <img style="vertical-align: middle; clip-path: circle(); width: var(--waveimgsize)" src="${game.EndWave}">
                         ${resultHTML}
                         ${game.MVP
-                            ? `<r2 style="color: goldenrod; font-size: var(--textsize)">[MVP]</r2>`
+                            ? `<span class="text" style="color: goldenrod; font-size: var(--textsize)">[MVP]</span>`
                             : ""}
                         ${game.DoubleDown ? `<img title="Double Down" style="width: 24px; clip-path: circle(); width: var(--imgsize);" src="https://cdn.legiontd2.com/icons/Secret/DoubleDown.png">` : ""}
                     </div>
@@ -957,7 +957,7 @@
                         </div>
                         <div>
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="https://cdn.legiontd2.com/Icons/Worker.png">
-                            <r style="font-size: var(--textsize)">${game.Worker}</r>
+                            <span style="font-size: var(--textsize)">${game.Worker}</span>
                         </div>
                         <div>
                             <img style="vertical-align: middle; clip-path: circle(); width: var(--imgsize); height: auto" src="${getCDN(game.Spell, 'Spell')}">
@@ -982,7 +982,7 @@
                                 return `
                                 <a class="matchhistoryPlayerName${matched ? " is-search-match" : ""}" style="color: white; text-decoration: none; padding: 5px; z-index: 9; position: relative" href="/load/${player[3]}">
                                     <img style="width: 16px;" src="${getRankUrl(player[1])}">
-                                    <r2 style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${escapeHtml(name)}</r2>
+                                    <span class="text" style="font-size: var(--textsize); color: ${player[3] === playerId ? '#34a9db' : 'white'}">${escapeHtml(name)}</span>
                                     ${player[2] > 1 ? `<img style="width: 16px;" src="/static/party.png">` : ""}
                                 </a><br>
                             `;
@@ -992,10 +992,10 @@
                 </div>
                 <div style="width: 20%; position: relative;">
                     <div style="position: absolute; top: -15%; right: 0">
-                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">${game.time_ago}</r2>
+                        <span class="text" style="color: #a5a5a5; font-size: var(--textsize)">${game.time_ago}</span>
                     </div>
                     <div style="position: absolute; bottom: -15%; right: 0">
-                        <r2 style="color: #a5a5a5; font-size: var(--textsize)">${game.Version}</r2>
+                        <span class="text" style="color: #a5a5a5; font-size: var(--textsize)">${game.Version}</span>
                     </div>
                 </div>
             </div>

@@ -55,10 +55,10 @@
         <table id="LeaderboardTable" class="table" style="font-size: 0.8rem; margin-bottom: 0">
             <thead>
                 <tr>
-                    <th><r>Rank</r></th>
-                    <th><r>Player</r></th>
-                    <th><r>Elo</r></th>
-                    <th><r>Winrate</r></th>
+                    <th><span>Rank</span></th>
+                    <th><span>Player</span></th>
+                    <th><span>Elo</span></th>
+                    <th><span>Winrate</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -73,21 +73,21 @@
                     {% endif %}
                     {% set percentage = winrate([wins, (wins+losses)]) %}
                     <tr class="player-row" data-games="{{ wins + losses }}">
-                        <th style="padding: 6px"><r>{{ player["Position"] + 1 }}</r></th>
+                        <th style="padding: 6px"><span>{{ player["Position"] + 1 }}</span></th>
                         <td style="padding: 6px">
                             <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard linkTextNoDeco">
                                 <div style="text-align: left;">
                                     <img width="26" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
-                                    <r class="player-name"> {{ player["DisplayName"] }}</r>
-                                    <r class="guild-tag">
+                                    <span class="player-name"> {{ player["DisplayName"] }}</span>
+                                    <span class="guild-tag">
                                         {% if player["Profile"]["ContactEmailAddresses"] %}
                                             {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}
-                                        {% endif %}</r>
+                                        {% endif %}</span>
                                 </div>
                             </a>
                         </td>
-                        <td style="padding: 6px"><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><r>{{ player["StatValue"] }}</r></td>
-                        <td style="padding: 6px"><r><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></r></td>
+                        <td style="padding: 6px"><img style="height: 26px; padding-right: 5px" src="{{ get_rank_url(player["StatValue"]) }}"><span>{{ player["StatValue"] }}</span></td>
+                        <td style="padding: 6px"><span><span class="percentage" data-percentage="{{ percentage }}">{{ percentage }}%</span></span></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -102,7 +102,7 @@
                 <table class="table" style="font-size: 0.75rem; margin-bottom: 0">
                     <tbody>
                     <tr>
-                        <th><r style="white-space: nowrap;">{{ data[4] }}</r></th>
+                        <th><span style="white-space: nowrap;">{{ data[4] }}</span></th>
                         {% for key in data[6] %}
                             {% set stats = data[0] %}
                             <td><a href="/{{ stats }}/{{ patch }}/{{ elo }}/{{ key }}"><img style="width: 48px" src="{{ get_cdn_image(key, data[0]) }}"></a></td>
@@ -117,7 +117,7 @@
                     {% endif %}
                     {% for k in key_list %}
                         <tr>
-                            <th><r style="white-space: nowrap;">{{ k }}</r></th>
+                            <th><span style="white-space: nowrap;">{{ k }}</span></th>
                             {% for key in data[6] %}
                                 <td>{{ get_key_value(data[3], key, k, data[1], data[0]) }}</td>
                             {% endfor %}

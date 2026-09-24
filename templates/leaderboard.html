@@ -91,11 +91,11 @@
                             <a href="/load/{{ player["PlayFabId"] }}" class="playername-leaderboard linkTextNoDeco">
                                 <div style="text-align: left;">
                                     <img width="32" src="https://cdn.legiontd2.com/{{ player["Profile"]["AvatarUrl"] }}">
-                                    <r class="player-name"> {{ player["DisplayName"] }}</r>
-                                    <r class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
+                                    <span class="player-name"> {{ player["DisplayName"] }}</span>
+                                    <span class="guild-tag" style="color: gold; font-size: 0.7rem; padding-left: 3px">
                                         {% if player["Profile"]["ContactEmailAddresses"] %}
                                             {{ player["Profile"]["ContactEmailAddresses"][0]["EmailAddress"].split("_")[1].split("+")[1] }}
-                                        {% endif %}</r>
+                                        {% endif %}</span>
                                 </div>
                             </a>
                         </td>

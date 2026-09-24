@@ -97,7 +97,7 @@
                 {% set header_dict = sort_dict(data[specific_key][header[1]], 'Count') %}
                 <tr>
                     <th style="width: 7%;">
-                        <r>{{ header[0] }}</r>
+                        <span>{{ header[0] }}</span>
                         {% if header[0] in ["Champions", "Adds", "Openers", "Targets"] %}
                             <i data-title="{{ get_tooltip(header[0]) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                         {% endif %}
@@ -123,7 +123,7 @@
                 {% for k in header_keys %}
                     <tr>
                         <th>
-                            <r>{{ k }}</r>
+                            <span>{{ k }}</span>
                             {% if k in ["Synergy", "Counter", "Delta"] %}
                                 <i data-title="{{ get_tooltip(k) }}" style="font-size:16px; position: absolute; top: 1px; right: 1px;" class="fa">?</i>
                             {% endif %}

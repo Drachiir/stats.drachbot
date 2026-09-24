@@ -68,29 +68,25 @@ a:hover {
     color: var(--accent-hover);
 }
 
-r, r2, r3, r4 {
+.text,
+.text-sm,
+.text-strong {
     font-family: var(--font);
     font-style: normal;
 }
 
-r {
-    font-weight: 400;
-}
-
-r2 {
+.text {
     font-weight: 400;
     vertical-align: middle;
     font-size: 1rem;
 }
 
-r3 {
-    font-family: "Roboto", ui-monospace, monospace;
+.text-sm {
     font-weight: 400;
     font-size: 0.85rem;
 }
 
-r4 {
-    font-family: "Roboto", ui-monospace, monospace;
+.text-strong {
     font-weight: 500;
     font-size: 1rem;
 }
@@ -121,8 +117,7 @@ r4 {
     font-weight: 500;
 }
 
-.site-header .navbar-brand:hover,
-.site-header .navbar-brand:hover r {
+.site-header .navbar-brand:hover {
     color: var(--accent);
 }
 
