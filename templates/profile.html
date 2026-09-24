@@ -40,21 +40,18 @@
     .player-row:hover{
         cursor: pointer;
     }
-    [names-tooltip]:hover::after, [names-tooltip]:active::after{
-        content: attr(names-tooltip);
-        background-color: #0b0d11;
-        font-size: 1rem;
-        font-family: var(--font);
-        text-align: center;
-        border-radius: 8px;
-        max-width: 80%;
-        text-wrap: wrap;
-        padding: 3px;
-        left: 64px;
-        top: 90%;
-        border: 1px solid var(--accent);
-        position: absolute;
-        z-index: 1;
+    .profile-name-alias {
+        cursor: help;
+    }
+    .profile-name-alias:after {
+        top: calc(100% + 6px);
+        bottom: auto;
+        left: 0;
+        transform: none;
+        white-space: pre-line;
+        width: max-content;
+        max-width: 220px;
+        text-align: left;
     }
     .scrollable {
         height: 170px;
@@ -310,8 +307,7 @@
                     <div class="profile-identity__info">
                         <div class="profile-identity__name" style="--name-chars: {{ api_profile['playerName']|length }}">
                             {% if known_names|length > 0 %}
-                                {% set names_tooltip = ('Aka: ' + known_names|join(", ")) %}
-                                <r2 names-tooltip="{{ names_tooltip }}"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
+                                <r2 class="profile-name-alias" xtitle="{{ 'Past Names:\n' + known_names|join('\n') }}"><b>{{ api_profile["playerName"] }}<span style="color: var(--blueAccent)">*</span></b></r2>
                             {% else %}
                                 <r2><b>{{ api_profile["playerName"] }}</b></r2>
                             {% endif %}
