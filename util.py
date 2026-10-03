@@ -1022,9 +1022,10 @@ def calc_leak(leak, wave, return_gold = False):
         return round(leak_amount / wave_total * 100, 1)
         
 def get_email_country_code(profile):
+    """Returns None if the email has no country key, "" if hidden, else the uppercase code."""
     emails = (profile or {}).get("ContactEmailAddresses") or []
     if not emails:
-        return ""
+        return None
     raw = (emails[0].get("EmailAddress") or "").split("@")[0]
     for chunk in raw.split("_"):
         parts = chunk.split("+", 1)
@@ -1033,15 +1034,18 @@ def get_email_country_code(profile):
             if not code or code == "none":
                 return ""
             return code.upper()
-    return ""
+    return None
 
 def get_playfab_country_code(profile):
+    email_code = get_email_country_code(profile)
+    if email_code is not None:
+        return email_code
     locations = (profile or {}).get("Locations") or []
     if locations:
         code = (locations[0].get("CountryCode") or "").strip()
         if code:
             return code.upper()
-    return get_email_country_code(profile)
+    return ""
 
 def get_value_playfab(list_of_dicts, value, version=10):
     """Get a PlayFab statistic value. Pass version=None for the highest Version."""
