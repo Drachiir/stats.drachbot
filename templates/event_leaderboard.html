@@ -59,7 +59,7 @@
                             </a>
                         </td>
                         <td>
-                            {% set country_code = player["Profile"]["Locations"][0]["CountryCode"] %}
+                            {% set country_code = get_playfab_country_code(player["Profile"]) %}
                             <div title="" class="Country" data-country="{{ country_code }}"></div>
                         </td>
                         <td><img style="height: 26px; padding-right: 5px" src="https://cdn.legiontd2.com/icons/EventPoints.png">{{ player["StatValue"] }}</td>
@@ -169,9 +169,11 @@
         const rows = document.querySelectorAll('.player-row')
         rows.forEach(row => {
             const countryDiv = row.querySelector('.Country')
-            const countryCode = countryDiv.getAttribute('data-country').toUpperCase()
+            const countryCode = (countryDiv.getAttribute('data-country') || '').toUpperCase()
+            if (!countryCode) return
             const countryName = countryMapping[countryCode]
-            countryDiv.setAttribute("title", countryName)
+            if (countryName)
+                countryDiv.setAttribute("title", typeof countryName === 'string' ? countryName : countryName[0])
         });
     }
 
@@ -184,11 +186,9 @@
         rows.forEach(row => {
             const playerName = row.querySelector('.player-name').textContent.trim().toLowerCase();
             const guildTag = row.querySelector('.guild-tag').textContent.trim().toLowerCase();
-            const countryCode = row.querySelector('.Country').getAttribute('data-country').toUpperCase();
-
-            // Convert country code to country name using the local mapping
+            const countryCode = (row.querySelector('.Country').getAttribute('data-country') || '').toUpperCase();
             const countryName = countryMapping[countryCode];
-            const countryNameLower = (typeof countryName === 'string') ? countryName.toLowerCase() : countryName[0].toLowerCase();
+            const countryNameLower = !countryName ? '' : ((typeof countryName === 'string') ? countryName.toLowerCase() : countryName[0].toLowerCase());
 
             // Check if the search input matches the player name, guild tag, or country name
             if (playerName.includes(searchInput) || guildTag.includes(searchInput) || countryNameLower.includes(searchInput)) {
@@ -212,6 +212,7 @@
         for (let i = 0; i < countryDivs.length; i++) {
             const countryDiv = countryDivs[i];
             const countryData = countryDiv.getAttribute('data-country');
+            if (!countryData) continue;
             const flagImageUrl = `https://cdn.legiontd2.com/flags/4x3/${countryData.toLowerCase()}.png`;
 
             const img = document.createElement('img');

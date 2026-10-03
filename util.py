@@ -1021,6 +1021,28 @@ def calc_leak(leak, wave, return_gold = False):
     else:
         return round(leak_amount / wave_total * 100, 1)
         
+def get_email_country_code(profile):
+    emails = (profile or {}).get("ContactEmailAddresses") or []
+    if not emails:
+        return ""
+    raw = (emails[0].get("EmailAddress") or "").split("@")[0]
+    for chunk in raw.split("_"):
+        parts = chunk.split("+", 1)
+        if len(parts) == 2 and parts[0] == "country":
+            code = parts[1].strip().lower()
+            if not code or code == "none":
+                return ""
+            return code.upper()
+    return ""
+
+def get_playfab_country_code(profile):
+    locations = (profile or {}).get("Locations") or []
+    if locations:
+        code = (locations[0].get("CountryCode") or "").strip()
+        if code:
+            return code.upper()
+    return get_email_country_code(profile)
+
 def get_value_playfab(list_of_dicts, value, version=10):
     """Get a PlayFab statistic value. Pass version=None for the highest Version."""
     if version is None:
