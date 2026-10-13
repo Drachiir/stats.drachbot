@@ -100,7 +100,7 @@ def leaderboard_task(count=1):
             "ProfileConstraints": {
                 "ShowDisplayName": True,
                 "ShowStatistics": True,
-                "ShowLocations": True,
+                #"ShowLocations": True,
                 "ShowAvatarUrl": True,
                 "ShowContactEmailAddresses": True
             }
@@ -170,7 +170,7 @@ def get_leaderboard_page(statistic_name, page=0, use_cache=True):
         "ProfileConstraints": {
             "ShowDisplayName": True,
             "ShowStatistics": True,
-            "ShowLocations": True,
+            #"ShowLocations": True,
             "ShowAvatarUrl": True,
             "ShowContactEmailAddresses": True
         }
@@ -215,7 +215,7 @@ def event_leaderboard_task(count=1):
             "ProfileConstraints": {
                 "ShowDisplayName": True,
                 "ShowStatistics": True,
-                "ShowLocations": True,
+                #"ShowLocations": True,
                 "ShowAvatarUrl": True,
                 "ShowContactEmailAddresses": True
             }
@@ -256,7 +256,7 @@ def get_playfab_stats(playfabid, result_count=1, statistic_name="overallEloThisS
         "ProfileConstraints": {
             "ShowDisplayName": True,
             "ShowStatistics": True,
-            "ShowLocations": True,
+            #"ShowLocations": True,
             "ShowAvatarUrl": True,
             "ShowContactEmailAddresses": True
         }
@@ -288,7 +288,7 @@ def get_playfab_event_stats(playfabid, result_count=1):
         "ProfileConstraints": {
             "ShowDisplayName": True,
             "ShowStatistics": True,
-            "ShowLocations": True,
+            #"ShowLocations": True,
             "ShowAvatarUrl": True,
             "ShowContactEmailAddresses": True
         }
