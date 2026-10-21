@@ -537,7 +537,7 @@ def refresh_ltd2_account_api():
     
     return jsonify({"message": message, "player_id": player_id})
 
-@cache.cached(timeout=timeout, key_prefix='home_data_v3')
+@cache.cached(timeout=timeout, key_prefix='home_data_v4')
 def get_home_data():
     """Cache the expensive data processing for the home page"""
     folder_list = ["mmstats", "openstats", "spellstats", "rollstats", "unitstats", "wavestats"]
@@ -576,16 +576,11 @@ def get_home_data():
                     temp_data = util.merge_dicts(temp_data, raw_data)
 
         if temp_data:
-            # if folder == "wavestats":
-            #     sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['EndCount'], reverse=True)
-            #     temp_data = {k: temp_data[k] for k in sorted_keys}
-            # else:
-            #     sorted_keys = sorted(temp_data, key=lambda x: temp_data[x]['Count'], reverse=True)
-            #     temp_data = {k: temp_data[k] for k in sorted_keys}
-
             temp_keys = list(temp_data.keys())
             keys.append([folder, temp_keys])
-            data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], temp_keys[:3]])
+            sort_key = "EndCount" if folder == "wavestats" else "Count"
+            preview_keys = sorted(temp_keys, key=lambda x: temp_data[x][sort_key], reverse=True)[:3]
+            data_list.append([folder, total_games, avg_elo, temp_data, header_list[i], title_list[i], preview_keys])
     try:
         total_games = util.human_format(int(data_list[0][1]))
     except IndexError:
