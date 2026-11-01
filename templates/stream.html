@@ -65,9 +65,16 @@
         color: var(--text-muted);
         font-size: 0.85rem;
     }
-    .stream-url {
-        display: block;
+    .stream-url-row {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
         margin: 6px 0;
+    }
+    .stream-url {
+        flex: 1;
+        min-width: 0;
+        margin: 0;
         padding: 8px 10px;
         background: var(--surface-solid);
         border: 1px solid var(--border);
@@ -75,6 +82,9 @@
         color: var(--text);
         word-break: break-all;
         user-select: all;
+    }
+    .stream-copy {
+        flex: 0 0 auto;
     }
     .stream-commands {
         display: flex;
@@ -115,15 +125,10 @@
         color-scheme: dark;
     }
     .overlay-preview.elo iframe {
-        height: 180px;
+        height: 112px;
     }
     .overlay-preview.stats iframe {
         height: 80px;
-    }
-    .overlay-label {
-        margin-top: 10px;
-        color: var(--text-muted);
-        font-size: 0.8rem;
     }
     .stream-panel p.stream-warn {
         margin: 0 0 10px;
@@ -211,12 +216,16 @@
                 {% for overlay in overlays %}
                     <div class="overlay-block">
                         <h3>{{ overlay.name }}</h3>
-                        <div class="overlay-label">Elo</div>
+                        <div class="stream-url-row">
+                            <code class="stream-url">{{ overlay.elo }}</code>
+                            <button type="button" class="btn btn-outline-light btn-sm stream-copy" data-copy="{{ overlay.elo }}">Copy</button>
+                        </div>
                         <div class="overlay-preview elo"><iframe src="{{ overlay.elo }}?preview=1" title="Elo overlay for {{ overlay.name }}"></iframe></div>
-                        <code class="stream-url">{{ overlay.elo }}</code>
-                        <div class="overlay-label">Leak and workers</div>
+                        <div class="stream-url-row">
+                            <code class="stream-url">{{ overlay.stats }}</code>
+                            <button type="button" class="btn btn-outline-light btn-sm stream-copy" data-copy="{{ overlay.stats }}">Copy</button>
+                        </div>
                         <div class="overlay-preview stats"><iframe src="{{ overlay.stats }}?preview=1" title="Stats overlay for {{ overlay.name }}"></iframe></div>
-                        <code class="stream-url">{{ overlay.stats }}</code>
                     </div>
                 {% endfor %}
                 </div>
@@ -275,6 +284,15 @@
         streamForm.addEventListener('input', markDirty);
         streamForm.addEventListener('change', markDirty);
     }
+    document.querySelectorAll('.stream-copy').forEach(button => {
+        button.addEventListener('click', () => {
+            navigator.clipboard.writeText(button.dataset.copy).then(() => {
+                const previous = button.textContent;
+                button.textContent = 'Copied';
+                setTimeout(() => { button.textContent = previous; }, 1200);
+            });
+        });
+    });
 </script>
 </div>
 {% endblock %}
