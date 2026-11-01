@@ -302,10 +302,6 @@ TWITCH_CLIENT_ID = secret_file.get("twitch_client_id")
 TWITCH_CLIENT_SECRET = secret_file.get("twitch_client_secret")
 TWITCH_REDIRECT_URI = secret_file.get("twitch_redirect_uri") or "https://stats.drachbot.site/twitch/callback"
 TWITCH_AUTHORIZE_URL = "https://id.twitch.tv/oauth2/authorize"
-STREAM_TESTER_DISCORD_ID = "176257996903546880"
-
-def _stream_tester(user):
-    return bool(user) and str(user.get("id")) == STREAM_TESTER_DISCORD_ID
 TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
 CHAT_COMMANDS = ["elo", "rank", "lobby", "sellout", "info"]
 
@@ -416,7 +412,7 @@ def inject_user():
             user.update(ltd2_data)
         # Get user preferences for all pages
         user_preferences = sitedb.get_user_preferences(user["id"])
-    return dict(user=user, discord_login=True, user_preferences=user_preferences, stream_tools_enabled=_stream_tester(user))
+    return dict(user=user, discord_login=True, user_preferences=user_preferences)
 
 @app.context_processor
 def inject_display_names():
@@ -456,7 +452,7 @@ def get_user_session_api():
         "player_id": user.get("player_id"),
         "ltd2_playername": user.get("ltd2_playername"),
         "ltd2_avatar_url": user.get("ltd2_avatar_url"),
-        "stream_tools": _stream_tester(user)
+        "stream_tools": True
     })
 
 @app.route("/api/user/preferences", methods=['GET'])
@@ -578,8 +574,6 @@ def stream_tools():
     user = _stream_user()
     if not user:
         return redirect(url_for("login", next="/stream"))
-    if not _stream_tester(user):
-        abort(404)
     if "stream_csrf" not in session:
         session["stream_csrf"] = secrets.token_urlsafe(16)
     status = None
@@ -630,8 +624,6 @@ def twitch_login():
     user = session.get("user")
     if not user:
         return redirect(url_for("login", next="/stream"))
-    if not _stream_tester(user):
-        abort(404)
     if not user.get("player_id"):
         return redirect(url_for("stream_tools", error="Link your Legion TD 2 account first."))
     state = secrets.token_urlsafe(24)
@@ -650,8 +642,6 @@ def twitch_callback():
     user = _stream_user()
     if not user:
         return redirect(url_for("login", next="/stream"))
-    if not _stream_tester(user):
-        abort(404)
     if request.args.get("error"):
         return redirect(url_for("stream_tools", error="Twitch login was cancelled."))
     state = request.args.get("state")
@@ -698,8 +688,6 @@ def stream_tools_save():
     user = _stream_user()
     if not user:
         return redirect(url_for("login", next="/stream"))
-    if not _stream_tester(user):
-        abort(404)
     if request.form.get("csrf") != session.get("stream_csrf"):
         return redirect(url_for("stream_tools", error="The page expired. Try again."))
     if not user.get("twitch_user_id"):
