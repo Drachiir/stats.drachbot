@@ -149,6 +149,10 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/livegames">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a></li>
+                    {% if stream_tools_enabled %}
+                    <li><a class="dropdown-item" href="/stream">
+                        <i class="fa-brands fa-twitch" style="width: 32px; padding-right: 3px; color: #9146ff;"></i>Stream Tools</a></li>
+                    {% endif %}
                     <li><a class="dropdown-item" href="/event-leaderboard">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/EventPoints.png'>Event Leaderboard</a></li>
                     <li><a class="dropdown-item" href="/openers">
@@ -549,6 +553,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                    title="Only letters, numbers, and underscores are allowed. Maximum 30 characters."
                                    autocomplete="off">
                         </div>
+                        <p id="twitchManagedNote" class="settings-row__hint" style="display:none; margin-top: 6px;">
+                            Connected with Twitch. Manage the overlay and chat bot on the <a href="/stream">stream page</a>.
+                        </p>
                     </div>
                     <div class="settings-field">
                         <label for="youtubeUsernameModal" class="settings-field__label">
@@ -584,6 +591,8 @@ document.getElementById('settingsModal').addEventListener('show.bs.modal', funct
                 document.getElementById('hideCountryFlagModal').checked = prefs.hide_country_flag || false;
                 document.getElementById('privateProfileModal').checked = prefs.private_profile || false;
                 document.getElementById('twitchUsernameModal').value = prefs.twitch_username || '';
+                document.getElementById('twitchUsernameModal').disabled = !!prefs.twitch_linked;
+                document.getElementById('twitchManagedNote').style.display = prefs.twitch_linked ? 'block' : 'none';
                 document.getElementById('youtubeUsernameModal').value = prefs.youtube_username || '';
             }
         })

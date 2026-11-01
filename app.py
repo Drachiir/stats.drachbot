@@ -1,10 +1,12 @@
 import os
 import platform
 import json
+import secrets
 import sqlite3
 import time
 import traceback
 from datetime import datetime, timezone, timedelta
+from urllib.parse import urlencode
 import requests
 from flask_caching import Cache
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request, session, jsonify, abort
@@ -296,6 +298,28 @@ with open("defaults.json", "r") as f:
 DISCORD_CLIENT_ID = secret_file["discord_id"]
 DISCORD_CLIENT_SECRET = secret_file["discord_secret"]
 DISCORD_REDIRECT_URI = secret_file["discord_uri"]
+TWITCH_CLIENT_ID = secret_file.get("twitch_client_id")
+TWITCH_CLIENT_SECRET = secret_file.get("twitch_client_secret")
+TWITCH_REDIRECT_URI = secret_file.get("twitch_redirect_uri") or "https://stats.drachbot.site/twitch/callback"
+TWITCH_AUTHORIZE_URL = "https://id.twitch.tv/oauth2/authorize"
+STREAM_TESTER_DISCORD_ID = "176257996903546880"
+
+def _stream_tester(user):
+    return bool(user) and str(user.get("id")) == STREAM_TESTER_DISCORD_ID
+TWITCH_TOKEN_URL = "https://id.twitch.tv/oauth2/token"
+CHAT_COMMANDS = ["elo", "rank", "lobby", "sellout", "info"]
+
+def drachbot_internal_url():
+    configured = secret_file.get("drachbot_internal_url")
+    if configured:
+        return configured.rstrip("/")
+    if platform.system() == "Linux":
+        return "http://drachbot:8001"
+    return "http://127.0.0.1:8001"
+
+def drachbot_internal(method, path, body=None):
+    headers = {"X-Internal-Key": secret_file.get("internal_api_key", "")}
+    return requests.request(method, drachbot_internal_url() + path, json=body, headers=headers, timeout=15)
 
 DISCORD_API_BASE = "https://discord.com/api"
 OAUTH_AUTHORIZE_URL = f"{DISCORD_API_BASE}/oauth2/authorize"
@@ -392,7 +416,7 @@ def inject_user():
             user.update(ltd2_data)
         # Get user preferences for all pages
         user_preferences = sitedb.get_user_preferences(user["id"])
-    return dict(user=user, discord_login=True, user_preferences=user_preferences)
+    return dict(user=user, discord_login=True, user_preferences=user_preferences, stream_tools_enabled=_stream_tester(user))
 
 @app.context_processor
 def inject_display_names():
@@ -536,6 +560,198 @@ def refresh_ltd2_account_api():
     conn.close()
     
     return jsonify({"message": message, "player_id": player_id})
+
+def _stream_user():
+    user = session.get("user")
+    if not user:
+        return None
+    account = sitedb.get_twitch_account(user["id"])
+    user["twitch_user_id"] = account["twitch_user_id"]
+    user["twitch_login"] = account["twitch_username"]
+    session["user"] = user
+    session.modified = True
+    return user
+
+@app.route("/stream")
+def stream_tools():
+    user = _stream_user()
+    if not user:
+        return redirect(url_for("login", next="/stream"))
+    if not _stream_tester(user):
+        abort(404)
+    if "stream_csrf" not in session:
+        session["stream_csrf"] = secrets.token_urlsafe(16)
+    status = None
+    bot_error = request.args.get("error")
+    warning = request.args.get("warning")
+    bot_reachable = True
+    if user.get("twitch_user_id"):
+        try:
+            response = drachbot_internal("GET", f"/internal/streamers/{user['twitch_user_id']}")
+            if response.status_code == 200:
+                status = response.json()
+            elif response.status_code != 404:
+                bot_reachable = False
+                bot_error = bot_error or "Couldn't reach the stream bot."
+        except requests.RequestException:
+            bot_reachable = False
+            bot_error = bot_error or "Couldn't reach the stream bot."
+    disabled = set((status or {}).get("disabled_commands") or [])
+    player_ids = (status or {}).get("player_ids") or []
+    display_names = (status or {}).get("display_names") or []
+    extra_names = []
+    linked_id = user.get("player_id")
+    for player_id, name in zip(player_ids, display_names):
+        if player_id != linked_id and name:
+            extra_names.append(name)
+    overlays = []
+    for player_id, name in zip(player_ids, display_names):
+        overlays.append({
+            "name": name or player_id,
+            "elo": f"https://overlay.drachbot.site/{player_id}_output.html",
+            "stats": f"https://overlay.drachbot.site/{player_id}_output2.html",
+        })
+    return render_template(
+        "stream.html",
+        status=status,
+        overlays=overlays,
+        extra_names=", ".join(extra_names),
+        commands=[{"name": name, "enabled": name not in disabled} for name in CHAT_COMMANDS],
+        csrf=session["stream_csrf"],
+        saved=request.args.get("saved"),
+        bot_error=bot_error,
+        warning=warning,
+        bot_reachable=bot_reachable,
+    )
+
+@app.route("/twitch/login")
+def twitch_login():
+    user = session.get("user")
+    if not user:
+        return redirect(url_for("login", next="/stream"))
+    if not _stream_tester(user):
+        abort(404)
+    if not user.get("player_id"):
+        return redirect(url_for("stream_tools", error="Link your Legion TD 2 account first."))
+    state = secrets.token_urlsafe(24)
+    session["twitch_oauth_state"] = state
+    query = urlencode({
+        "client_id": TWITCH_CLIENT_ID,
+        "redirect_uri": TWITCH_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "user:read:email",
+        "state": state,
+    })
+    return redirect(f"{TWITCH_AUTHORIZE_URL}?{query}")
+
+@app.route("/twitch/callback")
+def twitch_callback():
+    user = _stream_user()
+    if not user:
+        return redirect(url_for("login", next="/stream"))
+    if not _stream_tester(user):
+        abort(404)
+    if request.args.get("error"):
+        return redirect(url_for("stream_tools", error="Twitch login was cancelled."))
+    state = request.args.get("state")
+    if not state or state != session.pop("twitch_oauth_state", None):
+        return redirect(url_for("stream_tools", error="Twitch login expired. Try again."))
+    code = request.args.get("code")
+    if not code:
+        return redirect(url_for("stream_tools", error="Twitch did not return a login code."))
+    try:
+        token_response = requests.post(TWITCH_TOKEN_URL, data={
+            "client_id": TWITCH_CLIENT_ID,
+            "client_secret": TWITCH_CLIENT_SECRET,
+            "code": code,
+            "grant_type": "authorization_code",
+            "redirect_uri": TWITCH_REDIRECT_URI,
+        }, timeout=15)
+        token_response.raise_for_status()
+        access_token = token_response.json().get("access_token")
+        user_response = requests.get("https://api.twitch.tv/helix/users", headers={
+            "Authorization": f"Bearer {access_token}",
+            "Client-Id": TWITCH_CLIENT_ID,
+        }, timeout=15)
+        user_response.raise_for_status()
+        users = user_response.json().get("data") or []
+    except requests.RequestException:
+        traceback.print_exc()
+        return redirect(url_for("stream_tools", error="Twitch login failed."))
+    if not users:
+        return redirect(url_for("stream_tools", error="Twitch did not return an account."))
+    twitch_user = users[0]
+    owner = sitedb.get_discord_id_for_twitch(twitch_user["id"])
+    if owner and owner != user["id"]:
+        return redirect(url_for("stream_tools", error="That Twitch channel is already connected to another Discord account."))
+    sitedb.set_twitch_account(user["id"], twitch_user["id"], twitch_user["login"])
+    user["twitch_user_id"] = twitch_user["id"]
+    user["twitch_login"] = twitch_user["login"]
+    user["twitch_name"] = twitch_user.get("display_name") or twitch_user["login"]
+    session["user"] = user
+    session.modified = True
+    return redirect(url_for("stream_tools"))
+
+@app.route("/stream", methods=["POST"])
+def stream_tools_save():
+    user = _stream_user()
+    if not user:
+        return redirect(url_for("login", next="/stream"))
+    if not _stream_tester(user):
+        abort(404)
+    if request.form.get("csrf") != session.get("stream_csrf"):
+        return redirect(url_for("stream_tools", error="The page expired. Try again."))
+    if not user.get("twitch_user_id"):
+        return redirect(url_for("stream_tools", error="Connect Twitch first."))
+    if not user.get("player_id"):
+        return redirect(url_for("stream_tools", error="Link your Legion TD 2 account first."))
+    if request.form.get("disconnect"):
+        try:
+            response = drachbot_internal("DELETE", f"/internal/streamers/{user['twitch_user_id']}")
+        except requests.RequestException:
+            return redirect(url_for("stream_tools", error="Couldn't reach the stream bot."))
+        if response.status_code not in (200, 404):
+            return redirect(url_for("stream_tools", error="Couldn't remove the channel from the stream bot."))
+        sitedb.clear_twitch_account(user["id"])
+        user["twitch_user_id"] = None
+        user["twitch_login"] = None
+        user["twitch_name"] = None
+        session["user"] = user
+        session.modified = True
+        return redirect(url_for("stream_tools", saved="1"))
+    enabled = set(request.form.getlist("commands"))
+    extra_names = [part.strip() for part in re.split(r"[\n,]+", request.form.get("extra_names") or "") if part.strip()]
+    payload = {
+        "twitch_id": user["twitch_user_id"],
+        "twitch_login": user.get("twitch_login"),
+        "twitch_name": user.get("twitch_name") or user.get("twitch_login"),
+        "player_ids": [user["player_id"]],
+        "display_names": [user.get("ltd2_playername") or user["player_id"]],
+        "extra_names": extra_names,
+        "overlay": request.form.get("overlay") == "1",
+        "chat_bot": request.form.get("chat_bot") == "1",
+        "disabled_commands": [name for name in CHAT_COMMANDS if name not in enabled],
+    }
+    try:
+        response = drachbot_internal("PUT", "/internal/streamers", payload)
+    except requests.RequestException:
+        return redirect(url_for("stream_tools", error="Couldn't reach the stream bot."))
+    if response.status_code != 200:
+        message = "Couldn't save."
+        try:
+            message = response.json().get("error") or message
+        except Exception:
+            pass
+        return redirect(url_for("stream_tools", error=message))
+    warning = None
+    try:
+        warning = response.json().get("warning")
+    except Exception:
+        warning = None
+    params = {"saved": "1"}
+    if warning:
+        params["warning"] = warning
+    return redirect(url_for("stream_tools", **params))
 
 @cache.cached(timeout=timeout, key_prefix='home_data_v4')
 def get_home_data():
