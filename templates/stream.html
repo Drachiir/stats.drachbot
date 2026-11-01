@@ -47,6 +47,41 @@
         gap: 12px 18px;
         margin: 8px 0 14px;
     }
+    .overlay-block {
+        margin-top: 14px;
+    }
+    .overlay-block h3 {
+        font-size: 0.95rem;
+        font-weight: 500;
+        margin: 0 0 8px;
+        color: var(--text-strong);
+    }
+    .overlay-preview {
+        margin: 8px 0 4px;
+        padding: 10px;
+        background: #0c0c0e;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: auto;
+    }
+    .overlay-preview iframe {
+        display: block;
+        width: 720px;
+        max-width: 100%;
+        border: 0;
+        background: transparent;
+    }
+    .overlay-preview.elo iframe {
+        height: 180px;
+    }
+    .overlay-preview.stats iframe {
+        height: 80px;
+    }
+    .overlay-label {
+        margin-top: 10px;
+        color: var(--text-muted);
+        font-size: 0.8rem;
+    }
     .stream-alert {
         max-width: 760px;
         margin-bottom: 12px;
@@ -98,20 +133,26 @@
         </div>
         <div class="stream-panel">
             <div class="stream-row">
-                <div>
-                    <strong>Stream overlay</strong>
-                    <span>Keeps the browser source updated while you are live on Legion TD 2, and announces the stream in Discord when it qualifies.</span>
-                </div>
+                <strong>Stream overlay</strong>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" name="overlay" value="1" {% if status and status.overlay %}checked{% endif %}>
                 </div>
             </div>
+            <label for="extraNames">Extra Legion accounts</label>
+            <input class="form-control" id="extraNames" name="extra_names" value="{{ extra_names }}" placeholder="Names, separated by commas">
+            <p class="stream-note">Each name gets its own overlay. Your linked account is included already.</p>
             {% if status and status.overlay and overlays %}
                 <p class="stream-note">Add each URL as a Browser Source in OBS.</p>
                 {% for overlay in overlays %}
-                    <div><b>{{ overlay.name }}</b></div>
-                    <code class="stream-url">{{ overlay.elo }}</code>
-                    <code class="stream-url">{{ overlay.stats }}</code>
+                    <div class="overlay-block">
+                        <h3>{{ overlay.name }}</h3>
+                        <div class="overlay-label">Elo</div>
+                        <div class="overlay-preview elo"><iframe src="{{ overlay.elo }}" title="Elo overlay for {{ overlay.name }}"></iframe></div>
+                        <code class="stream-url">{{ overlay.elo }}</code>
+                        <div class="overlay-label">Leak and workers</div>
+                        <div class="overlay-preview stats"><iframe src="{{ overlay.stats }}" title="Stats overlay for {{ overlay.name }}"></iframe></div>
+                        <code class="stream-url">{{ overlay.stats }}</code>
+                    </div>
                 {% endfor %}
             {% endif %}
         </div>
@@ -133,8 +174,6 @@
                     </label>
                 {% endfor %}
             </div>
-            <label for="extraNames">Other Legion names on this channel</label>
-            <input class="form-control" id="extraNames" name="extra_names" value="{{ extra_names }}" placeholder="Smurf names, separated by commas">
         </div>
         <button type="submit" class="btn btn-primary">Save</button>
     </form>

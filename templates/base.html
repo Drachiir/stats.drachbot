@@ -149,10 +149,6 @@
                 <ul class="dropdown-menu">
                     <li><a class="dropdown-item" href="/livegames">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/Ranks/Simple/Legend.png'>Live Games</a></li>
-                    {% if stream_tools_enabled %}
-                    <li><a class="dropdown-item" href="/stream">
-                        <i class="fa-brands fa-twitch" style="width: 32px; padding-right: 3px; color: #9146ff;"></i>Stream Tools</a></li>
-                    {% endif %}
                     <li><a class="dropdown-item" href="/event-leaderboard">
                         <img loading="lazy" style="width: 32px; padding-right: 3px;" src='https://cdn.legiontd2.com/icons/EventPoints.png'>Event Leaderboard</a></li>
                     <li><a class="dropdown-item" href="/openers">
@@ -242,6 +238,9 @@
                                 const settingsButton = userData.player_id 
                                     ? '<li><a class="dropdown-item" href="#" id="settingsButton"><i class="fa-solid fa-gear"></i>Settings</a></li>'
                                     : '';
+                                const streamTools = userData.stream_tools
+                                    ? '<li><a class="dropdown-item" href="/stream"><i class="fa-brands fa-twitch"></i>Stream Tools</a></li>'
+                                    : '';
                                 
                                 loginArea.className = 'nav-item dropdown';
                                 loginArea.innerHTML = `
@@ -251,6 +250,7 @@
                                     </a>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         ${profileLink}
+                                        ${streamTools}
                                         <li><a class="dropdown-item" href="#" id="refreshLTD2Account"><i class="fa-solid fa-arrows-rotate"></i>Refresh LTD2 Account</a></li>
                                         ${settingsButton}
                                         <li><a class="dropdown-item" href="/logout/"><i class="fa-solid fa-right-from-bracket"></i>Logout</a></li>

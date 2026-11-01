@@ -455,7 +455,8 @@ def get_user_session_api():
         "avatar": user.get("avatar"),
         "player_id": user.get("player_id"),
         "ltd2_playername": user.get("ltd2_playername"),
-        "ltd2_avatar_url": user.get("ltd2_avatar_url")
+        "ltd2_avatar_url": user.get("ltd2_avatar_url"),
+        "stream_tools": _stream_tester(user)
     })
 
 @app.route("/api/user/preferences", methods=['GET'])
