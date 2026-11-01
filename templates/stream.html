@@ -1,16 +1,48 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+    body:has(.stream-page) {
+        height: 100vh;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    body:has(.stream-page) .site-content {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        padding-bottom: 12px;
+    }
     .stream-page {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
         max-width: 760px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .stream-form {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
     }
     .stream-panel {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        padding: 16px 18px;
-        margin-bottom: 14px;
+        padding: 12px 16px;
+        margin-bottom: 10px;
+        flex: 0 0 auto;
+    }
+    .stream-panel--overlays {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
     }
     .stream-panel h2 {
         font-size: 1rem;
@@ -60,7 +92,8 @@
         color: var(--text-strong);
     }
     .overlay-scroll {
-        max-height: 440px;
+        flex: 1;
+        min-height: 0;
         overflow-y: auto;
         margin-top: 8px;
         padding-right: 4px;
@@ -92,8 +125,29 @@
         color: var(--text-muted);
         font-size: 0.8rem;
     }
+    .stream-warn {
+        margin: 0 0 10px;
+        color: #ffd54a;
+        font-size: 0.9rem;
+    }
     .stream-alert {
-        margin-bottom: 12px;
+        margin-bottom: 10px;
+        flex: 0 0 auto;
+    }
+    .stream-actions {
+        display: flex;
+        gap: 10px;
+        flex: 0 0 auto;
+    }
+    @keyframes save-pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(255, 213, 74, 0.75); }
+        50% { box-shadow: 0 0 0 8px rgba(255, 213, 74, 0); }
+    }
+    #saveStream.is-dirty {
+        background: #ffd54a;
+        border-color: #ffd54a;
+        color: #14161a;
+        animation: save-pulse 1.3s ease-in-out infinite;
     }
 </style>
 <div class="stream-page">
@@ -134,14 +188,14 @@
         <p>Twitch is connected as {{ user.twitch_login }}, but the stream bot did not answer. Nothing was changed.</p>
     </div>
 {% else %}
-    <form method="post" action="/stream">
+    <form id="streamForm" class="stream-form" method="post" action="/stream">
         <input type="hidden" name="csrf" value="{{ csrf }}">
         <div class="stream-panel">
             <h2>Twitch</h2>
             <p>Connected as <a href="https://twitch.tv/{{ user.twitch_login }}" target="_blank" rel="noopener noreferrer">{{ user.twitch_login }}</a>.
                 Legion account: <b>{{ user.ltd2_playername }}</b>.</p>
         </div>
-        <div class="stream-panel">
+        <div class="stream-panel stream-panel--overlays">
             <div class="stream-row">
                 <strong>Stream overlay</strong>
                 <div class="form-check form-switch">
@@ -172,12 +226,13 @@
             <div class="stream-row">
                 <div>
                     <strong>Chat bot</strong>
-                    <span>Joins your chat with !elo, !rank, !lobby, !sellout and !info. If your channel has follower mode, you need to mod LTD2Elo.</span>
+                    <span>Joins your chat with !elo, !rank, !lobby, !sellout and !info.</span>
                 </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" name="chat_bot" value="1" {% if status and status.chat_bot %}checked{% endif %}>
                 </div>
             </div>
+            <p class="stream-warn">If your channel has follower mode, you need to mod LTD2Elo.</p>
             <div class="stream-commands">
                 {% for command in commands %}
                     <label class="form-check">
@@ -187,12 +242,14 @@
                 {% endfor %}
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Save</button>
+        <div class="stream-actions">
+            <button id="saveStream" type="submit" class="btn btn-primary">Save</button>
+            <button type="submit" class="btn btn-outline-light" form="disconnectForm">Disconnect Twitch</button>
+        </div>
     </form>
-    <form method="post" action="/stream" style="margin-top: 12px;">
+    <form id="disconnectForm" method="post" action="/stream" hidden>
         <input type="hidden" name="csrf" value="{{ csrf }}">
         <input type="hidden" name="disconnect" value="1">
-        <button type="submit" class="btn btn-outline-light">Disconnect Twitch</button>
     </form>
 {% endif %}
 <script>
@@ -202,6 +259,21 @@
             fetch('/api/user/refresh-ltd2-account', {method: 'POST'})
                 .then(() => window.location.reload());
         });
+    }
+    const streamForm = document.getElementById('streamForm');
+    const saveStream = document.getElementById('saveStream');
+    if (streamForm && saveStream) {
+        const snapshot = () => {
+            const parts = [];
+            for (const [key, value] of new FormData(streamForm).entries()) {
+                if (key !== 'csrf') parts.push(key + '=' + value);
+            }
+            return parts.join('&');
+        };
+        const initial = snapshot();
+        const markDirty = () => saveStream.classList.toggle('is-dirty', snapshot() !== initial);
+        streamForm.addEventListener('input', markDirty);
+        streamForm.addEventListener('change', markDirty);
     }
 </script>
 </div>
