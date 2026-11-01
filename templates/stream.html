@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .stream-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        max-width: 760px;
+    }
+    .stream-panel h2 {
+        font-size: 1rem;
+        font-weight: 500;
+        margin: 0 0 10px;
+        color: var(--text-strong);
+    }
+    .stream-panel p, .stream-note {
+        color: var(--text-muted);
+        margin-bottom: 10px;
+    }
+    .stream-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 8px 0;
+    }
+    .stream-row span {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+    .stream-url {
+        display: block;
+        margin: 6px 0;
+        padding: 8px 10px;
+        background: var(--surface-solid);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        color: var(--text);
+        word-break: break-all;
+        user-select: all;
+    }
+    .stream-commands {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+        margin: 8px 0 14px;
+    }
+    .stream-alert {
+        max-width: 760px;
+        margin-bottom: 12px;
+    }
+</style>
+<div class="page-header">
+    <div class="page-header__identity">
+        <i class="fa-brands fa-twitch page-header__icon" style="color: #9146ff; font-size: 42px; width: auto;"></i>
+        <div>
+            <div class="page-header__title">Stream Tools</div>
+            <div class="page-header__meta">Overlay browser source and chat bot</div>
+        </div>
+    </div>
+</div>
+
+{% if bot_error %}
+    <div class="alert alert-danger stream-alert">{{ bot_error }}</div>
+{% endif %}
+{% if warning %}
+    <div class="alert alert-warning stream-alert">{{ warning }}</div>
+{% endif %}
+{% if saved and not bot_error %}
+    <div class="alert alert-success stream-alert">Saved.</div>
+{% endif %}
+
+{% if not user.player_id %}
+    <div class="stream-panel">
+        <h2>Link Legion TD 2</h2>
+        <p>Your Discord account is not linked to a Legion TD 2 player yet. Link it the same way you do for your profile, then refresh.</p>
+        <button type="button" class="btn btn-primary" id="refreshLtd2">Refresh link</button>
+    </div>
+{% elif not user.twitch_user_id %}
+    <div class="stream-panel">
+        <h2>Connect Twitch</h2>
+        <p>Log in with the Twitch channel you stream on. That proves the channel is yours. Legion account: <b>{{ user.ltd2_playername }}</b>.</p>
+        <a class="btn btn-primary" href="/twitch/login"><i class="fa-brands fa-twitch"></i> Connect Twitch</a>
+    </div>
+{% elif not bot_reachable %}
+    <div class="stream-panel">
+        <p>Twitch is connected as {{ user.twitch_login }}, but the stream bot did not answer. Nothing was changed.</p>
+    </div>
+{% else %}
+    <form method="post" action="/stream">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="stream-panel">
+            <h2>Twitch</h2>
+            <p>Connected as <a href="https://twitch.tv/{{ user.twitch_login }}" target="_blank" rel="noopener noreferrer">{{ user.twitch_login }}</a>.
+                Legion account: <b>{{ user.ltd2_playername }}</b>.</p>
+        </div>
+        <div class="stream-panel">
+            <div class="stream-row">
+                <div>
+                    <strong>Stream overlay</strong>
+                    <span>Keeps the browser source updated while you are live on Legion TD 2, and announces the stream in Discord when it qualifies.</span>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" name="overlay" value="1" {% if status and status.overlay %}checked{% endif %}>
+                </div>
+            </div>
+            {% if status and status.overlay and overlays %}
+                <p class="stream-note">Add each URL as a Browser Source in OBS.</p>
+                {% for overlay in overlays %}
+                    <div><b>{{ overlay.name }}</b></div>
+                    <code class="stream-url">{{ overlay.elo }}</code>
+                    <code class="stream-url">{{ overlay.stats }}</code>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="stream-panel">
+            <div class="stream-row">
+                <div>
+                    <strong>Chat bot</strong>
+                    <span>Joins your chat with !elo, !rank, !lobby, !sellout and !info.</span>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" name="chat_bot" value="1" {% if status and status.chat_bot %}checked{% endif %}>
+                </div>
+            </div>
+            <div class="stream-commands">
+                {% for command in commands %}
+                    <label class="form-check">
+                        <input class="form-check-input" type="checkbox" name="commands" value="{{ command.name }}" {% if command.enabled %}checked{% endif %}>
+                        !{{ command.name }}
+                    </label>
+                {% endfor %}
+            </div>
+            <label for="extraNames">Other Legion names on this channel</label>
+            <input class="form-control" id="extraNames" name="extra_names" value="{{ extra_names }}" placeholder="Smurf names, separated by commas">
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <form method="post" action="/stream" style="margin-top: 12px;">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <input type="hidden" name="disconnect" value="1">
+        <button type="submit" class="btn btn-outline-light">Disconnect Twitch</button>
+    </form>
+{% endif %}
+<script>
+    const refreshButton = document.getElementById('refreshLtd2');
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function () {
+            fetch('/api/user/refresh-ltd2-account', {method: 'POST'})
+                .then(() => window.location.reload());
+        });
+    }
+</script>
+{% endblock %}
