@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
+    .stream-page {
+        max-width: 760px;
+        margin: 0 auto;
+    }
     .stream-panel {
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
         padding: 16px 18px;
         margin-bottom: 14px;
-        max-width: 760px;
     }
     .stream-panel h2 {
         font-size: 1rem;
@@ -56,20 +59,27 @@
         margin: 0 0 8px;
         color: var(--text-strong);
     }
+    .overlay-scroll {
+        max-height: 440px;
+        overflow-y: auto;
+        margin-top: 8px;
+        padding-right: 4px;
+    }
     .overlay-preview {
         margin: 8px 0 4px;
         padding: 10px;
-        background: #0c0c0e;
+        background: #14161a;
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
-        overflow: auto;
+        overflow: hidden;
     }
     .overlay-preview iframe {
         display: block;
         width: 720px;
         max-width: 100%;
         border: 0;
-        background: transparent;
+        background: #14161a;
+        color-scheme: dark;
     }
     .overlay-preview.elo iframe {
         height: 180px;
@@ -83,10 +93,10 @@
         font-size: 0.8rem;
     }
     .stream-alert {
-        max-width: 760px;
         margin-bottom: 12px;
     }
 </style>
+<div class="stream-page">
 <div class="page-header">
     <div class="page-header__identity">
         <i class="fa-brands fa-twitch page-header__icon" style="color: #9146ff; font-size: 42px; width: auto;"></i>
@@ -140,20 +150,22 @@
             </div>
             <label for="extraNames">Extra Legion accounts</label>
             <input class="form-control" id="extraNames" name="extra_names" value="{{ extra_names }}" placeholder="Names, separated by commas">
-            <p class="stream-note">Each name gets its own overlay. Your linked account is included already.</p>
+            <p class="stream-note">Up to 2 extra accounts. Each one gets its own overlay. Your linked account is included already.</p>
             {% if status and status.overlay and overlays %}
                 <p class="stream-note">Add each URL as a Browser Source in OBS.</p>
+                <div class="overlay-scroll">
                 {% for overlay in overlays %}
                     <div class="overlay-block">
                         <h3>{{ overlay.name }}</h3>
                         <div class="overlay-label">Elo</div>
-                        <div class="overlay-preview elo"><iframe src="{{ overlay.elo }}" title="Elo overlay for {{ overlay.name }}"></iframe></div>
+                        <div class="overlay-preview elo"><iframe src="{{ overlay.elo }}?preview=1" title="Elo overlay for {{ overlay.name }}"></iframe></div>
                         <code class="stream-url">{{ overlay.elo }}</code>
                         <div class="overlay-label">Leak and workers</div>
-                        <div class="overlay-preview stats"><iframe src="{{ overlay.stats }}" title="Stats overlay for {{ overlay.name }}"></iframe></div>
+                        <div class="overlay-preview stats"><iframe src="{{ overlay.stats }}?preview=1" title="Stats overlay for {{ overlay.name }}"></iframe></div>
                         <code class="stream-url">{{ overlay.stats }}</code>
                     </div>
                 {% endfor %}
+                </div>
             {% endif %}
         </div>
         <div class="stream-panel">
@@ -192,4 +204,5 @@
         });
     }
 </script>
+</div>
 {% endblock %}

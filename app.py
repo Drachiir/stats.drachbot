@@ -722,6 +722,8 @@ def stream_tools_save():
         return redirect(url_for("stream_tools", saved="1"))
     enabled = set(request.form.getlist("commands"))
     extra_names = [part.strip() for part in re.split(r"[\n,]+", request.form.get("extra_names") or "") if part.strip()]
+    if len(extra_names) > 2:
+        return redirect(url_for("stream_tools", error="You can add up to 2 extra accounts."))
     payload = {
         "twitch_id": user["twitch_user_id"],
         "twitch_login": user.get("twitch_login"),
