@@ -39,8 +39,9 @@
         flex: 0 0 auto;
     }
     .stream-panel--overlays {
-        flex: 1;
+        flex: 0 1 auto;
         min-height: 0;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
     }
@@ -102,7 +103,7 @@
         color: var(--text-strong);
     }
     .overlay-scroll {
-        flex: 1;
+        flex: 0 1 auto;
         min-height: 0;
         overflow-y: auto;
         margin-top: 8px;
@@ -125,7 +126,7 @@
         color-scheme: dark;
     }
     .overlay-preview.elo iframe {
-        height: 112px;
+        height: 128px;
     }
     .overlay-preview.stats iframe {
         height: 80px;
